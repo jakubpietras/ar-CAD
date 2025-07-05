@@ -1,10 +1,11 @@
 #include "EditorApp.h"
 
-int main()
+int main(int argc, char** argv)
 {
-	EditorApp* app = new EditorApp();
+	ar::Log::Init();
+	AR_INFO("Initialized logger");
+
+	auto app = new EditorApp();
 	app->Run();
 	delete app;
-	 
-	return 0;
 }

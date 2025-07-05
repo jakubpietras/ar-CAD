@@ -1,9 +1,8 @@
 #pragma once
-#include "Core.h"
 
 namespace ar
 {
-	class ARCAD Application
+	class Application
 	{
 	public:
 		Application();
