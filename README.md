@@ -4,11 +4,14 @@ An extremely lightweight (feature-wise) program for 3D modeling. It *almost* wor
 ## Dependencies
 The project uses the following libraries:
 - **GLFW** for window management
-- **GLAD** for loading the OpenGL function pointers
+- **GLAD** for loading OpenGL function pointers
 - **entt** for an implementation of an Entity Component System architecture
+- **spdlog** for logging
 - **nativefiledialog-extended**
 - **nlohmann-json**
 - **Dear ImGui** for the UI layer
+
+Everything is installed through **vcpkg** package manager in manifest mode.
 
 ## Current development
 - [ ] Create a UI layer

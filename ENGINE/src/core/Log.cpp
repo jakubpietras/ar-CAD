@@ -1,3 +1,4 @@
+#include "arpch.h"
 #include "Log.h"
 
 namespace ar
