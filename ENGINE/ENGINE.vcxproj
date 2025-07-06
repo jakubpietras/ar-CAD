@@ -58,7 +58,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>AR_ENABLE_ASSERTS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>$(ProjectDir)src</AdditionalIncludeDirectories>
@@ -97,12 +97,19 @@
     </ClCompile>
     <ClCompile Include="src\core\Log.cpp" />
     <ClCompile Include="src\core\Application.cpp" />
+    <ClCompile Include="src\platform\Windows\WindowsWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\arpch.h" />
+    <ClInclude Include="src\core\Events\ApplicationEvent.h" />
+    <ClInclude Include="src\core\Events\Event.h" />
+    <ClInclude Include="src\core\Events\KeyEvent.h" />
+    <ClInclude Include="src\core\Events\MouseEvent.h" />
     <ClInclude Include="src\core\Log.h" />
     <ClInclude Include="src\ARCAD.h" />
     <ClInclude Include="src\core\Application.h" />
+    <ClInclude Include="src\core\Window.h" />
+    <ClInclude Include="src\platform\Windows\WindowsWindow.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

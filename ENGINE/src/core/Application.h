@@ -1,4 +1,8 @@
 #pragma once
+#include "Window.h"
+#include "Events/Event.h"
+#include "Events/ApplicationEvent.h"
+
 
 namespace ar
 {
@@ -8,6 +12,12 @@ namespace ar
 		Application();
 		virtual ~Application();
 		void Run();
+
+		void OnEvent(Event& e);
+		bool OnWindowClose(WindowCloseEvent& e);
+	private:
+		std::unique_ptr<Window> m_Window;
+		bool m_Running = true;
 	};
 }
 

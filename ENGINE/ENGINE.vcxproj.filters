@@ -24,6 +24,9 @@
     <ClCompile Include="src\arpch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\platform\Windows\WindowsWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\core\Application.h">
@@ -36,6 +39,24 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\arpch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\Events\Event.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\Events\MouseEvent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\Events\KeyEvent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\Events\ApplicationEvent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\Window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\platform\Windows\WindowsWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
