@@ -89,22 +89,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\core\LayerStack.cpp" />
     <ClCompile Include="src\arpch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">arpch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">arpch.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="src\core\Layer.cpp" />
     <ClCompile Include="src\core\Log.cpp" />
     <ClCompile Include="src\core\Application.cpp" />
     <ClCompile Include="src\platform\Windows\WindowsWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\core\LayerStack.h" />
     <ClInclude Include="src\arpch.h" />
     <ClInclude Include="src\core\Events\ApplicationEvent.h" />
     <ClInclude Include="src\core\Events\Event.h" />
     <ClInclude Include="src\core\Events\KeyEvent.h" />
     <ClInclude Include="src\core\Events\MouseEvent.h" />
+    <ClInclude Include="src\core\Layer.h" />
     <ClInclude Include="src\core\Log.h" />
     <ClInclude Include="src\ARCAD.h" />
     <ClInclude Include="src\core\Application.h" />

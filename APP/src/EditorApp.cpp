@@ -2,7 +2,7 @@
 
 EditorApp::EditorApp()
 {
-
+	PushLayer(new ExampleLayer());
 }
 
 EditorApp::~EditorApp()
