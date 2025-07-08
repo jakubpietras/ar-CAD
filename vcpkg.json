@@ -5,6 +5,10 @@
     "glfw3",
     "entt",
     "nlohmann-json",
-    "nativefiledialog-extended"
+    "nativefiledialog-extended",
+    {
+      "name": "imgui",
+      "features": [ "glfw-binding", "opengl3-binding", "docking-experimental" ]
+    }
   ]
 }

@@ -5,6 +5,8 @@
 #include "core/Events/MouseEvent.h"
 #include "core/Events/KeyEvent.h"
 
+#include <glad/glad.h>
+
 namespace ar
 {
 	static bool s_GLFWInitialized = false;
@@ -50,6 +52,10 @@ namespace ar
 		glfwMakeContextCurrent(m_Window);
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		SetVSync(true);
+
+		// glad
+		int status = gladLoadGLLoader((GLADloadproc)(glfwGetProcAddress));
+		AR_ASSERT(status, "Failed to initialize glad!");
 
 		// Set GLFW callbacks
 		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
