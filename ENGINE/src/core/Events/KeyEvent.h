@@ -47,4 +47,19 @@ namespace ar
 		EVENT_CLASS_TYPE(KeyReleased)
 	};
 
+	class KeyTypedEvent : public KeyEvent
+	{
+	public:
+		KeyTypedEvent(int keycode)
+			: KeyEvent(keycode)
+		{ }
+		std::string ToString() const override
+		{
+			std::stringstream ss;
+			ss << "KeyPressedEvent: " << m_KeyCode;
+			return ss.str();
+		}
+		EVENT_CLASS_TYPE(KeyTyped)
+	};
+
 }

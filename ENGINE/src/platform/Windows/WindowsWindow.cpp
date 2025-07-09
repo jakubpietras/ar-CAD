@@ -135,6 +135,13 @@ namespace ar
 				data.EventCallback(event);
 			});
 
+		glfwSetCharCallback(m_Window, [](GLFWwindow* window, unsigned int keycode)
+			{
+				auto& data = *(WindowData*)glfwGetWindowUserPointer(window);
+				KeyTypedEvent event(keycode);
+				data.EventCallback(event);
+			});
+
 	}
 
 	void WindowsWindow::Shutdown()

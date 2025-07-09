@@ -61,7 +61,7 @@
       <PreprocessorDefinitions>GLFW_INCLUDE_NONE;AR_ENABLE_ASSERTS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(ProjectDir)src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)thirdparty\imgui;$(SolutionDir)thirdparty\imgui\backends</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>arpch.h</PrecompiledHeaderFile>
     </ClCompile>
@@ -116,6 +116,11 @@
     <ClInclude Include="src\core\Application.h" />
     <ClInclude Include="src\core\Window.h" />
     <ClInclude Include="src\platform\Windows\WindowsWindow.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\thirdparty\imgui\vs\IMGUI\IMGUI.vcxproj">
+      <Project>{313d3cc7-8692-4718-9842-0c7b677a06ba}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

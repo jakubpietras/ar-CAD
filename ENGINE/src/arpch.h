@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <functional>
 
+#include <glad/glad.h>
 #include "core/Log.h"
 
 // Data structures
@@ -26,3 +27,5 @@
 #else
 	#define AR_ASSERT(x, ...)
 #endif
+
+#define AR_BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
