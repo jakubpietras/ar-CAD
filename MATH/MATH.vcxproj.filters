@@ -33,9 +33,6 @@
     <ClCompile Include="src\vector_types.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\debug.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\matrix_types.h">
@@ -56,7 +53,7 @@
     <ClInclude Include="src\vector_types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\debug.h">
+    <ClInclude Include="src\ARMAT.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
