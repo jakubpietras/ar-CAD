@@ -18,6 +18,9 @@
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
+#include "matrix_types.h"
+#include "vector_types.h"
+#include "quaternion.h"
 
 // macros
 #define BIT(x) (1 << x)

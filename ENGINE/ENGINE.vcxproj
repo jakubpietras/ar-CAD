@@ -61,7 +61,7 @@
       <PreprocessorDefinitions>GLFW_INCLUDE_NONE;AR_ENABLE_ASSERTS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)thirdparty\imgui;$(SolutionDir)thirdparty\imgui\backends</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)thirdparty\imgui;$(SolutionDir)thirdparty\imgui\backends;$(SolutionDir)MATH\src</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>arpch.h</PrecompiledHeaderFile>
     </ClCompile>
@@ -106,6 +106,7 @@
   <ItemGroup>
     <ClInclude Include="src\core\ImGui\ImGuiLayer.h" />
     <ClInclude Include="src\core\Input.h" />
+    <ClInclude Include="src\core\KeyCodes.h" />
     <ClInclude Include="src\core\LayerStack.h" />
     <ClInclude Include="src\arpch.h" />
     <ClInclude Include="src\core\Events\ApplicationEvent.h" />
@@ -116,11 +117,15 @@
     <ClInclude Include="src\core\Log.h" />
     <ClInclude Include="src\ARCAD.h" />
     <ClInclude Include="src\core\Application.h" />
+    <ClInclude Include="src\core\MouseButtonCodes.h" />
     <ClInclude Include="src\core\Window.h" />
     <ClInclude Include="src\platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\platform\Windows\WindowsInput.h" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MATH\MATH.vcxproj">
+      <Project>{e1df6bc1-2e4f-4bc5-98d1-3bdf7ae88f0b}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\thirdparty\imgui\vs\IMGUI\IMGUI.vcxproj">
       <Project>{313d3cc7-8692-4718-9842-0c7b677a06ba}</Project>
     </ProjectReference>

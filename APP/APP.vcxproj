@@ -60,7 +60,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)ENGINE\src;$(SolutionDir)thirdparty\imgui;$(SolutionDir)thirdparty\imgui\backends</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)MATH\src;$(SolutionDir)ENGINE\src;$(SolutionDir)thirdparty\imgui;$(SolutionDir)thirdparty\imgui\backends</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -101,6 +101,9 @@
   <ItemGroup>
     <ProjectReference Include="..\ENGINE\ENGINE.vcxproj">
       <Project>{9ee7f72c-72a5-4a93-b1cd-f6636d317295}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\MATH\MATH.vcxproj">
+      <Project>{e1df6bc1-2e4f-4bc5-98d1-3bdf7ae88f0b}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

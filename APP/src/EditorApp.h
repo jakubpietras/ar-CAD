@@ -10,12 +10,13 @@ public:
 
 	void OnUpdate() override
 	{
-		//AR_INFO("ExampleLayer::Update");
+		
 	}
 
 	void OnEvent(ar::Event& event) override
 	{
-		AR_TRACE("{0}", event.ToString());
+		if (event.GetEventType() == ar::EventType::KeyPressed)
+			AR_TRACE("{0}", event.ToString());
 	}
 };
 
