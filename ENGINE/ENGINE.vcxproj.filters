@@ -36,6 +36,9 @@
     <ClCompile Include="src\core\ImGui\ImGuiLayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\platform\Windows\WindowsInput.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\core\Application.h">
@@ -75,6 +78,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\core\ImGui\ImGuiLayer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\Input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\platform\Windows\WindowsInput.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
