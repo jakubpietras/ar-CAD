@@ -14,13 +14,18 @@ public:
 
 	void OnUpdate() override
 	{
-		
+			
 	}
 
 	void OnEvent(ar::Event& event) override
 	{
 		if (event.GetEventType() == ar::EventType::KeyPressed)
 			AR_TRACE("{0}", event.ToString());
+	}
+
+	void OnImGuiRender() override
+	{
+		
 	}
 };
 
