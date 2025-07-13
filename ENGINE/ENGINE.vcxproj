@@ -89,6 +89,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\core\GLDebug.cpp" />
+    <ClCompile Include="src\core\Renderer\VertexTypes.cpp" />
+    <ClCompile Include="src\platform\OpenGL\OGLBuffer.cpp" />
+    <ClCompile Include="src\core\Renderer\Buffer.cpp" />
+    <ClCompile Include="src\core\Renderer\Renderer.cpp" />
     <ClCompile Include="src\platform\OpenGL\OpenGLContext.cpp" />
     <ClCompile Include="src\core\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="src\core\LayerStack.cpp" />
@@ -105,6 +110,12 @@
     <ClCompile Include="src\platform\Windows\WindowsInput.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\core\GLDebug.h" />
+    <ClInclude Include="src\core\Renderer\Attribute.h" />
+    <ClInclude Include="src\core\Renderer\VertexTypes.h" />
+    <ClInclude Include="src\platform\OpenGL\OGLBuffer.h" />
+    <ClInclude Include="src\core\Renderer\Buffer.h" />
+    <ClInclude Include="src\core\Renderer\Renderer.h" />
     <ClInclude Include="src\platform\OpenGL\OpenGLContext.h" />
     <ClInclude Include="src\core\ImGui\ImGuiLayer.h" />
     <ClInclude Include="src\core\Input.h" />

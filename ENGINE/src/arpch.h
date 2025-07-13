@@ -9,6 +9,7 @@
 #include <functional>
 
 #include "core/Log.h"
+#include "core/GLDebug.h"
 
 // Data structures
 #include <string>
@@ -25,7 +26,7 @@
 #define BIT(x) (1 << x)
 
 #ifdef AR_ENABLE_ASSERTS
-	#define AR_ASSERT(x, ...) { if(!(x)) {AR_ERROR("Assertion failed: {0}", __VA_ARGS__); __debugbreak(); } }
+	#define AR_ASSERT(x, ...) { if(!(x)) {AR_ERROR("Assertion failed ({0}, line {1}) : {2}", __FILE__, __LINE__, __VA_ARGS__); __debugbreak(); } }
 #else
 	#define AR_ASSERT(x, ...)
 #endif

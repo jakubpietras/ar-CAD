@@ -38,8 +38,6 @@ namespace ar
 		m_Data.Width = props.Width;
 		m_Data.Height = props.Height;
 
-		AR_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
-
 		if (!s_GLFWInitialized)
 		{
 			int success = glfwInit();
