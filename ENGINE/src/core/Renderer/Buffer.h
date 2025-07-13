@@ -5,9 +5,6 @@
 #include "Renderer.h"
 #include "VertexTypes.h"
 
-class OGLVertexBuffer;
-class OGLIndexBuffer;
-
 namespace ar
 {
 	class VertexBuffer
@@ -19,21 +16,8 @@ namespace ar
 		virtual void SetLayout(std::vector<Attribute> layout) = 0;
 		virtual const std::vector<Attribute> GetLayout() const = 0;
 
-		template <typename T>
-		inline static VertexBuffer* Create(std::vector<T> vertices)
-		{
-			switch (Renderer::GetAPI())
-			{
-				case RendererAPI::None:
-				{
-					return nullptr;
-				}
-				case RendererAPI::OpenGL:
-				{
-					return new OGLVertexBuffer(vertices.data(), vertices.size() * sizeof(T));
-				}
-			}
-		}
+		static VertexBuffer* Create(std::vector<VertexPosition> vertices);
+		// New overloads for Create if more Vertex types are created (fix in the future)
 
 	protected:
 		uint32_t m_ID;
@@ -48,8 +32,7 @@ namespace ar
 		virtual void Unbind() const = 0;
 		virtual const uint32_t GetCount() const = 0;
 
-		template <typename T>
-		static IndexBuffer* Create(std::vector<T> vertices);
+		static IndexBuffer* Create(std::vector<unsigned int> vertices);
 
 	protected:
 		uint32_t m_ID;

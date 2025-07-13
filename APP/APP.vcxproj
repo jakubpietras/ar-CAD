@@ -102,6 +102,9 @@
     <ProjectReference Include="..\ENGINE\ENGINE.vcxproj">
       <Project>{9ee7f72c-72a5-4a93-b1cd-f6636d317295}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\IMGUI\IMGUI.vcxproj">
+      <Project>{6527d1c3-aea0-4713-bcb7-5367c91032b0}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\MATH\MATH.vcxproj">
       <Project>{e1df6bc1-2e4f-4bc5-98d1-3bdf7ae88f0b}</Project>
     </ProjectReference>

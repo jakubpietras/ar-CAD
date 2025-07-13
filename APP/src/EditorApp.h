@@ -18,7 +18,12 @@ public:
 	void OnEvent(ar::Event& event) override
 	{
 		if (event.GetEventType() == ar::EventType::KeyPressed)
+		{
 			AR_TRACE(event);
+			std::vector<ar::VertexPosition> verts = { { {1.0f, 1.0f, 1.0f} } };
+			ar::VertexBuffer* vb = ar::VertexBuffer::Create(verts);
+			auto layout = vb->GetLayout();
+		}
 	}
 
 	void OnImGuiRender() override

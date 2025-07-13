@@ -137,11 +137,11 @@
     <ClInclude Include="src\platform\Windows\WindowsInput.h" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\IMGUI\IMGUI.vcxproj">
+      <Project>{6527d1c3-aea0-4713-bcb7-5367c91032b0}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\MATH\MATH.vcxproj">
       <Project>{e1df6bc1-2e4f-4bc5-98d1-3bdf7ae88f0b}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\thirdparty\imgui\vs\IMGUI\IMGUI.vcxproj">
-      <Project>{313d3cc7-8692-4718-9842-0c7b677a06ba}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

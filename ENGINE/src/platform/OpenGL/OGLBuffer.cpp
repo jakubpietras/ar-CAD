@@ -3,7 +3,7 @@
 
 namespace ar
 {
-	OGLVertexBuffer::OGLVertexBuffer(const void* data, unsigned int size)
+	OGLVertexBuffer::OGLVertexBuffer(const void* data, unsigned int size, std::vector<Attribute> layout)
 	{
 		glCreateBuffers(1, &m_ID);
 		int status = CheckGLErrors();
@@ -12,6 +12,8 @@ namespace ar
 		glNamedBufferData(m_ID, size, data, GL_STATIC_DRAW);
 		status = CheckGLErrors();
 		AR_ASSERT(!status, "OpenGL NamedBufferData failed. ");
+
+		SetLayout(layout);
 	}
 
 	OGLVertexBuffer::~OGLVertexBuffer()

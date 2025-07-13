@@ -3,10 +3,10 @@
 
 namespace ar
 {
-	class OGLVertexBuffer : public ar::VertexBuffer
+	class OGLVertexBuffer : public VertexBuffer
 	{
 	public:
-		OGLVertexBuffer(const void* data, unsigned int size);
+		OGLVertexBuffer(const void* data, unsigned int size, std::vector<Attribute> layout);
 		~OGLVertexBuffer();
 		void Bind() const override;
 		void Unbind() const override;
@@ -15,7 +15,7 @@ namespace ar
 		void SetLayout(std::vector<Attribute> layout);
 	};
 
-	class OGLIndexBuffer : public ar::IndexBuffer
+	class OGLIndexBuffer : public IndexBuffer
 	{
 	public:
 		OGLIndexBuffer(const void* data, unsigned int size);
