@@ -1,7 +1,7 @@
 #include "arpch.h"
 #include "Application.h"
 
-
+#include <glad/glad.h>
 
 namespace ar
 {

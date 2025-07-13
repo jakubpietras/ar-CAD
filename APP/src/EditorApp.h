@@ -20,7 +20,7 @@ public:
 	void OnEvent(ar::Event& event) override
 	{
 		if (event.GetEventType() == ar::EventType::KeyPressed)
-			AR_TRACE("{0}", event.ToString());
+			AR_TRACE(event);
 	}
 
 	void OnImGuiRender() override

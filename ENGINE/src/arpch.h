@@ -8,7 +8,6 @@
 #include <algorithm>
 #include <functional>
 
-#include <glad/glad.h>
 #include "core/Log.h"
 
 // Data structures

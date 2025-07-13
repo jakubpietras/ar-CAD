@@ -1,6 +1,7 @@
 #pragma once
 #include "core/Window.h"
 #include "core/Events/ApplicationEvent.h"
+#include "core/Renderer/DeviceContext.h"
 
 #include <GLFW/glfw3.h>
 
@@ -29,6 +30,8 @@ namespace ar
 		virtual void Shutdown();
 
 		GLFWwindow* m_Window;
+		DeviceContext* m_Context;
+
 		struct WindowData
 		{
 			std::string Title;

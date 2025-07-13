@@ -2,6 +2,7 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/fmt/ostr.h>
+#include "Events/Event.h"
 #include "ARMAT.h"
 
 namespace ar
@@ -21,6 +22,7 @@ namespace ar
 	std::ostream& operator<<(std::ostream& os, const Vec4& v);
 	std::ostream& operator<<(std::ostream& os, const Mat4& mat);
 	std::ostream& operator<<(std::ostream& os, const Quat& q);
+	std::ostream& operator<<(std::ostream& os, const Event& e);
 }
 
 #include <fmt/ostream.h>
@@ -29,6 +31,7 @@ namespace fmt {
 	template <> struct formatter<ar::Vec4> : ostream_formatter {};
 	template <> struct formatter<ar::Mat4> : ostream_formatter {};
 	template <> struct formatter<ar::Quat> : ostream_formatter {};
+	template <> struct formatter<ar::Event> : ostream_formatter {};
 }
 
 

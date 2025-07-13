@@ -89,6 +89,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\platform\OpenGL\OpenGLContext.cpp" />
     <ClCompile Include="src\core\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="src\core\LayerStack.cpp" />
     <ClCompile Include="src\arpch.cpp">
@@ -104,6 +105,7 @@
     <ClCompile Include="src\platform\Windows\WindowsInput.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\platform\OpenGL\OpenGLContext.h" />
     <ClInclude Include="src\core\ImGui\ImGuiLayer.h" />
     <ClInclude Include="src\core\Input.h" />
     <ClInclude Include="src\core\KeyCodes.h" />
@@ -118,6 +120,7 @@
     <ClInclude Include="src\ARCAD.h" />
     <ClInclude Include="src\core\Application.h" />
     <ClInclude Include="src\core\MouseButtonCodes.h" />
+    <ClInclude Include="src\core\Renderer\DeviceContext.h" />
     <ClInclude Include="src\core\Window.h" />
     <ClInclude Include="src\platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\platform\Windows\WindowsInput.h" />

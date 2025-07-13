@@ -5,7 +5,8 @@
 #include "core/Events/MouseEvent.h"
 #include "core/Events/KeyEvent.h"
 
-#include <glad/glad.h>
+#include "core/Renderer/DeviceContext.h"
+#include "platform/OpenGL/OpenGLContext.h"
 
 namespace ar
 {
@@ -49,14 +50,12 @@ namespace ar
 
 		m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(),
 			nullptr, nullptr);
-		glfwMakeContextCurrent(m_Window);
 		glfwSetWindowUserPointer(m_Window, &m_Data);
+
+		m_Context = new OpenGLContext(m_Window);
+		m_Context->Init();
 		SetVSync(true);
-
-		// glad
-		int status = gladLoadGLLoader((GLADloadproc)(glfwGetProcAddress));
-		AR_ASSERT(status, "Failed to initialize glad!");
-
+		
 		// Set GLFW callbacks
 		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
 			{
@@ -152,7 +151,7 @@ namespace ar
 	void WindowsWindow::OnUpdate()
 	{
 		glfwPollEvents();
-		glfwSwapBuffers(m_Window);
+		m_Context->SwapBuffers();
 	}
 
 	void WindowsWindow::SetVSync(bool enabled)

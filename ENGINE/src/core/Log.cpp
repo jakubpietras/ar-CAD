@@ -37,5 +37,8 @@ namespace ar
     std::ostream& operator<<(std::ostream& os, const Quat& q) {
         return os << "(" << q.w << ", " << q.x << ", " << q.y << ", " << q.z << ")";
     }
-
+    std::ostream& operator<<(std::ostream& os, const Event& e)
+    {
+        return os << e.ToString();
+    }
 }
