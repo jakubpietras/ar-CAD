@@ -11,6 +11,7 @@ namespace ar
 		BufferLayout();
 		BufferLayout(std::initializer_list<Attribute> attribs);
 		
+		inline const uint32_t GetAttribCount() const { return static_cast<uint32_t>(m_Layout.size()); }
 		inline const uint32_t GetStride() const { return m_Stride; }
 
 		std::vector<Attribute>::iterator begin() { return m_Layout.begin(); }

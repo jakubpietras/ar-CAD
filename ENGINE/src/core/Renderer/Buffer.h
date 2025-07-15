@@ -11,11 +11,13 @@ namespace ar
 	{
 	public:
 		virtual ~VertexBuffer() {}
-		virtual void Bind(uint32_t vao, uint32_t bindingIndex) = 0;
+		virtual void Bind(uint32_t vao, uint32_t bindingIndex, uint32_t attribStartIndex) = 0;
 		virtual const BufferLayout GetLayout() const = 0;
+		virtual const uint32_t GetAttribCount() = 0;
 
 		static VertexBuffer* Create(std::vector<VertexPosition> vertices);
-		// New overloads for Create if more Vertex types are created (fix in the future)
+		static VertexBuffer* Create(std::vector<VertexPositionColor> vertices);
+		// New overloads for Create() for each defined Vertex type (change in the future)
 
 	protected:
 		uint32_t m_ID;

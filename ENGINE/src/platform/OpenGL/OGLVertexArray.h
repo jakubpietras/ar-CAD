@@ -8,6 +8,7 @@ namespace ar
 	{
 	public:
 		OGLVertexArray();
+		~OGLVertexArray() override;
 
 		void Bind() override;
 		void Unbind() override;

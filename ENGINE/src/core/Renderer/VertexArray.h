@@ -22,6 +22,7 @@ namespace ar
 		std::shared_ptr<IndexBuffer> m_IndexBuffer;
 		uint32_t m_ID;
 		uint32_t m_BindingIndex;
+		uint32_t m_AttribStartIndex;
 		/*
 			BindingIndex is the next available index for a VBO to bind. It needs to be incremented
 			every time a new vertex buffer is added. It's not an optimal solution, but for now it

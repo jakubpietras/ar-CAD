@@ -6,9 +6,14 @@ namespace ar
 
 	OGLVertexArray::OGLVertexArray()
 	{
-		glCreateBuffers(1, &m_ID);
+		glCreateVertexArrays(1, &m_ID);
 		CheckGLErrors();
 		m_BindingIndex = 0;
+	}
+
+	OGLVertexArray::~OGLVertexArray()
+	{
+		glDeleteVertexArrays(1, &m_ID);
 	}
 
 	void OGLVertexArray::Bind()
@@ -24,7 +29,8 @@ namespace ar
 	void OGLVertexArray::AddVertexBuffer(std::shared_ptr<VertexBuffer> vertexBuffer)
 	{
 		m_VertexBuffers.push_back(vertexBuffer);
-		vertexBuffer->Bind(m_ID, m_BindingIndex);
+		vertexBuffer->Bind(m_ID, m_BindingIndex, m_AttribStartIndex);
+		m_AttribStartIndex += vertexBuffer->GetAttribCount();
 		m_BindingIndex++;
 		AR_ASSERT(m_BindingIndex < GL_MAX_VERTEX_ATTRIB_BINDINGS, 
 			"Max vertex attribute bindings reached!");

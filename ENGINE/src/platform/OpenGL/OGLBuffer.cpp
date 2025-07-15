@@ -19,9 +19,9 @@ namespace ar
 		glDeleteBuffers(1, &m_ID);
 	}
 
-	void OGLVertexBuffer::Bind(uint32_t vao, uint32_t bindingIndex)
+	void OGLVertexBuffer::Bind(uint32_t vao, uint32_t bindingIndex, uint32_t attribStartIndex)
 	{
-		uint32_t attribIndex = 0;
+		uint32_t attribIndex = attribStartIndex;
 
 		glVertexArrayVertexBuffer(vao, bindingIndex, m_ID, 0, m_Layout.GetStride());
 		for (auto& attribute : m_Layout)
@@ -35,6 +35,7 @@ namespace ar
 				attribute.Offset
 			);
 			glVertexArrayAttribBinding(vao, attribIndex, bindingIndex);
+			glEnableVertexArrayAttrib(vao, attribIndex);
 			attribIndex++;
 		}
 	}
@@ -42,6 +43,11 @@ namespace ar
 	const ar::BufferLayout OGLVertexBuffer::GetLayout() const
 	{
 		return m_Layout;
+	}
+
+	const uint32_t OGLVertexBuffer::GetAttribCount()
+	{
+		return m_Layout.GetAttribCount();
 	}
 
 	OGLIndexBuffer::OGLIndexBuffer(const void* data, unsigned int size)

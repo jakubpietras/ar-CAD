@@ -9,8 +9,10 @@ namespace ar
 	public:
 		OGLVertexBuffer(const void* data, unsigned int size, BufferLayout layout);
 		~OGLVertexBuffer();
-		void Bind(uint32_t vao, uint32_t bindingIndex) override;
+		void Bind(uint32_t vao, uint32_t bindingIndex, uint32_t attribStartIndex) override;
 		const BufferLayout GetLayout() const override;
+		const uint32_t GetAttribCount() override;
+
 	};
 
 	class OGLIndexBuffer : public IndexBuffer
