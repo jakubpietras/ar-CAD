@@ -19,7 +19,8 @@ namespace ar
 				case GL_OUT_OF_MEMORY:                 error = "memory allocation operation cannot allocate enough memory."; break;
 				case GL_INVALID_FRAMEBUFFER_OPERATION: error = "reading or writing to an incomplete framebuffer."; break;
 			}
-			AR_ASSERT(errorCode == GL_NO_ERROR, "OpenGL error");
+			// this will treat any error as critical and break the program:
+			AR_ASSERT(errorCode == GL_NO_ERROR, "OpenGL error"); 
 		}
 		return errorCode;
 	}

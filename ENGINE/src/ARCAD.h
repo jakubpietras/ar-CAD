@@ -6,3 +6,4 @@
 #include "core/ImGui/ImGuiLayer.h"
 
 #include "core/Renderer/Buffer.h"
+#include "core/Renderer/VertexArray.h"

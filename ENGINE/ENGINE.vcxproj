@@ -89,8 +89,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\platform\OpenGL\OGLVertexArray.cpp" />
     <ClCompile Include="src\core\GLDebug.cpp" />
     <ClCompile Include="src\core\Renderer\BufferLayout.cpp" />
+    <ClCompile Include="src\core\Renderer\VertexArray.cpp" />
     <ClCompile Include="src\core\Renderer\VertexTypes.cpp" />
     <ClCompile Include="src\platform\OpenGL\OGLBuffer.cpp" />
     <ClCompile Include="src\core\Renderer\Buffer.cpp" />
@@ -111,9 +113,11 @@
     <ClCompile Include="src\platform\Windows\WindowsInput.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\platform\OpenGL\OGLVertexArray.h" />
     <ClInclude Include="src\core\GLDebug.h" />
     <ClInclude Include="src\core\Renderer\Attribute.h" />
     <ClInclude Include="src\core\Renderer\BufferLayout.h" />
+    <ClInclude Include="src\core\Renderer\VertexArray.h" />
     <ClInclude Include="src\core\Renderer\VertexTypes.h" />
     <ClInclude Include="src\platform\OpenGL\OGLBuffer.h" />
     <ClInclude Include="src\core\Renderer\Buffer.h" />

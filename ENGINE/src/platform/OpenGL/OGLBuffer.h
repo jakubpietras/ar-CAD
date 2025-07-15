@@ -9,9 +9,7 @@ namespace ar
 	public:
 		OGLVertexBuffer(const void* data, unsigned int size, BufferLayout layout);
 		~OGLVertexBuffer();
-		void Bind() const override;
-		void Unbind() const override;
-		void EnableLayout() override;
+		void Bind(uint32_t vao, uint32_t bindingIndex) override;
 		const BufferLayout GetLayout() const override;
 	};
 
@@ -20,8 +18,7 @@ namespace ar
 	public:
 		OGLIndexBuffer(const void* data, unsigned int size);
 		~OGLIndexBuffer();
-		void Bind() const override;
-		void Unbind() const override;
+		void Bind(uint32_t vao) override;
 		const uint32_t GetCount() const override;
 	};
 }

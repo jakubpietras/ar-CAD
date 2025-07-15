@@ -11,7 +11,7 @@ namespace ar
 	}
 
 	BufferLayout::BufferLayout()
-		: m_Layout(), m_Stride(0)
+		: m_Stride(0)
 	{ }
 
 	BufferLayout::BufferLayout(std::initializer_list<Attribute> attribs)

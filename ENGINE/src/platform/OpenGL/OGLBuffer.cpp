@@ -19,32 +19,23 @@ namespace ar
 		glDeleteBuffers(1, &m_ID);
 	}
 
-	void OGLVertexBuffer::Bind() const
+	void OGLVertexBuffer::Bind(uint32_t vao, uint32_t bindingIndex)
 	{
-		glBindBuffer(GL_ARRAY_BUFFER, m_ID);
-	}
+		uint32_t attribIndex = 0;
 
-	void OGLVertexBuffer::Unbind() const
-	{
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-	}
-
-	void OGLVertexBuffer::EnableLayout()
-	{
-		uint32_t index = 0;
-
+		glVertexArrayVertexBuffer(vao, bindingIndex, m_ID, 0, m_Layout.GetStride());
 		for (auto& attribute : m_Layout)
 		{
-			glVertexAttribPointer(
-				index,
+			glVertexArrayAttribFormat(
+				vao,
+				attribIndex,
 				attribute.GetCount(),
 				attribute.GetOpenGLType(),
 				attribute.Normalized ? GL_TRUE : GL_FALSE,
-				m_Layout.GetStride(),
-				reinterpret_cast<const void*>(attribute.Offset)
+				attribute.Offset
 			);
-			glEnableVertexAttribArray(index);
-			index++;
+			glVertexArrayAttribBinding(vao, attribIndex, bindingIndex);
+			attribIndex++;
 		}
 	}
 
@@ -71,19 +62,13 @@ namespace ar
 		glDeleteBuffers(1, &m_ID);
 	}
 
-	void OGLIndexBuffer::Bind() const
-	{
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ID);
-	}
-
-	void OGLIndexBuffer::Unbind() const
-	{
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	}
-
 	const uint32_t OGLIndexBuffer::GetCount() const
 	{
 		return m_Count;
 	}
 
+	void OGLIndexBuffer::Bind(uint32_t vao)
+	{
+		glVertexArrayElementBuffer(vao, m_ID);
+	}
 }
