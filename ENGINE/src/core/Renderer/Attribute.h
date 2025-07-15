@@ -1,18 +1,62 @@
 #pragma once
-#include <glad/glad.h>
 
 namespace ar
 {
-	enum class AttributeTypes
+	enum class AttributeType
 	{
-		AR_FLOAT = GL_FLOAT,
-		AR_UINT  = GL_UNSIGNED_INT,
-		AR_INT   = GL_INT
+		Float3,
+		Float4,
+		Int,
+		UInt
 	};
 
 	struct Attribute
 	{
-		unsigned int Size;
-		AttributeTypes Type;
+		Attribute(const std::string& name, AttributeType type);
+
+		std::string Name;
+		AttributeType Type;
+		bool Normalized = false;
+		uint32_t Size = 0;
+		uint32_t Offset = 0;
+
+		inline uint32_t GetCount()
+		{
+			switch (Type)
+			{
+			case AttributeType::Int: return 1;
+			case AttributeType::UInt: return 1;
+			case AttributeType::Float3: return 3;
+			case AttributeType::Float4: return 4;
+			default:
+				return 0;
+			}
+		}
+
+		inline uint32_t GetSize()
+		{
+			switch (Type)
+			{
+			case AttributeType::Int: return 1 * sizeof(int);
+			case AttributeType::UInt: return 1 * sizeof(unsigned int);
+			case AttributeType::Float3: return 3 * sizeof(float);
+			case AttributeType::Float4: return 4 * sizeof(float);
+			default:
+				return 0;
+			}
+		}
+
+		inline GLenum GetOpenGLType()	// TODO: specialize the Attribute for different APIs inst.
+		{
+			switch (Type)
+			{
+			case AttributeType::Int: return GL_INT;
+			case AttributeType::UInt: return GL_UNSIGNED_INT;
+			case AttributeType::Float3: return GL_FLOAT;
+			case AttributeType::Float4: return GL_FLOAT;
+			default:
+				return 0; // TODO: fix this
+			}
+		}
 	};
 }

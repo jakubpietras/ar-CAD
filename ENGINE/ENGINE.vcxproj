@@ -90,6 +90,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\core\GLDebug.cpp" />
+    <ClCompile Include="src\core\Renderer\BufferLayout.cpp" />
     <ClCompile Include="src\core\Renderer\VertexTypes.cpp" />
     <ClCompile Include="src\platform\OpenGL\OGLBuffer.cpp" />
     <ClCompile Include="src\core\Renderer\Buffer.cpp" />
@@ -112,6 +113,7 @@
   <ItemGroup>
     <ClInclude Include="src\core\GLDebug.h" />
     <ClInclude Include="src\core\Renderer\Attribute.h" />
+    <ClInclude Include="src\core\Renderer\BufferLayout.h" />
     <ClInclude Include="src\core\Renderer\VertexTypes.h" />
     <ClInclude Include="src\platform\OpenGL\OGLBuffer.h" />
     <ClInclude Include="src\core\Renderer\Buffer.h" />

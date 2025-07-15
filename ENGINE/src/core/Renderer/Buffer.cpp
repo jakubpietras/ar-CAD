@@ -15,14 +15,30 @@ namespace ar
 			case RendererAPI::OpenGL:
 			{
 				return new OGLVertexBuffer(vertices.data(),
-					vertices.size() * sizeof(VertexPosition), VertexPosition::Layout);
+					static_cast<unsigned int>(vertices.size()) * sizeof(VertexPosition),
+					VertexPosition::s_Layout);
 			}
+			default:
+				return nullptr;
 		}
 	}
 
-	ar::IndexBuffer* IndexBuffer::Create(std::vector<unsigned int> vertices)
+	ar::IndexBuffer* IndexBuffer::Create(std::vector<unsigned int> indices)
 	{
-		return nullptr;
+		switch (Renderer::GetAPI())
+		{
+			case RendererAPI::None:
+			{
+				return nullptr;
+			}
+			case RendererAPI::OpenGL:
+			{
+				return new OGLIndexBuffer(indices.data(), 
+					static_cast<unsigned int>(indices.size()) * sizeof(unsigned int));
+			}
+			default:
+				return nullptr;
+		}
 	}
 
 }

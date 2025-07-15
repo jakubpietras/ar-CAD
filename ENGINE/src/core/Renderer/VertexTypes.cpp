@@ -1,8 +1,17 @@
 #include "arpch.h"
 #include "VertexTypes.h"
+#include "BufferLayout.h"
+#include "Attribute.h"
+
 
 namespace ar
 {
-	const std::vector<Attribute> VertexPosition::Layout = { {3, AttributeTypes::AR_FLOAT} };
-	const std::vector<Attribute> VertexPositionColor::Layout = { {3, AttributeTypes::AR_FLOAT}, {3, AttributeTypes::AR_FLOAT} };
+	const BufferLayout VertexPosition::s_Layout{ 
+		{"a_Position", AttributeType::Int} 
+	};
+	
+	const BufferLayout VertexPositionColor::s_Layout{ 
+		{"a_Position", AttributeType::Float3},
+		{"a_Color", AttributeType::Float3} 
+	};
 }

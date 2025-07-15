@@ -3,17 +3,15 @@
 
 namespace ar
 {
-	OGLVertexBuffer::OGLVertexBuffer(const void* data, unsigned int size, std::vector<Attribute> layout)
+	OGLVertexBuffer::OGLVertexBuffer(const void* data, unsigned int size, BufferLayout layout)
 	{
 		glCreateBuffers(1, &m_ID);
-		int status = CheckGLErrors();
-		AR_ASSERT(!status, "OpenGL CreateBuffers failed. ");
+		CheckGLErrors();
 
 		glNamedBufferData(m_ID, size, data, GL_STATIC_DRAW);
-		status = CheckGLErrors();
-		AR_ASSERT(!status, "OpenGL NamedBufferData failed. ");
+		CheckGLErrors();
 
-		SetLayout(layout);
+		m_Layout = layout;
 	}
 
 	OGLVertexBuffer::~OGLVertexBuffer()
@@ -31,14 +29,28 @@ namespace ar
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
-	const std::vector<ar::Attribute> OGLVertexBuffer::GetLayout() const
+	void OGLVertexBuffer::EnableLayout()
 	{
-		return m_Layout;
+		uint32_t index = 0;
+
+		for (auto& attribute : m_Layout)
+		{
+			glVertexAttribPointer(
+				index,
+				attribute.GetCount(),
+				attribute.GetOpenGLType(),
+				attribute.Normalized ? GL_TRUE : GL_FALSE,
+				m_Layout.GetStride(),
+				reinterpret_cast<const void*>(attribute.Offset)
+			);
+			glEnableVertexAttribArray(index);
+			index++;
+		}
 	}
 
-	void OGLVertexBuffer::SetLayout(std::vector<Attribute> layout)
+	const ar::BufferLayout OGLVertexBuffer::GetLayout() const
 	{
-		m_Layout = layout;
+		return m_Layout;
 	}
 
 	OGLIndexBuffer::OGLIndexBuffer(const void* data, unsigned int size)
@@ -50,6 +62,8 @@ namespace ar
 		glNamedBufferData(m_ID, size, data, GL_STATIC_DRAW);
 		status = CheckGLErrors();
 		AR_ASSERT(!status, "OpenGL NamedBufferData failed. ");
+
+		m_Count = size;
 	}
 
 	OGLIndexBuffer::~OGLIndexBuffer()

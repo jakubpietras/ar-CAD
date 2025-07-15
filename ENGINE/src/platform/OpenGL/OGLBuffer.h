@@ -1,18 +1,18 @@
 #pragma once
 #include "core/Renderer/Buffer.h"
+#include "core/Renderer/BufferLayout.h"
 
 namespace ar
 {
 	class OGLVertexBuffer : public VertexBuffer
 	{
 	public:
-		OGLVertexBuffer(const void* data, unsigned int size, std::vector<Attribute> layout);
+		OGLVertexBuffer(const void* data, unsigned int size, BufferLayout layout);
 		~OGLVertexBuffer();
 		void Bind() const override;
 		void Unbind() const override;
-		const std::vector<Attribute> GetLayout() const override;
-	protected:
-		void SetLayout(std::vector<Attribute> layout);
+		void EnableLayout() override;
+		const BufferLayout GetLayout() const override;
 	};
 
 	class OGLIndexBuffer : public IndexBuffer

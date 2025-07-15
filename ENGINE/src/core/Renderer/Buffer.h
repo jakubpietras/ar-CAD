@@ -13,15 +13,15 @@ namespace ar
 		virtual ~VertexBuffer() {}
 		virtual void Bind() const = 0;
 		virtual void Unbind() const = 0;
-		virtual void SetLayout(std::vector<Attribute> layout) = 0;
-		virtual const std::vector<Attribute> GetLayout() const = 0;
+		virtual void EnableLayout() = 0;
+		virtual const BufferLayout GetLayout() const = 0;
 
 		static VertexBuffer* Create(std::vector<VertexPosition> vertices);
 		// New overloads for Create if more Vertex types are created (fix in the future)
 
 	protected:
 		uint32_t m_ID;
-		std::vector<Attribute> m_Layout;
+		BufferLayout m_Layout;
 	};
 
 	class IndexBuffer
@@ -32,7 +32,7 @@ namespace ar
 		virtual void Unbind() const = 0;
 		virtual const uint32_t GetCount() const = 0;
 
-		static IndexBuffer* Create(std::vector<unsigned int> vertices);
+		static IndexBuffer* Create(std::vector<unsigned int> indices);
 
 	protected:
 		uint32_t m_ID;
