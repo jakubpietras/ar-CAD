@@ -29,6 +29,16 @@ namespace ar
 		{
 			glClearColor(0.5f, 0.5f, 1.0f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			// RenderCommand::SetClearColor(color);
+			// RenderCommand::Clear();
+
+
+			// TODO: uncomment Renderer::BeginScene(camera);
+			// TODO: uncomment Renderer::Submit(mesh);
+			// TODO: uncomment Renderer::EndScene();
+
+			// TODO: uncomment Renderer::Flush();
+
 
 			for (Layer* layer : m_LayerStack)
 			{

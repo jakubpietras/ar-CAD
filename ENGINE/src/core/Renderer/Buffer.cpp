@@ -1,22 +1,23 @@
 #include "arpch.h"
 #include "Buffer.h"
 #include "platform/OpenGL/OGLBuffer.h"
+#include "core/Renderer/RendererAPI.h"
 
 namespace ar
 {
 	VertexBuffer* VertexBuffer::Create(std::vector<VertexPosition> vertices)
 	{
-		switch (Renderer::GetAPI())
+		switch (RendererAPI::GetAPI())
 		{
-			case RendererAPI::None:
+			case RendererAPI::API::None:
 			{
 				return nullptr;
 			}
-			case RendererAPI::OpenGL:
+			case RendererAPI::API::OpenGL:
 			{
 				return new OGLVertexBuffer(vertices.data(),
 					static_cast<unsigned int>(vertices.size()) * sizeof(VertexPosition),
-					VertexPosition::s_Layout);
+					vertices.size(), VertexPosition::s_Layout);
 			}
 			default:
 				return nullptr;
@@ -25,17 +26,17 @@ namespace ar
 
 	ar::VertexBuffer* VertexBuffer::Create(std::vector<VertexPositionColor> vertices)
 	{
-		switch (Renderer::GetAPI())
+		switch (RendererAPI::GetAPI())
 		{
-		case RendererAPI::None:
+		case RendererAPI::API::None:
 		{
 			return nullptr;
 		}
-		case RendererAPI::OpenGL:
+		case RendererAPI::API::OpenGL:
 		{
 			return new OGLVertexBuffer(vertices.data(),
-				static_cast<unsigned int>(vertices.size()) * sizeof(VertexPositionColor),
-				VertexPositionColor::s_Layout);
+				static_cast<unsigned int>(vertices.size()) * sizeof(VertexPositionColor), 
+				vertices.size(), VertexPositionColor::s_Layout);
 		}
 		default:
 			return nullptr;
@@ -44,13 +45,13 @@ namespace ar
 
 	ar::IndexBuffer* IndexBuffer::Create(std::vector<unsigned int> indices)
 	{
-		switch (Renderer::GetAPI())
+		switch (RendererAPI::GetAPI())
 		{
-			case RendererAPI::None:
+		case RendererAPI::API::None:
 			{
 				return nullptr;
 			}
-			case RendererAPI::OpenGL:
+		case RendererAPI::API::OpenGL:
 			{
 				return new OGLIndexBuffer(indices.data(), 
 					static_cast<unsigned int>(indices.size()) * sizeof(unsigned int));

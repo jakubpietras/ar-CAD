@@ -3,7 +3,8 @@
 
 namespace ar
 {
-	OGLVertexBuffer::OGLVertexBuffer(const void* data, unsigned int size, BufferLayout layout)
+	OGLVertexBuffer::OGLVertexBuffer(const void* data, unsigned int size, unsigned int vertexCount,
+		BufferLayout layout)
 	{
 		glCreateBuffers(1, &m_ID);
 		CheckGLErrors();
@@ -11,6 +12,7 @@ namespace ar
 		glNamedBufferData(m_ID, size, data, GL_STATIC_DRAW);
 		CheckGLErrors();
 
+		m_VertexCount = vertexCount;
 		m_Layout = layout;
 	}
 
@@ -40,16 +42,6 @@ namespace ar
 		}
 	}
 
-	const ar::BufferLayout OGLVertexBuffer::GetLayout() const
-	{
-		return m_Layout;
-	}
-
-	const uint32_t OGLVertexBuffer::GetAttribCount()
-	{
-		return m_Layout.GetAttribCount();
-	}
-
 	OGLIndexBuffer::OGLIndexBuffer(const void* data, unsigned int size)
 	{
 		glCreateBuffers(1, &m_ID);
@@ -66,11 +58,6 @@ namespace ar
 	OGLIndexBuffer::~OGLIndexBuffer()
 	{
 		glDeleteBuffers(1, &m_ID);
-	}
-
-	const uint32_t OGLIndexBuffer::GetCount() const
-	{
-		return m_Count;
 	}
 
 	void OGLIndexBuffer::Bind(uint32_t vao)

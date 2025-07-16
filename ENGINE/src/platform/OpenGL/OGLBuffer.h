@@ -7,11 +7,10 @@ namespace ar
 	class OGLVertexBuffer : public VertexBuffer
 	{
 	public:
-		OGLVertexBuffer(const void* data, unsigned int size, BufferLayout layout);
+		OGLVertexBuffer(const void* data, unsigned int size, unsigned int vertexCount,
+			BufferLayout layout);
 		~OGLVertexBuffer();
 		void Bind(uint32_t vao, uint32_t bindingIndex, uint32_t attribStartIndex) override;
-		const BufferLayout GetLayout() const override;
-		const uint32_t GetAttribCount() override;
 
 	};
 
@@ -21,6 +20,5 @@ namespace ar
 		OGLIndexBuffer(const void* data, unsigned int size);
 		~OGLIndexBuffer();
 		void Bind(uint32_t vao) override;
-		const uint32_t GetCount() const override;
 	};
 }

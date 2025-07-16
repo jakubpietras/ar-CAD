@@ -1,8 +1,6 @@
 #pragma once
 #include <vector>
 #include <glad/glad.h>
-
-#include "Renderer.h"
 #include "VertexTypes.h"
 
 namespace ar
@@ -12,15 +10,17 @@ namespace ar
 	public:
 		virtual ~VertexBuffer() {}
 		virtual void Bind(uint32_t vao, uint32_t bindingIndex, uint32_t attribStartIndex) = 0;
-		virtual const BufferLayout GetLayout() const = 0;
-		virtual const uint32_t GetAttribCount() = 0;
+		
+		inline const BufferLayout GetLayout() const { return m_Layout; }
+		inline const uint32_t GetAttribCount() const { return m_Layout.GetAttribCount(); }
+		inline const uint32_t GetVertexCount() const { return m_VertexCount; }
 
 		static VertexBuffer* Create(std::vector<VertexPosition> vertices);
 		static VertexBuffer* Create(std::vector<VertexPositionColor> vertices);
 		// New overloads for Create() for each defined Vertex type (change in the future)
 
 	protected:
-		uint32_t m_ID;
+		uint32_t m_ID, m_VertexCount;
 		BufferLayout m_Layout;
 	};
 
@@ -29,13 +29,13 @@ namespace ar
 	public:
 		virtual ~IndexBuffer() {}
 		virtual void Bind(uint32_t vao) = 0;
-		virtual const uint32_t GetCount() const = 0;
+		
+		inline const uint32_t GetCount() const { return m_Count; }
 
 		static IndexBuffer* Create(std::vector<unsigned int> indices);
 
 	protected:
-		uint32_t m_ID;
-		uint32_t m_Count;
+		uint32_t m_ID, m_Count;
 	};
 
 }

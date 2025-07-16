@@ -41,5 +41,20 @@ namespace ar
 		m_IndexBuffer = indexBuffer;
 		indexBuffer->Bind(m_ID);
 	}
+
+	const uint32_t OGLVertexArray::GetIndexCount()
+	{
+		AR_ASSERT(m_IndexBuffer, "Index buffer not bound!");
+		return m_IndexBuffer->GetCount();
+	}
+
+	const uint32_t OGLVertexArray::GetVertexCount()
+	{
+		uint32_t vertexCount = 0;
+		for (auto vb : m_VertexBuffers)
+			vertexCount += vb->GetVertexCount();
+		return vertexCount;
+	}
+
 }
 

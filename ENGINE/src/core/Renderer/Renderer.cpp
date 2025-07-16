@@ -3,5 +3,4 @@
 
 namespace ar
 {
-	RendererAPI Renderer::s_RendererAPI = RendererAPI::OpenGL;
 }

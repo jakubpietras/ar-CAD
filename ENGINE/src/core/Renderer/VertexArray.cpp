@@ -1,19 +1,19 @@
 #include "arpch.h"
 #include "VertexArray.h"
 #include "platform/OpenGL/OGLVertexArray.h"
+#include "RendererAPI.h"
 
 namespace ar
 {
-
 	VertexArray* VertexArray::Create()
 	{
-		switch (Renderer::GetAPI())
+		switch (RendererAPI::GetAPI())
 		{
-			case RendererAPI::None:
+			case RendererAPI::API::None:
 			{
 				return nullptr;
 			}
-			case RendererAPI::OpenGL:
+			case RendererAPI::API::OpenGL:
 			{
 				return new OGLVertexArray();
 			}

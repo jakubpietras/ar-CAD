@@ -89,6 +89,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\platform\OpenGL\OGLRendererAPI.cpp" />
+    <ClCompile Include="src\core\Renderer\RenderCommand.cpp" />
+    <ClCompile Include="src\core\Renderer\RendererAPI.cpp" />
     <ClCompile Include="src\platform\OpenGL\OGLVertexArray.cpp" />
     <ClCompile Include="src\core\GLDebug.cpp" />
     <ClCompile Include="src\core\Renderer\BufferLayout.cpp" />
@@ -113,6 +116,9 @@
     <ClCompile Include="src\platform\Windows\WindowsInput.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\platform\OpenGL\OGLRendererAPI.h" />
+    <ClInclude Include="src\core\Renderer\RenderCommand.h" />
+    <ClInclude Include="src\core\Renderer\RendererAPI.h" />
     <ClInclude Include="src\platform\OpenGL\OGLVertexArray.h" />
     <ClInclude Include="src\core\GLDebug.h" />
     <ClInclude Include="src\core\Renderer\Attribute.h" />

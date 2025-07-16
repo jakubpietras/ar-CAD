@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "Buffer.h"
+#include <memory>
 
 namespace ar
 {
@@ -16,6 +17,9 @@ namespace ar
 		virtual void AddIndexBuffer(std::shared_ptr<IndexBuffer> indexBuffer) = 0;
 
 		static VertexArray* Create();
+		inline const std::shared_ptr<IndexBuffer>& GetIndexBuffer() { return m_IndexBuffer; }
+		virtual const uint32_t GetIndexCount() = 0;
+		virtual const uint32_t GetVertexCount() = 0;
 
 	protected:
 		std::vector<std::shared_ptr<VertexBuffer>> m_VertexBuffers;
