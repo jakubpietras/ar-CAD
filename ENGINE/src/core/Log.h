@@ -18,19 +18,19 @@ namespace ar
 		static std::shared_ptr<spdlog::logger> s_AppLogger;
 	};
 
-	std::ostream& operator<<(std::ostream& os, const Vec3& v);
-	std::ostream& operator<<(std::ostream& os, const Vec4& v);
-	std::ostream& operator<<(std::ostream& os, const Mat4& mat);
-	std::ostream& operator<<(std::ostream& os, const Quat& q);
+	std::ostream& operator<<(std::ostream& os, const mat::Vec3& v);
+	std::ostream& operator<<(std::ostream& os, const mat::Vec4& v);
+	std::ostream& operator<<(std::ostream& os, const mat::Mat4& mat);
+	std::ostream& operator<<(std::ostream& os, const mat::Quat& q);
 	std::ostream& operator<<(std::ostream& os, const Event& e);
 }
 
 #include <fmt/ostream.h>
 namespace fmt {
-	template <> struct formatter<ar::Vec3> : ostream_formatter {};
-	template <> struct formatter<ar::Vec4> : ostream_formatter {};
-	template <> struct formatter<ar::Mat4> : ostream_formatter {};
-	template <> struct formatter<ar::Quat> : ostream_formatter {};
+	template <> struct formatter<ar::mat::Vec3> : ostream_formatter {};
+	template <> struct formatter<ar::mat::Vec4> : ostream_formatter {};
+	template <> struct formatter<ar::mat::Mat4> : ostream_formatter {};
+	template <> struct formatter<ar::mat::Quat> : ostream_formatter {};
 	template <> struct formatter<ar::Event> : ostream_formatter {};
 }
 

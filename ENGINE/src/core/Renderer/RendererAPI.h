@@ -15,7 +15,7 @@ namespace ar
 		};
 
 		virtual void Clear() = 0;
-		virtual void SetClearColor(Vec4 color) = 0;
+		virtual void SetClearColor(mat::Vec4 color) = 0;
 
 		virtual void Draw(const std::shared_ptr<VertexArray>& vertexArray) = 0;
 		virtual void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray) = 0;

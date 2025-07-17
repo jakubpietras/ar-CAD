@@ -1,12 +1,14 @@
 #include "arpch.h"
 #include "WindowsWindow.h"
 
+#include "core/Input.h"
 #include "core/Events/ApplicationEvent.h"
 #include "core/Events/MouseEvent.h"
 #include "core/Events/KeyEvent.h"
 
 #include "core/Renderer/DeviceContext.h"
 #include "platform/OpenGL/OpenGLContext.h"
+
 
 namespace ar
 {
@@ -128,7 +130,32 @@ namespace ar
 		glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xPos, double yPos)
 			{
 				auto& data = *(WindowData*)glfwGetWindowUserPointer(window);
-				MouseMovedEvent event((float)xPos, (float)yPos);
+				static bool firstMouse = true;
+				static float lastX = 0.0f, lastY = 0.0f;
+				auto x = static_cast<float>(xPos),
+					y = static_cast<float>(yPos);
+				
+				if (ar::Input::IsAnyMouseButtonPressed())
+				{
+					if (firstMouse)
+					{
+						lastX = x;
+						lastY = y;
+						firstMouse = false;
+					}
+				}
+				else
+				{
+					firstMouse = false;
+					return;
+				}
+				
+				auto offsetX = static_cast<float>(x - lastX);
+				auto offsetY = static_cast<float>(lastY - y);
+				lastX = x;
+				lastY = y;
+
+				MouseMovedEvent event(x, y, offsetX, offsetY);
 				data.EventCallback(event);
 			});
 

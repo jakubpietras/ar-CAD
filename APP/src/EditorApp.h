@@ -8,6 +8,9 @@ public:
 	ExampleLayer()
 		: Layer("Example")
 	{ 
+		camera = std::make_shared<ar::PerspectiveCamera>(45.0f, 1920.0f / 1080.0f, 0.1f,
+			100.0f, 5.0f);
+
 		auto va = ar::VertexArray::Create();
 		vao = std::shared_ptr<ar::VertexArray>(va);
 
@@ -15,12 +18,14 @@ public:
 			#version 450 core
 			layout (location = 0) in vec3 a_Position;   
 			layout (location = 1) in vec3 a_Color;
+
+			uniform mat4 u_VP;
   
 			out vec3 color;
 
 			void main()
 			{
-				gl_Position = vec4(a_Position, 1.0);
+				gl_Position = u_VP * vec4(a_Position, 1.0);
 				color = a_Color; 
 			}     
 		)";
@@ -69,25 +74,35 @@ public:
 	void OnUpdate() override
 	{
 		glUseProgram(program);
+		auto location = glGetUniformLocation(program, "u_VP");
+		glUniformMatrix4fv(location, 1, GL_FALSE, camera->GetVP().data.data());
+
+		ar::RenderCommand::SetClearColor(ar::mat::Vec4(0.5f, 0.5f, 1.0f, 1.0f));
+		ar::RenderCommand::Clear();
+		
+		ar::Renderer::BeginScene();
+
 		ar::Renderer::Submit(vao);
+		
+		ar::Renderer::EndScene();
 	}
 
-	void OnEvent(ar::Event& event) override
-	{
-		if (event.GetEventType() == ar::EventType::KeyPressed)
-		{
-			AR_TRACE(event);
-		}
-	}
 
 	void OnImGuiRender() override
 	{
 		
 	}
+
+	void OnEvent(ar::Event& event) override;
+	bool OnKeyPressed(ar::KeyPressedEvent& event);
+	bool OnMouseMoved(ar::MouseMovedEvent& event);
+	bool OnMouseScrolled(ar::MouseScrolledEvent& event);
+	
 private:
 	unsigned int vShader, pShader, program;
 	std::shared_ptr<ar::VertexBuffer> vbo;
 	std::shared_ptr<ar::VertexArray> vao;
+	std::shared_ptr<ar::PerspectiveCamera> camera;
 };
 
 class EditorApp : public ar::Application

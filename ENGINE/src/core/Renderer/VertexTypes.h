@@ -8,14 +8,14 @@ namespace ar
 {
 	struct VertexPosition
 	{
-		Vec3 Position;
+		mat::Vec3 Position;
 		static const BufferLayout s_Layout;
 	};
 
 	struct VertexPositionColor
 	{
-		Vec3 Position;
-		Vec3 Color;
+		mat::Vec3 Position;
+		mat::Vec3 Color;
 		static const BufferLayout s_Layout;
 	};
 

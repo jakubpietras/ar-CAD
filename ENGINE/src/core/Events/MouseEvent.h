@@ -7,21 +7,23 @@ namespace ar
 	class MouseMovedEvent : public Event
 	{
 	public:
-		MouseMovedEvent(float x, float y)
-			: m_MouseX(x), m_MouseY(y) { }
+		MouseMovedEvent(float x, float y, float dx, float dy)
+			: m_MouseX(x), m_MouseY(y), m_OffsetX(dx), m_OffsetY(dy) { }
 
 		inline float GetX() const { return m_MouseX; }
 		inline float GetY() const { return m_MouseY; }
+		inline float GetXOffset() const { return m_OffsetX; }
+		inline float GetYOffset() const { return m_OffsetY; }
 
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "MouseMovedEvent: " << m_MouseX << ", " << m_MouseY;
+			ss << "MouseMovedEvent: " << m_MouseX << ", " << m_MouseY << " [change: " << m_OffsetX << ", " << m_OffsetY << "]";
 			return ss.str();
 		}
 		EVENT_CLASS_TYPE(MouseMoved)
 	private:
-		float m_MouseX, m_MouseY;
+		float m_MouseX, m_MouseY, m_OffsetX, m_OffsetY;
 	};
 
 	class MouseScrolledEvent : public Event

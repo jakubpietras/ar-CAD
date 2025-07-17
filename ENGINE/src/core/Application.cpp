@@ -29,15 +29,6 @@ namespace ar
 	{
 		while (m_Running)
 		{
-			RenderCommand::SetClearColor(Vec4(0.5f, 0.5f, 1.0f, 1.0f));
-			RenderCommand::Clear();
-			//Renderer::BeginScene();
-			// TODO: uncomment Renderer::Submit(mesh);
-			//Renderer::EndScene();
-
-			// TODO: uncomment Renderer::Flush();
-
-
 			for (Layer* layer : m_LayerStack)
 			{
 				layer->OnUpdate();

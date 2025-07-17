@@ -16,13 +16,13 @@ namespace ar
 		s_AppLogger->set_level(spdlog::level::trace);
 	}
 
-    std::ostream& operator<<(std::ostream& os, const Vec3& v) {
+    std::ostream& operator<<(std::ostream& os, const mat::Vec3& v) {
         return os << "[" << v.x << ", " << v.y << ", " << v.z << "]";
     }
-    std::ostream& operator<<(std::ostream& os, const Vec4& v) {
+    std::ostream& operator<<(std::ostream& os, const mat::Vec4& v) {
         return os << "[" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << "]";
     }
-    std::ostream& operator<<(std::ostream& os, const Mat4& mat) {
+    std::ostream& operator<<(std::ostream& os, const mat::Mat4& mat) {
         os << std::fixed << std::setprecision(3);
         for (int row = 0; row < 4; ++row) {
             os << "[ ";
@@ -34,7 +34,7 @@ namespace ar
         }
         return os;
     }
-    std::ostream& operator<<(std::ostream& os, const Quat& q) {
+    std::ostream& operator<<(std::ostream& os, const mat::Quat& q) {
         return os << "(" << q.w << ", " << q.x << ", " << q.y << ", " << q.z << ")";
     }
     std::ostream& operator<<(std::ostream& os, const Event& e)
