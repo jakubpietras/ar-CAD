@@ -49,7 +49,7 @@ namespace ar
 		q.z = std::sinf(angle) * axis_dir.z;
 		return q;
 	}
-	Quat FromEulerXYZ(const Vec3& angles)
+	Quat RPYToQuat(const Vec3& angles)
 	{
 		float angle_x = Radians(angles.x),
 			angle_y = Radians(angles.y),

@@ -85,5 +85,9 @@ namespace ar
 	/// <returns>The inverse of the perspective projection matrix.</returns>
 	Mat4 InvPerspective(float fov, float aspect_ratio, float near, float far);
 
+	Mat4 LookAt(Vec4 right, Vec4 up, Vec4 forward, Vec4 position);
+
+	Mat4 InvLookAt(Vec4 right, Vec4 up, Vec4 forward, Vec4 position);
+
 	Mat4 Frustum(float near, float far, float right, float left, float top, float bottom);
 }

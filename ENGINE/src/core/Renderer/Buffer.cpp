@@ -17,7 +17,7 @@ namespace ar
 			{
 				return new OGLVertexBuffer(vertices.data(),
 					static_cast<unsigned int>(vertices.size()) * sizeof(VertexPosition),
-					vertices.size(), VertexPosition::s_Layout);
+					static_cast<unsigned int>(vertices.size()), VertexPosition::s_Layout);
 			}
 			default:
 				return nullptr;
@@ -36,7 +36,7 @@ namespace ar
 		{
 			return new OGLVertexBuffer(vertices.data(),
 				static_cast<unsigned int>(vertices.size()) * sizeof(VertexPositionColor), 
-				vertices.size(), VertexPositionColor::s_Layout);
+				static_cast<unsigned int>(vertices.size()), VertexPositionColor::s_Layout);
 		}
 		default:
 			return nullptr;

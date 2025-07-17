@@ -129,6 +129,11 @@ namespace ar
 #pragma endregion Vec3
 
 #pragma region Vec4
+
+	const Vec4 Vec4::s_WorldForward = { 0.0f, 0.0f, 1.0f, 0.0f },
+		Vec4::s_WorldUp = { 0.0f, 1.0f, 0.0f, 0.0f },
+		Vec4::s_WorldRight = { 1.0f, 0.0f, 0.0f, 0.0f };
+
 	const float* Vec4::Data() const
 	{
 		return &x;

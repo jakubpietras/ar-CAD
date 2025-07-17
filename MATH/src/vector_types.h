@@ -131,6 +131,8 @@ namespace ar
 		Vec4(float x = 0.0f, float y = 0.0f, float z = 0.0f, float w = 0.0f);
 		Vec4(const Vec3& v3, float w);
 
+		static const Vec4 s_WorldForward, s_WorldUp, s_WorldRight;
+
 		/// <summary>
 		/// Returns the component-wise sum of this vector and another.
 		/// </summary>

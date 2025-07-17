@@ -78,28 +78,64 @@ namespace ar
 
 		float tanHalfFov = std::tanf(Radians(fov * 0.5f));
 
-		// 1/(0,0) and (1,1) from above
-		invPm(0, 0) = aspect_ratio * tanHalfFov;  // = 1 / [1/(aspect * tanHalfFov)]
-		invPm(1, 1) = tanHalfFov;                // = 1 / [1/tanHalfFov]
-
-		// The main difference: row2, row3 hold the inverse of that Z/W arrangement.
-		// "pm(3,2) = -1" becomes "invPm(2,3) = -1" in the inverse, etc.
-
-		// The perspective block’s 2×2 portion in rows 2..3, cols 2..3
-		// inverts to these assignments:
+		invPm(0, 0) = aspect_ratio * tanHalfFov;
+		invPm(1, 1) = tanHalfFov;
 		invPm(2, 2) = 0.0f;
-		invPm(2, 3) = -1.0f; // from the -1 in (3,2) of the forward matrix
+		invPm(2, 3) = -1.0f;
 
-		// Far/near part:
 		float C = -(farZ + nearZ) / (farZ - nearZ);
 		float D = -(2.0f * farZ * nearZ) / (farZ - nearZ);
 
-		// The bottom row [row=3] depends on C and D
-		invPm(3, 2) = 1.0f / D;    // = - (farZ - nearZ) / (2.0f * farZ * nearZ)
-		invPm(3, 3) = C / D;       // = (farZ + nearZ) / (2.0f * farZ * nearZ)
+		invPm(3, 2) = 1.0f / D;
+		invPm(3, 3) = C / D;
 
 		return invPm;
 	}
+
+	Mat4 LookAt(Vec4 right, Vec4 up, Vec4 forward, Vec4 position)
+	{
+		Mat4 view = Identity();
+
+		view(0, 0) = right.x;
+		view(0, 1) = right.y;
+		view(0, 2) = right.z;
+		view(0, 3) = -Dot(ToVec3(right), ToVec3(position));
+
+		view(1, 0) = up.x;
+		view(1, 1) = up.y;
+		view(1, 2) = up.z;
+		view(1, 3) = -Dot(ToVec3(up), ToVec3(position));
+
+		view(2, 0) = -forward.x;
+		view(2, 1) = -forward.y;
+		view(2, 2) = -forward.z;
+		view(2, 3) = -Dot(ToVec3(forward), ToVec3(position));
+		
+		return view;
+	}
+
+	Mat4 InvLookAt(Vec4 right, Vec4 up, Vec4 forward, Vec4 position)
+	{
+		Mat4 invView = Identity();
+
+		invView(0, 0) = right.x;
+		invView(0, 1) = up.x;
+		invView(0, 2) = -forward.x;
+		invView(0, 3) = position.x;
+
+		invView(1, 0) = right.y;
+		invView(1, 1) = up.y;
+		invView(1, 2) = -forward.y;
+		invView(1, 3) = position.y;
+
+		invView(2, 0) = right.z;
+		invView(2, 1) = up.z;
+		invView(2, 2) = -forward.z;
+		invView(2, 3) = position.z;
+		
+		return invView;
+	}
+
 	Mat4 Frustum(float near, float far, float right, float left, float top, float bottom)
 	{
 		Mat4 m = Identity();

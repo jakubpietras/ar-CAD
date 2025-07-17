@@ -68,9 +68,8 @@ public:
 
 	void OnUpdate() override
 	{
-		vao->Bind();
 		glUseProgram(program);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		ar::Renderer::Submit(vao);
 	}
 
 	void OnEvent(ar::Event& event) override

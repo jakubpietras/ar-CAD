@@ -2,6 +2,8 @@
 #include "Application.h"
 
 #include <glad/glad.h>
+#include "core/Renderer/Renderer.h"
+#include "core/Renderer/RenderCommand.h"
 
 namespace ar
 {
@@ -27,15 +29,11 @@ namespace ar
 	{
 		while (m_Running)
 		{
-			glClearColor(0.5f, 0.5f, 1.0f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			// RenderCommand::SetClearColor(color);
-			// RenderCommand::Clear();
-
-
-			// TODO: uncomment Renderer::BeginScene(camera);
+			RenderCommand::SetClearColor(Vec4(0.5f, 0.5f, 1.0f, 1.0f));
+			RenderCommand::Clear();
+			//Renderer::BeginScene();
 			// TODO: uncomment Renderer::Submit(mesh);
-			// TODO: uncomment Renderer::EndScene();
+			//Renderer::EndScene();
 
 			// TODO: uncomment Renderer::Flush();
 
