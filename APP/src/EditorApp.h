@@ -11,6 +11,10 @@ public:
 		camera = std::make_shared<ar::PerspectiveCamera>(45.0f, 1920.0f / 1080.0f, 0.1f,
 			100.0f, 5.0f);
 
+		shader = std::shared_ptr<ar::Shader>(ar::Shader::Create(
+			"resources/shaders/OpenGL/test.vert",
+			"resources/shaders/OpenGL/test.frag"));
+
 		auto va = ar::VertexArray::Create();
 		vao = std::shared_ptr<ar::VertexArray>(va);
 
@@ -103,6 +107,7 @@ private:
 	std::shared_ptr<ar::VertexBuffer> vbo;
 	std::shared_ptr<ar::VertexArray> vao;
 	std::shared_ptr<ar::PerspectiveCamera> camera;
+	std::shared_ptr<ar::Shader> shader;
 };
 
 class EditorApp : public ar::Application

@@ -89,6 +89,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\platform\OpenGL\OGLShader.cpp" />
+    <ClCompile Include="src\core\Renderer\Shader.cpp" />
     <ClCompile Include="src\core\Renderer\Camera.cpp" />
     <ClCompile Include="src\platform\OpenGL\OGLRendererAPI.cpp" />
     <ClCompile Include="src\core\Renderer\RenderCommand.cpp" />
@@ -117,6 +119,8 @@
     <ClCompile Include="src\platform\Windows\WindowsInput.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\platform\OpenGL\OGLShader.h" />
+    <ClInclude Include="src\core\Renderer\Shader.h" />
     <ClInclude Include="src\core\Renderer\Camera.h" />
     <ClInclude Include="src\platform\OpenGL\OGLRendererAPI.h" />
     <ClInclude Include="src\core\Renderer\RenderCommand.h" />
@@ -157,6 +161,10 @@
     <ProjectReference Include="..\MATH\MATH.vcxproj">
       <Project>{e1df6bc1-2e4f-4bc5-98d1-3bdf7ae88f0b}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\resources\shaders\OpenGL\test.frag" />
+    <None Include="src\resources\shaders\OpenGL\test.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -71,8 +71,7 @@
       </AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>robocopy "C:\CC\ar-CAD\ENGINE\src\resources\shaders" "C:\CC\ar-CAD\bin\Debug-x64\APP\resources\shaders" /E || exit 0</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

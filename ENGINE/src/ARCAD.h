@@ -13,3 +13,4 @@
 #include "core/Renderer/Buffer.h"
 #include "core/Renderer/VertexArray.h"
 #include "core/Renderer/Camera.h"
+#include "core/Renderer/Shader.h"
