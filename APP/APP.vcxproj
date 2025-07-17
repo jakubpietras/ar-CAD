@@ -111,9 +111,11 @@
   <ItemGroup>
     <ClCompile Include="src\EditorApp.cpp" />
     <ClCompile Include="src\Source.cpp" />
+    <ClCompile Include="src\Layers\TestLayer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\EditorApp.h" />
+    <ClInclude Include="src\Layers\TestLayer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

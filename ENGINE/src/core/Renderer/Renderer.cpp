@@ -4,7 +4,6 @@
 
 namespace ar
 {
-
 	void Renderer::BeginScene()
 	{
 	}
@@ -13,8 +12,10 @@ namespace ar
 	{
 	}
 
-	void Renderer::Submit(const std::shared_ptr<VertexArray>& vertexArray)
+	void Renderer::Submit(const std::shared_ptr<Shader>& shader,
+		const std::shared_ptr<VertexArray>& vertexArray)
 	{
+		shader->Use();
 		vertexArray->Bind();
 		if (vertexArray->GetIndexBuffer())
 		{

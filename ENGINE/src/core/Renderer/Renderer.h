@@ -1,5 +1,6 @@
 #pragma once
 #include "VertexArray.h"
+#include "Shader.h"
 
 namespace ar
 {
@@ -8,6 +9,6 @@ namespace ar
 	public:
 		static void BeginScene();
 		static void EndScene();
-		static void Submit(const std::shared_ptr<VertexArray>& vertexArray);
+		static void Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<VertexArray>& vertexArray);
 	};
 }
