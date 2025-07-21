@@ -18,7 +18,7 @@ public:
 private:
 	std::shared_ptr<ar::VertexBuffer> vbo;
 	std::shared_ptr<ar::VertexArray> vao;
-	std::shared_ptr<ar::PerspectiveCamera> camera;
+	std::shared_ptr<ar::CameraController> camera;
 	std::shared_ptr<ar::Shader> shader;
 };
 

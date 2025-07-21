@@ -89,6 +89,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\core\CameraController.cpp" />
     <ClCompile Include="src\platform\OpenGL\OGLShader.cpp" />
     <ClCompile Include="src\core\Renderer\Shader.cpp" />
     <ClCompile Include="src\core\Renderer\Camera.cpp" />
@@ -119,6 +120,7 @@
     <ClCompile Include="src\platform\Windows\WindowsInput.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\core\CameraController.h" />
     <ClInclude Include="src\platform\OpenGL\OGLShader.h" />
     <ClInclude Include="src\core\Renderer\Shader.h" />
     <ClInclude Include="src\core\Renderer\Camera.h" />

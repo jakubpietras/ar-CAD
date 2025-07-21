@@ -9,6 +9,7 @@ namespace ar
 
 		inline static void SetClearColor(const mat::Vec4 color) { s_RendererAPI->SetClearColor(color); }
 		inline static void Clear() { s_RendererAPI->Clear(); }
+		static void SetViewport(int x, int y, uint32_t width, uint32_t height);
 
 		inline static void Draw(const std::shared_ptr<VertexArray>& vertexArray)
 		{

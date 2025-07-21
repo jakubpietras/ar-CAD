@@ -8,9 +8,10 @@
 #include "core/Input.h"
 #include "core/KeyCodes.h"
 #include "core/MouseButtonCodes.h"
+#include "core/CameraController.h"
+
 #include "core/Renderer/Renderer.h"
 #include "core/Renderer/RenderCommand.h"
 #include "core/Renderer/Buffer.h"
 #include "core/Renderer/VertexArray.h"
-#include "core/Renderer/Camera.h"
 #include "core/Renderer/Shader.h"
