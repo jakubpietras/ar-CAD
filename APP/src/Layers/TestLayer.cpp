@@ -59,13 +59,13 @@ bool TestLayer::OnMouseMoved(ar::MouseMovedEvent& event)
 {
 	if (ar::Input::IsMouseButtonPressed(AR_MOUSE_BUTTON_MIDDLE))
 	{
-		camera->Rotate(event.GetYOffset(), event.GetXOffset(), 0.0f);
+		camera->Rotate(event.GetYOffset(), -event.GetXOffset(), 0.0f);
 	}
 	return false;
 }
 
 bool TestLayer::OnMouseScrolled(ar::MouseScrolledEvent& event)
 {
-	camera->UpdateArcballRadius(event.GetYOffset());
+	camera->UpdateArcballRadius(-event.GetYOffset());
 	return false;
 }

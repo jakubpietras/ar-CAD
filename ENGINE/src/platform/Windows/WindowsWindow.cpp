@@ -13,6 +13,8 @@
 namespace ar
 {
 	static bool s_GLFWInitialized = false;
+	static bool s_IsDragging = false;
+	static float s_LastX = 0.0f, s_LastY = 0.0f;
 
 	static void GLFWErrorCallback(int error, const char* desc)
 	{
@@ -109,12 +111,22 @@ namespace ar
 					{
 						MouseButtonPressedEvent event(button);
 						data.EventCallback(event);
+						if (button == AR_MOUSE_BUTTON_MIDDLE)
+						{
+							double xPos, yPos;
+							s_IsDragging = true;
+							glfwGetCursorPos(window, &xPos, &yPos);
+							s_LastX = static_cast<float>(xPos);
+							s_LastY = static_cast<float>(yPos);
+						}
 						break;
 					}
 					case GLFW_RELEASE:
 					{
 						MouseButtonReleasedEvent event(button);
 						data.EventCallback(event);
+						if (button == AR_MOUSE_BUTTON_MIDDLE)
+							s_IsDragging = false;
 						break;
 					}
 				}
@@ -130,30 +142,16 @@ namespace ar
 		glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xPos, double yPos)
 			{
 				auto& data = *(WindowData*)glfwGetWindowUserPointer(window);
-				static bool firstMouse = true;
-				static float lastX = 0.0f, lastY = 0.0f;
-				auto x = static_cast<float>(xPos),
-					y = static_cast<float>(yPos);
+				auto x = static_cast<float>(xPos);
+				auto y = static_cast<float>(yPos);
 				
-				if (ar::Input::IsAnyMouseButtonPressed())
-				{
-					if (firstMouse)
-					{
-						lastX = x;
-						lastY = y;
-						firstMouse = false;
-					}
-				}
-				else
-				{
-					firstMouse = false;
+				if (!s_IsDragging)
 					return;
-				}
 				
-				auto offsetX = static_cast<float>(x - lastX);
-				auto offsetY = static_cast<float>(lastY - y);
-				lastX = x;
-				lastY = y;
+				float offsetX = x - s_LastX;
+				float offsetY = s_LastY - y;
+				s_LastX = x;
+				s_LastY = y;
 
 				MouseMovedEvent event(x, y, offsetX, offsetY);
 				data.EventCallback(event);
