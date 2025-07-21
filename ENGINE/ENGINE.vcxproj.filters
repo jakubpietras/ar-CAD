@@ -196,7 +196,9 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\resources\shaders\OpenGL\test.vert" />
-    <None Include="src\resources\shaders\OpenGL\test.frag" />
+    <None Include="src\resources\shaders\OpenGL\default.vert" />
+    <None Include="src\resources\shaders\OpenGL\default.frag" />
+    <None Include="src\resources\shaders\OpenGL\grid.vert" />
+    <None Include="src\resources\shaders\OpenGL\grid.frag" />
   </ItemGroup>
 </Project>

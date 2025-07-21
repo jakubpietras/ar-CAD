@@ -109,13 +109,15 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Layers\InteractionLayer.cpp" />
+    <ClCompile Include="src\Layers\EditorLayer.cpp" />
     <ClCompile Include="src\EditorApp.cpp" />
     <ClCompile Include="src\Source.cpp" />
-    <ClCompile Include="src\Layers\TestLayer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Layers\InteractionLayer.h" />
+    <ClInclude Include="src\Layers\EditorLayer.h" />
     <ClInclude Include="src\EditorApp.h" />
-    <ClInclude Include="src\Layers\TestLayer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

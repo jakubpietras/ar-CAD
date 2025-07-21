@@ -7,12 +7,12 @@ namespace ar
 	CameraController::CameraController(float fov, float aspectRatio, float nearPlane,
 		float farPlane, float initArcballRadius)
 		: m_FOV(fov), m_AspectRatio(aspectRatio), m_NearPlane(nearPlane), m_FarPlane(farPlane),
-		m_ArcballRadius(initArcballRadius), m_Camera(std::make_shared<PerspectiveCamera>())
+		m_ArcballRadius(initArcballRadius), m_Camera(std::make_shared<PerspectiveCamera>()),
+		m_MoveSpeed(0.01f)
 	{
 		m_Camera->UpdateProjection(m_FOV, m_AspectRatio, m_NearPlane, m_FarPlane);
 		UpdatePosition();
 		m_Camera->UpdateView(m_Position);
-
 	}
 
 	void CameraController::OnUpdate()
@@ -25,6 +25,7 @@ namespace ar
 		dispatcher.Dispatch<MouseMovedEvent>(AR_BIND_EVENT_FN(CameraController::OnMouseMoved));
 		dispatcher.Dispatch<MouseScrolledEvent>(AR_BIND_EVENT_FN(CameraController::OnMouseScrolled));
 		dispatcher.Dispatch<WindowResizeEvent>(AR_BIND_EVENT_FN(CameraController::OnWindowResized));
+		dispatcher.Dispatch<KeyPressedEvent>(AR_BIND_EVENT_FN(CameraController::OnKeyPressed));
 	}
 
 	void CameraController::Rotate(float dPitch, float dYaw, float dRoll)
@@ -81,4 +82,14 @@ namespace ar
 		return false;
 	}
 
+	bool CameraController::OnKeyPressed(KeyPressedEvent& e)
+	{
+		if (e.GetKeyCode() == AR_KEY_W)
+		{
+			m_Target.x += (-m_MoveSpeed);
+			UpdatePosition();
+		}
+
+		return false;
+	}
 }

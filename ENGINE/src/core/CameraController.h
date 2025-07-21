@@ -2,6 +2,7 @@
 
 #include "Renderer/Camera.h"
 #include "Events/ApplicationEvent.h"
+#include "Events/KeyEvent.h"
 #include "Events/MouseEvent.h"
 
 namespace ar
@@ -35,11 +36,13 @@ namespace ar
 		bool OnMouseScrolled(MouseScrolledEvent& e);
 		bool OnMouseMoved(MouseMovedEvent& e);
 		bool OnWindowResized(WindowResizeEvent& e);
+		bool OnKeyPressed(KeyPressedEvent& e);
 
 		mat::Vec4 m_Position, m_Target;
 		float m_FOV, m_AspectRatio, m_NearPlane, m_FarPlane;
 		float m_ArcballRadius;
 		mat::Quat m_RotationQuat; mat::Vec3 m_RotationRPY;
+		float m_MoveSpeed;
 
 
 		std::shared_ptr<PerspectiveCamera> m_Camera;

@@ -15,6 +15,9 @@ namespace ar
 		virtual void OnAttach() override;
 		virtual void OnDetach() override;
 		virtual void OnImGuiRender() override;
+		void OnEvent(Event& event) override;
+
+		bool Ignore(MouseScrolledEvent& e);
 
 		void Begin();
 		void End();

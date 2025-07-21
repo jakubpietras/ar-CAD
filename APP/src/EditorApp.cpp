@@ -1,9 +1,9 @@
 #include "EditorApp.h"
-#include "Layers/TestLayer.h"
+#include "Layers/EditorLayer.h"
 
 EditorApp::EditorApp()
 {
-	PushLayer(new TestLayer());
+	PushLayer(new EditorLayer(GetAspectRatio()));
 }
 
 EditorApp::~EditorApp()

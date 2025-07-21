@@ -84,4 +84,11 @@ namespace ar
 		m_LayerStack.PushLayer(overlay);
 		overlay->OnAttach();
 	}
+
+	float Application::GetAspectRatio()
+	{
+		// todo: fix
+		return 1920.0f / 1080.0f;
+	}
+
 }

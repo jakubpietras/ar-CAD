@@ -6,6 +6,7 @@ namespace ar
 {
 	void Renderer::BeginScene()
 	{
+		
 	}
 
 	void Renderer::EndScene()

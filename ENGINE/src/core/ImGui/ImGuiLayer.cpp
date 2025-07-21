@@ -7,6 +7,11 @@
 #include "backends/imgui_impl_glfw.h"
 #include <GLFW/glfw3.h>
 
+#include "core/Events/KeyEvent.h"
+#include "core/Events/ApplicationEvent.h"
+#include "core/Events/MouseEvent.h"
+
+
 namespace ar
 {
     ImGuiLayer::ImGuiLayer()
@@ -24,7 +29,7 @@ namespace ar
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO(); (void)io;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Game pad Controls
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
 
         ImGui::StyleColorsDark();
@@ -35,7 +40,7 @@ namespace ar
         style.ScaleAllSizes(main_scale);        // Bake a fixed style scale. (until we have a solution for dynamic style scaling, changing this requires resetting Style + calling this again)
         style.FontScaleDpi = main_scale;        // Set initial font scale. (using io.ConfigDpiScaleFonts=true makes this unnecessary. We leave both here for documentation purpose)
 
-        // Setup Platform/Renderer backends
+        // Setup Platform/Renderer back ends
         Application& app = Application::Get();
         GLFWwindow* window = static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow());
         ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -76,4 +81,17 @@ namespace ar
             glfwMakeContextCurrent(backup_current_context);
         }
     }
+
+	void ImGuiLayer::OnEvent(Event& event)
+	{
+        EventDispatcher dispatcher(event);
+        dispatcher.Dispatch<MouseScrolledEvent>(AR_BIND_EVENT_FN(ImGuiLayer::Ignore));
+    }
+
+
+	bool ImGuiLayer::Ignore(MouseScrolledEvent& e)
+	{
+        return ImGui::GetIO().WantCaptureMouse;
+	}
+
 }
