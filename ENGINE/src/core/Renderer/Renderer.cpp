@@ -31,4 +31,15 @@ namespace ar
 			RenderCommand::Draw(vertexArray);
 		vertexArray->Unbind();
 	}
+
+	void Renderer::SubmitEmpty(const std::shared_ptr<Shader>& shader, uint32_t vertexCount,
+		const std::shared_ptr<VertexArray>& dummy)
+	{
+		// Should be used if data is defined inside the shader (e.g. a quad)
+		shader->Use();
+		dummy->Bind();
+		RenderCommand::DrawEmpty(vertexCount);
+		dummy->Unbind();
+	}
+
 }

@@ -24,5 +24,11 @@ namespace ar
 	{
 		glDrawElements(GL_TRIANGLES, vertexArray->GetIndexCount(), GL_UNSIGNED_INT, nullptr);
 	}
+
+	void OGLRendererAPI::DrawEmpty(uint32_t vertexCount)
+	{
+		glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+	}
+
 }
 

@@ -5,6 +5,7 @@
 namespace ar
 {
 	bool RenderCommand::s_DepthTest = true;
+	bool RenderCommand::s_BlendColor = true;
 
 	void RenderCommand::SetViewport(int x, int y, uint32_t width, uint32_t height)
 	{
@@ -15,6 +16,17 @@ namespace ar
 	{
 		if (enabled) glEnable(GL_DEPTH_TEST);
 		else glDisable(GL_DEPTH_TEST);
+	}
+
+	void RenderCommand::ToggleBlendColor(bool enabled)
+	{
+		if (enabled) glEnable(GL_BLEND);
+		else glDisable(GL_BLEND);
+	}
+
+	void RenderCommand::SetDepthMask(uint32_t flag)
+	{
+		glDepthMask(flag);
 	}
 
 	ar::RendererAPI* RenderCommand::s_RendererAPI = new ar::OGLRendererAPI();

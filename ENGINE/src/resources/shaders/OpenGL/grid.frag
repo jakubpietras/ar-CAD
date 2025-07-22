@@ -1,55 +1,51 @@
 #version 410 core
 
-in vec3 nearPoint;
-in vec3 farPoint;
-in mat4 fragView;
-in mat4 fragProjection;
+const vec2 width = vec2(0.05f, 0.05f);
+const float majorAxisThickness = 0.04f;
 
 out vec4 FragColor;
+in vec2 v_Coords;
 
-vec4 grid(vec3 fragPos3D, float scale) 
-{
-    vec2 coord = fragPos3D.xz * scale; // scale - distance between the lines
-    vec2 derivative = fwidth(coord);
-    vec2 grid = abs(fract(coord - 0.5) - 0.5) / derivative;
-    float line = min(grid.x, grid.y);
-    float minimumz = min(derivative.y, 1);
-    float minimumx = min(derivative.x, 1);
-    vec4 color = vec4(0.2, 0.2, 0.2, 1.0 - min(line, 1.0));
-    // z axis
-    if(fragPos3D.x > -0.2 * minimumx && fragPos3D.x < 0.2 * minimumx)
-        color.z = 1.0;
-    // x axis
-    if(fragPos3D.z > -0.2 * minimumz && fragPos3D.z < 0.2 * minimumz)
-        color.x = 1.0;
-    return color;
-}
+// https://www.shadertoy.com/view/mdVfWw?source=post_page-----727f9278b9d8
+// Author: Ben Golus
 
-float computeDepth(vec3 pos) 
+float pristineGrid(vec2 uv, vec2 lineWidth)
 {
-    vec4 clip_space_pos = fragProjection * fragView * vec4(pos.xyz, 1.0);
-    return (clip_space_pos.z / clip_space_pos.w);
-}
+    vec2 ddx = dFdx(uv);
+    vec2 ddy = dFdy(uv);
+    vec2 uvDeriv = vec2(length(vec2(ddx.x, ddy.x)), length(vec2(ddx.y, ddy.y)));
+    bvec2 invertLine = bvec2(lineWidth.x > 0.5, lineWidth.y > 0.5);
+    vec2 targetWidth = vec2(
+      invertLine.x ? 1.0 - lineWidth.x : lineWidth.x,
+      invertLine.y ? 1.0 - lineWidth.y : lineWidth.y
+      );
+    vec2 drawWidth = clamp(targetWidth, uvDeriv, vec2(0.5));
+    vec2 lineAA = uvDeriv * 1.5;
+    vec2 gridUV = abs(fract(uv) * 2.0 - 1.0);
+    gridUV.x = invertLine.x ? gridUV.x : 1.0 - gridUV.x;
+    gridUV.y = invertLine.y ? gridUV.y : 1.0 - gridUV.y;
+    vec2 grid2 = smoothstep(drawWidth + lineAA, drawWidth - lineAA, gridUV);
 
-float computeLinearDepth(vec3 pos) 
-{
-    vec4 clip_space_pos = fragProjection * fragView * vec4(pos.xyz, 1.0);
-    float clip_space_depth = (clip_space_pos.z / clip_space_pos.w) * 2.0 - 1.0; // put back between -1 and 1
-    float linearDepth = (2.0 * 100 * 0.1) / (100 + 0.1 - clip_space_depth * (100 - 0.1)); // get linear value between 0.01 and 100
-    return linearDepth / 100; // normalize
+    grid2 *= clamp(targetWidth / drawWidth, 0.0, 1.0);
+    grid2 = mix(grid2, targetWidth, clamp(uvDeriv * 2.0 - 1.0, 0.0, 1.0));
+    grid2.x = invertLine.x ? 1.0 - grid2.x : grid2.x;
+    grid2.y = invertLine.y ? 1.0 - grid2.y : grid2.y;
+    return mix(grid2.x, 1.0, grid2.y);
 }
 
 void main()
 {
-    float t = -nearPoint.y / (farPoint.y - nearPoint.y);
-    vec3 fragPos3D = nearPoint + t * (farPoint - nearPoint);
-    float opacity = t > 0 ? 1.0f : 0.0f;
-    gl_FragDepth = computeDepth(fragPos3D);
+    vec2 uv = v_Coords;
+    float grid = pristineGrid(uv, width);
+    vec4 bgColor = vec4(0.25f, 0.25f, 0.25f, 1.0f);
+    vec4 lineColor = vec4(0.3f, 0.3f, 0.3f, 0.1f);
+        
+    if (uv.x > -majorAxisThickness && uv.x < majorAxisThickness)
+        lineColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
+    if (uv.y > -majorAxisThickness && uv.y < majorAxisThickness)
+        lineColor = vec4(0.0f, 0.0f, 1.0f, 1.0f);
 
-    float linearDepth = computeLinearDepth(fragPos3D);
-    float fading = max(0, (0.5 - linearDepth));
-
-    vec4 color = (grid(fragPos3D, 5) + grid(fragPos3D, 1)) * opacity;
-
-    FragColor = color * fading;
+    vec4 color = mix(bgColor, lineColor, grid);
+    FragColor = color;
 }
+

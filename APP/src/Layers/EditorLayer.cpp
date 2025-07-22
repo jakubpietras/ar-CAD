@@ -12,6 +12,9 @@ EditorLayer::EditorLayer(float aspectRatio)
 	m_CubeShader = std::shared_ptr<ar::Shader>(
 		ar::Shader::Create("resources/shaders/OpenGL/default.vert",
 			"resources/shaders/OpenGL/default.frag"));
+	m_GridShader = std::shared_ptr<ar::Shader>(
+		ar::Shader::Create("resources/shaders/OpenGL/grid.vert",
+			"resources/shaders/OpenGL/grid.frag"));
 	
 	std::vector<ar::VertexPositionColor> cubeVerts = {
 		// position				color
@@ -60,6 +63,7 @@ EditorLayer::EditorLayer(float aspectRatio)
 
 	m_Cube = std::shared_ptr<ar::VertexArray>(ar::VertexArray::Create());
 	m_Cube->AddVertexBuffer(std::shared_ptr<ar::VertexBuffer>(ar::VertexBuffer::Create(cubeVerts)));
+	m_Dummy = std::shared_ptr<ar::VertexArray>(ar::VertexArray::Create());
 }
 
 void EditorLayer::OnAttach() { }
@@ -71,12 +75,18 @@ void EditorLayer::OnUpdate()
 	m_CameraController->OnUpdate();
 	auto cam = m_CameraController->GetCamera();
 
-	ar::RenderCommand::SetClearColor(ar::mat::Vec4(0.5f, 0.5f, 1.0f, 1.0f));
+	ar::RenderCommand::SetClearColor(ar::mat::Vec4(0.25f, 0.25f, 0.25f, 1.0f));
 	ar::RenderCommand::ToggleDepthTest(true);
+	ar::RenderCommand::ToggleBlendColor(true);
 	ar::RenderCommand::Clear();
 	ar::Renderer::BeginScene();
 	m_CubeShader->SetMat4("u_VP", cam->GetVP());
+	m_GridShader->SetMat4("u_VP", cam->GetVP());
+	ar::RenderCommand::SetDepthMask(GL_FALSE);
+	ar::Renderer::SubmitEmpty(m_GridShader, 6, m_Dummy);
+	ar::RenderCommand::SetDepthMask(GL_TRUE);
 	ar::Renderer::Submit(m_CubeShader, m_Cube);
+	
 	ar::Renderer::EndScene();
 }
 

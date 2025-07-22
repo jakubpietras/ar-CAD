@@ -22,8 +22,8 @@ public:
 private:
 	std::shared_ptr<ar::CameraController> m_CameraController;
 
-	std::shared_ptr<ar::VertexArray> m_Cube;
-	std::shared_ptr<ar::Shader> m_CubeShader;
+	std::shared_ptr<ar::VertexArray> m_Cube, m_Dummy;
+	std::shared_ptr<ar::Shader> m_CubeShader, m_GridShader;
 };
 
 

@@ -87,9 +87,11 @@ namespace ar
 		glShaderSource(shader, 1, &source, nullptr);
 
 		glCompileShader(shader);
+		char infoLog[512];
 		GLint status;
 		glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-		AR_ASSERT(GL_FALSE != status, "Shader compilation failed");
+		glGetShaderInfoLog(shader, 512, NULL, infoLog);
+		AR_ASSERT(GL_FALSE != status, "Shader compilation failed: " + std::string(infoLog));
 		return shader;
 	}
 
