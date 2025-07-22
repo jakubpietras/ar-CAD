@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -90,6 +90,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\core\CameraController.cpp" />
+    <ClCompile Include="src\core\Commands\CommandQueue.cpp" />
+    <ClCompile Include="src\core\Commands\SceneCommands.cpp" />
     <ClCompile Include="src\platform\OpenGL\OGLShader.cpp" />
     <ClCompile Include="src\core\Renderer\Shader.cpp" />
     <ClCompile Include="src\core\Renderer\Camera.cpp" />
@@ -120,7 +122,11 @@
     <ClCompile Include="src\platform\Windows\WindowsInput.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Command.h" />
     <ClInclude Include="src\core\CameraController.h" />
+    <ClInclude Include="src\core\Commands\Command.h" />
+    <ClInclude Include="src\core\Commands\CommandQueue.h" />
+    <ClInclude Include="src\core\Commands\SceneCommands.h" />
     <ClInclude Include="src\platform\OpenGL\OGLShader.h" />
     <ClInclude Include="src\core\Renderer\Shader.h" />
     <ClInclude Include="src\core\Renderer\Camera.h" />

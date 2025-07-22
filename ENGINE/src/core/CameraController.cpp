@@ -10,6 +10,7 @@ namespace ar
 		m_ArcballRadius(initArcballRadius), m_Camera(std::make_shared<PerspectiveCamera>()),
 		m_MoveSpeed(0.01f)
 	{
+		Rotate(-30, -25, 0);
 		m_Camera->UpdateProjection(m_FOV, m_AspectRatio, m_NearPlane, m_FarPlane);
 		UpdatePosition();
 		m_Camera->UpdateView(m_Position);

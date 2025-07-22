@@ -1,7 +1,7 @@
 #version 410 core
 
-const vec2 width = vec2(0.05f, 0.05f);
-const float majorAxisThickness = 0.04f;
+const vec2 width = vec2(0.03f, 0.03f);
+const float majorAxisThickness = 0.02f;
 
 out vec4 FragColor;
 in vec2 v_Coords;
@@ -41,9 +41,9 @@ void main()
     vec4 lineColor = vec4(0.3f, 0.3f, 0.3f, 0.1f);
         
     if (uv.x > -majorAxisThickness && uv.x < majorAxisThickness)
-        lineColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
-    if (uv.y > -majorAxisThickness && uv.y < majorAxisThickness)
         lineColor = vec4(0.0f, 0.0f, 1.0f, 1.0f);
+    if (uv.y > -majorAxisThickness && uv.y < majorAxisThickness)
+        lineColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
 
     vec4 color = mix(bgColor, lineColor, grid);
     FragColor = color;
