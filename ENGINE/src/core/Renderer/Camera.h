@@ -11,7 +11,7 @@ namespace ar
 		inline const mat::Mat4& GetProjection() { return m_Projection; }
 		inline const mat::Mat4& GetInvView() { return m_InvView; }
 		inline const mat::Mat4& GetInvProjection() { return m_InvProjection; }
-		inline const mat::Mat4& GetVP() { return m_Projection * m_View; }
+		inline const mat::Mat4 GetVP() { return m_Projection * m_View; }
 		inline const mat::Vec4& GetForward() const { return m_Forward; }
 		inline const mat::Vec4& GetRight() const { return m_Right; }
 

@@ -23,7 +23,7 @@ namespace ar
 			}
 
 			// back substitution
-			for (int i = size - 2; i >= 0; i--)
+			for (int i = static_cast<int>(size) - 2; i >= 0; i--)
 			{
 				result[i] -= scratch[i] * result[i + 1];
 			}

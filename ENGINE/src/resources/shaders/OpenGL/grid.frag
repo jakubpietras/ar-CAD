@@ -1,6 +1,6 @@
 #version 410 core
 
-const vec2 width = vec2(0.03f, 0.03f);
+const vec2 width = vec2(0.02f, 0.02f);
 const float majorAxisThickness = 0.02f;
 
 out vec4 FragColor;
