@@ -15,3 +15,5 @@
 #include "core/Renderer/Buffer.h"
 #include "core/Renderer/VertexArray.h"
 #include "core/Renderer/Shader.h"
+#include "core/Renderer/Framebuffer.h"
+#include "core/Renderer/Texture.h"

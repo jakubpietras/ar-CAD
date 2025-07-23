@@ -89,6 +89,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\core\stb_image.cpp" />
     <ClCompile Include="src\platform\OpenGL\OGLTexture.cpp" />
     <ClCompile Include="src\platform\OpenGL\OGLFramebuffer.cpp" />
     <ClCompile Include="src\core\Renderer\Framebuffer.cpp" />
@@ -126,6 +127,7 @@
     <ClCompile Include="src\core\Renderer\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\core\stb_image.h" />
     <ClInclude Include="src\platform\OpenGL\OGLTexture.h" />
     <ClInclude Include="src\platform\OpenGL\OGLFramebuffer.h" />
     <ClInclude Include="src\core\Renderer\Framebuffer.h" />

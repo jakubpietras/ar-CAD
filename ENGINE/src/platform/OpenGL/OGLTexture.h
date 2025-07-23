@@ -7,6 +7,8 @@ namespace ar
 	{
 	public:
 		OGLTexture(const TextureDesc& desc);
+		OGLTexture(const std::string& filepath);
+
 		virtual ~OGLTexture();
 		void SetData(void* data, uint32_t size) override;
 	private:

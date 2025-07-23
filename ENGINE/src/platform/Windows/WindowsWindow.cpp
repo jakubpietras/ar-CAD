@@ -1,6 +1,15 @@
 #include "arpch.h"
 #include "WindowsWindow.h"
 
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <windows.h>
+
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
+#include <dwmapi.h>
+#pragma comment(lib, "Dwmapi.lib")
+
 #include "core/Input.h"
 #include "core/Events/ApplicationEvent.h"
 #include "core/Events/MouseEvent.h"
@@ -8,7 +17,6 @@
 
 #include "core/Renderer/DeviceContext.h"
 #include "platform/OpenGL/OpenGLContext.h"
-
 
 namespace ar
 {
@@ -58,6 +66,12 @@ namespace ar
 		m_Context->Init();
 		SetVSync(true);
 		
+		// Dark title bar
+
+		HWND hwnd = glfwGetWin32Window(m_Window);
+		BOOL useDark = TRUE;
+		::DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &useDark, sizeof(useDark));
+
 		// Set GLFW callbacks
 		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
 			{
@@ -163,6 +177,7 @@ namespace ar
 				KeyTypedEvent event(keycode);
 				data.EventCallback(event);
 			});
+
 
 	}
 

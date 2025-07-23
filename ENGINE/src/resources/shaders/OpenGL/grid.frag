@@ -1,7 +1,7 @@
 #version 410 core
 
 const vec2 width = vec2(0.02f, 0.02f);
-const float majorAxisThickness = 0.02f;
+const float majorAxisThickness = 0.018f;
 
 out vec4 FragColor;
 in vec2 v_Coords;
@@ -37,14 +37,14 @@ void main()
 {
     vec2 uv = v_Coords;
     float grid = pristineGrid(uv, width);
-    vec4 bgColor = vec4(0.25f, 0.25f, 0.25f, 1.0f);
-    vec4 lineColor = vec4(0.3f, 0.3f, 0.3f, 0.1f);
+
+    vec4 bgColor = vec4(0.25f, 0.25f, 0.25f, 0.0f);
+    vec4 lineColor = vec4(0.3f, 0.3f, 0.3f, 1.0f);
         
     if (uv.x > -majorAxisThickness && uv.x < majorAxisThickness)
         lineColor = vec4(0.0f, 0.0f, 1.0f, 1.0f);
     if (uv.y > -majorAxisThickness && uv.y < majorAxisThickness)
         lineColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
-
     vec4 color = mix(bgColor, lineColor, grid);
     FragColor = color;
 }

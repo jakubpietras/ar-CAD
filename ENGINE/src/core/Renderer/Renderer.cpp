@@ -6,7 +6,8 @@ namespace ar
 {
 	void Renderer::BeginScene()
 	{
-		
+		ar::RenderCommand::ToggleDepthTest(true);
+		ar::RenderCommand::ToggleBlendColor(true);
 	}
 	void Renderer::EndScene()
 	{

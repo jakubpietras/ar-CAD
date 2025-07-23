@@ -22,6 +22,7 @@ namespace ar
 		virtual ~Texture() {}
 		virtual void SetData(void* data, uint32_t size) = 0;
 		static Texture* Create(const TextureDesc& desc);
+		static Texture* Create(const std::string& filepath);
 		inline const uint32_t GetID() const { return m_ID; };
 	protected:
 		uint32_t m_ID;

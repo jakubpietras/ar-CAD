@@ -16,7 +16,12 @@ namespace ar
 
 		virtual void Resize(uint32_t newWidth, uint32_t newHeight) = 0;
 		virtual void Invalidate() = 0;
-		// virtual void AddColorAttachment() = 0;
+		virtual void Bind() = 0;
+		virtual void Unbind() = 0;
+		virtual uint32_t GetColorAttachment() = 0;
+		virtual uint32_t GetHeight() = 0;
+		virtual uint32_t GetWidth() = 0;
+
 	protected:
 		uint32_t m_ID;
 	};

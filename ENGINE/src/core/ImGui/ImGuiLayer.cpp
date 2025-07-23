@@ -46,26 +46,23 @@ namespace ar
         ImGui_ImplGlfw_InitForOpenGL(window, true);
         ImGui_ImplOpenGL3_Init();
     }
-
     void ImGuiLayer::OnDetach()
     {
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
     }
-
     void ImGuiLayer::OnImGuiRender()
     {
         ImGui::ShowDemoWindow();
     }
-
     void ImGuiLayer::Begin()
     {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+		ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
     }
-
     void ImGuiLayer::End()
     {
         ImGuiIO& io = ImGui::GetIO();
@@ -81,14 +78,11 @@ namespace ar
             glfwMakeContextCurrent(backup_current_context);
         }
     }
-
 	void ImGuiLayer::OnEvent(Event& event)
 	{
         EventDispatcher dispatcher(event);
         dispatcher.Dispatch<MouseScrolledEvent>(AR_BIND_EVENT_FN(ImGuiLayer::Ignore));
     }
-
-
 	bool ImGuiLayer::Ignore(MouseScrolledEvent& e)
 	{
         return ImGui::GetIO().WantCaptureMouse;

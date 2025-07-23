@@ -27,7 +27,7 @@ namespace ar
 
 		void Rotate(float dPitchDeg, float dYawDeg, float dRollDeg);
 		void UpdateArcballRadius(float dRadius);
-		inline void SetAspectRatio(float aspectRatio) { m_AspectRatio = aspectRatio; }
+		void SetAspectRatio(float aspectRatio);
 
 		void UpdatePosition();
 		void UpdateRotation(float dPitchDeg, float dYawDeg, float dRollDeg);

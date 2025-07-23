@@ -64,6 +64,15 @@ EditorLayer::EditorLayer(float aspectRatio)
 	m_Cube = std::shared_ptr<ar::VertexArray>(ar::VertexArray::Create());
 	m_Cube->AddVertexBuffer(std::shared_ptr<ar::VertexBuffer>(ar::VertexBuffer::Create(cubeVerts)));
 	m_Dummy = std::shared_ptr<ar::VertexArray>(ar::VertexArray::Create());
+
+	ar::FramebufferDesc fbDesc;
+	// todo: parameterize
+	fbDesc.Height = 1080;
+	fbDesc.Width = 1920;
+	m_Framebuffer = std::shared_ptr<ar::Framebuffer>(ar::Framebuffer::Create(fbDesc));
+
+	m_MenuIcon = std::unique_ptr<ar::Texture>(ar::Texture::Create("resources/icons/logo.png"));
+
 }
 
 void EditorLayer::OnAttach() { }
@@ -73,21 +82,16 @@ void EditorLayer::OnDetach() { }
 void EditorLayer::OnUpdate()
 {
 	m_CameraController->OnUpdate();
-	auto cam = m_CameraController->GetCamera();
-
+	m_Framebuffer->Bind();
 	ar::RenderCommand::SetClearColor(ar::mat::Vec4(0.25f, 0.25f, 0.25f, 1.0f));
-	ar::RenderCommand::ToggleDepthTest(true);
-	ar::RenderCommand::ToggleBlendColor(true);
 	ar::RenderCommand::Clear();
+
 	ar::Renderer::BeginScene();
-	m_CubeShader->SetMat4("u_VP", cam->GetVP());
-	m_GridShader->SetMat4("u_VP", cam->GetVP());
-	ar::RenderCommand::SetDepthMask(GL_FALSE);
-	ar::Renderer::SubmitEmpty(m_GridShader, 6, m_Dummy);
-	ar::RenderCommand::SetDepthMask(GL_TRUE);
-	ar::Renderer::Submit(m_CubeShader, m_Cube);
-	
+	RenderCube();
+	RenderGrid();
 	ar::Renderer::EndScene();
+
+	m_Framebuffer->Unbind();
 }
 
 void EditorLayer::OnEvent(ar::Event& event)
@@ -98,7 +102,11 @@ void EditorLayer::OnEvent(ar::Event& event)
 	dispatcher.Dispatch<ar::MouseScrolledEvent>(AR_BIND_EVENT_FN(EditorLayer::OnMouseScrolled));
 }
 
-void EditorLayer::OnImGuiRender() { }
+void EditorLayer::OnImGuiRender() 
+{
+	ShowMenu();
+	ShowViewport();
+}
 
 bool EditorLayer::OnMouseMoved(ar::MouseMovedEvent& event)
 {
@@ -108,5 +116,63 @@ bool EditorLayer::OnMouseMoved(ar::MouseMovedEvent& event)
 bool EditorLayer::OnMouseScrolled(ar::MouseScrolledEvent& event)
 {
 	return false;
+}
+
+void EditorLayer::RenderGrid()
+{
+	m_GridShader->SetMat4("u_VP", m_CameraController->GetCamera()->GetVP());
+	//ar::RenderCommand::SetDepthMask(GL_FALSE);
+	ar::Renderer::SubmitEmpty(m_GridShader, 6, m_Dummy);
+	//ar::RenderCommand::SetDepthMask(GL_TRUE);
+}
+
+void EditorLayer::RenderCube()
+{
+	m_CubeShader->SetMat4("u_VP", m_CameraController->GetCamera()->GetVP());
+	ar::Renderer::Submit(m_CubeShader, m_Cube);
+}
+
+void EditorLayer::ShowMenu()
+{
+	if (ImGui::BeginMainMenuBar())
+	{
+		ImGui::Image(
+			(ImTextureID)(uintptr_t)m_MenuIcon->GetID(),
+			ImVec2(48, 16),
+			ImVec2(0, 1), ImVec2(1, 0)
+		);
+		if (ImGui::BeginMenu("Edit"))
+		{
+			if (ImGui::MenuItem("Undo", "CTRL+Z")) {}
+			if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {} // Disabled item
+			ImGui::Separator();
+			if (ImGui::MenuItem("Cut", "CTRL+X")) {}
+			if (ImGui::MenuItem("Copy", "CTRL+C")) {}
+			if (ImGui::MenuItem("Paste", "CTRL+V")) {}
+			ImGui::EndMenu();
+		}
+		ImGui::EndMainMenuBar();
+	}
+}
+
+void EditorLayer::ShowViewport()
+{
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
+	ImGui::Begin("Viewport");
+	auto viewportSize = ImGui::GetContentRegionAvail();
+	if (viewportSize.x != m_ViewportSize.first || viewportSize.y != m_ViewportSize.second)
+	{
+		m_Framebuffer->Resize(viewportSize.x, viewportSize.y);
+		m_ViewportSize = { viewportSize.x, viewportSize.y };
+		m_CameraController->SetAspectRatio(static_cast<float>(viewportSize.x) / viewportSize.y);
+	}
+
+	ImGui::Image(
+		(ImTextureID)(uintptr_t)m_Framebuffer->GetColorAttachment(),
+		viewportSize,
+		ImVec2(0, 1), ImVec2(1, 0)
+	);
+	ImGui::End();
+	ImGui::PopStyleVar();
 }
 

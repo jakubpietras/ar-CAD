@@ -48,6 +48,12 @@ namespace ar
 		m_Camera->UpdateView(m_Position);
 	}
 
+	void CameraController::SetAspectRatio(float aspectRatio)
+	{
+		m_AspectRatio = aspectRatio;
+		m_Camera->UpdateProjection(m_FOV, m_AspectRatio, m_NearPlane, m_FarPlane);
+	}
+
 	void CameraController::UpdatePosition()
 	{
 		m_Position = m_Target - m_Camera->GetForward() * m_ArcballRadius;
