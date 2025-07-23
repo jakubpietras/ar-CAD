@@ -14,7 +14,6 @@ namespace ar
 		GLenum GetGLInternalFormat(TextureFormat format);
 
 		TextureDesc m_Description;
-		uint32_t m_ID;
 	};
 }
 

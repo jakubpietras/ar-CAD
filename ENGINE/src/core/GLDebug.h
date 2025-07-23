@@ -6,5 +6,6 @@
 namespace ar
 {
 	GLenum CheckGLErrors();
+	void CheckGLFramebufferErrors(uint32_t fbo);
 
 }

@@ -20,8 +20,38 @@ namespace ar
 				case GL_INVALID_FRAMEBUFFER_OPERATION: error = "reading or writing to an incomplete framebuffer."; break;
 			}
 			// this will treat any error as critical and break the program:
-			AR_ASSERT(errorCode == GL_NO_ERROR, "OpenGL error"); 
+			AR_ASSERT(errorCode == GL_NO_ERROR, "OpenGL error: " + error); 
 		}
 		return errorCode;
 	}
+
+	void CheckGLFramebufferErrors(uint32_t fbo)
+	{
+		GLenum status =  glCheckNamedFramebufferStatus(fbo, GL_FRAMEBUFFER);
+		std::string error;
+		if (status != GL_FRAMEBUFFER_COMPLETE)
+		{
+			switch (status)
+			{
+			case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+				error = "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
+				break;
+			case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+				error = "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
+				break;
+			case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+				error = "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER";
+				break;
+			case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+				error = "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER";
+				break;
+			case GL_FRAMEBUFFER_UNSUPPORTED:
+				error = "GL_FRAMEBUFFER_UNSUPPORTED";
+				break;
+			}
+			// this will treat any error as critical and break the program:
+			AR_ASSERT(status == GL_FRAMEBUFFER_COMPLETE, "Framebuffer error:" + error);
+		}
+	}
+
 }

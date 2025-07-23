@@ -4,7 +4,6 @@ namespace ar
 {
 	enum class TextureFormat
 	{
-		// todo: generalize to other APIs
 		R8,
 		RGBA8,
 		D24S8
@@ -23,6 +22,9 @@ namespace ar
 		virtual ~Texture() {}
 		virtual void SetData(void* data, uint32_t size) = 0;
 		static Texture* Create(const TextureDesc& desc);
+		inline const uint32_t GetID() const { return m_ID; };
+	protected:
+		uint32_t m_ID;
 	};
 }
 

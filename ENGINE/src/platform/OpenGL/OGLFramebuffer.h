@@ -1,22 +1,19 @@
-//#pragma once
-//#include "core/Renderer/Framebuffer.h"
-//
-//namespace ar
-//{
-//	class OGLFramebuffer : public Framebuffer 
-//	{
-//	public:
-//		OGLFramebuffer(const FramebufferDesc& desc);
-//		~OGLFramebuffer() override;
-//		
-//		void AddColorAttachment()
-//		
-//		void Invalidate();
-//	private:
-//		void CreateTexture(uint32_t& id);
-//		void CreateRenderbuffer(uint32_t& id);
-//		uint32_t m_ID, m_TextureID, m_DepthTextureID;
-//		FramebufferDesc m_Description;
-//	};
-//}
-//
+#pragma once
+#include "core/Renderer/Framebuffer.h"
+#include "core/Renderer/Texture.h"
+
+namespace ar
+{
+	class OGLFramebuffer : public Framebuffer
+	{
+	public:
+		OGLFramebuffer(const FramebufferDesc& desc);
+		~OGLFramebuffer() override;
+		void Invalidate();
+		void Resize(uint32_t newWidth, uint32_t newHeight) override;
+	private:
+		std::unique_ptr<Texture> m_ColorAttachment, m_DepthAttachment;
+		FramebufferDesc m_Description;
+	};
+}
+

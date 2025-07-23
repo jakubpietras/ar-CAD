@@ -25,12 +25,12 @@ namespace ar
 		inline std::shared_ptr<PerspectiveCamera> GetCamera() const { return m_Camera; }
 		inline const mat::Vec4& GetPosition() { return m_Position; }
 
-		void Rotate(float dPitch, float dYaw, float dRoll);
+		void Rotate(float dPitchDeg, float dYawDeg, float dRollDeg);
 		void UpdateArcballRadius(float dRadius);
 		inline void SetAspectRatio(float aspectRatio) { m_AspectRatio = aspectRatio; }
 
 		void UpdatePosition();
-		void UpdateRotation(float dPitch, float dYaw, float dRoll);
+		void UpdateRotation(float dPitchDeg, float dYawDeg, float dRollDeg);
 
 	private:
 		bool OnMouseScrolled(MouseScrolledEvent& e);

@@ -29,9 +29,9 @@ namespace ar
 		dispatcher.Dispatch<KeyPressedEvent>(AR_BIND_EVENT_FN(CameraController::OnKeyPressed));
 	}
 
-	void CameraController::Rotate(float dPitch, float dYaw, float dRoll)
+	void CameraController::Rotate(float dPitchDeg, float dYawDeg, float dRollDeg)
 	{
-		UpdateRotation(dPitch, dYaw, dRoll);
+		UpdateRotation(dPitchDeg, dYawDeg, dRollDeg);
 		// Rotation causes the local frame to change its basis vectors:
 		m_Camera->UpdateOrientation(m_RotationQuat);
 		// Based on the new orientation we calculate the position:
@@ -53,11 +53,11 @@ namespace ar
 		m_Position = m_Target - m_Camera->GetForward() * m_ArcballRadius;
 	}
 
-	void CameraController::UpdateRotation(float dPitch, float dYaw, float dRoll)
+	void CameraController::UpdateRotation(float dPitchDeg, float dYawDeg, float dRollDeg)
 	{
-		m_RotationRPY.x += dPitch;
-		m_RotationRPY.y += dYaw;
-		m_RotationRPY.z += dRoll;
+		m_RotationRPY.x += dPitchDeg;
+		m_RotationRPY.y += dYawDeg;
+		m_RotationRPY.z += dRollDeg;
 		m_RotationQuat = RPYToQuat(m_RotationRPY);
 	}
 
