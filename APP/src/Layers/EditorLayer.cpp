@@ -61,17 +61,24 @@ EditorLayer::EditorLayer(float aspectRatio)
 		{{-0.5f,  0.5f, -0.5f},  {1.0f, 1.0f, 0.0f}}
 	};
 
-	std::vector<ar::InstancedOffsets> cubeOffsets
+	std::vector<ar::InstancedFloat3> cubeOffsets
 	{
 		{{0.0f, 0.0f, 0.0f}},
-		{{0.5f, 2.0f, 0.0f}}
+		{{0.5f, 2.0f, 0.0f}},
+		{{-1.0f, 4.0f, 0.5f}}
 	};
 
+	std::vector<ar::InstancedMat4> modelMatrices
+	{
+		{ar::mat::RotationMatrix(10.0f, 10.f, 0.f)},
+		{ ar::mat::RotationMatrix(20.0f, 0.f, 20.f) },
+		{ ar::mat::RotationMatrix(10.0f, 40.f, -15.f) }
+	};
 
 	m_Cube = std::shared_ptr<ar::VertexArray>(ar::VertexArray::Create());
 	m_Cube->AddVertexBuffer(std::shared_ptr<ar::VertexBuffer>(ar::VertexBuffer::Create(cubeVerts)));
 	m_Cube->AddVertexBuffer(std::shared_ptr<ar::VertexBuffer>(ar::VertexBuffer::Create(cubeOffsets)));
-	m_Dummy = std::shared_ptr<ar::VertexArray>(ar::VertexArray::Create());
+	m_Cube->AddVertexBuffer(std::shared_ptr<ar::VertexBuffer>(ar::VertexBuffer::Create(modelMatrices)));
 
 	ar::FramebufferDesc fbDesc;
 	// todo: parameterize
@@ -135,7 +142,7 @@ void EditorLayer::RenderGrid()
 void EditorLayer::RenderCube()
 {
 	m_CubeShader->SetMat4("u_VP", m_CameraController->GetCamera()->GetVP());
-	ar::Renderer::Submit(ar::Primitive::Triangle, m_CubeShader, m_Cube, 2);
+	ar::Renderer::Submit(ar::Primitive::Triangle, m_CubeShader, m_Cube, 3);
 }
 
 void EditorLayer::ShowMenu()

@@ -43,7 +43,7 @@ namespace ar
 		}
 	}
 
-	ar::VertexBuffer* VertexBuffer::Create(std::vector<InstancedOffsets> vertices)
+	ar::VertexBuffer* VertexBuffer::Create(std::vector<InstancedFloat3> vertices)
 	{
 		switch (RendererAPI::GetAPI())
 		{
@@ -54,8 +54,27 @@ namespace ar
 		case RendererAPI::API::OpenGL:
 		{
 			return new OGLVertexBuffer(vertices.data(),
-				static_cast<unsigned int>(vertices.size()) * sizeof(InstancedOffsets),
-				static_cast<unsigned int>(vertices.size()), InstancedOffsets::s_Layout);
+				static_cast<unsigned int>(vertices.size()) * sizeof(InstancedFloat3),
+				static_cast<unsigned int>(vertices.size()), InstancedFloat3::s_Layout);
+		}
+		default:
+			return nullptr;
+		}
+	}
+
+	ar::VertexBuffer* VertexBuffer::Create(std::vector<InstancedMat4> matrices)
+	{
+		switch (RendererAPI::GetAPI())
+		{
+		case RendererAPI::API::None:
+		{
+			return nullptr;
+		}
+		case RendererAPI::API::OpenGL:
+		{
+			return new OGLVertexBuffer(matrices.data(),
+				static_cast<unsigned int>(matrices.size()) * sizeof(InstancedMat4),
+				static_cast<unsigned int>(matrices.size()), InstancedMat4::s_Layout);
 		}
 		default:
 			return nullptr;

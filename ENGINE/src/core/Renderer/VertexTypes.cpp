@@ -15,7 +15,14 @@ namespace ar
 		{"a_Color", AttributeType::Float3, 0} 
 	};
 
-	const BufferLayout InstancedOffsets::s_Layout{
+	const BufferLayout InstancedFloat3::s_Layout{
 		{"a_Offset", AttributeType::Float3, 1}
+	};
+
+	const BufferLayout InstancedMat4::s_Layout{
+		{"a_Matrix1", AttributeType::Float4, 1},
+		{"a_Matrix2", AttributeType::Float4, 1},
+		{"a_Matrix3", AttributeType::Float4, 1},
+		{"a_Matrix4", AttributeType::Float4, 1}
 	};
 }

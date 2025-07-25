@@ -19,10 +19,17 @@ namespace ar
 		static const BufferLayout s_Layout;
 	};
 
-	struct InstancedOffsets
+	struct InstancedFloat3
 	{
 		mat::Vec3 Offset;
 		static const BufferLayout s_Layout;
 	};
+
+	struct InstancedMat4
+	{
+		mat::Mat4 Matrix;
+		static const BufferLayout s_Layout;
+	};
+
 
 }
