@@ -25,6 +25,7 @@ namespace ar
 		inline static Application& Get() { return *s_Instance; }
 		inline Window& GetWindow() { return *m_Window; }
 		float GetAspectRatio();
+		void ImGuiBlockEvents(bool status);
 
 	private:
 		static Application* s_Instance;

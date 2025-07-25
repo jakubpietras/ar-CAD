@@ -22,7 +22,8 @@ namespace ar
 		virtual EventType GetEventType() const = 0;
 		virtual const char* GetName() const = 0;
 		virtual std::string ToString() const { return GetName(); }
-		const bool Handled() const { return m_Handled; }
+		const bool IsHandled() const { return m_Handled; }
+		inline void SetHandled(bool status) { m_Handled = status; }
 
 	protected:
 		bool m_Handled = false;

@@ -28,6 +28,7 @@ public:
 	void ShowViewport();
 
 private:
+	bool m_ViewportFocused = false;
 
 	std::pair<float, float> m_ViewportSize;
 

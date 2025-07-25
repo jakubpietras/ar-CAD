@@ -17,11 +17,13 @@ namespace ar
 		virtual void OnImGuiRender() override;
 		void OnEvent(Event& event) override;
 
-		bool Ignore(MouseScrolledEvent& e);
-
 		void Begin();
 		void End();
+
+		void BlockEvents(bool status) override;
+
 	private:
+
 		float m_Time = 0.0f;
 	};
 }

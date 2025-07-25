@@ -49,11 +49,11 @@ namespace ar
 		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
 		dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(OnWindowResize));
 		
-		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin(); )
+		for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); ++it)
 		{
-			(*--it)->OnEvent(e);
-			if (e.Handled())
+			if (e.IsHandled())
 				break;
+			(*it)->OnEvent(e);
 		}
 	}
 	bool Application::OnWindowClose(WindowCloseEvent& e)
@@ -77,11 +77,13 @@ namespace ar
 	void Application::PushLayer(Layer* layer)
 	{
 		m_LayerStack.PushLayer(layer);
+		AR_INFO("Layer {0} pushed onto a stack", layer->GetName());
 		layer->OnAttach();
 	}
 	void Application::PushOverlay(Layer* overlay)
 	{
-		m_LayerStack.PushLayer(overlay);
+		m_LayerStack.PushOverlay(overlay);
+		AR_INFO("Overlay {0} pushed onto a stack", overlay->GetName());
 		overlay->OnAttach();
 	}
 
@@ -89,6 +91,11 @@ namespace ar
 	{
 		// todo: fix
 		return 1920.0f / 1080.0f;
+	}
+
+	void Application::ImGuiBlockEvents(bool status)
+	{
+		m_ImGuiLayer->BlockEvents(status);
 	}
 
 }

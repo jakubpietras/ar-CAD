@@ -159,6 +159,9 @@ void EditorLayer::ShowViewport()
 {
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 	ImGui::Begin("Viewport");
+
+	ar::Application::Get().ImGuiBlockEvents(!ImGui::IsWindowHovered());
+	
 	auto viewportSize = ImGui::GetContentRegionAvail();
 	if (viewportSize.x != m_ViewportSize.first || viewportSize.y != m_ViewportSize.second)
 	{

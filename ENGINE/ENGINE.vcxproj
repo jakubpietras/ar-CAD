@@ -186,6 +186,10 @@
     <None Include="src\resources\shaders\OpenGL\default.frag" />
     <None Include="src\resources\shaders\OpenGL\default.vert" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="src\resources\icons\icon.png" />
+    <Image Include="src\resources\icons\logo.png" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

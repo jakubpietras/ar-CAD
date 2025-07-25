@@ -7,6 +7,7 @@
 #include <numeric>
 #include <algorithm>
 #include <functional>
+#include <core/stb_image.h>
 
 #include "core/Log.h"
 #include "core/GLDebug.h"

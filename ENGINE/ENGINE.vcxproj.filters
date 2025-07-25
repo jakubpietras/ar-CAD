@@ -249,4 +249,12 @@
     <None Include="src\resources\shaders\OpenGL\grid.vert" />
     <None Include="src\resources\shaders\OpenGL\grid.frag" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="src\resources\icons\logo.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src\resources\icons\icon.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
 </Project>

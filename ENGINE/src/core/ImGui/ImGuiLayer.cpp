@@ -78,14 +78,14 @@ namespace ar
             glfwMakeContextCurrent(backup_current_context);
         }
     }
-	void ImGuiLayer::OnEvent(Event& event)
+
+	void ImGuiLayer::BlockEvents(bool status)
 	{
-        EventDispatcher dispatcher(event);
-        dispatcher.Dispatch<MouseScrolledEvent>(AR_BIND_EVENT_FN(ImGuiLayer::Ignore));
-    }
-	bool ImGuiLayer::Ignore(MouseScrolledEvent& e)
-	{
-        return ImGui::GetIO().WantCaptureMouse;
+        m_Blocking = status;
 	}
 
+	void ImGuiLayer::OnEvent(Event& event)
+	{
+        if (m_Blocking) event.SetHandled(true);
+    }
 }

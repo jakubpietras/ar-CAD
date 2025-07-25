@@ -1,6 +1,5 @@
 #include "arpch.h"
 #include "OGLTexture.h"
-#include "core/stb_image.h"
 
 namespace ar
 {
