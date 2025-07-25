@@ -1,5 +1,6 @@
 #pragma once
 #include "RendererAPI.h"
+#include "Primitive.h"
 
 namespace ar
 {
@@ -13,19 +14,22 @@ namespace ar
 		static void ToggleBlendColor(bool enabled);
 		static void SetDepthMask(uint32_t flag);
 
-		inline static void Draw(const std::shared_ptr<VertexArray>& vertexArray)
+		inline static void Draw(const Primitive primitive,
+			const std::shared_ptr<VertexArray>& vertexArray, uint32_t instanceCount = 1)
 		{
-			s_RendererAPI->Draw(vertexArray);
+			s_RendererAPI->Draw(primitive, vertexArray, instanceCount);
+		}
+		inline static void DrawIndexed(const Primitive primitive,
+			const std::shared_ptr<VertexArray>& vertexArray, uint32_t instanceCount)
+		{
+			s_RendererAPI->DrawIndexed(primitive, vertexArray, instanceCount);
+		}
+		inline static void DrawEmpty(const Primitive primitive, uint32_t vertexCount, 
+			uint32_t instanceCount = 1)
+		{
+			s_RendererAPI->DrawEmpty(primitive, vertexCount, instanceCount);
 		}
 
-		inline static void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray)
-		{
-			s_RendererAPI->DrawIndexed(vertexArray);
-		}
-		inline static void DrawEmpty(uint32_t vertexCount)
-		{
-			s_RendererAPI->DrawEmpty(vertexCount);
-		}
 	private:
 		static RendererAPI* s_RendererAPI;
 		static bool s_DepthTest;

@@ -1,5 +1,6 @@
 #include "arpch.h"
 #include "OGLRendererAPI.h"
+#include "core/Renderer/Primitive.h"
 
 #include <glad/glad.h>
 
@@ -15,20 +16,37 @@ namespace ar
 		glClearColor(color.x, color.y, color.z, color.w);
 	}
 
-	void OGLRendererAPI::Draw(const std::shared_ptr<VertexArray>& vertexArray)
+	void OGLRendererAPI::Draw(const Primitive primitive,
+		const std::shared_ptr<VertexArray>& vertexArray, uint32_t instanceCount)
 	{
-		glDrawArrays(GL_TRIANGLES, 0, vertexArray->GetVertexCount());
+		glDrawArraysInstanced(GetOGLPrimitive(primitive), 0, vertexArray->GetVertexCount(),
+			instanceCount);
 	}
 
-	void OGLRendererAPI::DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray)
+	void OGLRendererAPI::DrawIndexed(const Primitive primitive,
+		const std::shared_ptr<VertexArray>& vertexArray, uint32_t instanceCount)
 	{
-		glDrawElements(GL_TRIANGLES, vertexArray->GetIndexCount(), GL_UNSIGNED_INT, nullptr);
+		glDrawElementsInstanced(GetOGLPrimitive(primitive), vertexArray->GetIndexCount(),
+			GL_UNSIGNED_INT, nullptr, instanceCount);
 	}
 
-	void OGLRendererAPI::DrawEmpty(uint32_t vertexCount)
+	void OGLRendererAPI::DrawEmpty(const Primitive primitive, uint32_t vertexCount,
+		uint32_t instanceCount)
 	{
-		glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+		glDrawArraysInstanced(GetOGLPrimitive(primitive), 0, vertexCount, instanceCount);
 	}
 
+	GLenum OGLRendererAPI::GetOGLPrimitive(Primitive primitive)
+	{
+		switch (primitive)
+		{
+		case Primitive::Line: return GL_LINES;
+		case Primitive::LineLoop: return GL_LINE_LOOP;
+		case Primitive::Point: return GL_POINTS;
+		case Primitive::Triangle: return GL_TRIANGLES;
+		default:
+			return 0;	// todo: something better
+		}
+	}
 }
 

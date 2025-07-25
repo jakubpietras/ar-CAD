@@ -43,6 +43,25 @@ namespace ar
 		}
 	}
 
+	ar::VertexBuffer* VertexBuffer::Create(std::vector<InstancedOffsets> vertices)
+	{
+		switch (RendererAPI::GetAPI())
+		{
+		case RendererAPI::API::None:
+		{
+			return nullptr;
+		}
+		case RendererAPI::API::OpenGL:
+		{
+			return new OGLVertexBuffer(vertices.data(),
+				static_cast<unsigned int>(vertices.size()) * sizeof(InstancedOffsets),
+				static_cast<unsigned int>(vertices.size()), InstancedOffsets::s_Layout);
+		}
+		default:
+			return nullptr;
+		}
+	}
+
 	ar::IndexBuffer* IndexBuffer::Create(std::vector<unsigned int> indices)
 	{
 		switch (RendererAPI::GetAPI())

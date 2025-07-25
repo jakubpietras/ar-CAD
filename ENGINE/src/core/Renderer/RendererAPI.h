@@ -2,6 +2,7 @@
 #include <ARMAT.h>
 #include <memory>
 #include "VertexArray.h"
+#include "Primitive.h"
 
 namespace ar
 {
@@ -17,9 +18,15 @@ namespace ar
 		virtual void Clear() = 0;
 		virtual void SetClearColor(mat::Vec4 color) = 0;
 
-		virtual void Draw(const std::shared_ptr<VertexArray>& vertexArray) = 0;
-		virtual void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray) = 0;
-		virtual void DrawEmpty(uint32_t vertexCount) = 0;
+		virtual void Draw(const Primitive primitive,
+			const std::shared_ptr<VertexArray>& vertexArray, uint32_t instanceCount = 1) = 0;
+
+		virtual void DrawIndexed(const Primitive primitive,
+			const std::shared_ptr<VertexArray>& vertexArray, uint32_t instanceCount = 1) = 0;
+
+		virtual void DrawEmpty(const Primitive primitive, uint32_t vertexCount,
+			uint32_t instanceCount = 1) = 0;
+
 
 		inline static API GetAPI() { return s_API; }
 	private:

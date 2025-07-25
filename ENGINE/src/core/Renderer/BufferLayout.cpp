@@ -4,8 +4,8 @@
 
 namespace ar
 {
-	Attribute::Attribute(const std::string& name, AttributeType type)
-		: Name(name), Type(type)
+	Attribute::Attribute(const std::string& name, AttributeType type, uint32_t divisor)
+		: Name(name), Type(type), Divisor(divisor)
 	{
 		Size = GetSize();
 	}

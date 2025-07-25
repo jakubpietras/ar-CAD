@@ -17,3 +17,4 @@
 #include "core/Renderer/Shader.h"
 #include "core/Renderer/Framebuffer.h"
 #include "core/Renderer/Texture.h"
+#include "core/Renderer/Primitive.h"

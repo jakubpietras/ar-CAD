@@ -17,10 +17,13 @@ namespace ar
 
 		static VertexBuffer* Create(std::vector<VertexPosition> vertices);
 		static VertexBuffer* Create(std::vector<VertexPositionColor> vertices);
+		static VertexBuffer* Create(std::vector<InstancedOffsets> vertices);
+
 		// New overloads for Create() for each defined Vertex type (change in the future)
 
 	protected:
 		uint32_t m_ID, m_VertexCount;
+		uint32_t m_InstanceCount;
 		BufferLayout m_Layout;
 	};
 

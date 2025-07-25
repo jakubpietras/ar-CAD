@@ -12,13 +12,14 @@ namespace ar
 
 	struct Attribute
 	{
-		Attribute(const std::string& name, AttributeType type);
+		Attribute(const std::string& name, AttributeType type, uint32_t divisor = 0);
 
 		std::string Name;
 		AttributeType Type;
 		bool Normalized = false;
 		uint32_t Size = 0;
 		uint32_t Offset = 0;
+		uint32_t Divisor = 0;
 
 		inline uint32_t GetCount()
 		{

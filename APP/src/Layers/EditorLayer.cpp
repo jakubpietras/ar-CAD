@@ -61,8 +61,16 @@ EditorLayer::EditorLayer(float aspectRatio)
 		{{-0.5f,  0.5f, -0.5f},  {1.0f, 1.0f, 0.0f}}
 	};
 
+	std::vector<ar::InstancedOffsets> cubeOffsets
+	{
+		{{0.0f, 0.0f, 0.0f}},
+		{{0.5f, 2.0f, 0.0f}}
+	};
+
+
 	m_Cube = std::shared_ptr<ar::VertexArray>(ar::VertexArray::Create());
 	m_Cube->AddVertexBuffer(std::shared_ptr<ar::VertexBuffer>(ar::VertexBuffer::Create(cubeVerts)));
+	m_Cube->AddVertexBuffer(std::shared_ptr<ar::VertexBuffer>(ar::VertexBuffer::Create(cubeOffsets)));
 	m_Dummy = std::shared_ptr<ar::VertexArray>(ar::VertexArray::Create());
 
 	ar::FramebufferDesc fbDesc;
@@ -121,15 +129,13 @@ bool EditorLayer::OnMouseScrolled(ar::MouseScrolledEvent& event)
 void EditorLayer::RenderGrid()
 {
 	m_GridShader->SetMat4("u_VP", m_CameraController->GetCamera()->GetVP());
-	//ar::RenderCommand::SetDepthMask(GL_FALSE);
-	ar::Renderer::SubmitEmpty(m_GridShader, 6, m_Dummy);
-	//ar::RenderCommand::SetDepthMask(GL_TRUE);
+	ar::Renderer::Submit(ar::Primitive::Triangle, m_GridShader, 6);
 }
 
 void EditorLayer::RenderCube()
 {
 	m_CubeShader->SetMat4("u_VP", m_CameraController->GetCamera()->GetVP());
-	ar::Renderer::Submit(m_CubeShader, m_Cube);
+	ar::Renderer::Submit(ar::Primitive::Triangle, m_CubeShader, m_Cube, 2);
 }
 
 void EditorLayer::ShowMenu()
@@ -141,14 +147,20 @@ void EditorLayer::ShowMenu()
 			ImVec2(48, 16),
 			ImVec2(0, 1), ImVec2(1, 0)
 		);
+
+		if (ImGui::BeginMenu("File"))
+		{
+			if (ImGui::MenuItem("Save", "CTRL+S")) {}
+			if (ImGui::MenuItem("Load", "CTRL+L")) {}
+			ImGui::Separator();
+			if (ImGui::MenuItem("Quit", "CTRL+Q")) {}
+			ImGui::EndMenu();
+		}
+
 		if (ImGui::BeginMenu("Edit"))
 		{
 			if (ImGui::MenuItem("Undo", "CTRL+Z")) {}
 			if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {} // Disabled item
-			ImGui::Separator();
-			if (ImGui::MenuItem("Cut", "CTRL+X")) {}
-			if (ImGui::MenuItem("Copy", "CTRL+C")) {}
-			if (ImGui::MenuItem("Paste", "CTRL+V")) {}
 			ImGui::EndMenu();
 		}
 		ImGui::EndMainMenuBar();

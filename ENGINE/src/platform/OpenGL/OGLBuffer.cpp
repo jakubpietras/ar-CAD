@@ -37,6 +37,7 @@ namespace ar
 				attribute.Offset
 			);
 			glVertexArrayAttribBinding(vao, attribIndex, bindingIndex);
+			glVertexArrayBindingDivisor(vao, bindingIndex, attribute.Divisor);
 			glEnableVertexArrayAttrib(vao, attribIndex);
 			attribIndex++;
 		}

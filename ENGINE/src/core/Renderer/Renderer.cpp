@@ -4,6 +4,8 @@
 
 namespace ar
 {
+	std::unique_ptr<VertexArray> Renderer::s_DummyVAO = nullptr;
+
 	void Renderer::BeginScene()
 	{
 		ar::RenderCommand::ToggleDepthTest(true);
@@ -17,28 +19,31 @@ namespace ar
 		RenderCommand::SetViewport(0, 0, width, height);
 	}
 
-	void Renderer::Submit(const std::shared_ptr<Shader>& shader,
-		const std::shared_ptr<VertexArray>& vertexArray)
+	void Renderer::Submit(const Primitive primitive, const std::shared_ptr<Shader>& shader,
+		const std::shared_ptr<VertexArray>& vertexArray, uint32_t instanceCount)
 	{
 		shader->Use();
 		vertexArray->Bind();
 		if (vertexArray->GetIndexBuffer())
 		{
-			RenderCommand::DrawIndexed(vertexArray);
+			RenderCommand::DrawIndexed(primitive, vertexArray, instanceCount);
 		}
 		else
-			RenderCommand::Draw(vertexArray);
+			RenderCommand::Draw(primitive, vertexArray, instanceCount);
 		vertexArray->Unbind();
 	}
 
-	void Renderer::SubmitEmpty(const std::shared_ptr<Shader>& shader, uint32_t vertexCount,
-		const std::shared_ptr<VertexArray>& dummy)
+	void Renderer::Submit(const Primitive primitive, const std::shared_ptr<Shader>& shader,
+		uint32_t vertexCount, uint32_t instanceCount)
 	{
 		// Should be used if data is defined inside the shader (e.g. a quad)
+		if (!s_DummyVAO)
+			s_DummyVAO = std::unique_ptr<ar::VertexArray>(ar::VertexArray::Create());
+		
 		shader->Use();
-		dummy->Bind();
-		RenderCommand::DrawEmpty(vertexCount);
-		dummy->Unbind();
+		s_DummyVAO->Bind();
+		RenderCommand::DrawEmpty(primitive, vertexCount, instanceCount);
+		s_DummyVAO->Unbind();
 	}
 
 }
