@@ -182,11 +182,12 @@ void EditorLayer::ShowViewport()
 	ar::Application::Get().ImGuiBlockEvents(!ImGui::IsWindowHovered());
 	
 	auto viewportSize = ImGui::GetContentRegionAvail();
+	
 	if (viewportSize.x != m_ViewportSize.first || viewportSize.y != m_ViewportSize.second)
 	{
-		m_Framebuffer->Resize(viewportSize.x, viewportSize.y);
+		m_Framebuffer->Resize(static_cast<uint32_t>(viewportSize.x), static_cast<uint32_t>(viewportSize.y));
 		m_ViewportSize = { viewportSize.x, viewportSize.y };
-		m_CameraController->SetAspectRatio(static_cast<float>(viewportSize.x) / viewportSize.y);
+		m_CameraController->SetAspectRatio(viewportSize.x / viewportSize.y);
 	}
 
 	ImGui::Image(
