@@ -2,6 +2,7 @@
 #include <ARCAD.h>
 #include <ARMAT.h>
 
+#include "Panels/SceneHierarchyPanel.h"
 
 class EditorLayer : public ar::Layer
 {
@@ -47,7 +48,9 @@ private:
 	std::unique_ptr<ar::Texture> m_MenuIcon;
 
 	std::shared_ptr<ar::Scene> m_Scene;
-	std::unique_ptr<ar::CommandQueue> m_CommandQueue;
+	std::shared_ptr<ar::CommandQueue> m_CommandQueue;
+
+	SceneHierarchyPanel m_SceneHierarchyPanel;
 
 };
 

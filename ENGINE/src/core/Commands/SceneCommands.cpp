@@ -42,7 +42,37 @@ namespace ar
 
 	void AddTorusCommand::Undo()
 	{
+		auto& tc = m_Entity.GetComponent<TorusComponent>();
+		m_Description = tc.Description;
 		m_Scene->DestroyEntity(m_Entity);
+	}
+
+	SelectObjectCommand::SelectObjectCommand(ar::Entity object)
+		: m_Object(object)
+	{ }
+
+	void SelectObjectCommand::Execute()
+	{
+		m_Object.Select();
+	}
+
+	void SelectObjectCommand::Undo()
+	{
+		m_Object.Deselect();
+	}
+
+	DeselectObjectCommand::DeselectObjectCommand(ar::Entity object)
+		: m_Object(object)
+	{ }
+
+	void DeselectObjectCommand::Execute()
+	{
+		m_Object.Deselect();
+	}
+
+	void DeselectObjectCommand::Undo()
+	{
+		m_Object.Select();
 	}
 
 }

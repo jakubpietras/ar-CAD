@@ -19,4 +19,26 @@ namespace ar
 		TorusDesc m_Description;
 		Entity m_Entity;
 	};
+
+	class SelectObjectCommand : public Command
+	{
+	public:
+		SelectObjectCommand(ar::Entity object);
+
+		void Execute() override;
+		void Undo() override;
+	private:
+		ar::Entity m_Object;
+	};
+
+	class DeselectObjectCommand : public Command
+	{
+	public:
+		DeselectObjectCommand(ar::Entity object);
+
+		void Execute() override;
+		void Undo() override;
+	private:
+		ar::Entity m_Object;
+	};
 }

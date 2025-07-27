@@ -16,9 +16,18 @@ namespace ar
 		template<typename T, typename... Args>
 		T& AddComponent(Args&&... args)
 		{
-			AR_ASSERT(!HasComponent<T>(), "Entity already has component!");
-			T& component = m_Scene->m_Registry.emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
-			return component;
+			if constexpr (std::is_empty_v<T>)
+			{
+				m_Scene->m_Registry.emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
+				// Return a dummy reference to a static instance (safe because it's stateless)
+				static T dummy;
+				return dummy;
+			}
+			else
+			{
+				T& component = m_Scene->m_Registry.emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
+				return component;
+			}
 		}
 
 		template<typename T>
@@ -47,6 +56,9 @@ namespace ar
 
 		uint32_t GetID() { return GetComponent<IDComponent>().ID; }
 		const std::string& GetName() { return GetComponent<TagComponent>().Tag; }
+
+		inline void Select() { m_Scene->SelectEntity(m_EntityHandle); }
+		inline void Deselect() { m_Scene->DeselectEntity(m_EntityHandle); }
 
 		bool operator==(const Entity& other) const
 		{

@@ -301,4 +301,8 @@
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
+  <ItemGroup>
+    <Font Include="src\resources\fonts\04b03.ttf" />
+    <Font Include="src\resources\fonts\04B_03__.TTF" />
+  </ItemGroup>
 </Project>

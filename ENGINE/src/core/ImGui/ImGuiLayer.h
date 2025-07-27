@@ -23,7 +23,7 @@ namespace ar
 		void BlockEvents(bool status) override;
 
 	private:
-
+		void SetBessTheme();
 		float m_Time = 0.0f;
 	};
 }

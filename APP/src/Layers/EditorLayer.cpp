@@ -17,6 +17,7 @@ EditorLayer::EditorLayer(float aspectRatio)
 			"resources/shaders/OpenGL/grid.frag"));
 	m_CommandQueue = std::make_unique<ar::CommandQueue>();
 	m_Scene = std::make_shared<ar::Scene>();
+	m_SceneHierarchyPanel = SceneHierarchyPanel(m_Scene, m_CommandQueue);
 
 	std::vector<ar::VertexPositionColor> cubeVerts = {
 		// position				color
@@ -125,6 +126,7 @@ void EditorLayer::OnImGuiRender()
 	ShowMenu();
 	ShowViewport();
 	ShowStats();
+	m_SceneHierarchyPanel.OnImGuiRender();
 }
 
 bool EditorLayer::OnMouseMoved(ar::MouseMovedEvent& event)
