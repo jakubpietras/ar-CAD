@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <functional>
 #include <core/stb_image.h>
+#include <entt/entt.hpp>
 
 #include "core/Log.h"
 #include "core/GLDebug.h"

@@ -24,7 +24,7 @@ namespace ar
 	{
 		shader->Use();
 		vertexArray->Bind();
-		if (vertexArray->GetIndexBuffer())
+		if (vertexArray->IsIndexed())
 		{
 			RenderCommand::DrawIndexed(primitive, vertexArray, instanceCount);
 		}
@@ -44,6 +44,17 @@ namespace ar
 		s_DummyVAO->Bind();
 		RenderCommand::DrawEmpty(primitive, vertexCount, instanceCount);
 		s_DummyVAO->Unbind();
+	}
+
+	void Renderer::Submit(MeshComponent& mesh, uint32_t instanceCount /*= 1*/)
+	{
+		mesh.Shader->Use();
+		mesh.VertexArray->Bind();
+		if (mesh.VertexArray->IsIndexed())
+			RenderCommand::DrawIndexed(mesh.RenderPrimitive, mesh.VertexArray, instanceCount);
+		else
+			RenderCommand::Draw(mesh.RenderPrimitive, mesh.VertexArray, instanceCount);
+		mesh.VertexArray->Unbind();
 	}
 
 }

@@ -35,7 +35,8 @@ namespace ar
 		
 		inline const uint32_t GetCount() const { return m_Count; }
 
-		static IndexBuffer* Create(std::vector<unsigned int> indices);
+		static IndexBuffer* Create(std::vector<uint32_t> indices);
+		static std::vector<std::shared_ptr<IndexBuffer>> Create(std::vector<std::vector<uint32_t>> indices);
 
 	protected:
 		uint32_t m_ID, m_Count;

@@ -18,3 +18,7 @@
 #include "core/Renderer/Framebuffer.h"
 #include "core/Renderer/Texture.h"
 #include "core/Renderer/Primitive.h"
+
+#include "core/Scene/Scene.h"
+#include "core/Commands/CommandQueue.h"
+#include "core/Scene/ObjectTypes.h"

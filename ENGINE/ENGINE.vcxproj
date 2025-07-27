@@ -64,6 +64,7 @@
       <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)thirdparty\imgui;$(SolutionDir)thirdparty\imgui\backends;$(SolutionDir)MATH\src</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>arpch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -89,7 +90,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\core\Scene\Scene.cpp" />
+    <ClCompile Include="src\core\Scene\Entity.cpp" />
     <ClCompile Include="src\core\stb_image.cpp" />
+    <ClCompile Include="src\core\Utils\TorusUtils.cpp" />
     <ClCompile Include="src\platform\OpenGL\OGLTexture.cpp" />
     <ClCompile Include="src\platform\OpenGL\OGLFramebuffer.cpp" />
     <ClCompile Include="src\core\Renderer\Framebuffer.cpp" />
@@ -125,10 +129,19 @@
     <ClCompile Include="src\platform\Windows\WindowsWindow.cpp" />
     <ClCompile Include="src\platform\Windows\WindowsInput.cpp" />
     <ClCompile Include="src\core\Renderer\Texture.cpp" />
+    <ClCompile Include="src\core\UID.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\core\Scene\ObjectTypes.h" />
+    <ClInclude Include="src\core\Scene\Scene.h" />
+    <ClInclude Include="src\core\Scene\Components.h" />
+    <ClInclude Include="src\core\Scene\Entity.h" />
     <ClInclude Include="src\core\Renderer\Primitive.h" />
     <ClInclude Include="src\core\stb_image.h" />
+    <ClInclude Include="src\core\Utils\CurveUtils.h" />
+    <ClInclude Include="src\core\Utils\GeneralUtils.h" />
+    <ClInclude Include="src\core\Utils\SurfaceUtils.h" />
+    <ClInclude Include="src\core\Utils\TorusUtils.h" />
     <ClInclude Include="src\platform\OpenGL\OGLTexture.h" />
     <ClInclude Include="src\platform\OpenGL\OGLFramebuffer.h" />
     <ClInclude Include="src\core\Renderer\Framebuffer.h" />
@@ -172,6 +185,7 @@
     <ClInclude Include="src\platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\platform\Windows\WindowsInput.h" />
     <ClInclude Include="src\core\Renderer\Texture.h" />
+    <ClInclude Include="src\core\UID.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\IMGUI\IMGUI.vcxproj">
@@ -182,6 +196,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="src\resources\shaders\OpenGL\basic.frag" />
+    <None Include="src\resources\shaders\OpenGL\basic.vert" />
     <None Include="src\resources\shaders\OpenGL\grid.frag" />
     <None Include="src\resources\shaders\OpenGL\grid.vert" />
     <None Include="src\resources\shaders\OpenGL\default.frag" />

@@ -24,8 +24,14 @@ public:
 	void RenderCube();
 
 	// GUI functions
+	void ShowStats();
 	void ShowMenu();
 	void ShowViewport();
+
+	// Commands
+	void AddObject(ar::ObjectType type);
+	inline void UndoLastCommand() { m_CommandQueue->Undo(); }
+	inline void RedoLastCommand() { m_CommandQueue->Redo(); }
 
 private:
 	bool m_ViewportFocused = false;
@@ -39,6 +45,10 @@ private:
 	std::shared_ptr<ar::Shader> m_CubeShader, m_GridShader;
 
 	std::unique_ptr<ar::Texture> m_MenuIcon;
+
+	std::shared_ptr<ar::Scene> m_Scene;
+	std::unique_ptr<ar::CommandQueue> m_CommandQueue;
+
 };
 
 

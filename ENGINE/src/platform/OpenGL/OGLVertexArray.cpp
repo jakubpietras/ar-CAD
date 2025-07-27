@@ -38,14 +38,16 @@ namespace ar
 
 	void OGLVertexArray::AddIndexBuffer(std::shared_ptr<IndexBuffer> indexBuffer)
 	{
-		m_IndexBuffer = indexBuffer;
-		indexBuffer->Bind(m_ID);
+		m_IndexBuffers.push_back(indexBuffer);
+		// binding should occur during rendering, each index buffer is a separate draw call
+		//indexBuffer->Bind(m_ID);
 	}
 
 	const uint32_t OGLVertexArray::GetIndexCount()
 	{
-		AR_ASSERT(m_IndexBuffer, "Index buffer not bound!");
-		return m_IndexBuffer->GetCount();
+		/*AR_ASSERT(m_IndexBuffer, "Index buffer not bound!");
+		return m_IndexBuffer->GetCount();*/
+		return 0;
 	}
 
 	const uint32_t OGLVertexArray::GetVertexCount()
@@ -54,6 +56,11 @@ namespace ar
 		for (auto vb : m_VertexBuffers)
 			vertexCount += vb->GetVertexCount();
 		return vertexCount;
+	}
+
+	const std::vector<std::shared_ptr<ar::IndexBuffer>>& OGLVertexArray::GetIndexBuffers()
+	{
+		return m_IndexBuffers;
 	}
 
 }

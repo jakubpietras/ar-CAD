@@ -43,7 +43,7 @@ namespace ar
 		}
 	}
 
-	OGLIndexBuffer::OGLIndexBuffer(const void* data, unsigned int size)
+	OGLIndexBuffer::OGLIndexBuffer(const void* data, unsigned int size, uint32_t count)
 	{
 		glCreateBuffers(1, &m_ID);
 		int status = CheckGLErrors();
@@ -53,7 +53,7 @@ namespace ar
 		status = CheckGLErrors();
 		AR_ASSERT(!status, "OpenGL NamedBufferData failed. ");
 
-		m_Count = size;
+		m_Count = count;
 	}
 
 	OGLIndexBuffer::~OGLIndexBuffer()

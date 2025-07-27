@@ -17,13 +17,17 @@ namespace ar
 		virtual void AddIndexBuffer(std::shared_ptr<IndexBuffer> indexBuffer) = 0;
 
 		static VertexArray* Create();
-		inline const std::shared_ptr<IndexBuffer>& GetIndexBuffer() { return m_IndexBuffer; }
+		inline const bool IsIndexed() { return m_IndexBuffers.size() > 0; }
 		virtual const uint32_t GetIndexCount() = 0;
 		virtual const uint32_t GetVertexCount() = 0;
 
+		virtual const std::vector<std::shared_ptr<IndexBuffer>>& GetIndexBuffers() = 0;
+
+		const uint32_t GetID() { return m_ID; }
+
 	protected:
 		std::vector<std::shared_ptr<VertexBuffer>> m_VertexBuffers;
-		std::shared_ptr<IndexBuffer> m_IndexBuffer;
+		std::vector<std::shared_ptr<IndexBuffer>> m_IndexBuffers;
 		uint32_t m_ID;
 		uint32_t m_BindingIndex;
 		uint32_t m_AttribStartIndex;

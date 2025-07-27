@@ -92,10 +92,35 @@ namespace ar
 		case RendererAPI::API::OpenGL:
 			{
 				return new OGLIndexBuffer(indices.data(), 
-					static_cast<unsigned int>(indices.size()) * sizeof(unsigned int));
+					static_cast<unsigned int>(indices.size()) * sizeof(unsigned int), indices.size());
 			}
 			default:
 				return nullptr;
+		}
+	}
+
+	std::vector<std::shared_ptr<IndexBuffer>> IndexBuffer::Create(std::vector<std::vector<uint32_t>> indices)
+	{
+		switch (RendererAPI::GetAPI())
+		{
+		case RendererAPI::API::None:
+		{
+			return {};
+		}
+		case RendererAPI::API::OpenGL:
+		{
+			std::vector<std::shared_ptr<IndexBuffer>> ibs;
+
+			for (auto& ind : indices)
+			{
+				auto buffer = std::make_shared<OGLIndexBuffer>(ind.data(),
+					static_cast<unsigned int>(ind.size()) * sizeof(unsigned int), ind.size());
+				ibs.push_back(buffer);
+			}
+			return ibs;
+		}
+		default:
+			return {};
 		}
 	}
 

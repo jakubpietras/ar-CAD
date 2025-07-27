@@ -7,7 +7,7 @@
 namespace ar
 {
 	const BufferLayout VertexPosition::s_Layout{ 
-		{"a_Position", AttributeType::Int, 0} 
+		{"a_Position", AttributeType::Float3, 0}
 	};
 	
 	const BufferLayout VertexPositionColor::s_Layout{ 

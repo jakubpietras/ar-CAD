@@ -26,8 +26,13 @@ namespace ar
 	void OGLRendererAPI::DrawIndexed(const Primitive primitive,
 		const std::shared_ptr<VertexArray>& vertexArray, uint32_t instanceCount)
 	{
-		glDrawElementsInstanced(GetOGLPrimitive(primitive), vertexArray->GetIndexCount(),
-			GL_UNSIGNED_INT, nullptr, instanceCount);
+		for (auto& ib : vertexArray->GetIndexBuffers())
+		{
+			ib->Bind(vertexArray->GetID());
+			glDrawElementsInstanced(GetOGLPrimitive(primitive), ib->GetCount(),
+				GL_UNSIGNED_INT, nullptr, instanceCount);
+		}
+		
 	}
 
 	void OGLRendererAPI::DrawEmpty(const Primitive primitive, uint32_t vertexCount,

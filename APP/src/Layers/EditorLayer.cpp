@@ -15,7 +15,9 @@ EditorLayer::EditorLayer(float aspectRatio)
 	m_GridShader = std::shared_ptr<ar::Shader>(
 		ar::Shader::Create("resources/shaders/OpenGL/grid.vert",
 			"resources/shaders/OpenGL/grid.frag"));
-	
+	m_CommandQueue = std::make_unique<ar::CommandQueue>();
+	m_Scene = std::make_shared<ar::Scene>();
+
 	std::vector<ar::VertexPositionColor> cubeVerts = {
 		// position				color
 		{{-0.5f, -0.5f, -0.5f},  {1.0f, 0.0f, 0.0f}},
@@ -101,10 +103,11 @@ void EditorLayer::OnUpdate()
 	ar::RenderCommand::SetClearColor(ar::mat::Vec4(0.25f, 0.25f, 0.25f, 1.0f));
 	ar::RenderCommand::Clear();
 
-	ar::Renderer::BeginScene();
-	RenderCube();
-	RenderGrid();
-	ar::Renderer::EndScene();
+	/*ar::Renderer::BeginScene();
+	RenderCube();*/
+	//RenderGrid();
+	m_Scene->RenderScene(m_CameraController->GetCamera());
+	//ar::Renderer::EndScene();
 
 	m_Framebuffer->Unbind();
 }
@@ -121,6 +124,7 @@ void EditorLayer::OnImGuiRender()
 {
 	ShowMenu();
 	ShowViewport();
+	ShowStats();
 }
 
 bool EditorLayer::OnMouseMoved(ar::MouseMovedEvent& event)
@@ -145,6 +149,13 @@ void EditorLayer::RenderCube()
 	ar::Renderer::Submit(ar::Primitive::Triangle, m_CubeShader, m_Cube, 3);
 }
 
+void EditorLayer::ShowStats()
+{
+	ImGui::Begin("Stats");
+	ImGui::TextWrapped("Current entity count: %d", m_Scene->GetEntityCount());
+	ImGui::End();
+}
+
 void EditorLayer::ShowMenu()
 {
 	if (ImGui::BeginMainMenuBar())
@@ -166,10 +177,30 @@ void EditorLayer::ShowMenu()
 
 		if (ImGui::BeginMenu("Edit"))
 		{
-			if (ImGui::MenuItem("Undo", "CTRL+Z")) {}
-			if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {} // Disabled item
+			if (ImGui::MenuItem("Undo", "CTRL+Z", false, m_CommandQueue->CanUndo())) { UndoLastCommand(); }
+			if (ImGui::MenuItem("Redo", "CTRL+Y", false, m_CommandQueue->CanRedo())) { RedoLastCommand(); }
 			ImGui::EndMenu();
 		}
+
+		if (ImGui::BeginMenu("Add"))
+		{
+			if (ImGui::BeginMenu("Mesh"))
+			{
+				if (ImGui::MenuItem("Torus")) { AddObject(ar::ObjectType::TORUS); }
+				ImGui::EndMenu();
+			}
+			if (ImGui::BeginMenu("Curve"))
+			{
+				ImGui::EndMenu();
+			}
+			if (ImGui::BeginMenu("Surface"))
+			{
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenu();
+
+		}
+
 		ImGui::EndMainMenuBar();
 	}
 }
@@ -197,5 +228,18 @@ void EditorLayer::ShowViewport()
 	);
 	ImGui::End();
 	ImGui::PopStyleVar();
+}
+
+void EditorLayer::AddObject(ar::ObjectType type)
+{
+	switch (type)
+	{
+		case ar::ObjectType::TORUS:
+		{
+			ar::TorusDesc desc;
+			auto command = std::make_unique<ar::AddTorusCommand>(desc, m_Scene);
+			m_CommandQueue->Execute(std::move(command));
+		}
+	}
 }
 

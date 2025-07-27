@@ -2,6 +2,7 @@
 #include "VertexArray.h"
 #include "Shader.h"
 #include "Primitive.h"
+#include "core/Scene/Components.h"
 
 namespace ar
 {
@@ -16,6 +17,7 @@ namespace ar
 			const std::shared_ptr<VertexArray>& vertexArray, uint32_t instanceCount = 1);
 		static void Submit(const Primitive primitive, const std::shared_ptr<Shader>& shader,
 			uint32_t vertexCount, uint32_t instanceCount = 1);
+		static void Submit(MeshComponent& mesh, uint32_t instanceCount = 1);
 	private:
 		static std::unique_ptr<VertexArray> s_DummyVAO;
 	};

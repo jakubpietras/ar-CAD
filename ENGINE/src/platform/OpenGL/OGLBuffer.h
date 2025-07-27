@@ -17,7 +17,7 @@ namespace ar
 	class OGLIndexBuffer : public IndexBuffer
 	{
 	public:
-		OGLIndexBuffer(const void* data, unsigned int size);
+		OGLIndexBuffer(const void* data, unsigned int size, uint32_t count);
 		~OGLIndexBuffer();
 		void Bind(uint32_t vao) override;
 	};
