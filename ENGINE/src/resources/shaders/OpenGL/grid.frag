@@ -38,8 +38,8 @@ void main()
     vec2 uv = v_Coords;
     float grid = pristineGrid(uv, width);
 
-    vec4 bgColor = vec4(0.25f, 0.25f, 0.25f, 0.0f);
-    vec4 lineColor = vec4(0.3f, 0.3f, 0.3f, 1.0f);
+    vec4 bgColor = vec4(0.18f, 0.18f, 0.24f, 1.0f);
+    vec4 lineColor = vec4(0.4f, 0.4f, 0.54f, 1.0f);
         
     if (uv.x > -majorAxisThickness && uv.x < majorAxisThickness)
         lineColor = vec4(0.0f, 0.0f, 1.0f, 1.0f);

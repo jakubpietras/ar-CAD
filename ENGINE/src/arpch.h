@@ -1,5 +1,7 @@
 #pragma once
 
+#include "core/Core.h"
+
 #include <iostream>
 #include <stdexcept>
 #include <memory>

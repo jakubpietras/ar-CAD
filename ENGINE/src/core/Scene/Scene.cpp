@@ -11,7 +11,6 @@ namespace ar
 {
 
 	Scene::Scene()
-		: m_SelectedPoints{}, m_LastSelectedID(0)
 	{
 		AR_INFO("Scene initialized!");
 		m_CubeShader = std::shared_ptr<ar::Shader>(
@@ -61,33 +60,6 @@ namespace ar
 		if (m_EntityMap.find(id) != m_EntityMap.end())
 			return { m_EntityMap.at(id), this };
 		return {};
-	}
-
-	void Scene::SelectEntity(entt::entity& e)
-	{
-		ar::Entity entity{ e, this };
-		entity.AddComponent<ar::SelectedTagComponent>();
-		// todo: if point then add to vector
-		m_LastSelectedID = entity.GetID();
-	}
-
-	void Scene::DeselectEntity(entt::entity& e)
-	{
-		m_Registry.remove<ar::SelectedTagComponent>(e);
-		// todo: if point then find and delete from vector
-		// todo: do something with last selected
-	}
-
-	bool Scene::IsEntitySelected(ar::Entity& e)
-	{
-		return e.HasComponent<SelectedTagComponent>();
-	}
-
-	entt::entity Scene::GetLastSelectedEntity()
-	{
-		if (m_EntityMap.find(m_LastSelectedID) != m_EntityMap.end())
-			return m_EntityMap.at(m_LastSelectedID);
-		return entt::null;
 	}
 
 	void Scene::RenderScene(std::shared_ptr<PerspectiveCamera> camera)

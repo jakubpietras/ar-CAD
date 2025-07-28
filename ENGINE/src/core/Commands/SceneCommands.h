@@ -18,7 +18,7 @@ namespace ar
 		std::shared_ptr<Scene> m_Scene;
 		TorusDesc m_Description;
 		Entity m_Entity;
-	};
+	};/*
 
 	class SelectObjectCommand : public Command
 	{
@@ -40,5 +40,5 @@ namespace ar
 		void Undo() override;
 	private:
 		ar::Entity m_Object;
-	};
+	};*/
 }

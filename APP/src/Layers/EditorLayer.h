@@ -1,13 +1,18 @@
 #pragma once
 #include <ARCAD.h>
 #include <ARMAT.h>
-
-#include "Panels/SceneHierarchyPanel.h"
+#include "core/ImGui/ComponentInspector.h"
 
 class EditorLayer : public ar::Layer
 {
 
 public:
+	struct SelectionState
+	{
+		ar::Entity CurrentlySelected = {entt::null, nullptr};
+		std::vector<ar::Entity> SelectedPoints{};
+	};
+
 	EditorLayer(float aspectRatio);
 
 	void OnAttach() override;
@@ -20,38 +25,43 @@ public:
 	bool OnMouseMoved(ar::MouseMovedEvent& event);
 	bool OnMouseScrolled(ar::MouseScrolledEvent& event);
 
-	// Render functions
-	void RenderGrid();
-	void RenderCube();
-
 	// GUI functions
 	void ShowStats();
 	void ShowMenu();
 	void ShowViewport();
+
+	void ShowSceneHierarchy();
+	void ShowInspector();
+	void DrawTreeNode(ar::Entity& object);
 
 	// Commands
 	void AddObject(ar::ObjectType type);
 	inline void UndoLastCommand() { m_CommandQueue->Undo(); }
 	inline void RedoLastCommand() { m_CommandQueue->Redo(); }
 
+	// Selection
+	void SelectObject(ar::Entity object);
+	void DeselectObject(ar::Entity object);
+	void DeselectAll();
+	
+
 private:
-	bool m_ViewportFocused = false;
+	// Selection
+	SelectionState m_Selection;
 
+	// Logic
+	ar::Ref<ar::Scene> m_Scene;
+	ar::Ref<ar::CommandQueue> m_CommandQueue;
+	ar::Ref<ar::CameraController> m_CameraController;
 	std::pair<float, float> m_ViewportSize;
+	
+	// Rendering
+	ar::Ref<ar::Framebuffer> m_ViewportFramebuffer;
+	ar::Ref<ar::VertexArray> m_Cube;
+	ar::Ref<ar::Shader> m_CubeShader, m_GridShader;
 
-	std::shared_ptr<ar::CameraController> m_CameraController;
-	std::shared_ptr<ar::Framebuffer> m_Framebuffer;
-
-	std::shared_ptr<ar::VertexArray> m_Cube;
-	std::shared_ptr<ar::Shader> m_CubeShader, m_GridShader;
-
-	std::unique_ptr<ar::Texture> m_MenuIcon;
-
-	std::shared_ptr<ar::Scene> m_Scene;
-	std::shared_ptr<ar::CommandQueue> m_CommandQueue;
-
-	SceneHierarchyPanel m_SceneHierarchyPanel;
-
+	// Textures
+	ar::Scope<ar::Texture> m_MenuIcon;
 };
 
 

@@ -57,9 +57,6 @@ namespace ar
 		uint32_t GetID() { return GetComponent<IDComponent>().ID; }
 		const std::string& GetName() { return GetComponent<TagComponent>().Tag; }
 
-		inline void Select() { m_Scene->SelectEntity(m_EntityHandle); }
-		inline void Deselect() { m_Scene->DeselectEntity(m_EntityHandle); }
-
 		bool operator==(const Entity& other) const
 		{
 			return m_EntityHandle == other.m_EntityHandle && m_Scene == other.m_Scene;

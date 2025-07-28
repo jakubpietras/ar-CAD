@@ -47,18 +47,18 @@ namespace ar
 		m_Scene->DestroyEntity(m_Entity);
 	}
 
-	SelectObjectCommand::SelectObjectCommand(ar::Entity object)
+	/*SelectObjectCommand::SelectObjectCommand(ar::Entity object)
 		: m_Object(object)
 	{ }
 
 	void SelectObjectCommand::Execute()
 	{
-		m_Object.Select();
+		m_Object.AddComponent<ar::SelectedTagComponent>();
 	}
 
 	void SelectObjectCommand::Undo()
 	{
-		m_Object.Deselect();
+		m_Object.RemoveComponent<ar::SelectedTagComponent>();
 	}
 
 	DeselectObjectCommand::DeselectObjectCommand(ar::Entity object)
@@ -67,12 +67,12 @@ namespace ar
 
 	void DeselectObjectCommand::Execute()
 	{
-		m_Object.Deselect();
+		m_Object.RemoveComponent<ar::SelectedTagComponent>();
 	}
 
 	void DeselectObjectCommand::Undo()
 	{
-		m_Object.Select();
-	}
+		m_Object.AddComponent<ar::SelectedTagComponent>();
+	}*/
 
 }

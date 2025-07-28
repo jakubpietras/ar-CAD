@@ -17,7 +17,7 @@ EditorLayer::EditorLayer(float aspectRatio)
 			"resources/shaders/OpenGL/grid.frag"));
 	m_CommandQueue = std::make_unique<ar::CommandQueue>();
 	m_Scene = std::make_shared<ar::Scene>();
-	m_SceneHierarchyPanel = SceneHierarchyPanel(m_Scene, m_CommandQueue);
+	m_Selection = {};
 
 	std::vector<ar::VertexPositionColor> cubeVerts = {
 		// position				color
@@ -87,7 +87,7 @@ EditorLayer::EditorLayer(float aspectRatio)
 	// todo: parameterize
 	fbDesc.Height = 1080;
 	fbDesc.Width = 1920;
-	m_Framebuffer = std::shared_ptr<ar::Framebuffer>(ar::Framebuffer::Create(fbDesc));
+	m_ViewportFramebuffer = std::shared_ptr<ar::Framebuffer>(ar::Framebuffer::Create(fbDesc));
 
 	m_MenuIcon = std::unique_ptr<ar::Texture>(ar::Texture::Create("resources/icons/logo.png"));
 
@@ -100,8 +100,8 @@ void EditorLayer::OnDetach() { }
 void EditorLayer::OnUpdate()
 {
 	m_CameraController->OnUpdate();
-	m_Framebuffer->Bind();
-	ar::RenderCommand::SetClearColor(ar::mat::Vec4(0.25f, 0.25f, 0.25f, 1.0f));
+	m_ViewportFramebuffer->Bind();
+	ar::RenderCommand::SetClearColor(ar::mat::Vec4(0.18f, 0.18f, 0.24f, 1.0f));
 	ar::RenderCommand::Clear();
 
 	/*ar::Renderer::BeginScene();
@@ -110,7 +110,7 @@ void EditorLayer::OnUpdate()
 	m_Scene->RenderScene(m_CameraController->GetCamera());
 	//ar::Renderer::EndScene();
 
-	m_Framebuffer->Unbind();
+	m_ViewportFramebuffer->Unbind();
 }
 
 void EditorLayer::OnEvent(ar::Event& event)
@@ -126,7 +126,8 @@ void EditorLayer::OnImGuiRender()
 	ShowMenu();
 	ShowViewport();
 	ShowStats();
-	m_SceneHierarchyPanel.OnImGuiRender();
+	ShowSceneHierarchy();
+	ShowInspector();
 }
 
 bool EditorLayer::OnMouseMoved(ar::MouseMovedEvent& event)
@@ -137,18 +138,6 @@ bool EditorLayer::OnMouseMoved(ar::MouseMovedEvent& event)
 bool EditorLayer::OnMouseScrolled(ar::MouseScrolledEvent& event)
 {
 	return false;
-}
-
-void EditorLayer::RenderGrid()
-{
-	m_GridShader->SetMat4("u_VP", m_CameraController->GetCamera()->GetVP());
-	ar::Renderer::Submit(ar::Primitive::Triangle, m_GridShader, 6);
-}
-
-void EditorLayer::RenderCube()
-{
-	m_CubeShader->SetMat4("u_VP", m_CameraController->GetCamera()->GetVP());
-	ar::Renderer::Submit(ar::Primitive::Triangle, m_CubeShader, m_Cube, 3);
 }
 
 void EditorLayer::ShowStats()
@@ -218,18 +207,79 @@ void EditorLayer::ShowViewport()
 	
 	if (viewportSize.x != m_ViewportSize.first || viewportSize.y != m_ViewportSize.second)
 	{
-		m_Framebuffer->Resize(static_cast<uint32_t>(viewportSize.x), static_cast<uint32_t>(viewportSize.y));
+		m_ViewportFramebuffer->Resize(static_cast<uint32_t>(viewportSize.x), static_cast<uint32_t>(viewportSize.y));
 		m_ViewportSize = { viewportSize.x, viewportSize.y };
 		m_CameraController->SetAspectRatio(viewportSize.x / viewportSize.y);
 	}
 
 	ImGui::Image(
-		(ImTextureID)(uintptr_t)m_Framebuffer->GetColorAttachment(),
+		(ImTextureID)(uintptr_t)m_ViewportFramebuffer->GetColorAttachment(),
 		viewportSize,
 		ImVec2(0, 1), ImVec2(1, 0)
 	);
 	ImGui::End();
 	ImGui::PopStyleVar();
+}
+
+void EditorLayer::ShowSceneHierarchy()
+{
+	ImGui::Begin("Scene Hierarchy");
+
+	for (auto entity : m_Scene->m_Registry.view<entt::entity>(entt::exclude<ar::VirtualTagComponent>))
+	{
+		ar::Entity e{ entity, m_Scene.get() };
+		DrawTreeNode(e);
+	}
+
+	ImGui::End();
+}
+
+void EditorLayer::ShowInspector()
+{
+	ImGui::Begin("Inspector");
+
+	auto object = m_Selection.CurrentlySelected;
+	if (object)
+	{
+		ar::ComponentInspector::ShowInspector(object);
+	}
+
+	ImGui::End();
+}
+
+void EditorLayer::DrawTreeNode(ar::Entity& object)
+{
+	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DrawLinesFull;
+
+	if (object.HasComponent<ar::TorusComponent>())
+	{
+		flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+
+		if (object.HasComponent<ar::SelectedTagComponent>())
+			flags |= ImGuiTreeNodeFlags_Selected;
+
+		bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)object.GetID(), flags, "%s", object.GetName().c_str());
+
+		if (ImGui::IsItemClicked())
+		{
+			if (!ar::Input::IsKeyPressed(AR_KEY_LEFT_SHIFT))
+				DeselectAll();
+			if (object.HasComponent<ar::SelectedTagComponent>())
+				DeselectObject(object);
+			else
+				SelectObject(object);
+		}
+		if (ImGui::BeginPopupContextItem())
+		{
+			if (ImGui::MenuItem("Delete"))
+			{	
+			}
+			if (ImGui::MenuItem("Rename"))
+			{
+			}
+			ImGui::EndPopup();
+		}
+	}
 }
 
 void EditorLayer::AddObject(ar::ObjectType type)
@@ -243,5 +293,31 @@ void EditorLayer::AddObject(ar::ObjectType type)
 			m_CommandQueue->Execute(std::move(command));
 		}
 	}
+}
+
+void EditorLayer::SelectObject(ar::Entity object)
+{
+	object.AddComponent<ar::SelectedTagComponent>();
+	if (object.HasComponent<ar::PointTagComponent>())
+		m_Selection.SelectedPoints.push_back(object);
+	m_Selection.CurrentlySelected = object;
+}
+
+void EditorLayer::DeselectObject(ar::Entity object)
+{
+	object.RemoveComponent<ar::SelectedTagComponent>();
+	if (object.HasComponent<ar::PointTagComponent>())
+	{
+		auto& v = m_Selection.SelectedPoints;
+		v.erase(std::remove(v.begin(), v.end(), object), v.end());
+	}
+	m_Selection.CurrentlySelected = { entt::null, nullptr };
+}
+
+void EditorLayer::DeselectAll()
+{
+	m_Scene->m_Registry.clear<ar::SelectedTagComponent>();
+	m_Selection.SelectedPoints.clear();
+	m_Selection.CurrentlySelected = { entt::null, nullptr };
 }
 
