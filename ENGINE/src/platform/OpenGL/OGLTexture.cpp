@@ -11,7 +11,7 @@ namespace ar
 		{
 			glCreateRenderbuffers(1, &m_ID);
 			glNamedRenderbufferStorage(m_ID, GL_DEPTH24_STENCIL8, m_Description.Width, m_Description.Height);
-			CheckGLErrors();
+			AR_GL_CHECK();
 		}
 		else
 		{
@@ -22,7 +22,7 @@ namespace ar
 			glTextureParameteri(m_ID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			glTextureStorage2D(m_ID, 1, GetGLInternalFormat(m_Description.Format),
 				m_Description.Width, m_Description.Height);
-			CheckGLErrors();
+			AR_GL_CHECK();
 		}
 	}
 
@@ -57,7 +57,7 @@ namespace ar
 		glTextureStorage2D(m_ID, 1, internalFormat, width, height);
 		glTextureSubImage2D(m_ID, 0, 0, 0, width, height, format, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
-		CheckGLErrors();
+		AR_GL_CHECK();
 		m_Description = { (uint32_t)width, (uint32_t)height, TextureFormat::RGBA8 };
 		stbi_image_free(data);
 	}
@@ -68,7 +68,7 @@ namespace ar
 			glDeleteRenderbuffers(1, &m_ID);
 		else
 			glDeleteTextures(1, &m_ID);
-		CheckGLErrors();
+		AR_GL_CHECK();
 	}
 
 	void OGLTexture::SetData(void* data, uint32_t size)
@@ -85,7 +85,7 @@ namespace ar
 				m_Description.Width, m_Description.Height);
 			glTextureSubImage2D(m_ID, 0, 0, 0, m_Description.Width, m_Description.Height,
 				GetDataFormat(m_Description.Format), GL_UNSIGNED_BYTE, data);
-			CheckGLErrors();
+			AR_GL_CHECK();
 		}
 	}
 

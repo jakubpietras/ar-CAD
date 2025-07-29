@@ -3,12 +3,12 @@
 
 namespace ar
 {
-	GLenum CheckGLErrors()
+	std::string CheckGLErrors()
 	{
+		std::string errorString, error;
 		GLenum errorCode;
 		while ((errorCode = glGetError()) != GL_NO_ERROR)
 		{
-			std::string error;
 			switch (errorCode)
 			{
 				case GL_INVALID_ENUM:                  error = "enumeration parameter not legal."; break;
@@ -19,13 +19,16 @@ namespace ar
 				case GL_OUT_OF_MEMORY:                 error = "memory allocation operation cannot allocate enough memory."; break;
 				case GL_INVALID_FRAMEBUFFER_OPERATION: error = "reading or writing to an incomplete framebuffer."; break;
 			}
-			// this will treat any error as critical and break the program:
-			AR_ASSERT(errorCode == GL_NO_ERROR, "OpenGL error: " + error); 
+			if (!error.empty())
+			{
+				errorString += (error + "\n");
+				error = "";
+			}
 		}
-		return errorCode;
+		return errorString;
 	}
 
-	void CheckGLFramebufferErrors(uint32_t fbo)
+	std::string CheckGLFramebufferErrors(uint32_t fbo)
 	{
 		GLenum status =  glCheckNamedFramebufferStatus(fbo, GL_FRAMEBUFFER);
 		std::string error;
@@ -34,24 +37,20 @@ namespace ar
 			switch (status)
 			{
 			case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-				error = "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
-				break;
+				return "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
 			case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-				error = "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
-				break;
+				return "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
 			case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
-				error = "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER";
-				break;
+				return "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER";
 			case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
-				error = "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER";
-				break;
+				return "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER";
 			case GL_FRAMEBUFFER_UNSUPPORTED:
-				error = "GL_FRAMEBUFFER_UNSUPPORTED";
-				break;
+				return "GL_FRAMEBUFFER_UNSUPPORTED";
+			default:
+				return "Unknown framebuffer error";
 			}
-			// this will treat any error as critical and break the program:
-			AR_ASSERT(status == GL_FRAMEBUFFER_COMPLETE, "Framebuffer error:" + error);
 		}
+		return "";
 	}
 
 }

@@ -7,7 +7,7 @@ namespace ar
 	OGLVertexArray::OGLVertexArray()
 	{
 		glCreateVertexArrays(1, &m_ID);
-		CheckGLErrors();
+		AR_GL_CHECK();
 		m_BindingIndex = 0;
 	}
 

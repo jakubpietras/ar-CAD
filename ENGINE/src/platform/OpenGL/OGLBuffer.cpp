@@ -7,10 +7,10 @@ namespace ar
 		BufferLayout layout)
 	{
 		glCreateBuffers(1, &m_ID);
-		CheckGLErrors();
+		AR_GL_CHECK();
 
 		glNamedBufferData(m_ID, size, data, GL_STATIC_DRAW);
-		CheckGLErrors();
+		AR_GL_CHECK();
 
 		m_VertexCount = vertexCount;
 		m_Layout = layout;
@@ -49,25 +49,23 @@ namespace ar
 	{
 		AR_ASSERT(vertexCount == m_VertexCount, "This function will not resize the buffer!");
 		glNamedBufferSubData(m_ID, offset, size, data);
-		CheckGLErrors();
+		AR_GL_CHECK();
 	}
 
 	void OGLVertexBuffer::UpdateData(const void* data, size_t size, size_t vertexCount)
 	{
 		glNamedBufferData(m_ID, size, data, GL_STATIC_DRAW);
 		m_VertexCount = vertexCount;
-		CheckGLErrors();
+		AR_GL_CHECK();
 	}
 
 	OGLIndexBuffer::OGLIndexBuffer(const void* data, unsigned int size, size_t count)
 	{
 		glCreateBuffers(1, &m_ID);
-		int status = CheckGLErrors();
-		AR_ASSERT(!status, "OpenGL CreateBuffers failed. ");
+		AR_GL_CHECK();
 
 		glNamedBufferData(m_ID, size, data, GL_STATIC_DRAW);
-		status = CheckGLErrors();
-		AR_ASSERT(!status, "OpenGL NamedBufferData failed. ");
+		AR_GL_CHECK();
 
 		m_Count = count;
 	}
@@ -86,14 +84,14 @@ namespace ar
 	{
 		AR_ASSERT(count == m_Count, "This function will not resize the buffer!");
 		glNamedBufferSubData(m_ID, offset, size, data);
-		CheckGLErrors();
+		AR_GL_CHECK();
 	}
 
 	void OGLIndexBuffer::UpdateData(const void* data, size_t size, size_t count)
 	{
 		glNamedBufferData(m_ID, size, data, GL_STATIC_DRAW);
 		m_Count = count;
-		CheckGLErrors();
+		AR_GL_CHECK();
 	}
 
 }

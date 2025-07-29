@@ -34,7 +34,7 @@ namespace ar
 
 		glNamedFramebufferTexture(m_ID, GL_COLOR_ATTACHMENT0, m_ColorAttachment->GetID(), 0);
 		glNamedFramebufferRenderbuffer(m_ID, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_DepthAttachment->GetID());
-		CheckGLFramebufferErrors(m_ID);
+		AR_GL_FBO_CHECK(m_ID);
 	}
 
 	void OGLFramebuffer::Resize(uint32_t newWidth, uint32_t newHeight)
