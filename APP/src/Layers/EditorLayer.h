@@ -57,8 +57,6 @@ private:
 	
 	// Rendering
 	ar::Ref<ar::Framebuffer> m_ViewportFramebuffer;
-	ar::Ref<ar::VertexArray> m_Cube;
-	ar::Ref<ar::Shader> m_CubeShader, m_GridShader;
 
 	// Textures
 	ar::Scope<ar::Texture> m_MenuIcon;

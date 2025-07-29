@@ -43,7 +43,23 @@ namespace ar
 		}
 	}
 
-	OGLIndexBuffer::OGLIndexBuffer(const void* data, unsigned int size, uint32_t count)
+
+	// Use for modifying data partially or uploading new data of the same size
+	void OGLVertexBuffer::UpdateSubData(const void* data, size_t offset, size_t size, size_t vertexCount)
+	{
+		AR_ASSERT(vertexCount == m_VertexCount, "This function will not resize the buffer!");
+		glNamedBufferSubData(m_ID, offset, size, data);
+		CheckGLErrors();
+	}
+
+	void OGLVertexBuffer::UpdateData(const void* data, size_t size, size_t vertexCount)
+	{
+		glNamedBufferData(m_ID, size, data, GL_STATIC_DRAW);
+		m_VertexCount = vertexCount;
+		CheckGLErrors();
+	}
+
+	OGLIndexBuffer::OGLIndexBuffer(const void* data, unsigned int size, size_t count)
 	{
 		glCreateBuffers(1, &m_ID);
 		int status = CheckGLErrors();
@@ -65,4 +81,19 @@ namespace ar
 	{
 		glVertexArrayElementBuffer(vao, m_ID);
 	}
+
+	void OGLIndexBuffer::UpdateSubData(const void* data, size_t offset, size_t size, size_t count)
+	{
+		AR_ASSERT(count == m_Count, "This function will not resize the buffer!");
+		glNamedBufferSubData(m_ID, offset, size, data);
+		CheckGLErrors();
+	}
+
+	void OGLIndexBuffer::UpdateData(const void* data, size_t size, size_t count)
+	{
+		glNamedBufferData(m_ID, size, data, GL_STATIC_DRAW);
+		m_Count = count;
+		CheckGLErrors();
+	}
+
 }

@@ -11,14 +11,17 @@ namespace ar
 			BufferLayout layout);
 		~OGLVertexBuffer();
 		void Bind(uint32_t vao, uint32_t bindingIndex, uint32_t attribStartIndex) override;
-
+		void UpdateSubData(const void* data, size_t offset, size_t size, size_t vertexCount) override;
+		void UpdateData(const void* data, size_t size, size_t vertexCount) override;
 	};
 
 	class OGLIndexBuffer : public IndexBuffer
 	{
 	public:
-		OGLIndexBuffer(const void* data, unsigned int size, uint32_t count);
+		OGLIndexBuffer(const void* data, unsigned int size, size_t count);
 		~OGLIndexBuffer();
 		void Bind(uint32_t vao) override;
+		void UpdateSubData(const void* data, size_t offset, size_t size, size_t count) override;
+		void UpdateData(const void* data, size_t size, size_t count) override;
 	};
 }

@@ -9,7 +9,8 @@ namespace ar
 		struct Vec3
 		{
 			float x, y, z;
-			const float* Data() const;
+			inline const float* Data() const { return &x; };
+			inline float* Data() { return &x; };
 			Vec3(float x = 0.0f, float y = 0.0f, float z = 0.0f);
 
 			/// <summary>

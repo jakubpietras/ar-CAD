@@ -7,11 +7,11 @@ namespace ar
 	std::vector<ar::VertexPosition> TorusUtils::GenerateTorusVertices(const TorusDesc& desc)
 	{
 		std::vector<VertexPosition> vertices;
-		float pi = acos(-1);
+		auto pi = static_cast<float>(acos(-1));
 		float x, y, z, u, v;
-		for (int i = 0; i < desc.SamplesV; i++)
+		for (uint32_t i = 0; i < desc.SamplesV; i++)
 		{
-			for (int j = 0; j < desc.SamplesU; j++)
+			for (uint32_t j = 0; j < desc.SamplesU; j++)
 			{
 				v = i * (2 * pi / desc.SamplesV);
 				u = j * (2 * pi / desc.SamplesU);

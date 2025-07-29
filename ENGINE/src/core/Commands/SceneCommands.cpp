@@ -37,7 +37,7 @@ namespace ar
 			mc.VertexArray->AddIndexBuffer(ib);
 		
 		// Shader
-		mc.Shader = m_Scene->GetBasicShader();
+		mc.Shader = ar::ShaderLib::Get("Basic");
 	}
 
 	void AddTorusCommand::Undo()
@@ -46,33 +46,4 @@ namespace ar
 		m_Description = tc.Description;
 		m_Scene->DestroyEntity(m_Entity);
 	}
-
-	/*SelectObjectCommand::SelectObjectCommand(ar::Entity object)
-		: m_Object(object)
-	{ }
-
-	void SelectObjectCommand::Execute()
-	{
-		m_Object.AddComponent<ar::SelectedTagComponent>();
-	}
-
-	void SelectObjectCommand::Undo()
-	{
-		m_Object.RemoveComponent<ar::SelectedTagComponent>();
-	}
-
-	DeselectObjectCommand::DeselectObjectCommand(ar::Entity object)
-		: m_Object(object)
-	{ }
-
-	void DeselectObjectCommand::Execute()
-	{
-		m_Object.RemoveComponent<ar::SelectedTagComponent>();
-	}
-
-	void DeselectObjectCommand::Undo()
-	{
-		m_Object.AddComponent<ar::SelectedTagComponent>();
-	}*/
-
 }

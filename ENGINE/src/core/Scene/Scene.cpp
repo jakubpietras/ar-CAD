@@ -13,15 +13,6 @@ namespace ar
 	Scene::Scene()
 	{
 		AR_INFO("Scene initialized!");
-		m_CubeShader = std::shared_ptr<ar::Shader>(
-			ar::Shader::Create("resources/shaders/OpenGL/default.vert",
-				"resources/shaders/OpenGL/default.frag"));
-		m_GridShader = std::shared_ptr<ar::Shader>(
-			ar::Shader::Create("resources/shaders/OpenGL/grid.vert",
-				"resources/shaders/OpenGL/grid.frag"));
-		m_BasicShader = std::shared_ptr<ar::Shader>(
-			ar::Shader::Create("resources/shaders/OpenGL/basic.vert",
-				"resources/shaders/OpenGL/basic.frag"));
 	}
 
 	Scene::~Scene() { }
@@ -62,7 +53,58 @@ namespace ar
 		return {};
 	}
 
-	void Scene::RenderScene(std::shared_ptr<PerspectiveCamera> camera)
+	void Scene::OnUpdate(Ref<PerspectiveCamera> camera)
+	{
+		UpdateScene();
+		RenderScene(camera);
+	}
+
+	void Scene::UpdateScene()
+	{
+		auto transformView = m_Registry.view<TransformComponent>();
+		for (auto [entity, tc] : transformView.each())
+		{
+			UpdateTransform(tc);
+		}
+
+		/*auto torusView = m_Registry.view<TorusComponent, MeshComponent>();
+		for (auto [entity, toc, mc] : torusView.each())
+		{
+			if (!toc.DirtyFlag)
+				continue;
+			mc.VertexArray->GetVertexBuffers()
+		}*/
+
+	}
+
+	void Scene::UpdateTransform(TransformComponent& tc)
+	{
+		if (!tc.DirtyFlag)
+			return;
+
+		// ---- Scale ----
+		auto v = tc.Translation - tc.PivotPoint;
+		auto d_scale = tc.Scale / tc.PreviousScale;
+		auto scaled_v = d_scale * v;
+		tc.Translation = tc.PivotPoint + scaled_v;
+
+		// ---- Rotation ----
+		v = tc.Translation - tc.PivotPoint;
+		auto q = mat::RPYToQuat(tc.AnglesRPY - tc.PreviousAnglesRPY);
+		auto rotated_v = q * mat::Quat(0.0f, v.x, v.y, v.z) * mat::Conjugate(q);
+		tc.Translation = tc.PivotPoint + QuatToVec3(rotated_v);
+		tc.Rotation = mat::Normalize(q * tc.Rotation);
+
+		// ---- Combination ----
+		tc.ModelMatrix =
+			mat::TranslationMatrix(tc.Translation) *
+			mat::ToMat4(tc.Rotation) *
+			mat::ScaleMatrix(tc.Scale);
+
+		tc.DirtyFlag = false;
+	}
+
+	void Scene::RenderScene(Ref<PerspectiveCamera> camera)
 	{
 		ar::Renderer::BeginScene();
 
@@ -70,18 +112,20 @@ namespace ar
 
 		// Draw grid
 		{
+			auto gridShader = ar::ShaderLib::Get("Grid");
 			ar::RenderCommand::ToggleDepthTest(false);
-			m_GridShader->SetMat4("u_VP", vpMat);
-			ar::Renderer::Submit(ar::Primitive::Triangle, m_GridShader, 6);
+			gridShader->SetMat4("u_VP", vpMat);
+			ar::Renderer::Submit(ar::Primitive::Triangle, gridShader, 6);
 			ar::RenderCommand::ToggleDepthTest(true);
 		}
 
 		// Draw meshes (e.g. tori)
 		{
-			auto view = m_Registry.view<MeshComponent>(entt::exclude<PointTagComponent>);
-			for (auto [entity, mc] : view.each())
+			auto view = m_Registry.view<MeshComponent, TransformComponent>(entt::exclude<PointTagComponent>);
+			for (auto [entity, mc, tc] : view.each())
 			{
 				mc.Shader->SetMat4("u_VP", vpMat);
+				mc.Shader->SetMat4("u_Model", tc.ModelMatrix);
 				ar::Renderer::Submit(mc);
 			}
 		}

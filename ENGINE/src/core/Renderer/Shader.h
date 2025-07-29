@@ -1,4 +1,5 @@
 #pragma once
+#include "core/Core.h"
 
 namespace ar
 {
@@ -25,6 +26,16 @@ namespace ar
 		virtual uint32_t CompileShader(uint32_t shaderType, const std::string& shaderSource) = 0;
 		virtual void LinkProgram(std::vector<uint32_t>& shaders) = 0;
 		virtual void DeleteShaders(std::vector<uint32_t>& shaders) = 0;
+	};
+
+	class ShaderLib
+	{
+	public:
+		static void Init();
+		static Ref<Shader> Get(const std::string& name);
+		
+	private:
+		static std::unordered_map<std::string, Ref<Shader>> s_Shaders;
 	};
 }
 

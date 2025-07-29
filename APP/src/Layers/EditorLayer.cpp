@@ -9,12 +9,6 @@ EditorLayer::EditorLayer(float aspectRatio)
 {
 	m_CameraController = std::make_shared<ar::CameraController>(s_InitFOV, aspectRatio,
 		s_InitNearPlane, s_InitFarPlane, s_InitArcballRadius);
-	m_CubeShader = std::shared_ptr<ar::Shader>(
-		ar::Shader::Create("resources/shaders/OpenGL/default.vert",
-			"resources/shaders/OpenGL/default.frag"));
-	m_GridShader = std::shared_ptr<ar::Shader>(
-		ar::Shader::Create("resources/shaders/OpenGL/grid.vert",
-			"resources/shaders/OpenGL/grid.frag"));
 	m_CommandQueue = std::make_unique<ar::CommandQueue>();
 	m_Scene = std::make_shared<ar::Scene>();
 	m_Selection = {};
@@ -78,11 +72,6 @@ EditorLayer::EditorLayer(float aspectRatio)
 		{ ar::mat::RotationMatrix(10.0f, 40.f, -15.f) }
 	};
 
-	m_Cube = std::shared_ptr<ar::VertexArray>(ar::VertexArray::Create());
-	m_Cube->AddVertexBuffer(std::shared_ptr<ar::VertexBuffer>(ar::VertexBuffer::Create(cubeVerts)));
-	m_Cube->AddVertexBuffer(std::shared_ptr<ar::VertexBuffer>(ar::VertexBuffer::Create(cubeOffsets)));
-	m_Cube->AddVertexBuffer(std::shared_ptr<ar::VertexBuffer>(ar::VertexBuffer::Create(modelMatrices)));
-
 	ar::FramebufferDesc fbDesc;
 	// todo: parameterize
 	fbDesc.Height = 1080;
@@ -93,7 +82,10 @@ EditorLayer::EditorLayer(float aspectRatio)
 
 }
 
-void EditorLayer::OnAttach() { }
+void EditorLayer::OnAttach() 
+{
+	ar::ShaderLib::Init();
+}
 
 void EditorLayer::OnDetach() { }
 
@@ -101,14 +93,10 @@ void EditorLayer::OnUpdate()
 {
 	m_CameraController->OnUpdate();
 	m_ViewportFramebuffer->Bind();
+
 	ar::RenderCommand::SetClearColor(ar::mat::Vec4(0.18f, 0.18f, 0.24f, 1.0f));
 	ar::RenderCommand::Clear();
-
-	/*ar::Renderer::BeginScene();
-	RenderCube();*/
-	//RenderGrid();
-	m_Scene->RenderScene(m_CameraController->GetCamera());
-	//ar::Renderer::EndScene();
+	m_Scene->OnUpdate(m_CameraController->GetCamera());
 
 	m_ViewportFramebuffer->Unbind();
 }

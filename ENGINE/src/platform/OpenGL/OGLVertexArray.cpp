@@ -57,11 +57,5 @@ namespace ar
 			vertexCount += vb->GetVertexCount();
 		return vertexCount;
 	}
-
-	const std::vector<std::shared_ptr<ar::IndexBuffer>>& OGLVertexArray::GetIndexBuffers()
-	{
-		return m_IndexBuffers;
-	}
-
 }
 

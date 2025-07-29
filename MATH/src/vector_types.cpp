@@ -6,10 +6,6 @@ namespace ar
 	namespace mat
 	{
 #pragma region Vec3
-		const float* Vec3::Data() const
-		{
-			return &x;
-		}
 		Vec3::Vec3(float x, float y, float z)
 			: x(x), y(y), z(z)
 		{

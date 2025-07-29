@@ -26,5 +26,6 @@ namespace ar
 
 		static void InspectComponent(TorusComponent& torus);
 		static void InspectComponent(MeshComponent& mesh);
+		static void InspectComponent(TransformComponent& transform);
 	};
 }
