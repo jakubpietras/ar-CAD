@@ -9,13 +9,8 @@ EditorLayer::EditorLayer(float aspectRatio)
 {
 	m_CameraController = std::make_shared<ar::CameraController>(s_InitFOV, aspectRatio,
 		s_InitNearPlane, s_InitFarPlane, s_InitArcballRadius);
-	m_CommandQueue = std::make_unique<ar::CommandQueue>();
 	m_Scene = std::make_shared<ar::Scene>();
 	m_Selection = {};
-	m_PassCommand = [&](std::unique_ptr<ar::Command> cmd)
-	{
-		m_CommandQueue->Execute(std::move(cmd));
-	};
 
 	ar::FramebufferDesc fbDesc;
 	// todo: parameterize
@@ -24,7 +19,6 @@ EditorLayer::EditorLayer(float aspectRatio)
 	m_ViewportFramebuffer = std::shared_ptr<ar::Framebuffer>(ar::Framebuffer::Create(fbDesc));
 
 	m_MenuIcon = std::unique_ptr<ar::Texture>(ar::Texture::Create("resources/icons/logo.png"));
-
 }
 
 void EditorLayer::OnAttach() 
@@ -101,8 +95,6 @@ void EditorLayer::ShowMenu()
 
 		if (ImGui::BeginMenu("Edit"))
 		{
-			if (ImGui::MenuItem("Undo", "CTRL+Z", false, m_CommandQueue->CanUndo())) { UndoLastCommand(); }
-			if (ImGui::MenuItem("Redo", "CTRL+Y", false, m_CommandQueue->CanRedo())) { RedoLastCommand(); }
 			ImGui::EndMenu();
 		}
 
@@ -174,7 +166,7 @@ void EditorLayer::ShowInspector()
 	auto object = m_Selection.CurrentlySelected;
 	if (object)
 	{
-		ar::ComponentInspector::ShowInspector(object, m_PassCommand);
+		ar::ComponentInspector::ShowInspector(object);
 	}
 
 	ImGui::End();
@@ -222,9 +214,7 @@ void EditorLayer::AddObject(ar::ObjectType type)
 		case ar::ObjectType::TORUS:
 		{
 			ar::TorusDesc desc;
-			auto command = std::make_unique<ar::AddTorusCommand>(desc, m_Scene,
-				[&](ar::Entity e) { DeleteObject(e); });
-			m_CommandQueue->Execute(std::move(command));
+			AddTorus(desc);
 		}
 	}
 }
@@ -262,5 +252,36 @@ void EditorLayer::DeselectAll()
 	m_Scene->m_Registry.clear<ar::SelectedTagComponent>();
 	m_Selection.SelectedPoints.clear();
 	m_Selection.CurrentlySelected = { entt::null, nullptr };
+}
+
+void EditorLayer::AddTorus(ar::TorusDesc desc)
+{
+	auto entity = m_Scene->CreateEntity("Torus");
+
+	// Torus component
+	auto& tc = entity.AddComponent<ar::TorusComponent>();
+	tc.Description = desc;
+	tc.Vertices = ar::TorusUtils::GenerateTorusVertices(desc);
+	tc.Edges = ar::TorusUtils::GenerateTorusEdges(desc);
+
+	// Transform component
+	auto& trc = entity.AddComponent<ar::TransformComponent>();
+	trc.Translation = m_Scene->GetCursorPos();
+
+	// Mesh (render) component
+	auto& mc = entity.AddComponent<ar::MeshComponent>();
+
+	// Primitive
+	mc.RenderPrimitive = ar::Primitive::LineLoop;
+
+	// VertexArray
+	mc.VertexArray = std::unique_ptr<ar::VertexArray>(ar::VertexArray::Create());
+	mc.VertexArray->AddVertexBuffer(std::shared_ptr<ar::VertexBuffer>(ar::VertexBuffer::Create(tc.Vertices)));
+	auto indexBuffers = ar::IndexBuffer::Create(tc.Edges);
+	for (auto& ib : indexBuffers)
+		mc.VertexArray->AddIndexBuffer(ib);
+
+	// Shader
+	mc.Shader = ar::ShaderLib::Get("Basic");
 }
 

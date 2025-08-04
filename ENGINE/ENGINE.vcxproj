@@ -90,7 +90,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\core\ImGui\ImGuiUtils.cpp" />
     <ClCompile Include="src\core\ImGui\PropertyInspector.cpp" />
     <ClCompile Include="src\core\ImGui\ComponentInspector.cpp" />
     <ClCompile Include="src\core\Scene\Scene.cpp" />
@@ -101,8 +100,6 @@
     <ClCompile Include="src\platform\OpenGL\OGLFramebuffer.cpp" />
     <ClCompile Include="src\core\Renderer\Framebuffer.cpp" />
     <ClCompile Include="src\core\CameraController.cpp" />
-    <ClCompile Include="src\core\Commands\CommandQueue.cpp" />
-    <ClCompile Include="src\core\Commands\SceneCommands.cpp" />
     <ClCompile Include="src\platform\OpenGL\OGLShader.cpp" />
     <ClCompile Include="src\core\Renderer\Shader.cpp" />
     <ClCompile Include="src\core\Renderer\Camera.cpp" />
@@ -135,7 +132,6 @@
     <ClCompile Include="src\core\UID.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\core\ImGui\ImGuiUtils.h" />
     <ClInclude Include="src\core\ImGui\PropertyInspector.h" />
     <ClInclude Include="src\core\ImGui\ComponentInspector.h" />
     <ClInclude Include="src\core\Core.h" />
@@ -154,9 +150,6 @@
     <ClInclude Include="src\core\Renderer\Framebuffer.h" />
     <ClInclude Include="src\Command.h" />
     <ClInclude Include="src\core\CameraController.h" />
-    <ClInclude Include="src\core\Commands\Command.h" />
-    <ClInclude Include="src\core\Commands\CommandQueue.h" />
-    <ClInclude Include="src\core\Commands\SceneCommands.h" />
     <ClInclude Include="src\platform\OpenGL\OGLShader.h" />
     <ClInclude Include="src\core\Renderer\Shader.h" />
     <ClInclude Include="src\core\Renderer\Camera.h" />
