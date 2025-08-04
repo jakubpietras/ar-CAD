@@ -8,4 +8,9 @@ namespace ar
 
 	template<typename T>
 	using Ref = std::shared_ptr<T>;
+
+	struct UInt2
+	{
+		uint32_t u, v;
+	};
 }

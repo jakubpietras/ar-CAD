@@ -16,58 +16,46 @@ namespace ar
 
 	bool CommandQueue::CanUndo()
 	{
-		return m_Current != m_Queue.end() && m_Current != m_Queue.begin();
+		return !m_Queue.empty() && m_Current != m_Queue.begin();
 	}
 
 	void CommandQueue::Undo()
 	{
-		if (m_Current != m_Queue.end())
+		if (CanUndo())
 		{
+			--m_Current;
 			(*m_Current)->Undo();
-			if (m_Current != m_Queue.begin())
-				--m_Current;
 		}
 		AR_TRACE("Command undone. Current command queue size: {0}", m_Queue.size());
 	}
 
 	bool CommandQueue::CanRedo()
 	{
-		return m_Current != m_Queue.end() && std::next(m_Current) != m_Queue.end();
+		return !m_Queue.empty() && m_Current != m_Queue.end();
 	}
 
 	void CommandQueue::Redo()
 	{
-		if (m_Current != m_Queue.end() && std::next(m_Current) != m_Queue.end())
+		if (CanRedo())
 		{
-			++m_Current;
 			(*m_Current)->Execute();
+			++m_Current;
 		}
 		AR_TRACE("Command redone. Current command queue size: {0}", m_Queue.size());
 	}
 	void CommandQueue::PushCommand(std::unique_ptr<Command> command)
 	{
-		if (std::distance(m_Current, m_Queue.end()) > 1)
+		if (m_Current != m_Queue.end())
 		{
-			// erase all commands after the current one
-			m_Current++;
 			m_Queue.erase(m_Current, m_Queue.end());
-
-			// add the new command
-			m_Queue.push_back(std::move(command));
-
-			// get to the recently pushed command
-			m_Current = m_Queue.end();
-			m_Current--;
 		}
-		else
-		{
-			// add the new command
-			m_Queue.push_back(std::move(command));
 
-			// get to the recently pushed command
-			m_Current = m_Queue.end();
-			m_Current--;
-		}
+		// Add the new command
+		m_Queue.push_back(std::move(command));
+
+		// Set current to end (meaning "all commands have been executed")
+		m_Current = m_Queue.end();
+
 		AR_TRACE("PushCommand called. Current count: {0}", m_Queue.size());
 	}
 }

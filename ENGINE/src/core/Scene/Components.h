@@ -40,7 +40,8 @@ namespace ar
 		mat::Vec3	PivotPoint = { 0.0f, 0.0f, 0.0f };
 
 		mat::Quat	Rotation;
-		mat::Vec3	Translation = { 0.0f, 0.0f, 0.0f };
+		mat::Vec3	Translation = { 0.0f, 0.0f, 0.0f },
+					PreviousTranslation = { 0.0f, 0.0f, 0.0f };
 		mat::Vec3	AnglesRPY = { 0.0f, 0.0f, 0.0f }, 
 					PreviousAnglesRPY = { 0.0f, 0.0f, 0.0f };
 		mat::Vec3	Scale = { 1.0f, 1.0f, 1.0f }, 

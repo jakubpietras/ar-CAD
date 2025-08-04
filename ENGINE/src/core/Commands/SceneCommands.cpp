@@ -5,8 +5,9 @@
 namespace ar
 {
 
-	AddTorusCommand::AddTorusCommand(TorusDesc& desc, std::shared_ptr<Scene> scene)
-		: m_Description(desc), m_Scene(scene)
+	AddTorusCommand::AddTorusCommand(TorusDesc& desc, std::shared_ptr<Scene> scene,
+		std::function<void(ar::Entity)> deleteFunc)
+		: m_Description(desc), m_Scene(scene), m_DeleteFunction(deleteFunc)
 	{ }
 
 	void AddTorusCommand::Execute()
@@ -42,8 +43,7 @@ namespace ar
 
 	void AddTorusCommand::Undo()
 	{
-		auto& tc = m_Entity.GetComponent<TorusComponent>();
-		m_Description = tc.Description;
-		m_Scene->DestroyEntity(m_Entity);
+		// stub: not needed right now
+		return;
 	}
 }

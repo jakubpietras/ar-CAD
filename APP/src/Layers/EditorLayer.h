@@ -3,6 +3,8 @@
 #include <ARMAT.h>
 #include "core/ImGui/ComponentInspector.h"
 
+using CommandSubmitFn = std::function<void(ar::Scope<ar::Command>)>;
+
 class EditorLayer : public ar::Layer
 {
 
@@ -36,6 +38,7 @@ public:
 
 	// Commands
 	void AddObject(ar::ObjectType type);
+	void DeleteObject(ar::Entity object);
 	inline void UndoLastCommand() { m_CommandQueue->Undo(); }
 	inline void RedoLastCommand() { m_CommandQueue->Redo(); }
 
@@ -54,6 +57,7 @@ private:
 	ar::Ref<ar::CommandQueue> m_CommandQueue;
 	ar::Ref<ar::CameraController> m_CameraController;
 	std::pair<float, float> m_ViewportSize;
+	CommandSubmitFn m_PassCommand;
 	
 	// Rendering
 	ar::Ref<ar::Framebuffer> m_ViewportFramebuffer;

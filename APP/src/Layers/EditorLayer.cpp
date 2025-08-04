@@ -12,64 +12,9 @@ EditorLayer::EditorLayer(float aspectRatio)
 	m_CommandQueue = std::make_unique<ar::CommandQueue>();
 	m_Scene = std::make_shared<ar::Scene>();
 	m_Selection = {};
-
-	std::vector<ar::VertexPositionColor> cubeVerts = {
-		// position				color
-		{{-0.5f, -0.5f, -0.5f},  {1.0f, 0.0f, 0.0f}},
-		{{ 0.5f, -0.5f, -0.5f},  {1.0f, 0.0f, 0.0f}},
-		{{ 0.5f,  0.5f, -0.5f},  {1.0f, 0.0f, 0.0f}},
-		{{ 0.5f,  0.5f, -0.5f},  {1.0f, 0.0f, 0.0f}},
-		{{-0.5f,  0.5f, -0.5f},  {1.0f, 0.0f, 0.0f}},
-		{{-0.5f, -0.5f, -0.5f},  {1.0f, 0.0f, 0.0f}},
-
-		{{-0.5f, -0.5f,  0.5f},  {1.0f, 0.0f, 1.0f}},
-		{{ 0.5f, -0.5f,  0.5f},  {1.0f, 0.0f, 1.0f}},
-		{{ 0.5f,  0.5f,  0.5f},  {1.0f, 0.0f, 1.0f}},
-		{{ 0.5f,  0.5f,  0.5f},  {1.0f, 0.0f, 1.0f}},
-		{{-0.5f,  0.5f,  0.5f},  {1.0f, 0.0f, 1.0f}},
-		{{-0.5f, -0.5f,  0.5f},  {1.0f, 0.0f, 1.0f}},
-
-		{{-0.5f,  0.5f,  0.5f},  {0.0f, 0.0f, 1.0f}},
-		{{-0.5f,  0.5f, -0.5f},  {0.0f, 0.0f, 1.0f}},
-		{{-0.5f, -0.5f, -0.5f},  {0.0f, 0.0f, 1.0f}},
-		{{-0.5f, -0.5f, -0.5f},  {0.0f, 0.0f, 1.0f}},
-		{{-0.5f, -0.5f,  0.5f},  {0.0f, 0.0f, 1.0f}},
-		{{-0.5f,  0.5f,  0.5f},  {0.0f, 0.0f, 1.0f}},
-
-		{{0.5f,  0.5f,  0.5f},  {0.0f, 1.0f, 1.0f}},
-		{{0.5f,  0.5f, -0.5f},  {0.0f, 1.0f, 1.0f}},
-		{{0.5f, -0.5f, -0.5f},  {0.0f, 1.0f, 1.0f}},
-		{{0.5f, -0.5f, -0.5f},  {0.0f, 1.0f, 1.0f}},
-		{{0.5f, -0.5f,  0.5f},  {0.0f, 1.0f, 1.0f}},
-		{{0.5f,  0.5f,  0.5f},  {0.0f, 1.0f, 1.0f}},
-
-		{{-0.5f, -0.5f, -0.5f},  {0.0f, 1.0f, 0.0f}},
-		{{ 0.5f, -0.5f, -0.5f},  {0.0f, 1.0f, 0.0f}},
-		{{ 0.5f, -0.5f,  0.5f},  {0.0f, 1.0f, 0.0f}},
-		{{ 0.5f, -0.5f,  0.5f},  {0.0f, 1.0f, 0.0f}},
-		{{-0.5f, -0.5f,  0.5f},  {0.0f, 1.0f, 0.0f}},
-		{{-0.5f, -0.5f, -0.5f},  {0.0f, 1.0f, 0.0f}},
-
-		{{-0.5f,  0.5f, -0.5f},  {1.0f, 1.0f, 0.0f}},
-		{{ 0.5f,  0.5f, -0.5f},  {1.0f, 1.0f, 0.0f}},
-		{{ 0.5f,  0.5f,  0.5f},  {1.0f, 1.0f, 0.0f}},
-		{{ 0.5f,  0.5f,  0.5f},  {1.0f, 1.0f, 0.0f}},
-		{{-0.5f,  0.5f,  0.5f},  {1.0f, 1.0f, 0.0f}},
-		{{-0.5f,  0.5f, -0.5f},  {1.0f, 1.0f, 0.0f}}
-	};
-
-	std::vector<ar::InstancedFloat3> cubeOffsets
+	m_PassCommand = [&](std::unique_ptr<ar::Command> cmd)
 	{
-		{{0.0f, 0.0f, 0.0f}},
-		{{0.5f, 2.0f, 0.0f}},
-		{{-1.0f, 4.0f, 0.5f}}
-	};
-
-	std::vector<ar::InstancedMat4> modelMatrices
-	{
-		{ar::mat::RotationMatrix(10.0f, 10.f, 0.f)},
-		{ ar::mat::RotationMatrix(20.0f, 0.f, 20.f) },
-		{ ar::mat::RotationMatrix(10.0f, 40.f, -15.f) }
+		m_CommandQueue->Execute(std::move(cmd));
 	};
 
 	ar::FramebufferDesc fbDesc;
@@ -229,7 +174,7 @@ void EditorLayer::ShowInspector()
 	auto object = m_Selection.CurrentlySelected;
 	if (object)
 	{
-		ar::ComponentInspector::ShowInspector(object);
+		ar::ComponentInspector::ShowInspector(object, m_PassCommand);
 	}
 
 	ImGui::End();
@@ -277,10 +222,18 @@ void EditorLayer::AddObject(ar::ObjectType type)
 		case ar::ObjectType::TORUS:
 		{
 			ar::TorusDesc desc;
-			auto command = std::make_unique<ar::AddTorusCommand>(desc, m_Scene);
+			auto command = std::make_unique<ar::AddTorusCommand>(desc, m_Scene,
+				[&](ar::Entity e) { DeleteObject(e); });
 			m_CommandQueue->Execute(std::move(command));
 		}
 	}
+}
+
+void EditorLayer::DeleteObject(ar::Entity object)
+{
+	if (object.HasComponent<ar::SelectedTagComponent>())
+		DeselectObject(object);
+	m_Scene->DestroyEntity(object);
 }
 
 void EditorLayer::SelectObject(ar::Entity object)
@@ -293,13 +246,15 @@ void EditorLayer::SelectObject(ar::Entity object)
 
 void EditorLayer::DeselectObject(ar::Entity object)
 {
+	if (m_Selection.CurrentlySelected == object)
+		m_Selection.CurrentlySelected = { entt::null, nullptr };
+
 	object.RemoveComponent<ar::SelectedTagComponent>();
 	if (object.HasComponent<ar::PointTagComponent>())
 	{
 		auto& v = m_Selection.SelectedPoints;
 		v.erase(std::remove(v.begin(), v.end(), object), v.end());
 	}
-	m_Selection.CurrentlySelected = { entt::null, nullptr };
 }
 
 void EditorLayer::DeselectAll()

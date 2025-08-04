@@ -10,7 +10,8 @@ namespace ar
 	class AddTorusCommand : public Command 
 	{
 	public:
-		AddTorusCommand(TorusDesc& desc, std::shared_ptr<Scene> scene);
+		AddTorusCommand(TorusDesc& desc, std::shared_ptr<Scene> scene,
+			std::function<void(ar::Entity)> deleteFunc);
 
 		void Execute() override;
 		void Undo() override;
@@ -18,27 +19,38 @@ namespace ar
 		std::shared_ptr<Scene> m_Scene;
 		TorusDesc m_Description;
 		Entity m_Entity;
-	};/*
-
-	class SelectObjectCommand : public Command
-	{
-	public:
-		SelectObjectCommand(ar::Entity object);
-
-		void Execute() override;
-		void Undo() override;
-	private:
-		ar::Entity m_Object;
+		std::function<void(ar::Entity)> m_DeleteFunction;
 	};
 
-	class DeselectObjectCommand : public Command
+	template<typename T>
+	class SetPropertyCommand : public ar::Command
 	{
 	public:
-		DeselectObjectCommand(ar::Entity object);
+		SetPropertyCommand(T* target, const T& oldValue, const T& newValue, bool* dirtyFlag = nullptr)
+			: m_Target(target), m_OldValue(oldValue), m_NewValue(newValue), m_DirtyFlag(dirtyFlag)
+		{
+			AR_ASSERT(target, "Target pointer is null in SetPropertyCommand");
+		}
 
-		void Execute() override;
-		void Undo() override;
+		void Execute() override
+		{
+			*m_Target = m_NewValue;
+			if (m_DirtyFlag)
+				*m_DirtyFlag = true;
+		}
+
+		void Undo() override
+		{
+			*m_Target = m_OldValue;
+			if (m_DirtyFlag)
+				*m_DirtyFlag = true;
+		}
+
 	private:
-		ar::Entity m_Object;
-	};*/
+		T* m_Target = nullptr;
+		T m_OldValue{};
+		T m_NewValue{};
+		bool* m_DirtyFlag = nullptr;
+	};
+
 }
