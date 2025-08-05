@@ -9,8 +9,7 @@ namespace ar
 	{
 		float		SmallRadius = 1.0f,
 					LargeRadius = 2.0f;
-		uint32_t	SamplesU = 16,
-					SamplesV = 16;
+		UInt2		Samples {17, 16};
 	};
 
 	class TorusUtils

@@ -9,12 +9,12 @@ namespace ar
 		std::vector<VertexPosition> vertices;
 		auto pi = static_cast<float>(acos(-1));
 		float x, y, z, u, v;
-		for (uint32_t i = 0; i < desc.SamplesV; i++)
+		for (uint32_t i = 0; i < desc.Samples.v; i++)
 		{
-			for (uint32_t j = 0; j < desc.SamplesU; j++)
+			for (uint32_t j = 0; j < desc.Samples.u; j++)
 			{
-				v = i * (2 * pi / desc.SamplesV);
-				u = j * (2 * pi / desc.SamplesU);
+				v = i * (2 * pi / desc.Samples.v);
+				u = j * (2 * pi / desc.Samples.u);
 
 				x = (desc.LargeRadius + desc.SmallRadius * cos(v)) * cos(u);
 				y = desc.SmallRadius * sin(v);
@@ -30,20 +30,20 @@ namespace ar
 		std::vector<std::vector<uint32_t>> edges {};
 
 		// going around the tube
-		for (uint32_t i = 0; i < desc.SamplesV; i++)
+		for (uint32_t i = 0; i < desc.Samples.v; i++)
 		{
 			std::vector<uint32_t> h_edge;
-			for (uint32_t j = 0; j < desc.SamplesU; j++)
-				h_edge.push_back(i * desc.SamplesU + j);
+			for (uint32_t j = 0; j < desc.Samples.u; j++)
+				h_edge.push_back(i * desc.Samples.u + j);
 			edges.push_back(h_edge);
 		}
 
 		// going along the tube
-		for (uint32_t i = 0; i < desc.SamplesU; i++)
+		for (uint32_t i = 0; i < desc.Samples.u; i++)
 		{
 			std::vector<uint32_t> v_edge;
-			for (uint32_t j = 0; j < desc.SamplesV; j++)
-				v_edge.push_back(j * desc.SamplesU + i);
+			for (uint32_t j = 0; j < desc.Samples.v; j++)
+				v_edge.push_back(j * desc.Samples.u + i);
 			edges.push_back(v_edge);
 		}
 		return edges;

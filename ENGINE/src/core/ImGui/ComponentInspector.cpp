@@ -1,4 +1,5 @@
 #include "arpch.h"
+#include "core/Utils/TorusUtils.h"
 #include "ComponentInspector.h"
 #include "PropertyInspector.h"
 
@@ -23,12 +24,23 @@ void ar::ComponentInspector::ShowInspector(Entity entity)
 
 void ar::ComponentInspector::InspectComponent(TorusComponent& torus)
 {
-	ImGui::Text("Hey this is torus properties");
+	if (PropertyInspector::InspectProperty("Small Radius", torus.Description.SmallRadius, 0.1f, 10.f))
+		torus.DirtyFlag = true;
+	if (PropertyInspector::InspectProperty("Large Radius", torus.Description.LargeRadius, 0.1f, 10.f))
+		torus.DirtyFlag = true;
+	if (PropertyInspector::InspectProperty("Samples", torus.Description.Samples, 3u, 64u))
+		torus.DirtyFlag = true;
+
 }
 
 void ar::ComponentInspector::InspectComponent(TransformComponent& transform)
 {
-	ImGui::Text("Hey this is transform");
+	if (PropertyInspector::InspectProperty("Translation", transform.Translation, transform.PreviousTranslation, -20.0f, 20.0f))
+		transform.DirtyFlag = true;
+	if (PropertyInspector::InspectProperty("Rotation", transform.AnglesRPY, transform.PreviousAnglesRPY, -180.0f, 180.0f))
+		transform.DirtyFlag = true;
+	if (PropertyInspector::InspectProperty("Scale", transform.Scale, transform.PreviousScale, 0.1f, 10.0f))
+		transform.DirtyFlag = true;
 }
 
 void ar::ComponentInspector::InspectComponent(MeshComponent& mesh)

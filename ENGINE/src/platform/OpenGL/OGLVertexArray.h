@@ -12,11 +12,12 @@ namespace ar
 
 		void Bind() override;
 		void Unbind() override;
-		void AddVertexBuffer(std::shared_ptr<VertexBuffer> vertexBuffer) override;
-		void AddIndexBuffer(std::shared_ptr<IndexBuffer> indexBuffer) override;
+		void AddVertexBuffer(Ref<VertexBuffer> vertexBuffer) override;
+		void AddIndexBuffer(Ref<IndexBuffer> indexBuffer) override;
+		void ClearBuffers() override;
+		
 		const uint32_t GetIndexCount() override;
 		const uint32_t GetVertexCount() override;
-
 	};
 
 }

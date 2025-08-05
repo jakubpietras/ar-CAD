@@ -16,6 +16,7 @@ namespace ar
 		virtual void Unbind() = 0;
 		virtual void AddVertexBuffer(Ref<VertexBuffer> vertexBuffer) = 0;
 		virtual void AddIndexBuffer(Ref<IndexBuffer> indexBuffer) = 0;
+		virtual void ClearBuffers() = 0;
 
 		static VertexArray* Create();
 		inline const bool IsIndexed() { return m_IndexBuffers.size() > 0; }

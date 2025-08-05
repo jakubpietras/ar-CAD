@@ -26,7 +26,7 @@ namespace ar
 		glBindVertexArray(0);
 	}
 
-	void OGLVertexArray::AddVertexBuffer(std::shared_ptr<VertexBuffer> vertexBuffer)
+	void OGLVertexArray::AddVertexBuffer(Ref<VertexBuffer> vertexBuffer)
 	{
 		m_VertexBuffers.push_back(vertexBuffer);
 		vertexBuffer->Bind(m_ID, m_BindingIndex, m_AttribStartIndex);
@@ -36,7 +36,7 @@ namespace ar
 			"Max vertex attribute bindings reached!");
 	}
 
-	void OGLVertexArray::AddIndexBuffer(std::shared_ptr<IndexBuffer> indexBuffer)
+	void OGLVertexArray::AddIndexBuffer(Ref<IndexBuffer> indexBuffer)
 	{
 		m_IndexBuffers.push_back(indexBuffer);
 		// binding should occur during rendering, each index buffer is a separate draw call
@@ -57,5 +57,20 @@ namespace ar
 			vertexCount += vb->GetVertexCount();
 		return vertexCount;
 	}
+
+	void OGLVertexArray::ClearBuffers()
+	{
+		for (uint32_t i = 0; i < m_AttribStartIndex; ++i)
+		{
+			glDisableVertexArrayAttrib(m_ID, i);
+		}
+		glVertexArrayElementBuffer(m_ID, 0);
+
+		m_VertexBuffers.clear();
+		m_IndexBuffers.clear();
+		m_BindingIndex = 0;
+		m_AttribStartIndex = 0;
+	}
+
 }
 

@@ -11,6 +11,11 @@ namespace ar
 
 	struct UInt2
 	{
-		uint32_t u, v;
+		UInt2(std::initializer_list<unsigned int> l)
+		{
+			u = *(l.begin());
+			v = *(l.begin() + 1);
+		}
+		unsigned int u, v;
 	};
 }

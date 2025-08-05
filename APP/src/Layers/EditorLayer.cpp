@@ -275,8 +275,8 @@ void EditorLayer::AddTorus(ar::TorusDesc desc)
 	mc.RenderPrimitive = ar::Primitive::LineLoop;
 
 	// VertexArray
-	mc.VertexArray = std::unique_ptr<ar::VertexArray>(ar::VertexArray::Create());
-	mc.VertexArray->AddVertexBuffer(std::shared_ptr<ar::VertexBuffer>(ar::VertexBuffer::Create(tc.Vertices)));
+	mc.VertexArray = ar::Scope<ar::VertexArray>(ar::VertexArray::Create());
+	mc.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(tc.Vertices)));
 	auto indexBuffers = ar::IndexBuffer::Create(tc.Edges);
 	for (auto& ib : indexBuffers)
 		mc.VertexArray->AddIndexBuffer(ib);

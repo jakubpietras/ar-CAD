@@ -66,13 +66,20 @@ namespace ar
 			UpdateTransform(tc);
 		}
 
-		/*auto torusView = m_Registry.view<TorusComponent, MeshComponent>();
+		auto torusView = m_Registry.view<TorusComponent, MeshComponent>();
 		for (auto [entity, toc, mc] : torusView.each())
 		{
 			if (!toc.DirtyFlag)
 				continue;
-			mc.VertexArray->GetVertexBuffers()
-		}*/
+			mc.VertexArray->ClearBuffers();
+			toc.Vertices = ar::TorusUtils::GenerateTorusVertices(toc.Description);
+			toc.Edges = ar::TorusUtils::GenerateTorusEdges(toc.Description);
+			mc.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(toc.Vertices)));
+			auto indexBuffers = ar::IndexBuffer::Create(toc.Edges);
+			for (auto& ib : indexBuffers)
+				mc.VertexArray->AddIndexBuffer(ib);
+			toc.DirtyFlag = false;
+		}
 
 	}
 
@@ -99,6 +106,8 @@ namespace ar
 			mat::TranslationMatrix(tc.Translation) *
 			mat::ToMat4(tc.Rotation) *
 			mat::ScaleMatrix(tc.Scale);
+
+		tc.PivotPoint = tc.Translation;
 
 		tc.DirtyFlag = false;
 	}
