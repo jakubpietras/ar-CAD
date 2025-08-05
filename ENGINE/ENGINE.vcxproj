@@ -135,6 +135,7 @@
     <ClInclude Include="src\core\ImGui\PropertyInspector.h" />
     <ClInclude Include="src\core\ImGui\ComponentInspector.h" />
     <ClInclude Include="src\core\Core.h" />
+    <ClInclude Include="src\core\ImGui\ScopedDisable.h" />
     <ClInclude Include="src\core\Scene\ObjectTypes.h" />
     <ClInclude Include="src\core\Scene\Scene.h" />
     <ClInclude Include="src\core\Scene\Components.h" />

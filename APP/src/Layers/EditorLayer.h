@@ -10,7 +10,9 @@ public:
 	struct SelectionState
 	{
 		ar::Entity CurrentlySelected = {entt::null, nullptr};
+		std::vector<ar::Entity> SelectedObjects{};
 		std::vector<ar::Entity> SelectedPoints{};
+		bool ShouldDelete = false;
 	};
 
 	EditorLayer(float aspectRatio);
@@ -33,10 +35,12 @@ public:
 	void ShowSceneHierarchy();
 	void ShowInspector();
 	void DrawTreeNode(ar::Entity& object);
+	void DrawDeleteModal();
 
 	// Commands
 	void AddObject(ar::ObjectType type);
 	void DeleteObject(ar::Entity object);
+	void DeleteMultipleObjects(std::vector<ar::Entity> objects);
 
 	// Selection
 	void SelectObject(ar::Entity object);
@@ -59,6 +63,8 @@ private:
 	// Textures
 	ar::Scope<ar::Texture> m_MenuIcon;
 
+	bool m_ShouldOpenDeleteModal = false;
+	std::vector<ar::Entity> m_ObjectsToDelete;
 
 	void AddTorus(ar::TorusDesc desc);
 };

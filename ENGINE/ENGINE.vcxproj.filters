@@ -284,6 +284,9 @@
     <ClInclude Include="src\core\ImGui\PropertyInspector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\core\ImGui\ScopedDisable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\resources\shaders\OpenGL\default.vert" />

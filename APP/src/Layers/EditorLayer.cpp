@@ -1,4 +1,5 @@
 #include "EditorLayer.h"
+#include "core/ImGui/ScopedDisable.h"
 
 static const float s_InitFOV = 45.0f;
 static const float s_InitNearPlane = 0.1f;
@@ -11,6 +12,7 @@ EditorLayer::EditorLayer(float aspectRatio)
 		s_InitNearPlane, s_InitFarPlane, s_InitArcballRadius);
 	m_Scene = std::make_shared<ar::Scene>();
 	m_Selection = {};
+	m_ObjectsToDelete = {};
 
 	ar::FramebufferDesc fbDesc;
 	// todo: parameterize
@@ -55,6 +57,7 @@ void EditorLayer::OnImGuiRender()
 	ShowStats();
 	ShowSceneHierarchy();
 	ShowInspector();
+	DrawDeleteModal();
 }
 
 bool EditorLayer::OnMouseMoved(ar::MouseMovedEvent& event)
@@ -196,15 +199,97 @@ void EditorLayer::DrawTreeNode(ar::Entity& object)
 		}
 		if (ImGui::BeginPopupContextItem())
 		{
-			if (ImGui::MenuItem("Delete"))
-			{	
-			}
 			if (ImGui::MenuItem("Rename"))
 			{
+				// todo: open rename dialog
+			}
+			if (ImGui::MenuItem("Delete"))
+			{	
+				m_ShouldOpenDeleteModal = true;
+				m_ObjectsToDelete.push_back(object);
+			}
+			{
+				ar::ScopedDisable disableSelectionDelete(
+					m_Selection.SelectedObjects.empty() 
+					|| !object.HasComponent<ar::SelectedTagComponent>());
+
+				if (ImGui::MenuItem("Delete Selected"))
+				{
+					m_ShouldOpenDeleteModal = true;
+					m_Selection.ShouldDelete = true;
+				}
+			}
+			
+			
+			ImGui::EndPopup();
+		}
+	}
+}
+
+void EditorLayer::DrawDeleteModal()
+{
+	const char* popupName = "Delete?";
+	
+	if (m_ShouldOpenDeleteModal)
+	{
+		ImGui::OpenPopup(popupName);
+		m_ShouldOpenDeleteModal = false;
+	}
+	
+
+	// individual item
+	if (m_Selection.ShouldDelete)
+	{
+		if (ImGui::BeginPopupModal(popupName, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			std::string message = "Are you sure you want to delete " 
+				+ std::to_string(m_Selection.SelectedObjects.size()) 
+				+ " object(s)?";
+			ImGui::TextWrapped(message.c_str());
+
+			// centering
+			ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+			ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+			if (ImGui::Button("OK", ImVec2(120, 0)))
+			{
+				ImGui::CloseCurrentPopup();
+				DeleteMultipleObjects(m_Selection.SelectedObjects);
+				m_Selection.ShouldDelete = false;
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel", ImVec2(120, 0)))
+			{
+				ImGui::CloseCurrentPopup();
+				m_Selection.ShouldDelete = false;
+				m_ObjectsToDelete.clear();
 			}
 			ImGui::EndPopup();
 		}
 	}
+	else
+	{
+		if (ImGui::BeginPopupModal(popupName, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			ImGui::TextWrapped("Are you sure you want to delete this object?");
+			// centering
+			ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+			ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+			if (ImGui::Button("OK", ImVec2(120, 0)))
+			{
+				ImGui::CloseCurrentPopup();
+				DeleteMultipleObjects(m_ObjectsToDelete);
+				m_ObjectsToDelete.clear();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel", ImVec2(120, 0)))
+			{
+				ImGui::CloseCurrentPopup();
+				m_ObjectsToDelete.clear();
+			}
+			ImGui::EndPopup();
+		}
+	}
+	
 }
 
 void EditorLayer::AddObject(ar::ObjectType type)
@@ -226,11 +311,18 @@ void EditorLayer::DeleteObject(ar::Entity object)
 	m_Scene->DestroyEntity(object);
 }
 
+void EditorLayer::DeleteMultipleObjects(std::vector<ar::Entity> objects)
+{
+	for (auto& object : objects)
+		DeleteObject(object);
+}
+
 void EditorLayer::SelectObject(ar::Entity object)
 {
 	object.AddComponent<ar::SelectedTagComponent>();
 	if (object.HasComponent<ar::PointTagComponent>())
 		m_Selection.SelectedPoints.push_back(object);
+	m_Selection.SelectedObjects.push_back(object);
 	m_Selection.CurrentlySelected = object;
 }
 
@@ -245,6 +337,8 @@ void EditorLayer::DeselectObject(ar::Entity object)
 		auto& v = m_Selection.SelectedPoints;
 		v.erase(std::remove(v.begin(), v.end(), object), v.end());
 	}
+	auto& objs = m_Selection.SelectedObjects;
+	objs.erase(std::remove(objs.begin(), objs.end(), object), objs.end());
 }
 
 void EditorLayer::DeselectAll()
