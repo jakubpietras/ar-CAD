@@ -38,6 +38,7 @@ void EditorLayer::OnUpdate()
 	ar::RenderCommand::SetClearColor(ar::mat::Vec4(0.18f, 0.18f, 0.24f, 1.0f));
 	ar::RenderCommand::Clear();
 	m_Scene->OnUpdate(m_CameraController->GetCamera());
+	m_Cursor.Render(m_CameraController, m_ViewportFramebuffer->GetHeight());
 
 	m_ViewportFramebuffer->Unbind();
 }
@@ -57,7 +58,9 @@ void EditorLayer::OnImGuiRender()
 	ShowStats();
 	ShowSceneHierarchy();
 	ShowInspector();
+	ShowCursorControls();
 	DrawDeleteModal();
+	DrawRenameModal();
 }
 
 bool EditorLayer::OnMouseMoved(ar::MouseMovedEvent& event)
@@ -67,6 +70,7 @@ bool EditorLayer::OnMouseMoved(ar::MouseMovedEvent& event)
 
 bool EditorLayer::OnMouseScrolled(ar::MouseScrolledEvent& event)
 {
+	//AR_INFO("Viewport size: {0} x {1}", m_ViewportFramebuffer->GetWidth(), m_ViewportFramebuffer->GetHeight());
 	return false;
 }
 
@@ -175,6 +179,19 @@ void EditorLayer::ShowInspector()
 	ImGui::End();
 }
 
+void EditorLayer::ShowCursorControls()
+{
+	ImGui::Begin("Cursor");
+
+	ar::mat::Vec3 position = m_Cursor.GetPosition();
+	if (ImGui::DragFloat3("Cursor position", position.Data(), 0.1f, -20.0f, 20.0f))
+	{
+		m_Cursor.SetPosition(position);
+	}
+
+	ImGui::End();
+}
+
 void EditorLayer::DrawTreeNode(ar::Entity& object)
 {
 	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DrawLinesFull;
@@ -201,7 +218,8 @@ void EditorLayer::DrawTreeNode(ar::Entity& object)
 		{
 			if (ImGui::MenuItem("Rename"))
 			{
-				// todo: open rename dialog
+				m_ObjectToRename = object;
+				m_ShouldOpenRenameModal = true;
 			}
 			if (ImGui::MenuItem("Delete"))
 			{	
@@ -219,8 +237,6 @@ void EditorLayer::DrawTreeNode(ar::Entity& object)
 					m_Selection.ShouldDelete = true;
 				}
 			}
-			
-			
 			ImGui::EndPopup();
 		}
 	}
@@ -290,6 +306,49 @@ void EditorLayer::DrawDeleteModal()
 		}
 	}
 	
+}
+
+void EditorLayer::DrawRenameModal()
+{
+	const char* popupName = "Rename?";
+
+	if (m_ShouldOpenRenameModal)
+	{
+		ImGui::OpenPopup(popupName);
+		m_ShouldOpenRenameModal = false;
+	}
+	
+	static char str1[128];
+	ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+	ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+
+	if (ImGui::BeginPopupModal(popupName, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::InputTextWithHint("##new_name", "Enter new name here", str1, IM_ARRAYSIZE(str1));
+
+		std::string message = "Are you sure you want to change the name?";
+		ImGui::TextWrapped(message.c_str());
+
+		{
+			ar::ScopedDisable disabledOK(str1[0] == '\0');
+			if (ImGui::Button("OK", ImVec2(120, 0)))
+			{
+				m_ObjectToRename.SetName(str1);
+				str1[0] = '\0';
+				m_ObjectToRename = { entt::null, nullptr };
+				ImGui::CloseCurrentPopup();
+			}
+		}
+		
+		ImGui::SameLine();
+		if (ImGui::Button("Cancel", ImVec2(120, 0)))
+		{
+			str1[0] = '\0';
+			m_ObjectToRename = { entt::null, nullptr };
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
 }
 
 void EditorLayer::AddObject(ar::ObjectType type)

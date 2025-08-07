@@ -22,8 +22,9 @@ namespace ar
 		void OnUpdate();
 		void OnEvent(Event& e);
 		
-		inline std::shared_ptr<PerspectiveCamera> GetCamera() const { return m_Camera; }
+		inline Ref<PerspectiveCamera> GetCamera() const { return m_Camera; }
 		inline const mat::Vec4& GetPosition() { return m_Position; }
+		inline const float GetFOV() { return m_FOV; }
 
 		void Rotate(float dPitchDeg, float dYawDeg, float dRollDeg);
 		void UpdateArcballRadius(float dRadius);

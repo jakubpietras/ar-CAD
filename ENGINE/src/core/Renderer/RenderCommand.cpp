@@ -12,6 +12,11 @@ namespace ar
 		glViewport(x, y, width, height);
 	}
 
+	void RenderCommand::SetLineThickness(uint32_t width)
+	{
+		glLineWidth(width);
+	}
+
 	void RenderCommand::ToggleDepthTest(bool enabled)
 	{
 		if (enabled) glEnable(GL_DEPTH_TEST);

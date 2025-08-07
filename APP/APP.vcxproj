@@ -110,11 +110,13 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Tools\EditorCursor.cpp" />
     <ClCompile Include="src\Layers\EditorLayer.cpp" />
     <ClCompile Include="src\EditorApp.cpp" />
     <ClCompile Include="src\Source.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Tools\EditorCursor.h" />
     <ClInclude Include="src\Layers\EditorLayer.h" />
     <ClInclude Include="src\EditorApp.h" />
   </ItemGroup>

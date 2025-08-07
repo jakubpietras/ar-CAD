@@ -62,7 +62,7 @@ namespace ar
     }
     void ImGuiLayer::OnImGuiRender()
     {
-        ImGui::ShowDemoWindow();
+        //ImGui::ShowDemoWindow();
     }
     void ImGuiLayer::Begin()
     {

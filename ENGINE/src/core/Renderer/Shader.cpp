@@ -27,6 +27,10 @@ namespace ar
 			"resources/shaders/OpenGL/grid.vert",
 			"resources/shaders/OpenGL/grid.frag"
 		));
+		s_Shaders["BasicColor"] = Ref<Shader>(Shader::Create(
+			"resources/shaders/OpenGL/default.vert",
+			"resources/shaders/OpenGL/default.frag"
+		));
 	}
 
 	ar::Ref<ar::Shader> ShaderLib::Get(const std::string& name)

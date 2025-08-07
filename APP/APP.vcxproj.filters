@@ -24,12 +24,18 @@
     <ClCompile Include="src\Layers\EditorLayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Tools\EditorCursor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\EditorApp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Layers\EditorLayer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Tools\EditorCursor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -56,6 +56,7 @@ namespace ar
 
 		uint32_t GetID() { return GetComponent<IDComponent>().ID; }
 		const std::string& GetName() { return GetComponent<TagComponent>().Tag; }
+		void SetName(const std::string& newName);
 
 		bool operator==(const Entity& other) const
 		{

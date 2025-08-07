@@ -2,6 +2,7 @@
 #include <ARCAD.h>
 #include <ARMAT.h>
 #include "core/ImGui/ComponentInspector.h"
+#include <Tools/EditorCursor.h>
 
 class EditorLayer : public ar::Layer
 {
@@ -31,11 +32,12 @@ public:
 	void ShowStats();
 	void ShowMenu();
 	void ShowViewport();
-
 	void ShowSceneHierarchy();
 	void ShowInspector();
+	void ShowCursorControls();
 	void DrawTreeNode(ar::Entity& object);
 	void DrawDeleteModal();
+	void DrawRenameModal();
 
 	// Commands
 	void AddObject(ar::ObjectType type);
@@ -47,8 +49,10 @@ public:
 	void DeselectObject(ar::Entity object);
 	void DeselectAll();
 	
-
 private:
+	// Cursor
+	EditorCursor m_Cursor;
+
 	// Selection
 	SelectionState m_Selection;
 
@@ -63,8 +67,11 @@ private:
 	// Textures
 	ar::Scope<ar::Texture> m_MenuIcon;
 
-	bool m_ShouldOpenDeleteModal = false;
+	// Modals
+	bool m_ShouldOpenDeleteModal = false,
+		m_ShouldOpenRenameModal = false;
 	std::vector<ar::Entity> m_ObjectsToDelete;
+	ar::Entity m_ObjectToRename;
 
 	void AddTorus(ar::TorusDesc desc);
 };
