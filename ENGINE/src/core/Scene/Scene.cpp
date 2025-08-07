@@ -12,6 +12,7 @@ namespace ar
 	Scene::Scene()
 	{
 		AR_INFO("Scene initialized!");
+		m_PointsVA = Ref<VertexArray>(VertexArray::Create());
 	}
 
 	Scene::~Scene() { }
@@ -140,10 +141,22 @@ namespace ar
 
 		// Draw points
 		{
-			// todo
+			auto shader = ShaderLib::Get("Basic");
+			std::vector<VertexPosition> pointPositions{};
+			auto view = m_Registry.view<TransformComponent, PointTagComponent>();
+			for (const auto& [e, transform] : view.each())
+				pointPositions.push_back({ transform.Translation });
+			m_PointsVA->ClearBuffers();
+			m_PointsVA->AddVertexBuffer(Ref<VertexBuffer>(VertexBuffer::Create(pointPositions)));
+
+			shader->SetMat4("u_VP", camera->GetVP());
+			shader->SetMat4("u_Model", mat::Identity());
+
+			ar::Renderer::Submit(Primitive::Point, shader, m_PointsVA);
 		}
 
 		ar::Renderer::EndScene();
 	}
+
 
 }

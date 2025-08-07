@@ -120,6 +120,9 @@
     <ClCompile Include="src\core\ImGui\PropertyInspector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\core\Scene\Components.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\core\Application.h">
@@ -295,6 +298,8 @@
     <None Include="src\resources\shaders\OpenGL\grid.frag" />
     <None Include="src\resources\shaders\OpenGL\basic.vert" />
     <None Include="src\resources\shaders\OpenGL\basic.frag" />
+    <None Include="src\resources\shaders\OpenGL\points.vert" />
+    <None Include="src\resources\shaders\OpenGL\points.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\resources\icons\logo.png">

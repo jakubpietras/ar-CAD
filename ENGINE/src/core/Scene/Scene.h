@@ -29,12 +29,6 @@ namespace ar
 			return m_Registry.view<Components...>();
 		}
 
-
-		// ==== Cursor - move to Editor =====
-		// todo: implement cursor logic
-		inline mat::Vec3 GetCursorPos() { return { 0.0f, 0.0f, 0.0f }; }
-		// ===== ===== =====
-
 		entt::registry m_Registry;
 	private:
 		std::unordered_map<uint32_t, entt::entity> m_EntityMap;
@@ -44,6 +38,9 @@ namespace ar
 		void UpdateTransform(TransformComponent& transform);
 
 		void RenderScene(Ref<PerspectiveCamera> camera);
+
+		// Utility
+		Ref<VertexArray> m_PointsVA;
 
 		friend class Entity;
 		friend class SceneHierarchyPanel;

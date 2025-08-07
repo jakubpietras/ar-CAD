@@ -5,8 +5,12 @@
 #include "core/Renderer/Primitive.h"
 #include "core/Utils/TorusUtils.h"
 
+
 namespace ar
 {
+	// forward declarations
+	class Entity;
+
 #pragma region Tags
 
 	struct PointTagComponent {};		// Entities are Points (will render last, etc.)
@@ -48,6 +52,9 @@ namespace ar
 					PreviousScale = { 1.0f, 1.0f, 1.0f };
 		mat::Mat4	ModelMatrix = mat::Identity();
 
+
+		bool		IsRotationEnabled = true;
+		bool		IsScaleEnabled = true;
 		bool		DirtyFlag = true;
 	};
 
@@ -57,6 +64,13 @@ namespace ar
 		std::shared_ptr<Shader>			Shader = nullptr;
 		mat::Vec3						Color = {1.0f, 1.0f, 1.0f};
 		Primitive						RenderPrimitive = Primitive::Triangle;
+	};
+
+	struct ControlPointsComponent
+	{
+		ControlPointsComponent();
+		ControlPointsComponent(std::vector<Entity> initialPoints);
+		std::vector<Entity> Points;
 	};
 
 #pragma endregion

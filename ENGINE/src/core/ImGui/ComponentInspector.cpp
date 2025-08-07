@@ -2,6 +2,7 @@
 #include "core/Utils/TorusUtils.h"
 #include "ComponentInspector.h"
 #include "PropertyInspector.h"
+#include "core/ImGui/ScopedDisable.h"
 
 
 void ar::ComponentInspector::ShowInspector(Entity entity)
@@ -37,10 +38,16 @@ void ar::ComponentInspector::InspectComponent(TransformComponent& transform)
 {
 	if (PropertyInspector::InspectProperty("Translation", transform.Translation, transform.PreviousTranslation, -20.0f, 20.0f))
 		transform.DirtyFlag = true;
-	if (PropertyInspector::InspectProperty("Rotation", transform.AnglesRPY, transform.PreviousAnglesRPY, -180.0f, 180.0f))
-		transform.DirtyFlag = true;
-	if (PropertyInspector::InspectProperty("Scale", transform.Scale, transform.PreviousScale, 0.1f, 10.0f))
-		transform.DirtyFlag = true;
+	{
+		ScopedDisable disabled(!transform.IsRotationEnabled);
+		if (PropertyInspector::InspectProperty("Rotation", transform.AnglesRPY, transform.PreviousAnglesRPY, -180.0f, 180.0f))
+			transform.DirtyFlag = true;
+	}
+	{
+		ScopedDisable disabled(!transform.IsScaleEnabled);
+		if (PropertyInspector::InspectProperty("Scale", transform.Scale, transform.PreviousScale, 0.1f, 10.0f))
+			transform.DirtyFlag = true;
+	}
 }
 
 void ar::ComponentInspector::InspectComponent(MeshComponent& mesh)

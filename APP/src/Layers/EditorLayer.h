@@ -76,9 +76,10 @@ private:
 	std::vector<ar::Entity> m_ObjectsToDelete;
 	ar::Entity m_ObjectToRename;
 
-	float ToNDC(float coordinate, float viewportWidth, float viewportHeight);
-
 	void AddTorus(ar::TorusDesc desc);
+	void AddPoint();
+
+	std::vector<ar::mat::Mat4> GetPointModelMatrices();
 };
 
 

@@ -107,6 +107,7 @@ void EditorLayer::ShowMenu()
 
 		if (ImGui::BeginMenu("Add"))
 		{
+			if (ImGui::MenuItem("Point")) { AddPoint(); }
 			if (ImGui::BeginMenu("Mesh"))
 			{
 				if (ImGui::MenuItem("Torus")) { AddObject(ar::ObjectType::TORUS); }
@@ -201,7 +202,7 @@ void EditorLayer::DrawTreeNode(ar::Entity& object)
 {
 	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DrawLinesFull;
 
-	if (object.HasComponent<ar::TorusComponent>())
+	if (!object.HasComponent<ar::ControlPointsComponent>())
 	{
 		flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
@@ -227,13 +228,13 @@ void EditorLayer::DrawTreeNode(ar::Entity& object)
 				m_ShouldOpenRenameModal = true;
 			}
 			if (ImGui::MenuItem("Delete"))
-			{	
+			{
 				m_ShouldOpenDeleteModal = true;
 				m_ObjectsToDelete.push_back(object);
 			}
 			{
 				ar::ScopedDisable disableSelectionDelete(
-					m_Selection.SelectedObjects.empty() 
+					m_Selection.SelectedObjects.empty()
 					|| !object.HasComponent<ar::SelectedTagComponent>());
 
 				if (ImGui::MenuItem("Delete Selected"))
@@ -460,7 +461,7 @@ void EditorLayer::AddTorus(ar::TorusDesc desc)
 
 	// Transform component
 	auto& trc = entity.AddComponent<ar::TransformComponent>();
-	trc.Translation = m_Scene->GetCursorPos();
+	trc.Translation = m_Cursor.GetPosition();
 
 	// Mesh (render) component
 	auto& mc = entity.AddComponent<ar::MeshComponent>();
@@ -477,5 +478,32 @@ void EditorLayer::AddTorus(ar::TorusDesc desc)
 
 	// Shader
 	mc.Shader = ar::ShaderLib::Get("Basic");
+}
+
+void EditorLayer::AddPoint()
+{
+	auto entity = m_Scene->CreateEntity("Point");
+	
+	// Point tag component
+	entity.AddComponent<ar::PointTagComponent>();
+
+	// Transform component
+	auto& trc = entity.AddComponent<ar::TransformComponent>();
+	trc.Translation = m_Cursor.GetPosition();
+	trc.IsRotationEnabled = false;
+	trc.IsScaleEnabled = false;
+}
+
+std::vector<ar::mat::Mat4> EditorLayer::GetPointModelMatrices()
+{
+	std::vector<ar::mat::Mat4> matrices;
+	auto view = m_Scene->m_Registry.view<ar::TransformComponent, ar::PointTagComponent>();
+
+	matrices.reserve(view.size_hint());
+	for (auto [entity, transform] :view.each())
+	{
+		matrices.push_back(transform.ModelMatrix);
+	}
+	return matrices;
 }
 

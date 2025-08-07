@@ -31,6 +31,10 @@ namespace ar
 			"resources/shaders/OpenGL/default.vert",
 			"resources/shaders/OpenGL/default.frag"
 		));
+		s_Shaders["Points"] = Ref<Shader>(Shader::Create(
+			"resources/shaders/OpenGL/points.vert",
+			"resources/shaders/OpenGL/points.frag"
+		));
 	}
 
 	ar::Ref<ar::Shader> ShaderLib::Get(const std::string& name)

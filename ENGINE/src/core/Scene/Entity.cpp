@@ -1,5 +1,6 @@
 #include "arpch.h"
 #include "Entity.h"
+#include "Components.h"
 
 namespace ar
 {
@@ -12,6 +13,16 @@ namespace ar
 	{
 		auto& name = GetComponent<TagComponent>();
 		name.Tag = newName;
+	}
+
+	uint32_t Entity::GetID()
+	{
+		return GetComponent<IDComponent>().ID;
+	}
+
+	const std::string& Entity::GetName()
+	{
+		return GetComponent<TagComponent>().Tag;
 	}
 
 }

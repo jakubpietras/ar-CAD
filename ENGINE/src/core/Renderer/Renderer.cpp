@@ -10,6 +10,7 @@ namespace ar
 	{
 		ar::RenderCommand::ToggleDepthTest(true);
 		ar::RenderCommand::ToggleBlendColor(true);
+		glPointSize(8.0f);
 	}
 	void Renderer::EndScene()
 	{

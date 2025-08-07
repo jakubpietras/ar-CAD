@@ -54,8 +54,8 @@ namespace ar
 		operator entt::entity() const { return m_EntityHandle; }
 		operator uint32_t() const { return (uint32_t)m_EntityHandle; }
 
-		uint32_t GetID() { return GetComponent<IDComponent>().ID; }
-		const std::string& GetName() { return GetComponent<TagComponent>().Tag; }
+		uint32_t GetID();
+		const std::string& GetName();
 		void SetName(const std::string& newName);
 
 		bool operator==(const Entity& other) const

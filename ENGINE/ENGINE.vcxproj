@@ -92,6 +92,7 @@
   <ItemGroup>
     <ClCompile Include="src\core\ImGui\PropertyInspector.cpp" />
     <ClCompile Include="src\core\ImGui\ComponentInspector.cpp" />
+    <ClCompile Include="src\core\Scene\Components.cpp" />
     <ClCompile Include="src\core\Scene\Scene.cpp" />
     <ClCompile Include="src\core\Scene\Entity.cpp" />
     <ClCompile Include="src\core\stb_image.cpp" />
@@ -203,6 +204,8 @@
     <None Include="src\resources\shaders\OpenGL\grid.vert" />
     <None Include="src\resources\shaders\OpenGL\default.frag" />
     <None Include="src\resources\shaders\OpenGL\default.vert" />
+    <None Include="src\resources\shaders\OpenGL\points.frag" />
+    <None Include="src\resources\shaders\OpenGL\points.vert" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\resources\icons\icon.png" />
