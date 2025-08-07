@@ -1,6 +1,6 @@
 #include "EditorCursor.h"
 
-const float EditorCursor::CURSOR_SIZE = 20.0f;
+const float EditorCursor::CURSOR_SIZE = 15.0f;
 
 EditorCursor::EditorCursor()
 	: m_Position({1.0f, 0.0f, 1.0f}), m_ModelMatrix(ar::mat::Identity())

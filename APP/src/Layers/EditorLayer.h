@@ -48,6 +48,9 @@ public:
 	void SelectObject(ar::Entity object);
 	void DeselectObject(ar::Entity object);
 	void DeselectAll();
+
+	// cursor
+	void PlaceCursor();
 	
 private:
 	// Cursor
@@ -72,6 +75,8 @@ private:
 		m_ShouldOpenRenameModal = false;
 	std::vector<ar::Entity> m_ObjectsToDelete;
 	ar::Entity m_ObjectToRename;
+
+	float ToNDC(float coordinate, float viewportWidth, float viewportHeight);
 
 	void AddTorus(ar::TorusDesc desc);
 };

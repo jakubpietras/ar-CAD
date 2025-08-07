@@ -149,6 +149,11 @@ void EditorLayer::ShowViewport()
 		viewportSize,
 		ImVec2(0, 1), ImVec2(1, 0)
 	);
+
+	// cursor placement
+	if (ar::Input::IsMouseButtonPressed(AR_MOUSE_BUTTON_RIGHT) && ar::Input::IsKeyPressed(AR_KEY_LEFT_SHIFT))
+		PlaceCursor();
+	
 	ImGui::End();
 	ImGui::PopStyleVar();
 }
@@ -405,6 +410,42 @@ void EditorLayer::DeselectAll()
 	m_Scene->m_Registry.clear<ar::SelectedTagComponent>();
 	m_Selection.SelectedPoints.clear();
 	m_Selection.CurrentlySelected = { entt::null, nullptr };
+}
+
+void EditorLayer::PlaceCursor()
+{
+	// get cursor position inside the viewport window
+	ImVec2 viewport_pos = ImGui::GetItemRectMin();
+	ImVec2 viewport_size = ImGui::GetItemRectSize();
+	ImVec2 mouse_pos = ImGui::GetIO().MousePos;
+
+	float xPos = mouse_pos.x - viewport_pos.x;
+	float yPos = mouse_pos.y - viewport_pos.y;
+
+	if (xPos < 0 || yPos < 0 ||
+		xPos >= viewport_size.x ||
+		yPos >= viewport_size.y)
+	{
+		return;
+	}
+
+	// convert to NDC
+	float xNDC = (2.0f * xPos) / viewport_size.x - 1.0f;
+	float yNDC = 1.0f - (2.0f * yPos) / viewport_size.y;
+	auto rayClip = ar::mat::Vec4(xNDC, yNDC, -1.0f, 1.0f);
+
+	// convert to camera space
+	auto rayCamera = m_CameraController->GetCamera()->GetInvProjection() * rayClip;
+	rayCamera = ar::mat::Vec4(rayCamera.x, rayCamera.y, -1.0f, 0.0f);
+
+	// convert to world space
+	auto direction = ar::mat::Normalize(ar::mat::ToVec3(m_CameraController->GetCamera()->GetInvView() * rayCamera));
+	
+	ar::mat::Vec3 origin = ar::mat::ToVec3(m_CameraController->GetPosition());
+	ar::mat::Vec3 planeNormal = ar::mat::ToVec3(m_CameraController->GetCamera()->GetForward());
+	float t = -((ar::mat::Dot(origin, planeNormal)) / ar::mat::Dot(direction, planeNormal));
+	auto cursorPos = origin + direction * t;
+	m_Cursor.SetPosition(cursorPos);
 }
 
 void EditorLayer::AddTorus(ar::TorusDesc desc)
