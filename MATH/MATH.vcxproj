@@ -138,10 +138,10 @@
     <ClCompile Include="src\solvers.cpp" />
     <ClCompile Include="src\transformations.cpp" />
     <ClCompile Include="src\trigonometry.cpp" />
-    <ClCompile Include="src\vector_types.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ARMAT.h" />
+    <ClInclude Include="src\Constants.h" />
     <ClInclude Include="src\matrix_types.h" />
     <ClInclude Include="src\quaternion.h" />
     <ClInclude Include="src\solvers.h" />

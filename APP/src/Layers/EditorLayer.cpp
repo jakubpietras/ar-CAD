@@ -1,18 +1,12 @@
 #include "EditorLayer.h"
 #include "core/ImGui/ScopedDisable.h"
-
-static const float s_InitFOV = 45.0f;
-static const float s_InitNearPlane = 0.1f;
-static const float s_InitFarPlane = 100.0f;
-static const float s_InitArcballRadius = 5.0f;
+#include "Tools/EditorConstants.h"
 
 EditorLayer::EditorLayer(float aspectRatio)
 {
-	m_CameraController = std::make_shared<ar::CameraController>(s_InitFOV, aspectRatio,
-		s_InitNearPlane, s_InitFarPlane, s_InitArcballRadius);
+	m_CameraController = std::make_shared<ar::CameraController>(EditorCamera::FOV, aspectRatio,
+		EditorCamera::NearPlane, EditorCamera::FarPlane, EditorCamera::ArcballRadius);
 	m_Scene = std::make_shared<ar::Scene>();
-	m_Selection = {};
-	m_ObjectsToDelete = {};
 
 	ar::FramebufferDesc fbDesc;
 	// todo: parameterize
@@ -35,10 +29,16 @@ void EditorLayer::OnUpdate()
 	m_CameraController->OnUpdate();
 	m_ViewportFramebuffer->Bind();
 
-	if (m_ShouldDeleteObjects)
+	if (m_State.ShouldDeleteObjects)
 	{
 		DeleteObjects();
-		m_ShouldDeleteObjects = false;
+		m_State.ClearDeleteState();
+	}
+
+	if (m_State.ShouldRenameObject)
+	{
+		m_State.ObjectToRename.SetName(m_State.RenameBuffer);
+		m_State.ClearRenameState();
 	}
 
 	ar::RenderCommand::SetClearColor(ar::mat::Vec4(0.18f, 0.18f, 0.24f, 1.0f));
@@ -60,15 +60,17 @@ void EditorLayer::OnEvent(ar::Event& event)
 
 void EditorLayer::OnImGuiRender() 
 {
-	ShowMenu();
-	ShowViewport();
-	ShowStats();
-	ShowSceneHierarchy();
-	ShowInspector();
-	ShowCursorControls();
-	DrawDeleteModal();
-	DrawRenameModal();
-	DrawErrorModal();
+	RenderMainMenu();
+	RenderViewport();
+	RenderStatsWindow();
+	RenderSceneHierarchy();
+	RenderInspectorWindow();
+	RenderCursorControls();
+
+	// Modals
+	RenderDeleteModal();
+	RenderRenameModal();
+	RenderErrorModal();
 }
 
 bool EditorLayer::OnMouseMoved(ar::MouseMovedEvent& event)
@@ -78,18 +80,17 @@ bool EditorLayer::OnMouseMoved(ar::MouseMovedEvent& event)
 
 bool EditorLayer::OnMouseScrolled(ar::MouseScrolledEvent& event)
 {
-	//AR_INFO("Viewport size: {0} x {1}", m_ViewportFramebuffer->GetWidth(), m_ViewportFramebuffer->GetHeight());
 	return false;
 }
 
-void EditorLayer::ShowStats()
+void EditorLayer::RenderStatsWindow()
 {
 	ImGui::Begin("Stats");
 	ImGui::TextWrapped("Current entity count: %d", m_Scene->GetEntityCount());
 	ImGui::End();
 }
 
-void EditorLayer::ShowMenu()
+void EditorLayer::RenderMainMenu()
 {
 	if (ImGui::BeginMainMenuBar())
 	{
@@ -138,7 +139,7 @@ void EditorLayer::ShowMenu()
 	}
 }
 
-void EditorLayer::ShowViewport()
+void EditorLayer::RenderViewport()
 {
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 	ImGui::Begin("Viewport");
@@ -168,7 +169,7 @@ void EditorLayer::ShowViewport()
 	ImGui::PopStyleVar();
 }
 
-void EditorLayer::ShowSceneHierarchy()
+void EditorLayer::RenderSceneHierarchy()
 {
 	ImGui::Begin("Scene Hierarchy");
 
@@ -181,20 +182,18 @@ void EditorLayer::ShowSceneHierarchy()
 	ImGui::End();
 }
 
-void EditorLayer::ShowInspector()
+void EditorLayer::RenderInspectorWindow()
 {
 	ImGui::Begin("Inspector");
 
-	auto object = m_Selection.CurrentlySelected;
+	auto object = GetLastSelected();
 	if (object)
-	{
 		ar::ComponentInspector::ShowInspector(object);
-	}
 
 	ImGui::End();
 }
 
-void EditorLayer::ShowCursorControls()
+void EditorLayer::RenderCursorControls()
 {
 	ImGui::Begin("Cursor");
 
@@ -222,7 +221,7 @@ void EditorLayer::DrawTreeNode(ar::Entity& object)
 		if (ImGui::IsItemClicked())
 		{
 			if (!ar::Input::IsKeyPressed(AR_KEY_LEFT_SHIFT))
-				DeselectAll();
+				ClearSelection();
 			if (object.HasComponent<ar::SelectedTagComponent>())
 				DeselectObject(object);
 			else
@@ -233,22 +232,26 @@ void EditorLayer::DrawTreeNode(ar::Entity& object)
 		{
 			if (ImGui::MenuItem("Rename"))
 			{
-				m_ObjectToRename = object;
-				m_ShouldOpenRenameModal = true;
+				m_State.ObjectToRename = object;
+				m_State.ShowRenameModal = true;
 			}
 			if (ImGui::MenuItem("Delete"))
 			{
-				m_ShouldOpenDeleteModal = true;
-				m_ObjectsToDelete.push_back(object);
+				m_State.ObjectsToDelete.push_back(object);
+				m_State.ShowDeleteModal = true;
 			}
 			{
 				ar::ScopedDisable disableSelectionDelete(
-					m_Selection.SelectedObjects.empty()
+					m_State.SelectedObjects.empty()
 					|| !object.HasComponent<ar::SelectedTagComponent>());
 				if (ImGui::MenuItem("Delete Selected"))
 				{
-					m_ShouldOpenDeleteModal = true;
-					m_Selection.ShouldDelete = true;
+					m_State.ShowDeleteModal = true;
+					m_State.ObjectsToDelete.insert(
+						m_State.ObjectsToDelete.end(),
+						m_State.SelectedObjects.begin(),
+						m_State.SelectedObjects.end()
+					);
 				}
 			}
 			ImGui::EndPopup();
@@ -264,7 +267,7 @@ void EditorLayer::DrawTreeNode(ar::Entity& object)
 		if (ImGui::IsItemClicked())
 		{
 			if (!ar::Input::IsKeyPressed(AR_KEY_LEFT_SHIFT))
-				DeselectAll();
+				ClearSelection();
 			if (object.HasComponent<ar::SelectedTagComponent>())
 				DeselectObject(object);
 			else
@@ -275,22 +278,26 @@ void EditorLayer::DrawTreeNode(ar::Entity& object)
 		{
 			if (ImGui::MenuItem("Rename"))
 			{
-				m_ObjectToRename = object;
-				m_ShouldOpenRenameModal = true;
+				m_State.ObjectToRename = object;
+				m_State.ShowRenameModal = true;
 			}
 			if (ImGui::MenuItem("Delete"))
 			{
-				m_ShouldOpenDeleteModal = true;
-				m_ObjectsToDelete.push_back(object);
+				m_State.ObjectsToDelete.push_back(object);
+				m_State.ShowDeleteModal = true;
 			}
 			{
 				ar::ScopedDisable disableSelectionDelete(
-					m_Selection.SelectedObjects.empty()
+					m_State.SelectedObjects.empty()
 					|| !object.HasComponent<ar::SelectedTagComponent>());
 				if (ImGui::MenuItem("Delete Selected"))
 				{
-					m_ShouldOpenDeleteModal = true;
-					m_Selection.ShouldDelete = true;
+					m_State.ShowDeleteModal = true;
+					m_State.ObjectsToDelete.insert(
+						m_State.ObjectsToDelete.end(),
+						m_State.SelectedObjects.begin(),
+						m_State.SelectedObjects.end()
+					);
 				}
 			}
 			ImGui::EndPopup();
@@ -321,7 +328,7 @@ void EditorLayer::DrawTreeChildNode(ar::Entity& parent, ar::Entity& object)
 	if (ImGui::IsItemClicked())
 	{
 		if (!ar::Input::IsKeyPressed(AR_KEY_LEFT_SHIFT))
-			DeselectAll();
+			ClearSelection();
 		if (object.HasComponent<ar::SelectedTagComponent>())
 			DeselectObject(object);
 		else
@@ -332,13 +339,13 @@ void EditorLayer::DrawTreeChildNode(ar::Entity& parent, ar::Entity& object)
 	{
 		if (ImGui::MenuItem("Rename"))
 		{
-			m_ObjectToRename = object;
-			m_ShouldOpenRenameModal = true;
+			m_State.ObjectToRename = object;
+			m_State.ShowRenameModal = true;
 		}
 		if (ImGui::MenuItem("Delete"))
 		{
-			m_ShouldOpenDeleteModal = true;
-			m_ObjectsToDelete.push_back(object);
+			m_State.ObjectsToDelete.push_back(object);
+			m_State.ShowDeleteModal = true;
 		}
 		ImGui::Separator();
 		if (ImGui::MenuItem("Detach"))
@@ -349,122 +356,84 @@ void EditorLayer::DrawTreeChildNode(ar::Entity& parent, ar::Entity& object)
 	}
 }
 
-void EditorLayer::DrawDeleteModal()
+void EditorLayer::RenderDeleteModal()
 {
 	const char* popupName = "Delete?";
 	
-	if (m_ShouldOpenDeleteModal)
+	if (m_State.ShowDeleteModal)
 	{
 		ImGui::OpenPopup(popupName);
-		m_ShouldOpenDeleteModal = false;
+		m_State.ShowDeleteModal = false;
 	}
 	
-
-	// individual item
-	if (m_Selection.ShouldDelete)
+	CenterNextPopup();
+	if (ImGui::BeginPopupModal(popupName, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 	{
-		if (ImGui::BeginPopupModal(popupName, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
-		{
-			std::string message = "Are you sure you want to delete " 
-				+ std::to_string(m_Selection.SelectedObjects.size()) 
-				+ " object(s)?";
-			ImGui::TextWrapped(message.c_str());
+		std::string message = "Are you sure you want to delete "
+			+ std::to_string(m_State.ObjectsToDelete.size())
+			+ " object(s)?";
+		ImGui::TextWrapped(message.c_str());
 
-			// centering
-			ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-			ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-			if (ImGui::Button("OK", ImVec2(120, 0)))
-			{
-				ImGui::CloseCurrentPopup();
-				m_ShouldDeleteObjects = true;
-				m_Selection.ShouldDelete = false;
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("Cancel", ImVec2(120, 0)))
-			{
-				ImGui::CloseCurrentPopup();
-				m_Selection.ShouldDelete = false;
-				m_ObjectsToDelete.clear();
-			}
-			ImGui::EndPopup();
-		}
-	}
-	else
-	{
-		if (ImGui::BeginPopupModal(popupName, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+		if (ImGui::Button("OK", ImVec2(120, 0)))
 		{
-			ImGui::TextWrapped("Are you sure you want to delete this object?");
-			// centering
-			ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-			ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-			if (ImGui::Button("OK", ImVec2(120, 0)))
-			{
-				ImGui::CloseCurrentPopup();
-				m_ShouldDeleteObjects = true;
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("Cancel", ImVec2(120, 0)))
-			{
-				ImGui::CloseCurrentPopup();
-				m_ObjectsToDelete.clear();
-			}
-			ImGui::EndPopup();
+			m_State.ShouldDeleteObjects = true;
+			ImGui::CloseCurrentPopup();
 		}
+		ImGui::SameLine();
+		if (ImGui::Button("Cancel", ImVec2(120, 0)))
+		{
+			ImGui::CloseCurrentPopup();
+			m_State.ClearDeleteState();
+		}
+		ImGui::EndPopup();
 	}
-	
 }
 
-void EditorLayer::DrawRenameModal()
+void EditorLayer::RenderRenameModal()
 {
 	const char* popupName = "Rename?";
 
-	if (m_ShouldOpenRenameModal)
+	if (m_State.ShowRenameModal)
 	{
 		ImGui::OpenPopup(popupName);
-		m_ShouldOpenRenameModal = false;
+		m_State.ShowRenameModal = false;
 	}
 	
-	static char str1[128];
 	ImVec2 center = ImGui::GetMainViewport()->GetCenter();
 	ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 
 	if (ImGui::BeginPopupModal(popupName, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 	{
-		ImGui::InputTextWithHint("##new_name", "Enter new name here", str1, IM_ARRAYSIZE(str1));
+		ImGui::InputTextWithHint("##new_name", "Enter new name here", m_State.RenameBuffer, IM_ARRAYSIZE(m_State.RenameBuffer));
 
 		std::string message = "Are you sure you want to change the name?";
 		ImGui::TextWrapped(message.c_str());
-
 		{
-			ar::ScopedDisable disabledOK(str1[0] == '\0');
+			ar::ScopedDisable disabledOK(m_State.RenameBuffer[0] == '\0');
 			if (ImGui::Button("OK", ImVec2(120, 0)))
 			{
-				m_ObjectToRename.SetName(str1);
-				str1[0] = '\0';
-				m_ObjectToRename = { entt::null, nullptr };
+				m_State.ShouldRenameObject = true;
 				ImGui::CloseCurrentPopup();
 			}
 		}
-		
 		ImGui::SameLine();
 		if (ImGui::Button("Cancel", ImVec2(120, 0)))
 		{
-			str1[0] = '\0';
-			m_ObjectToRename = { entt::null, nullptr };
+			m_State.ClearRenameState();
 			ImGui::CloseCurrentPopup();
 		}
 		ImGui::EndPopup();
 	}
 }
 
-void EditorLayer::DrawErrorModal()
+void EditorLayer::RenderErrorModal()
 {
 	const char* popupName = "Error";
 
-	if (m_ErrorState.ShouldDisplayError)
+	if (m_State.ShowErrorModal)
 	{
 		ImGui::OpenPopup(popupName);
-		m_ErrorState.ShouldDisplayError = false;
+		m_State.ShowErrorModal = false;
 	}
 
 	ImVec2 center = ImGui::GetMainViewport()->GetCenter();
@@ -472,7 +441,7 @@ void EditorLayer::DrawErrorModal()
 
 	if (ImGui::BeginPopupModal(popupName, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 	{
-		ImGui::TextWrapped(m_ErrorState.ErrorMessage.c_str());
+		ImGui::TextWrapped(m_State.ErrorMessages[0].c_str());
 		
 		if (ImGui::Button("OK", ImVec2(120, 0)))
 		{
@@ -502,7 +471,7 @@ void EditorLayer::AddObject(ar::ObjectType type)
 
 void EditorLayer::DeleteObjects()
 {
-	for (auto& object : m_ObjectsToDelete)
+	for (auto& object : m_State.ObjectsToDelete)
 	{
 		if (object.HasComponent<ar::SelectedTagComponent>())
 			DeselectObject(object);
@@ -517,12 +486,12 @@ void EditorLayer::DeleteObjects()
 		}
 		m_Scene->DestroyEntity(object);
 	}
-	m_ObjectsToDelete.clear();
+	m_State.ObjectsToDelete.clear();
 }
 
 void EditorLayer::MarkObjectDelete(ar::Entity object)
 {
-	m_ObjectsToDelete.push_back(object);
+	m_State.ObjectsToDelete.push_back(object);
 }
 
 void EditorLayer::MarkMultipleObjectsDelete(std::vector<ar::Entity> objects)
@@ -535,37 +504,6 @@ void EditorLayer::DetachFromParent(ar::Entity object, ar::Entity parent)
 {
 	if (parent.HasComponent<ar::ChainTagComponent>())
 		DetachFromChain(object, parent);
-}
-
-void EditorLayer::SelectObject(ar::Entity object)
-{
-	object.AddComponent<ar::SelectedTagComponent>();
-	if (object.HasComponent<ar::PointTagComponent>())
-		m_Selection.SelectedPoints.push_back(object);
-	m_Selection.SelectedObjects.push_back(object);
-	m_Selection.CurrentlySelected = object;
-}
-
-void EditorLayer::DeselectObject(ar::Entity object)
-{
-	if (m_Selection.CurrentlySelected == object)
-		m_Selection.CurrentlySelected = { entt::null, nullptr };
-
-	object.RemoveComponent<ar::SelectedTagComponent>();
-	if (object.HasComponent<ar::PointTagComponent>())
-	{
-		auto& v = m_Selection.SelectedPoints;
-		v.erase(std::remove(v.begin(), v.end(), object), v.end());
-	}
-	auto& objs = m_Selection.SelectedObjects;
-	objs.erase(std::remove(objs.begin(), objs.end(), object), objs.end());
-}
-
-void EditorLayer::DeselectAll()
-{
-	m_Scene->m_Registry.clear<ar::SelectedTagComponent>();
-	m_Selection.SelectedPoints.clear();
-	m_Selection.CurrentlySelected = { entt::null, nullptr };
 }
 
 void EditorLayer::PlaceCursor()
@@ -637,16 +575,16 @@ void EditorLayer::AddTorus(ar::TorusDesc desc)
 
 void EditorLayer::AddChain()
 {
-	if (m_Selection.SelectedPoints.size() < 2)
+	if (m_State.SelectedPoints.size() < 2)
 	{
-		m_ErrorState.ShouldDisplayError = true;
-		m_ErrorState.ErrorMessage = "To create a chain, you need at least 2 points selected in the scene hierarchy!";
+		m_State.ShowErrorModal = true;
+		m_State.ErrorMessages.emplace_back("To create a chain, you need at least 2 points selected in the scene hierarchy!");
 		return;
 	}
 
 	auto entity = m_Scene->CreateEntity("Chain");
 	entity.AddComponent<ar::ChainTagComponent>();
-	entity.AddComponent<ar::ControlPointsComponent>(m_Selection.SelectedPoints);
+	entity.AddComponent<ar::ControlPointsComponent>(m_State.SelectedPoints);
 }
 
 void EditorLayer::AddPoint()
@@ -682,5 +620,39 @@ std::vector<ar::mat::Mat4> EditorLayer::GetPointModelMatrices()
 		matrices.push_back(transform.ModelMatrix);
 	}
 	return matrices;
+}
+
+void EditorLayer::SelectObject(ar::Entity object)
+{
+	object.AddComponent<ar::SelectedTagComponent>();
+	m_State.SelectedObjects.push_back(object);
+
+	if (object.HasComponent<ar::PointTagComponent>())
+		m_State.SelectedPoints.push_back(object);
+}
+
+void EditorLayer::DeselectObject(ar::Entity object)
+{
+	auto& objs = m_State.SelectedObjects;
+	objs.erase(std::remove(objs.begin(), objs.end(), object), objs.end());
+
+	if (object.HasComponent<ar::PointTagComponent>())
+	{
+		auto& pts = m_State.SelectedPoints;
+		pts.erase(std::remove(pts.begin(), pts.end(), object), pts.end());
+	}
+	object.RemoveComponent<ar::SelectedTagComponent>();
+}
+
+ar::Entity EditorLayer::GetLastSelected()
+{
+	if (m_State.SelectedObjects.empty())
+		return { entt::null, nullptr };
+	return m_State.SelectedObjects.back();
+}
+
+void EditorLayer::ClearSelection()
+{
+
 }
 

@@ -1,11 +1,12 @@
 #include "arpch.h"
 #include "Camera.h"
 #include <transformations.h>
+#include "Constants.h"
 
 namespace ar
 {
 	PerspectiveCamera::PerspectiveCamera()
-		: m_Forward(mat::Vec4::s_WorldForward), m_Up(mat::Vec4::s_WorldUp), m_Right(mat::Vec4::s_WorldRight),
+		: m_Forward(ar::mat::WorldForward), m_Up(ar::mat::WorldUp), m_Right(ar::mat::WorldRight),
 			m_Projection(mat::Identity()), m_InvProjection(mat::Identity()), 
 			m_View(mat::Identity()), m_InvView(mat::Identity())
 	{
@@ -23,9 +24,9 @@ namespace ar
 	}
 	void PerspectiveCamera::UpdateOrientation(mat::Quat rotation)
 	{
-		m_Forward = mat::Normalize(mat::Rotate(mat::Vec4::s_WorldForward, rotation));
-		m_Up = mat::Normalize(mat::Rotate(mat::Vec4::s_WorldUp, rotation));
-		m_Right = mat::Normalize(mat::Rotate(mat::Vec4::s_WorldRight, rotation));
+		m_Forward = mat::Normalize(mat::Rotate(ar::mat::WorldForward, rotation));
+		m_Up = mat::Normalize(mat::Rotate(ar::mat::WorldUp, rotation));
+		m_Right = mat::Normalize(mat::Rotate(ar::mat::WorldRight, rotation));
 	}
 }
 

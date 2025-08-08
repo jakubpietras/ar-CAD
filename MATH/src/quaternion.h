@@ -12,22 +12,22 @@ namespace ar
 		struct Quat
 		{
 			Quat(float w = 1.0f, float x = 0.0f, float y = 0.0f, float z = 0.0f);
-			Quat(const Vec3& vec);
+			//Quat(const Vec3& vec);
 			Quat operator+(const Quat& r) const;
-			Quat& operator+=(const Quat& other);
+			//Quat& operator+=(const Quat& other);
 
-			Quat operator-(const Quat& other) const;
-			Quat& operator-=(const Quat& other);
+			//Quat operator-(const Quat& other) const;
+			//Quat& operator-=(const Quat& other);
 
 			Quat operator*(const Quat& r) const;
 			Quat operator*(const float scalar) const;
-			Quat& operator*=(const Quat& other);
+			//Quat& operator*=(const Quat& other);
 
 			Quat operator/(float scalar) const;
-			Quat& operator/=(const Quat& other);
+			//Quat& operator/=(const Quat& other);
 
-			bool operator==(const Quat& q) const;
-			bool operator!=(const Quat& q) const;
+			//bool operator==(const Quat& q) const;
+			//bool operator!=(const Quat& q) const;
 
 			Quat operator-() const;
 
@@ -43,7 +43,7 @@ namespace ar
 		// construction helpers
 		Quat FromAxisAngle(float angle, const Vec3& axis_dir);	// axis angle
 		Quat RPYToQuat(const Vec3& angles_deg);
-		Vec3 ToEulerXYZ(const Quat& q);
+		//Vec3 ToEulerXYZ(const Quat& q);
 		Mat4 ToMat4(const Quat& q); // ToMat4
 
 		// quaternion rotation

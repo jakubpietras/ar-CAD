@@ -2,26 +2,14 @@
 #include <ARCAD.h>
 #include <ARMAT.h>
 #include "core/ImGui/ComponentInspector.h"
-#include <Tools/EditorCursor.h>
+#include "Tools/EditorCursor.h"
+#include "Tools/ImGuiUtils.h"
+#include "Tools/EditorState.h"
 
 class EditorLayer : public ar::Layer
 {
 
 public:
-	struct SelectionState
-	{
-		ar::Entity CurrentlySelected = {entt::null, nullptr};
-		std::vector<ar::Entity> SelectedObjects{};
-		std::vector<ar::Entity> SelectedPoints{};
-		bool ShouldDelete = false;
-	};
-
-	struct ErrorState
-	{
-		bool ShouldDisplayError = false;
-		std::string ErrorMessage = "";
-	};
-
 	EditorLayer(float aspectRatio);
 
 	void OnAttach() override;
@@ -35,17 +23,17 @@ public:
 	bool OnMouseScrolled(ar::MouseScrolledEvent& event);
 
 	// GUI functions
-	void ShowStats();
-	void ShowMenu();
-	void ShowViewport();
-	void ShowInspector();
-	void ShowCursorControls();
-	void DrawDeleteModal();
-	void DrawRenameModal();
-	void DrawErrorModal();
+	void RenderStatsWindow();
+	void RenderMainMenu();
+	void RenderViewport();
+	void RenderInspectorWindow();
+	void RenderCursorControls();
+	void RenderDeleteModal();
+	void RenderRenameModal();
+	void RenderErrorModal();
 
 	// Scene Hierarchy
-	void ShowSceneHierarchy();
+	void RenderSceneHierarchy();
 	void DrawTreeNode(ar::Entity& object);
 	void DrawTreeChildNode(ar::Entity& parent, ar::Entity& object);
 	
@@ -59,18 +47,20 @@ public:
 	// Selection
 	void SelectObject(ar::Entity object);
 	void DeselectObject(ar::Entity object);
-	void DeselectAll();
+	ar::Entity GetLastSelected();
+	void ClearSelection();
 
 	// cursor
 	void PlaceCursor();
 	
 private:
+	// State
+	EditorState m_State;
+
+
 	// Cursor
 	EditorCursor m_Cursor;
 
-	// Selection
-	SelectionState m_Selection;
-	ErrorState m_ErrorState;
 
 	// Logic
 	ar::Ref<ar::Scene> m_Scene;
@@ -83,13 +73,6 @@ private:
 	// Textures
 	ar::Scope<ar::Texture> m_MenuIcon;
 
-	// Modals
-	bool m_ShouldOpenDeleteModal = false,
-		m_ShouldOpenRenameModal = false,
-		m_ShouldDeleteObjects = false;
-	std::vector<ar::Entity> m_ObjectsToDelete;
-	ar::Entity m_ObjectToRename;
-
 	// Addition
 	void AddTorus(ar::TorusDesc desc);
 	void AddChain();
@@ -99,6 +82,7 @@ private:
 	void DetachFromChain(ar::Entity object, ar::Entity parent);
 
 	std::vector<ar::mat::Mat4> GetPointModelMatrices();
+
 };
 
 

@@ -101,17 +101,17 @@ namespace ar
 			view(0, 0) = right.x;
 			view(0, 1) = right.y;
 			view(0, 2) = right.z;
-			view(0, 3) = -Dot(ToVec3(right), ToVec3(position));
+			view(0, 3) = -Dot(Vec3(right), Vec3(position));
 
 			view(1, 0) = up.x;
 			view(1, 1) = up.y;
 			view(1, 2) = up.z;
-			view(1, 3) = -Dot(ToVec3(up), ToVec3(position));
+			view(1, 3) = -Dot(Vec3(up), Vec3(position));
 
 			view(2, 0) = -forward.x;
 			view(2, 1) = -forward.y;
 			view(2, 2) = -forward.z;
-			view(2, 3) = -Dot(ToVec3(forward), ToVec3(position));
+			view(2, 3) = -Dot(Vec3(forward), Vec3(position));
 
 			return view;
 		}
