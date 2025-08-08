@@ -16,6 +16,12 @@ public:
 		bool ShouldDelete = false;
 	};
 
+	struct ErrorState
+	{
+		bool ShouldDisplayError = false;
+		std::string ErrorMessage = "";
+	};
+
 	EditorLayer(float aspectRatio);
 
 	void OnAttach() override;
@@ -32,17 +38,23 @@ public:
 	void ShowStats();
 	void ShowMenu();
 	void ShowViewport();
-	void ShowSceneHierarchy();
 	void ShowInspector();
 	void ShowCursorControls();
-	void DrawTreeNode(ar::Entity& object);
 	void DrawDeleteModal();
 	void DrawRenameModal();
+	void DrawErrorModal();
 
+	// Scene Hierarchy
+	void ShowSceneHierarchy();
+	void DrawTreeNode(ar::Entity& object);
+	void DrawTreeChildNode(ar::Entity& parent, ar::Entity& object);
+	
 	// Commands
+	void MarkObjectDelete(ar::Entity object);
+	void MarkMultipleObjectsDelete(std::vector<ar::Entity> objects);
 	void AddObject(ar::ObjectType type);
-	void DeleteObject(ar::Entity object);
-	void DeleteMultipleObjects(std::vector<ar::Entity> objects);
+	void DeleteObjects();
+	void DetachFromParent(ar::Entity object, ar::Entity parent);
 
 	// Selection
 	void SelectObject(ar::Entity object);
@@ -58,6 +70,7 @@ private:
 
 	// Selection
 	SelectionState m_Selection;
+	ErrorState m_ErrorState;
 
 	// Logic
 	ar::Ref<ar::Scene> m_Scene;
@@ -72,12 +85,18 @@ private:
 
 	// Modals
 	bool m_ShouldOpenDeleteModal = false,
-		m_ShouldOpenRenameModal = false;
+		m_ShouldOpenRenameModal = false,
+		m_ShouldDeleteObjects = false;
 	std::vector<ar::Entity> m_ObjectsToDelete;
 	ar::Entity m_ObjectToRename;
 
+	// Addition
 	void AddTorus(ar::TorusDesc desc);
+	void AddChain();
 	void AddPoint();
+
+	// Detachment
+	void DetachFromChain(ar::Entity object, ar::Entity parent);
 
 	std::vector<ar::mat::Mat4> GetPointModelMatrices();
 };

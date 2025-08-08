@@ -139,18 +139,39 @@ namespace ar
 			}
 		}
 
+		auto shader = ShaderLib::Get("Basic");
+		shader->SetMat4("u_VP", camera->GetVP());
+		shader->SetMat4("u_Model", mat::Identity());
+
+		// Draw lines
+		{
+			auto view = m_Registry.view<ControlPointsComponent>();
+			for (auto [entity, cp] : view.each())
+			{
+				std::vector<VertexPosition> verts{};
+				for (auto& point : cp.Points)
+				{
+					verts.push_back({ point.GetComponent<TransformComponent>().Translation });
+				}
+
+				auto ent = ar::Entity{ entity, this };
+				if (ent.HasComponent<ChainTagComponent>())
+				{
+					m_PointsVA->ClearBuffers();
+					m_PointsVA->AddVertexBuffer(Ref<VertexBuffer>(VertexBuffer::Create(verts)));
+					ar::Renderer::Submit(Primitive::LineStrip, shader, m_PointsVA);
+				}
+			}
+		}
+
 		// Draw points
 		{
-			auto shader = ShaderLib::Get("Basic");
 			std::vector<VertexPosition> pointPositions{};
 			auto view = m_Registry.view<TransformComponent, PointTagComponent>();
 			for (const auto& [e, transform] : view.each())
 				pointPositions.push_back({ transform.Translation });
 			m_PointsVA->ClearBuffers();
 			m_PointsVA->AddVertexBuffer(Ref<VertexBuffer>(VertexBuffer::Create(pointPositions)));
-
-			shader->SetMat4("u_VP", camera->GetVP());
-			shader->SetMat4("u_Model", mat::Identity());
 
 			ar::Renderer::Submit(Primitive::Point, shader, m_PointsVA);
 		}

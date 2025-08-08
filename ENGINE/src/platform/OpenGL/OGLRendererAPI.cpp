@@ -47,6 +47,7 @@ namespace ar
 		{
 		case Primitive::Line: return GL_LINES;
 		case Primitive::LineLoop: return GL_LINE_LOOP;
+		case Primitive::LineStrip: return GL_LINE_STRIP;
 		case Primitive::Point: return GL_POINTS;
 		case Primitive::Triangle: return GL_TRIANGLES;
 		default:

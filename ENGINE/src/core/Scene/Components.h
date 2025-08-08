@@ -14,6 +14,7 @@ namespace ar
 #pragma region Tags
 
 	struct PointTagComponent {};		// Entities are Points (will render last, etc.)
+	struct ChainTagComponent {};
 	struct SelectedTagComponent {};		// Entities are selected
 	struct VirtualTagComponent {};		// Entities won't show up in the scene hierarchy
 

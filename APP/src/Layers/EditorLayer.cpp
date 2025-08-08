@@ -35,8 +35,15 @@ void EditorLayer::OnUpdate()
 	m_CameraController->OnUpdate();
 	m_ViewportFramebuffer->Bind();
 
+	if (m_ShouldDeleteObjects)
+	{
+		DeleteObjects();
+		m_ShouldDeleteObjects = false;
+	}
+
 	ar::RenderCommand::SetClearColor(ar::mat::Vec4(0.18f, 0.18f, 0.24f, 1.0f));
 	ar::RenderCommand::Clear();
+
 	m_Scene->OnUpdate(m_CameraController->GetCamera());
 	m_Cursor.Render(m_CameraController, m_ViewportFramebuffer->GetHeight());
 
@@ -61,6 +68,7 @@ void EditorLayer::OnImGuiRender()
 	ShowCursorControls();
 	DrawDeleteModal();
 	DrawRenameModal();
+	DrawErrorModal();
 }
 
 bool EditorLayer::OnMouseMoved(ar::MouseMovedEvent& event)
@@ -115,6 +123,7 @@ void EditorLayer::ShowMenu()
 			}
 			if (ImGui::BeginMenu("Curve"))
 			{
+				if (ImGui::MenuItem("Chain")) { AddObject(ar::ObjectType::CHAIN); }
 				ImGui::EndMenu();
 			}
 			if (ImGui::BeginMenu("Surface"))
@@ -205,7 +214,6 @@ void EditorLayer::DrawTreeNode(ar::Entity& object)
 	if (!object.HasComponent<ar::ControlPointsComponent>())
 	{
 		flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-
 		if (object.HasComponent<ar::SelectedTagComponent>())
 			flags |= ImGuiTreeNodeFlags_Selected;
 
@@ -220,6 +228,7 @@ void EditorLayer::DrawTreeNode(ar::Entity& object)
 			else
 				SelectObject(object);
 		}
+
 		if (ImGui::BeginPopupContextItem())
 		{
 			if (ImGui::MenuItem("Rename"))
@@ -236,7 +245,6 @@ void EditorLayer::DrawTreeNode(ar::Entity& object)
 				ar::ScopedDisable disableSelectionDelete(
 					m_Selection.SelectedObjects.empty()
 					|| !object.HasComponent<ar::SelectedTagComponent>());
-
 				if (ImGui::MenuItem("Delete Selected"))
 				{
 					m_ShouldOpenDeleteModal = true;
@@ -245,6 +253,99 @@ void EditorLayer::DrawTreeNode(ar::Entity& object)
 			}
 			ImGui::EndPopup();
 		}
+	}
+	else
+	{
+		if (object.HasComponent<ar::SelectedTagComponent>())
+			flags |= ImGuiTreeNodeFlags_Selected;
+
+		bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)object.GetID(), flags, "%s", object.GetName().c_str());
+
+		if (ImGui::IsItemClicked())
+		{
+			if (!ar::Input::IsKeyPressed(AR_KEY_LEFT_SHIFT))
+				DeselectAll();
+			if (object.HasComponent<ar::SelectedTagComponent>())
+				DeselectObject(object);
+			else
+				SelectObject(object);
+		}
+
+		if (ImGui::BeginPopupContextItem())
+		{
+			if (ImGui::MenuItem("Rename"))
+			{
+				m_ObjectToRename = object;
+				m_ShouldOpenRenameModal = true;
+			}
+			if (ImGui::MenuItem("Delete"))
+			{
+				m_ShouldOpenDeleteModal = true;
+				m_ObjectsToDelete.push_back(object);
+			}
+			{
+				ar::ScopedDisable disableSelectionDelete(
+					m_Selection.SelectedObjects.empty()
+					|| !object.HasComponent<ar::SelectedTagComponent>());
+				if (ImGui::MenuItem("Delete Selected"))
+				{
+					m_ShouldOpenDeleteModal = true;
+					m_Selection.ShouldDelete = true;
+				}
+			}
+			ImGui::EndPopup();
+		}
+
+		if (node_open)
+		{
+			for (auto& point : object.GetComponent<ar::ControlPointsComponent>().Points)
+			{
+				DrawTreeChildNode(object, point);
+			}
+			ImGui::TreePop();
+		}
+	}
+}
+
+void EditorLayer::DrawTreeChildNode(ar::Entity& parent, ar::Entity& object)
+{
+	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DrawLinesFull |
+		ImGuiTreeNodeFlags_Leaf |
+		ImGuiTreeNodeFlags_NoTreePushOnOpen;
+
+	if (object.HasComponent<ar::SelectedTagComponent>())
+		flags |= ImGuiTreeNodeFlags_Selected;
+
+	bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)object.GetID(), flags, "%s", object.GetName().c_str());
+
+	if (ImGui::IsItemClicked())
+	{
+		if (!ar::Input::IsKeyPressed(AR_KEY_LEFT_SHIFT))
+			DeselectAll();
+		if (object.HasComponent<ar::SelectedTagComponent>())
+			DeselectObject(object);
+		else
+			SelectObject(object);
+	}
+
+	if (ImGui::BeginPopupContextItem())
+	{
+		if (ImGui::MenuItem("Rename"))
+		{
+			m_ObjectToRename = object;
+			m_ShouldOpenRenameModal = true;
+		}
+		if (ImGui::MenuItem("Delete"))
+		{
+			m_ShouldOpenDeleteModal = true;
+			m_ObjectsToDelete.push_back(object);
+		}
+		ImGui::Separator();
+		if (ImGui::MenuItem("Detach"))
+		{
+			DetachFromParent(object, parent);
+		}
+		ImGui::EndPopup();
 	}
 }
 
@@ -275,7 +376,7 @@ void EditorLayer::DrawDeleteModal()
 			if (ImGui::Button("OK", ImVec2(120, 0)))
 			{
 				ImGui::CloseCurrentPopup();
-				DeleteMultipleObjects(m_Selection.SelectedObjects);
+				m_ShouldDeleteObjects = true;
 				m_Selection.ShouldDelete = false;
 			}
 			ImGui::SameLine();
@@ -299,8 +400,7 @@ void EditorLayer::DrawDeleteModal()
 			if (ImGui::Button("OK", ImVec2(120, 0)))
 			{
 				ImGui::CloseCurrentPopup();
-				DeleteMultipleObjects(m_ObjectsToDelete);
-				m_ObjectsToDelete.clear();
+				m_ShouldDeleteObjects = true;
 			}
 			ImGui::SameLine();
 			if (ImGui::Button("Cancel", ImVec2(120, 0)))
@@ -357,6 +457,31 @@ void EditorLayer::DrawRenameModal()
 	}
 }
 
+void EditorLayer::DrawErrorModal()
+{
+	const char* popupName = "Error";
+
+	if (m_ErrorState.ShouldDisplayError)
+	{
+		ImGui::OpenPopup(popupName);
+		m_ErrorState.ShouldDisplayError = false;
+	}
+
+	ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+	ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+
+	if (ImGui::BeginPopupModal(popupName, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::TextWrapped(m_ErrorState.ErrorMessage.c_str());
+		
+		if (ImGui::Button("OK", ImVec2(120, 0)))
+		{
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+}
+
 void EditorLayer::AddObject(ar::ObjectType type)
 {
 	switch (type)
@@ -365,21 +490,51 @@ void EditorLayer::AddObject(ar::ObjectType type)
 		{
 			ar::TorusDesc desc;
 			AddTorus(desc);
+			break;
+		}
+		case ar::ObjectType::CHAIN:
+		{
+			AddChain();
+			break;
 		}
 	}
 }
 
-void EditorLayer::DeleteObject(ar::Entity object)
+void EditorLayer::DeleteObjects()
 {
-	if (object.HasComponent<ar::SelectedTagComponent>())
-		DeselectObject(object);
-	m_Scene->DestroyEntity(object);
+	for (auto& object : m_ObjectsToDelete)
+	{
+		if (object.HasComponent<ar::SelectedTagComponent>())
+			DeselectObject(object);
+		if (object.HasComponent<ar::PointTagComponent>())
+		{
+			// remove from all point composites
+			auto view = m_Scene->m_Registry.view<ar::ControlPointsComponent>();
+			for (auto [entity, cp] : view.each())
+			{
+				cp.Points.erase(std::remove(cp.Points.begin(), cp.Points.end(), object), cp.Points.end());
+			}
+		}
+		m_Scene->DestroyEntity(object);
+	}
+	m_ObjectsToDelete.clear();
 }
 
-void EditorLayer::DeleteMultipleObjects(std::vector<ar::Entity> objects)
+void EditorLayer::MarkObjectDelete(ar::Entity object)
+{
+	m_ObjectsToDelete.push_back(object);
+}
+
+void EditorLayer::MarkMultipleObjectsDelete(std::vector<ar::Entity> objects)
 {
 	for (auto& object : objects)
-		DeleteObject(object);
+		MarkObjectDelete(object);
+}
+
+void EditorLayer::DetachFromParent(ar::Entity object, ar::Entity parent)
+{
+	if (parent.HasComponent<ar::ChainTagComponent>())
+		DetachFromChain(object, parent);
 }
 
 void EditorLayer::SelectObject(ar::Entity object)
@@ -480,6 +635,20 @@ void EditorLayer::AddTorus(ar::TorusDesc desc)
 	mc.Shader = ar::ShaderLib::Get("Basic");
 }
 
+void EditorLayer::AddChain()
+{
+	if (m_Selection.SelectedPoints.size() < 2)
+	{
+		m_ErrorState.ShouldDisplayError = true;
+		m_ErrorState.ErrorMessage = "To create a chain, you need at least 2 points selected in the scene hierarchy!";
+		return;
+	}
+
+	auto entity = m_Scene->CreateEntity("Chain");
+	entity.AddComponent<ar::ChainTagComponent>();
+	entity.AddComponent<ar::ControlPointsComponent>(m_Selection.SelectedPoints);
+}
+
 void EditorLayer::AddPoint()
 {
 	auto entity = m_Scene->CreateEntity("Point");
@@ -492,6 +661,14 @@ void EditorLayer::AddPoint()
 	trc.Translation = m_Cursor.GetPosition();
 	trc.IsRotationEnabled = false;
 	trc.IsScaleEnabled = false;
+}
+
+void EditorLayer::DetachFromChain(ar::Entity object, ar::Entity parent)
+{
+	auto& points = parent.GetComponent<ar::ControlPointsComponent>().Points;
+	points.erase(std::remove(points.begin(), points.end(), object), points.end());
+	if (points.size() < 2)
+		MarkObjectDelete(parent);
 }
 
 std::vector<ar::mat::Mat4> EditorLayer::GetPointModelMatrices()

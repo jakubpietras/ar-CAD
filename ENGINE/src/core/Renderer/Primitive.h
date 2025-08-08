@@ -6,6 +6,7 @@ namespace ar
 	{
 		Line,
 		LineLoop,
+		LineStrip,
 		Point,
 		Triangle
 	};
