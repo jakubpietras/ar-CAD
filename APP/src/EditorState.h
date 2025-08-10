@@ -14,6 +14,13 @@ struct ViewportSize
 	float Width = 0, Height = 0;
 };
 
+enum class SelectionMode
+{
+	Replace,
+	Add,
+	Remove
+};
+
 struct EditorState
 {
 	// =========================== Add ==========================
@@ -43,10 +50,13 @@ struct EditorState
 	// =========================== Selection ==========================
 	std::vector<ar::Entity> SelectedObjects{};
 	std::vector<ar::Entity> SelectedPoints{};
+	std::vector<ar::Entity> SelectionCandidates{};
+	SelectionMode SelectionChangeMode = SelectionMode::Replace;
+	bool ShouldUpdateSelection = false;
 	void ClearSelectionState();
 
 	// =========================== Viewport ==========================
-	ViewportSize Viewport { 1920.0f, 1080.0f };
+	ViewportSize Viewport { 0.f, 0.f };
 	bool ViewportResized = false;
 
 	// =========================== Cursor ==========================

@@ -16,8 +16,8 @@ private:
 	void DrawEntityContextMenu(ar::Entity& object, bool allowDeleteSelected);
 	void DrawLinkContextMenu(ar::Entity& child, ar::Entity& parent);
 
-	void SelectObject(ar::Entity object);
-	void DeselectObject(ar::Entity object);
+	void RequestObjectSelect(ar::Entity object, bool add = false);
+	void RequestObjectDeselect(ar::Entity object);
 
 	EditorState& m_State;
 	ar::Ref<ar::Scene> m_Scene;

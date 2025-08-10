@@ -133,6 +133,7 @@
     <ClCompile Include="src\core\UID.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\LogUtils.h" />
     <ClInclude Include="src\core\ImGui\PropertyInspector.h" />
     <ClInclude Include="src\core\ImGui\ComponentInspector.h" />
     <ClInclude Include="src\core\Core.h" />

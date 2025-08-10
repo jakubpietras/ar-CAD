@@ -45,12 +45,15 @@ void SceneHierarchyPanel::DrawParentNode(ar::Entity object)
 
 	if (ImGui::IsItemClicked())
 	{
-		if (!ar::Input::IsKeyPressed(AR_KEY_LEFT_SHIFT))
-			m_State.ClearSelectionState();
 		if (isSelected)
-			DeselectObject(object);
+			RequestObjectDeselect(object);
 		else
-			SelectObject(object);
+		{
+			SelectionMode mode = SelectionMode::Replace;
+			if (ar::Input::IsKeyPressed(AR_KEY_LEFT_SHIFT))
+				mode = SelectionMode::Add;
+			RequestObjectSelect(object, mode == SelectionMode::Add);
+		}
 	}
 
 	if (ImGui::BeginPopupContextItem())
@@ -86,12 +89,15 @@ void SceneHierarchyPanel::DrawChildNode(ar::Entity child, ar::Entity parent)
 
 	if (ImGui::IsItemClicked())
 	{
-		if (!ar::Input::IsKeyPressed(AR_KEY_LEFT_SHIFT))
-			m_State.ClearSelectionState();
 		if (isSelected)
-			DeselectObject(child);
+			RequestObjectDeselect(child);
 		else
-			SelectObject(child);
+		{
+			SelectionMode mode = SelectionMode::Replace;
+			if (ar::Input::IsKeyPressed(AR_KEY_LEFT_SHIFT))
+				mode = SelectionMode::Add;
+			RequestObjectSelect(child, mode == SelectionMode::Add);
+		}
 	}
 
 	if (ImGui::BeginPopupContextItem())
@@ -144,25 +150,19 @@ void SceneHierarchyPanel::DrawLinkContextMenu(ar::Entity& child, ar::Entity& par
 	}
 }
 
-void SceneHierarchyPanel::SelectObject(ar::Entity object)
+void SceneHierarchyPanel::RequestObjectSelect(ar::Entity object, bool add)
 {
-	object.AddComponent<ar::SelectedTagComponent>();
-	m_State.SelectedObjects.push_back(object);
-
-	if (object.HasComponent<ar::PointTagComponent>())
-		m_State.SelectedPoints.push_back(object);
+	m_State.SelectionCandidates.clear();
+	m_State.SelectionCandidates.push_back(object);
+	m_State.SelectionChangeMode = add ? SelectionMode::Add : SelectionMode::Replace;
+	m_State.ShouldUpdateSelection = true;
 }
 
-void SceneHierarchyPanel::DeselectObject(ar::Entity object)
+void SceneHierarchyPanel::RequestObjectDeselect(ar::Entity object)
 {
-	auto& objs = m_State.SelectedObjects;
-	objs.erase(std::remove(objs.begin(), objs.end(), object), objs.end());
-
-	if (object.HasComponent<ar::PointTagComponent>())
-	{
-		auto& pts = m_State.SelectedPoints;
-		pts.erase(std::remove(pts.begin(), pts.end(), object), pts.end());
-	}
-	object.RemoveComponent<ar::SelectedTagComponent>();
+	m_State.SelectionCandidates.clear();
+	m_State.SelectionCandidates.push_back(object);
+	m_State.SelectionChangeMode = SelectionMode::Remove;
+	m_State.ShouldUpdateSelection = true;
 }
 

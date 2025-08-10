@@ -15,6 +15,7 @@
 
 #include "core/Log.h"
 #include "core/GLDebug.h"
+#include "LogUtils.h"
 
 // Data structures
 #include <string>
@@ -28,13 +29,12 @@
 #include "quaternion.h"
 
 // macros
-#define BIT(x) (1 << x)
 
-#ifdef AR_ENABLE_ASSERTS
-	#define AR_ASSERT(x, ...) { if(!(x)) {AR_ERROR("Assertion failed ({0}, line {1}) : {2}", __FILE__, __LINE__, __VA_ARGS__); __debugbreak(); } }
-#else
-	#define AR_ASSERT(x, ...)
-#endif
+//#ifdef AR_ENABLE_ASSERTS
+//	#define AR_ASSERT(x, ...) { if(!(x)) {AR_ERROR("Assertion failed ({0}, line {1}) : {2}", __FILE__, __LINE__, __VA_ARGS__); __debugbreak(); } }
+//#else
+//	#define AR_ASSERT(x, ...)
+//#endif
 
 #ifndef AR_GL_CHECK
 #define AR_GL_CHECK() { \

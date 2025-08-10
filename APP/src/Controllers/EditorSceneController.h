@@ -1,6 +1,7 @@
 #pragma once
 #include "EditorState.h"
 #include "ARCAD.h"
+#include "LogUtils.h"
 
 class EditorSceneController
 {
@@ -24,5 +25,13 @@ private:
 	void AddPoint(ar::mat::Vec3 spawnPoint);
 	void AddTorus(ar::mat::Vec3 spawnPoint, ar::TorusDesc desc);
 	void AddChain(std::vector<ar::Entity> points);
+
+	void SelectEntities(std::vector<ar::Entity> entities, bool add = false);
+	void DeselectEntities(std::vector<ar::Entity> entities);
+
+	// Processors
+	void ProcessAdd(EditorState& state);
+	void ProcessDelete(EditorState& state);
+	void ProcessSelect(EditorState& state);
 
 };

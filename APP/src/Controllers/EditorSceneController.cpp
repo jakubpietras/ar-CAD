@@ -13,50 +13,21 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 {
 	if (state.ShouldAddObject)
 	{
-		switch (state.AddObjectType)
-		{
-			case ar::ObjectType::POINT:
-			{
-				AddPoint(state.CursorPosition);
-				break;
-			}
-			case ar::ObjectType::TORUS:
-			{
-				AddTorus(state.CursorPosition, {});
-				break;
-			}
-			case ar::ObjectType::CHAIN:
-			{
-				if (state.SelectedPoints.size() < 2)
-				{
-					state.ShowErrorModal = true;
-					state.ErrorMessages.emplace_back("To create a chain, you need at least 2 points selected in the scene hierarchy!");
-				}
-				else
-					AddChain(state.SelectedPoints);
-				break;
-			}
-			case ar::ObjectType::NONE:
-			default:
-				AR_ASSERT(false, "Trying to create an object with uknown type");
-		}
-
-		state.ClearAddState();
+		ProcessAdd(state);
 	}
 	if (state.ShouldDeleteObjects)
 	{
-		DeleteEntities(state.ObjectsToDelete);
+		ProcessDelete(state);
 		state.ClearDeleteState();
+	}
+	if (state.ShouldUpdateSelection)
+	{
+		ProcessSelect(state);
 	}
 	if (state.ShouldRenameObject)
 	{
 		state.ObjectToRename.SetName(state.RenameBuffer);
 		state.ClearRenameState();
-	}
-	if (state.ShouldDetachPairs)
-	{
-		// todo
-		state.ClearDetachState();
 	}
 	if (state.ShouldDetachPairs)
 	{
@@ -128,6 +99,119 @@ void EditorSceneController::AddChain(std::vector<ar::Entity> points)
 	entity.AddComponent<ar::ControlPointsComponent>(points);
 }
 
+void EditorSceneController::SelectEntities(std::vector<ar::Entity> entities, bool add /*= false*/)
+{
+	for (auto& entity : entities)
+	{
+		entity.AddComponent<ar::SelectedTagComponent>();
+	}
+}
+
+
+void EditorSceneController::DeselectEntities(std::vector<ar::Entity> entities)
+{
+	for (auto& entity : entities)
+	{
+		entity.RemoveComponent<ar::SelectedTagComponent>();
+	}
+}
+
+void EditorSceneController::ProcessAdd(EditorState& state)
+{
+	switch (state.AddObjectType)
+	{
+	case ar::ObjectType::POINT:
+	{
+		AddPoint(state.CursorPosition);
+		break;
+	}
+	case ar::ObjectType::TORUS:
+	{
+		AddTorus(state.CursorPosition, {});
+		break;
+	}
+	case ar::ObjectType::CHAIN:
+	{
+		if (state.SelectedPoints.size() < 2)
+		{
+			state.ShowErrorModal = true;
+			state.ErrorMessages.emplace_back("To create a chain, you need at least 2 points selected in the scene hierarchy!");
+		}
+		else
+			AddChain(state.SelectedPoints);
+		break;
+	}
+	case ar::ObjectType::NONE:
+	default:
+		AR_ASSERT(false, "Trying to create an object with uknown type");
+	}
+
+	state.ClearAddState();
+}
+
+void EditorSceneController::ProcessDelete(EditorState& state)
+{
+	DeleteEntities(state.ObjectsToDelete);
+
+	state.SelectedObjects.erase(
+		std::remove_if(state.SelectedObjects.begin(), state.SelectedObjects.end(),
+			[&](ar::Entity e) { return !e.IsValid(); }),
+		state.SelectedObjects.end()
+	);
+	state.SelectedPoints.clear();
+	for (auto& entity : state.SelectedObjects)
+		if (entity.HasComponent<ar::PointTagComponent>())
+			state.SelectedPoints.push_back(entity);
+}
+
+void EditorSceneController::ProcessSelect(EditorState& state)
+{
+	switch (state.SelectionChangeMode)
+	{
+		case SelectionMode::Replace:
+		{			
+			DeselectEntities(state.SelectedObjects);
+			SelectEntities(state.SelectionCandidates);
+			state.SelectedObjects = state.SelectionCandidates;
+			break;
+		}
+		case SelectionMode::Add:
+		{
+			SelectEntities(state.SelectionCandidates, true);
+			for (auto& e : state.SelectionCandidates)
+				if (std::find(state.SelectedObjects.begin(), state.SelectedObjects.end(), e) == state.SelectedObjects.end())
+				{
+					state.SelectedObjects.push_back(e);
+				}
+			break;
+		}
+		case SelectionMode::Remove:
+		{
+			DeselectEntities(state.SelectionCandidates);
+			for (auto& e : state.SelectionCandidates)
+			{
+				state.SelectedObjects.erase(
+					std::remove(state.SelectedObjects.begin(), state.SelectedObjects.end(), e),
+					state.SelectedObjects.end()
+				);
+			}
+			break;
+		}
+	}
+
+	// update points
+	state.SelectedPoints.clear();
+	for (auto& entity : state.SelectedObjects)
+	{
+		if (entity.HasComponent<ar::PointTagComponent>())
+			state.SelectedPoints.push_back(entity);
+	}
+
+	// clean up temporary buffers and flags
+	state.SelectionCandidates.clear();
+	state.ShouldUpdateSelection = false;
+}
+
 void EditorSceneController::PlaceCursor(ar::mat::Vec3 clickPosition, ViewportSize viewport, ar::mat::Vec3& cursorPosition)
 {
 	float xPos = clickPosition.x;
@@ -161,7 +245,7 @@ void EditorSceneController::DeleteEntities(std::vector<ar::Entity>& entities)
 		{
 			// remove from all point composites
 			auto view = m_Scene->m_Registry.view<ar::ControlPointsComponent>();
-			for (auto [entity, cp] : view.each())
+			for (auto [e, cp] : view.each())
 			{
 				cp.Points.erase(std::remove(cp.Points.begin(), cp.Points.end(), entity), cp.Points.end());
 			}

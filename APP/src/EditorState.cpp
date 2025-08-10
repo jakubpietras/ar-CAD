@@ -32,6 +32,9 @@ void EditorState::ClearSelectionState()
 {
 	SelectedObjects.clear();
 	SelectedPoints.clear();
+	SelectionCandidates.clear();
+	ShouldUpdateSelection = false;
+	SelectionChangeMode = SelectionMode::Replace;
 }
 
 void EditorState::ClearErrorState()
