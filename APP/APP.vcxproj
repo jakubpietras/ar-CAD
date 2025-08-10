@@ -110,6 +110,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Layers\EditorSceneController.cpp" />
+    <ClCompile Include="src\Layers\EditorUI.cpp" />
     <ClCompile Include="src\Panels\SceneHierarchyPanel.cpp" />
     <ClCompile Include="src\Tools\EditorCursor.cpp" />
     <ClCompile Include="src\Layers\EditorLayer.cpp" />
@@ -119,6 +121,8 @@
     <ClCompile Include="src\Tools\ImGuiUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Layers\EditorSceneController.h" />
+    <ClInclude Include="src\Layers\EditorUI.h" />
     <ClInclude Include="src\Panels\SceneHierarchyPanel.h" />
     <ClInclude Include="src\Tools\EditorConstants.h" />
     <ClInclude Include="src\Tools\EditorCursor.h" />

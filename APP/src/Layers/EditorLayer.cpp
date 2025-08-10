@@ -3,18 +3,19 @@
 #include "Tools/EditorConstants.h"
 
 EditorLayer::EditorLayer(float aspectRatio)
+	: m_CameraController(std::make_shared<ar::CameraController>(
+		EditorCameraConstants::FOV, aspectRatio,
+		EditorCameraConstants::NearPlane, EditorCameraConstants::FarPlane,
+		EditorCameraConstants::ArcballRadius)),
+	m_Scene(std::make_shared<ar::Scene>()),
+	m_ViewportFramebuffer(std::shared_ptr<ar::Framebuffer>(
+		ar::Framebuffer::Create({ 1920, 1080 }))),
+	m_MenuIcon(std::unique_ptr<ar::Texture>(
+		ar::Texture::Create("resources/icons/logo.png"))),
+	m_SceneHierarchyPanel(m_State),
+	m_UI(m_State, m_Scene)
 {
-	m_CameraController = std::make_shared<ar::CameraController>(EditorCamera::FOV, aspectRatio,
-		EditorCamera::NearPlane, EditorCamera::FarPlane, EditorCamera::ArcballRadius);
-	m_Scene = std::make_shared<ar::Scene>();
-
-	ar::FramebufferDesc fbDesc;
-	// todo: parameterize
-	fbDesc.Height = 1080;
-	fbDesc.Width = 1920;
-	m_ViewportFramebuffer = std::shared_ptr<ar::Framebuffer>(ar::Framebuffer::Create(fbDesc));
-
-	m_MenuIcon = std::unique_ptr<ar::Texture>(ar::Texture::Create("resources/icons/logo.png"));
+	m_SceneHierarchyPanel.SetContext(m_Scene);
 }
 
 void EditorLayer::OnAttach() 
@@ -27,8 +28,9 @@ void EditorLayer::OnDetach() { }
 void EditorLayer::OnUpdate()
 {
 	m_CameraController->OnUpdate();
-	m_ViewportFramebuffer->Bind();
+	m_UI.GetFramebuffer()->Bind();
 
+	// TODO: ProcessStateChanges(m_State)
 	if (m_State.ShouldDeleteObjects)
 	{
 		DeleteObjects();
@@ -41,414 +43,52 @@ void EditorLayer::OnUpdate()
 		m_State.ClearRenameState();
 	}
 
+	if (m_State.ShouldDetachPairs)
+	{
+		// todo: detach pairs
+		m_State.ClearDetachState();
+	}
+
+	if (m_State.ViewportResized)
+	{
+		m_CameraController->SetAspectRatio(m_State.Viewport.Width / m_State.Viewport.Height);
+		m_State.ViewportResized = false;
+	}
+
+	if (m_State.ShouldPlaceCursor)
+	{
+		PlaceCursor();
+		m_State.ShouldPlaceCursor = false;
+	}
+
+	if (m_State.ShouldAddObject)
+	{
+		if (m_State.AddObjectType == ar::ObjectType::POINT)
+			AddPoint();
+		else
+			AddObject(m_State.AddObjectType);
+		m_State.ShouldAddObject = false;
+	}
+
+
 	ar::RenderCommand::SetClearColor(ar::mat::Vec4(0.18f, 0.18f, 0.24f, 1.0f));
 	ar::RenderCommand::Clear();
 
 	m_Scene->OnUpdate(m_CameraController->GetCamera());
 	m_Cursor.Render(m_CameraController, m_ViewportFramebuffer->GetHeight());
 
-	m_ViewportFramebuffer->Unbind();
+	m_UI.GetFramebuffer()->Unbind();
 }
 
 void EditorLayer::OnEvent(ar::Event& event)
 {
 	m_CameraController->OnEvent(event);
 	ar::EventDispatcher dispatcher(event);
-	dispatcher.Dispatch<ar::MouseMovedEvent>(AR_BIND_EVENT_FN(EditorLayer::OnMouseMoved));
-	dispatcher.Dispatch<ar::MouseScrolledEvent>(AR_BIND_EVENT_FN(EditorLayer::OnMouseScrolled));
 }
 
 void EditorLayer::OnImGuiRender() 
 {
-	RenderMainMenu();
-	RenderViewport();
-	RenderStatsWindow();
-	RenderSceneHierarchy();
-	RenderInspectorWindow();
-	RenderCursorControls();
-
-	// Modals
-	RenderDeleteModal();
-	RenderRenameModal();
-	RenderErrorModal();
-}
-
-bool EditorLayer::OnMouseMoved(ar::MouseMovedEvent& event)
-{
-	return false;
-}
-
-bool EditorLayer::OnMouseScrolled(ar::MouseScrolledEvent& event)
-{
-	return false;
-}
-
-void EditorLayer::RenderStatsWindow()
-{
-	ImGui::Begin("Stats");
-	ImGui::TextWrapped("Current entity count: %d", m_Scene->GetEntityCount());
-	ImGui::End();
-}
-
-void EditorLayer::RenderMainMenu()
-{
-	if (ImGui::BeginMainMenuBar())
-	{
-		ImGui::Image(
-			(ImTextureID)(uintptr_t)m_MenuIcon->GetID(),
-			ImVec2(48, 16),
-			ImVec2(0, 1), ImVec2(1, 0)
-		);
-
-		if (ImGui::BeginMenu("File"))
-		{
-			if (ImGui::MenuItem("Save", "CTRL+S")) {}
-			if (ImGui::MenuItem("Load", "CTRL+L")) {}
-			ImGui::Separator();
-			if (ImGui::MenuItem("Quit", "CTRL+Q")) {}
-			ImGui::EndMenu();
-		}
-
-		if (ImGui::BeginMenu("Edit"))
-		{
-			ImGui::EndMenu();
-		}
-
-		if (ImGui::BeginMenu("Add"))
-		{
-			if (ImGui::MenuItem("Point")) { AddPoint(); }
-			if (ImGui::BeginMenu("Mesh"))
-			{
-				if (ImGui::MenuItem("Torus")) { AddObject(ar::ObjectType::TORUS); }
-				ImGui::EndMenu();
-			}
-			if (ImGui::BeginMenu("Curve"))
-			{
-				if (ImGui::MenuItem("Chain")) { AddObject(ar::ObjectType::CHAIN); }
-				ImGui::EndMenu();
-			}
-			if (ImGui::BeginMenu("Surface"))
-			{
-				ImGui::EndMenu();
-			}
-			ImGui::EndMenu();
-
-		}
-
-		ImGui::EndMainMenuBar();
-	}
-}
-
-void EditorLayer::RenderViewport()
-{
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
-	ImGui::Begin("Viewport");
-
-	ar::Application::Get().ImGuiBlockEvents(!ImGui::IsWindowHovered());
-	
-	auto viewportSize = ImGui::GetContentRegionAvail();
-	
-	if (viewportSize.x != m_ViewportSize.first || viewportSize.y != m_ViewportSize.second)
-	{
-		m_ViewportFramebuffer->Resize(static_cast<uint32_t>(viewportSize.x), static_cast<uint32_t>(viewportSize.y));
-		m_ViewportSize = { viewportSize.x, viewportSize.y };
-		m_CameraController->SetAspectRatio(viewportSize.x / viewportSize.y);
-	}
-
-	ImGui::Image(
-		(ImTextureID)(uintptr_t)m_ViewportFramebuffer->GetColorAttachment(),
-		viewportSize,
-		ImVec2(0, 1), ImVec2(1, 0)
-	);
-
-	// cursor placement
-	if (ar::Input::IsMouseButtonPressed(AR_MOUSE_BUTTON_RIGHT) && ar::Input::IsKeyPressed(AR_KEY_LEFT_SHIFT))
-		PlaceCursor();
-	
-	ImGui::End();
-	ImGui::PopStyleVar();
-}
-
-void EditorLayer::RenderSceneHierarchy()
-{
-	ImGui::Begin("Scene Hierarchy");
-
-	for (auto entity : m_Scene->m_Registry.view<entt::entity>(entt::exclude<ar::VirtualTagComponent>))
-	{
-		ar::Entity e{ entity, m_Scene.get() };
-		DrawTreeNode(e);
-	}
-
-	ImGui::End();
-}
-
-void EditorLayer::RenderInspectorWindow()
-{
-	ImGui::Begin("Inspector");
-
-	auto object = GetLastSelected();
-	if (object)
-		ar::ComponentInspector::ShowInspector(object);
-
-	ImGui::End();
-}
-
-void EditorLayer::RenderCursorControls()
-{
-	ImGui::Begin("Cursor");
-
-	ar::mat::Vec3 position = m_Cursor.GetPosition();
-	if (ImGui::DragFloat3("Cursor position", position.Data(), 0.1f, -20.0f, 20.0f))
-	{
-		m_Cursor.SetPosition(position);
-	}
-
-	ImGui::End();
-}
-
-void EditorLayer::DrawTreeNode(ar::Entity& object)
-{
-	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DrawLinesFull;
-
-	if (!object.HasComponent<ar::ControlPointsComponent>())
-	{
-		flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-		if (object.HasComponent<ar::SelectedTagComponent>())
-			flags |= ImGuiTreeNodeFlags_Selected;
-
-		bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)object.GetID(), flags, "%s", object.GetName().c_str());
-
-		if (ImGui::IsItemClicked())
-		{
-			if (!ar::Input::IsKeyPressed(AR_KEY_LEFT_SHIFT))
-				ClearSelection();
-			if (object.HasComponent<ar::SelectedTagComponent>())
-				DeselectObject(object);
-			else
-				SelectObject(object);
-		}
-
-		if (ImGui::BeginPopupContextItem())
-		{
-			if (ImGui::MenuItem("Rename"))
-			{
-				m_State.ObjectToRename = object;
-				m_State.ShowRenameModal = true;
-			}
-			if (ImGui::MenuItem("Delete"))
-			{
-				m_State.ObjectsToDelete.push_back(object);
-				m_State.ShowDeleteModal = true;
-			}
-			{
-				ar::ScopedDisable disableSelectionDelete(
-					m_State.SelectedObjects.empty()
-					|| !object.HasComponent<ar::SelectedTagComponent>());
-				if (ImGui::MenuItem("Delete Selected"))
-				{
-					m_State.ShowDeleteModal = true;
-					m_State.ObjectsToDelete.insert(
-						m_State.ObjectsToDelete.end(),
-						m_State.SelectedObjects.begin(),
-						m_State.SelectedObjects.end()
-					);
-				}
-			}
-			ImGui::EndPopup();
-		}
-	}
-	else
-	{
-		if (object.HasComponent<ar::SelectedTagComponent>())
-			flags |= ImGuiTreeNodeFlags_Selected;
-
-		bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)object.GetID(), flags, "%s", object.GetName().c_str());
-
-		if (ImGui::IsItemClicked())
-		{
-			if (!ar::Input::IsKeyPressed(AR_KEY_LEFT_SHIFT))
-				ClearSelection();
-			if (object.HasComponent<ar::SelectedTagComponent>())
-				DeselectObject(object);
-			else
-				SelectObject(object);
-		}
-
-		if (ImGui::BeginPopupContextItem())
-		{
-			if (ImGui::MenuItem("Rename"))
-			{
-				m_State.ObjectToRename = object;
-				m_State.ShowRenameModal = true;
-			}
-			if (ImGui::MenuItem("Delete"))
-			{
-				m_State.ObjectsToDelete.push_back(object);
-				m_State.ShowDeleteModal = true;
-			}
-			{
-				ar::ScopedDisable disableSelectionDelete(
-					m_State.SelectedObjects.empty()
-					|| !object.HasComponent<ar::SelectedTagComponent>());
-				if (ImGui::MenuItem("Delete Selected"))
-				{
-					m_State.ShowDeleteModal = true;
-					m_State.ObjectsToDelete.insert(
-						m_State.ObjectsToDelete.end(),
-						m_State.SelectedObjects.begin(),
-						m_State.SelectedObjects.end()
-					);
-				}
-			}
-			ImGui::EndPopup();
-		}
-
-		if (node_open)
-		{
-			for (auto& point : object.GetComponent<ar::ControlPointsComponent>().Points)
-			{
-				DrawTreeChildNode(object, point);
-			}
-			ImGui::TreePop();
-		}
-	}
-}
-
-void EditorLayer::DrawTreeChildNode(ar::Entity& parent, ar::Entity& object)
-{
-	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DrawLinesFull |
-		ImGuiTreeNodeFlags_Leaf |
-		ImGuiTreeNodeFlags_NoTreePushOnOpen;
-
-	if (object.HasComponent<ar::SelectedTagComponent>())
-		flags |= ImGuiTreeNodeFlags_Selected;
-
-	bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)object.GetID(), flags, "%s", object.GetName().c_str());
-
-	if (ImGui::IsItemClicked())
-	{
-		if (!ar::Input::IsKeyPressed(AR_KEY_LEFT_SHIFT))
-			ClearSelection();
-		if (object.HasComponent<ar::SelectedTagComponent>())
-			DeselectObject(object);
-		else
-			SelectObject(object);
-	}
-
-	if (ImGui::BeginPopupContextItem())
-	{
-		if (ImGui::MenuItem("Rename"))
-		{
-			m_State.ObjectToRename = object;
-			m_State.ShowRenameModal = true;
-		}
-		if (ImGui::MenuItem("Delete"))
-		{
-			m_State.ObjectsToDelete.push_back(object);
-			m_State.ShowDeleteModal = true;
-		}
-		ImGui::Separator();
-		if (ImGui::MenuItem("Detach"))
-		{
-			DetachFromParent(object, parent);
-		}
-		ImGui::EndPopup();
-	}
-}
-
-void EditorLayer::RenderDeleteModal()
-{
-	const char* popupName = "Delete?";
-	
-	if (m_State.ShowDeleteModal)
-	{
-		ImGui::OpenPopup(popupName);
-		m_State.ShowDeleteModal = false;
-	}
-	
-	CenterNextPopup();
-	if (ImGui::BeginPopupModal(popupName, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
-	{
-		std::string message = "Are you sure you want to delete "
-			+ std::to_string(m_State.ObjectsToDelete.size())
-			+ " object(s)?";
-		ImGui::TextWrapped(message.c_str());
-
-		if (ImGui::Button("OK", ImVec2(120, 0)))
-		{
-			m_State.ShouldDeleteObjects = true;
-			ImGui::CloseCurrentPopup();
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("Cancel", ImVec2(120, 0)))
-		{
-			ImGui::CloseCurrentPopup();
-			m_State.ClearDeleteState();
-		}
-		ImGui::EndPopup();
-	}
-}
-
-void EditorLayer::RenderRenameModal()
-{
-	const char* popupName = "Rename?";
-
-	if (m_State.ShowRenameModal)
-	{
-		ImGui::OpenPopup(popupName);
-		m_State.ShowRenameModal = false;
-	}
-	
-	ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-	ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-
-	if (ImGui::BeginPopupModal(popupName, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
-	{
-		ImGui::InputTextWithHint("##new_name", "Enter new name here", m_State.RenameBuffer, IM_ARRAYSIZE(m_State.RenameBuffer));
-
-		std::string message = "Are you sure you want to change the name?";
-		ImGui::TextWrapped(message.c_str());
-		{
-			ar::ScopedDisable disabledOK(m_State.RenameBuffer[0] == '\0');
-			if (ImGui::Button("OK", ImVec2(120, 0)))
-			{
-				m_State.ShouldRenameObject = true;
-				ImGui::CloseCurrentPopup();
-			}
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("Cancel", ImVec2(120, 0)))
-		{
-			m_State.ClearRenameState();
-			ImGui::CloseCurrentPopup();
-		}
-		ImGui::EndPopup();
-	}
-}
-
-void EditorLayer::RenderErrorModal()
-{
-	const char* popupName = "Error";
-
-	if (m_State.ShowErrorModal)
-	{
-		ImGui::OpenPopup(popupName);
-		m_State.ShowErrorModal = false;
-	}
-
-	ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-	ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-
-	if (ImGui::BeginPopupModal(popupName, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
-	{
-		ImGui::TextWrapped(m_State.ErrorMessages[0].c_str());
-		
-		if (ImGui::Button("OK", ImVec2(120, 0)))
-		{
-			ImGui::CloseCurrentPopup();
-		}
-		ImGui::EndPopup();
-	}
+	m_UI.Render();
 }
 
 void EditorLayer::AddObject(ar::ObjectType type)
@@ -508,24 +148,12 @@ void EditorLayer::DetachFromParent(ar::Entity object, ar::Entity parent)
 
 void EditorLayer::PlaceCursor()
 {
-	// get cursor position inside the viewport window
-	ImVec2 viewport_pos = ImGui::GetItemRectMin();
-	ImVec2 viewport_size = ImGui::GetItemRectSize();
-	ImVec2 mouse_pos = ImGui::GetIO().MousePos;
-
-	float xPos = mouse_pos.x - viewport_pos.x;
-	float yPos = mouse_pos.y - viewport_pos.y;
-
-	if (xPos < 0 || yPos < 0 ||
-		xPos >= viewport_size.x ||
-		yPos >= viewport_size.y)
-	{
-		return;
-	}
+	float xPos = m_State.ClickPosition.x;
+	float yPos = m_State.ClickPosition.y;
 
 	// convert to NDC
-	float xNDC = (2.0f * xPos) / viewport_size.x - 1.0f;
-	float yNDC = 1.0f - (2.0f * yPos) / viewport_size.y;
+	float xNDC = (2.0f * xPos) / m_State.Viewport.Width - 1.0f;
+	float yNDC = 1.0f - (2.0f * yPos) / m_State.Viewport.Height;
 	auto rayClip = ar::mat::Vec4(xNDC, yNDC, -1.0f, 1.0f);
 
 	// convert to camera space
@@ -539,6 +167,9 @@ void EditorLayer::PlaceCursor()
 	ar::mat::Vec3 planeNormal = ar::mat::ToVec3(m_CameraController->GetCamera()->GetForward());
 	float t = -((ar::mat::Dot(origin, planeNormal)) / ar::mat::Dot(direction, planeNormal));
 	auto cursorPos = origin + direction * t;
+	
+	// temporary
+	m_State.CursorPosition = cursorPos;
 	m_Cursor.SetPosition(cursorPos);
 }
 

@@ -4,6 +4,8 @@ namespace ar
 {
 	enum class ObjectType
 	{
+		NONE,
+		POINT,
 		TORUS,
 		CHAIN,
 		BEZIERC0,

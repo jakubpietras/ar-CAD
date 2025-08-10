@@ -5,6 +5,8 @@
 #include "Tools/EditorCursor.h"
 #include "Tools/ImGuiUtils.h"
 #include "Tools/EditorState.h"
+#include "Panels/SceneHierarchyPanel.h"
+#include "Layers/EditorUI.h"
 
 class EditorLayer : public ar::Layer
 {
@@ -17,25 +19,6 @@ public:
 	void OnUpdate() override;
 	void OnEvent(ar::Event& event) override;
 	void OnImGuiRender() override;
-
-	// Event handlers
-	bool OnMouseMoved(ar::MouseMovedEvent& event);
-	bool OnMouseScrolled(ar::MouseScrolledEvent& event);
-
-	// GUI functions
-	void RenderStatsWindow();
-	void RenderMainMenu();
-	void RenderViewport();
-	void RenderInspectorWindow();
-	void RenderCursorControls();
-	void RenderDeleteModal();
-	void RenderRenameModal();
-	void RenderErrorModal();
-
-	// Scene Hierarchy
-	void RenderSceneHierarchy();
-	void DrawTreeNode(ar::Entity& object);
-	void DrawTreeChildNode(ar::Entity& parent, ar::Entity& object);
 	
 	// Commands
 	void MarkObjectDelete(ar::Entity object);
@@ -54,18 +37,21 @@ public:
 	void PlaceCursor();
 	
 private:
-	// State
-	EditorState m_State;
-
-
-	// Cursor
-	EditorCursor m_Cursor;
-
-
+	
 	// Logic
 	ar::Ref<ar::Scene> m_Scene;
 	ar::Ref<ar::CameraController> m_CameraController;
 	std::pair<float, float> m_ViewportSize;
+
+	// State
+	EditorState m_State;
+	// EditorUI
+	EditorUI m_UI;
+
+	// Panels
+	SceneHierarchyPanel m_SceneHierarchyPanel;
+	// Cursor
+	EditorCursor m_Cursor;
 	
 	// Rendering
 	ar::Ref<ar::Framebuffer> m_ViewportFramebuffer;

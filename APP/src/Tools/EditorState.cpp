@@ -1,5 +1,11 @@
 #include "EditorState.h"
 
+void EditorState::ClearAddState()
+{
+	AddObjectType = ar::ObjectType::NONE;
+	ShouldAddObject = false;
+}
+
 void EditorState::ClearDeleteState()
 {
 	ObjectsToDelete.clear();
@@ -13,6 +19,13 @@ void EditorState::ClearRenameState()
 	RenameBuffer[0] = '\0';
 	ShouldRenameObject = false;
 	ShowRenameModal = false;
+}
+
+void EditorState::ClearDetachState()
+{
+	PairsToDetach.clear();
+	ShouldDetachPairs = false;
+	ShowDetachModal = false;
 }
 
 void EditorState::ClearSelectionState()

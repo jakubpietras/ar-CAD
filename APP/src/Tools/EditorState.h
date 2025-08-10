@@ -1,9 +1,26 @@
 #pragma once
 #include <vector>
 #include "core/Scene/Entity.h"
+#include "core/Scene/ObjectTypes.h"
+
+struct EntityLink
+{
+	ar::Entity Parent;
+	ar::Entity Child;
+};
+
+struct ViewportSize
+{
+	float Width = 0, Height = 0;
+};
 
 struct EditorState
 {
+	// =========================== Add ==========================
+	ar::ObjectType AddObjectType = ar::ObjectType::NONE;
+	bool ShouldAddObject = false;
+	void ClearAddState();
+
 	// =========================== Delete ==========================
 	std::vector<ar::Entity> ObjectsToDelete{};
 	bool ShouldDeleteObjects = false;
@@ -17,10 +34,25 @@ struct EditorState
 	bool ShowRenameModal = false;
 	void ClearRenameState();
 
+	// =========================== Detach ==========================
+	std::vector<EntityLink> PairsToDetach{};
+	bool ShouldDetachPairs = false;
+	bool ShowDetachModal = false;
+	void ClearDetachState();
+
 	// =========================== Selection ==========================
 	std::vector<ar::Entity> SelectedObjects{};
 	std::vector<ar::Entity> SelectedPoints{};
 	void ClearSelectionState();
+
+	// =========================== Viewport ==========================
+	ViewportSize Viewport { 1920.0f, 1080.0f };
+	bool ViewportResized = false;
+
+	// =========================== Cursor ==========================
+	ar::mat::Vec3 CursorPosition{ 0.0f, 0.0f, 0.0f };
+	ar::mat::Vec3 ClickPosition{ 0.0f, 0.0f, 0.0f };
+	bool ShouldPlaceCursor = false;
 
 	// ============================= Errors ===========================
 	std::vector<std::string> ErrorMessages{};

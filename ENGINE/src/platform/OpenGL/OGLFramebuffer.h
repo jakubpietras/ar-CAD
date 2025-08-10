@@ -11,8 +11,8 @@ namespace ar
 		~OGLFramebuffer() override;
 		void Invalidate();
 		void Resize(uint32_t newWidth, uint32_t newHeight) override;
-		void Bind() override;
-		void Unbind() override;
+		void Bind() const override;
+		void Unbind() const override;
 
 		uint32_t GetColorAttachment() override;
 		uint32_t GetHeight() override;

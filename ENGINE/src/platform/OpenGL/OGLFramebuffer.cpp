@@ -45,13 +45,13 @@ namespace ar
 		Invalidate();
 	}
 
-	void OGLFramebuffer::Bind()
+	void OGLFramebuffer::Bind() const
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, m_ID);
 		glViewport(0, 0, m_Description.Width, m_Description.Height);
 	}
 
-	void OGLFramebuffer::Unbind()
+	void OGLFramebuffer::Unbind() const
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
