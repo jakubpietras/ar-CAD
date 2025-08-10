@@ -29,6 +29,11 @@ void EditorUI::Render()
 	RenderDetachModal();
 }
 
+void EditorUI::RenderCursor(ar::Ref<ar::CameraController> cameraController)
+{
+	m_Cursor.Render(cameraController, m_ViewportFramebuffer->GetHeight());
+}
+
 const ar::Ref<ar::Framebuffer>& EditorUI::GetFramebuffer()
 {
 	return m_ViewportFramebuffer;

@@ -123,12 +123,15 @@ void SceneHierarchyPanel::DrawEntityContextMenu(ar::Entity& object, bool allowDe
 			m_State.SelectedObjects.empty() ||
 			!object.HasComponent<ar::SelectedTagComponent>()
 		);
-		m_State.ObjectsToDelete.insert(
-			m_State.ObjectsToDelete.end(),
-			m_State.SelectedObjects.begin(),
-			m_State.SelectedObjects.end()
-		);
-		m_State.ShowDeleteModal = true;
+		if (ImGui::MenuItem("Delete Selected"))
+		{
+			m_State.ObjectsToDelete.insert(
+				m_State.ObjectsToDelete.end(),
+				m_State.SelectedObjects.begin(),
+				m_State.SelectedObjects.end()
+			);
+			m_State.ShowDeleteModal = true;
+		}
 	}
 }
 

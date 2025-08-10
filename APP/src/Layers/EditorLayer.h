@@ -7,6 +7,7 @@
 #include "Tools/EditorState.h"
 #include "Panels/SceneHierarchyPanel.h"
 #include "Layers/EditorUI.h"
+#include "EditorSceneController.h"
 
 class EditorLayer : public ar::Layer
 {
@@ -20,13 +21,6 @@ public:
 	void OnEvent(ar::Event& event) override;
 	void OnImGuiRender() override;
 	
-	// Commands
-	void MarkObjectDelete(ar::Entity object);
-	void MarkMultipleObjectsDelete(std::vector<ar::Entity> objects);
-	void AddObject(ar::ObjectType type);
-	void DeleteObjects();
-	void DetachFromParent(ar::Entity object, ar::Entity parent);
-
 	// Selection
 	void SelectObject(ar::Entity object);
 	void DeselectObject(ar::Entity object);
@@ -40,32 +34,13 @@ private:
 	
 	// Logic
 	ar::Ref<ar::Scene> m_Scene;
-	ar::Ref<ar::CameraController> m_CameraController;
-	std::pair<float, float> m_ViewportSize;
 
 	// State
 	EditorState m_State;
 	// EditorUI
 	EditorUI m_UI;
-
-	// Panels
-	SceneHierarchyPanel m_SceneHierarchyPanel;
-	// Cursor
-	EditorCursor m_Cursor;
-	
-	// Rendering
-	ar::Ref<ar::Framebuffer> m_ViewportFramebuffer;
-
-	// Textures
-	ar::Scope<ar::Texture> m_MenuIcon;
-
-	// Addition
-	void AddTorus(ar::TorusDesc desc);
-	void AddChain();
-	void AddPoint();
-
-	// Detachment
-	void DetachFromChain(ar::Entity object, ar::Entity parent);
+	// EditorSceneController
+	EditorSceneController m_SceneController;
 
 	std::vector<ar::mat::Mat4> GetPointModelMatrices();
 

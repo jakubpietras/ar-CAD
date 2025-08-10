@@ -9,6 +9,7 @@ public:
 	EditorUI(EditorState& state, ar::Ref<ar::Scene> scene);
 
 	void Render();
+	void RenderCursor(ar::Ref<ar::CameraController> cameraController);
 	const ar::Ref<ar::Framebuffer>& GetFramebuffer();
 
 private:
