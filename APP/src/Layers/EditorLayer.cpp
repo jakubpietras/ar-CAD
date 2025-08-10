@@ -29,7 +29,7 @@ void EditorLayer::OnUpdate()
 	ar::RenderCommand::Clear();
 
 	m_Scene->OnUpdate(m_SceneController.GetCamera());
-	m_UI.RenderCursor(m_SceneController.GetCameraController());
+	m_UI.RenderCursor(m_SceneController.GetCameraController(), m_State.CursorPosition);
 
 	m_UI.GetFramebuffer()->Unbind();
 }

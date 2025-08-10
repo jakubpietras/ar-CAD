@@ -29,9 +29,9 @@ void EditorUI::Render()
 	RenderDetachModal();
 }
 
-void EditorUI::RenderCursor(ar::Ref<ar::CameraController> cameraController)
+void EditorUI::RenderCursor(ar::Ref<ar::CameraController> cameraController, ar::mat::Vec3 position)
 {
-	m_Cursor.Render(cameraController, m_ViewportFramebuffer->GetHeight());
+	m_Cursor.Render(cameraController, m_ViewportFramebuffer->GetHeight(), position);
 }
 
 const ar::Ref<ar::Framebuffer>& EditorUI::GetFramebuffer()
@@ -111,11 +111,7 @@ void EditorUI::RenderCursorControls()
 {
 	ImGui::Begin("Cursor");
 
-	ar::mat::Vec3 position = m_Cursor.GetPosition();
-	if (ImGui::DragFloat3("Cursor position", position.Data(), 0.1f, -20.0f, 20.0f))
-	{
-		m_Cursor.SetPosition(position);
-	}
+	ImGui::DragFloat3("Cursor position", m_State.CursorPosition.Data(), 0.1f, -20.0f, 20.0f);
 
 	ImGui::End();
 }
