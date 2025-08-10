@@ -1,6 +1,5 @@
 #pragma once
-
-#include "Tools/EditorState.h"
+#include "EditorState.h"
 #include "ARCAD.h"
 
 class EditorSceneController

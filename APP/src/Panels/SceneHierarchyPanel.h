@@ -1,6 +1,6 @@
 #pragma once
 #include "ARCAD.h"
-#include "Tools/EditorState.h"
+#include "EditorState.h"
 
 class SceneHierarchyPanel
 {

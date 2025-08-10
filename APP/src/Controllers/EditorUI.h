@@ -32,7 +32,6 @@ private:
 	void RenderErrorModal();
 	void RenderDetachModal();
 
-
 	void RequestAddObject(ar::ObjectType type);
 	void RequestPlaceCursor();
 };

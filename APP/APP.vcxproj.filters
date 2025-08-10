@@ -33,13 +33,13 @@
     <ClCompile Include="src\Panels\SceneHierarchyPanel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Tools\EditorState.cpp">
+    <ClCompile Include="src\EditorState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Layers\EditorUI.cpp">
+    <ClCompile Include="src\Controllers\EditorUI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Layers\EditorSceneController.cpp">
+    <ClCompile Include="src\Controllers\EditorSceneController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -53,7 +53,7 @@
     <ClInclude Include="src\Tools\EditorCursor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Tools\EditorConstants.h">
+    <ClInclude Include="src\EditorConstants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Tools\ImGuiUtils.h">
@@ -62,13 +62,13 @@
     <ClInclude Include="src\Panels\SceneHierarchyPanel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Tools\EditorState.h">
+    <ClInclude Include="src\EditorState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Layers\EditorUI.h">
+    <ClInclude Include="src\Controllers\EditorUI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Layers\EditorSceneController.h">
+    <ClInclude Include="src\Controllers\EditorSceneController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

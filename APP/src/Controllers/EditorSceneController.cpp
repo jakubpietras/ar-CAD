@@ -1,5 +1,5 @@
 #include "EditorSceneController.h"
-#include "Tools/EditorConstants.h"
+#include "EditorConstants.h"
 
 EditorSceneController::EditorSceneController(ar::Ref<ar::Scene> scene)
 	: m_Scene(scene),

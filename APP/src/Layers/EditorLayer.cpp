@@ -1,6 +1,6 @@
 #include "EditorLayer.h"
 #include "core/ImGui/ScopedDisable.h"
-#include "Tools/EditorConstants.h"
+#include "EditorConstants.h"
 
 EditorLayer::EditorLayer(float aspectRatio)
 	: 
@@ -44,76 +44,3 @@ void EditorLayer::OnImGuiRender()
 {
 	m_UI.Render();
 }
-
-void EditorLayer::PlaceCursor()
-{
-	float xPos = m_State.ClickPosition.x;
-	float yPos = m_State.ClickPosition.y;
-
-	// convert to NDC
-	float xNDC = (2.0f * xPos) / m_State.Viewport.Width - 1.0f;
-	float yNDC = 1.0f - (2.0f * yPos) / m_State.Viewport.Height;
-	auto rayClip = ar::mat::Vec4(xNDC, yNDC, -1.0f, 1.0f);
-
-	// convert to camera space
-	auto rayCamera = m_SceneController.GetCamera()->GetInvProjection() * rayClip;
-	rayCamera = ar::mat::Vec4(rayCamera.x, rayCamera.y, -1.0f, 0.0f);
-
-	// convert to world space
-	auto direction = ar::mat::Normalize(ar::mat::ToVec3(m_SceneController.GetCamera()->GetInvView() * rayCamera));
-	
-	ar::mat::Vec3 origin = ar::mat::ToVec3(m_SceneController.GetCameraController()->GetPosition());
-	ar::mat::Vec3 planeNormal = ar::mat::ToVec3(m_SceneController.GetCamera()->GetForward());
-	float t = -((ar::mat::Dot(origin, planeNormal)) / ar::mat::Dot(direction, planeNormal));
-	auto cursorPos = origin + direction * t;
-	
-	m_State.CursorPosition = cursorPos;
-}
-
-std::vector<ar::mat::Mat4> EditorLayer::GetPointModelMatrices()
-{
-	std::vector<ar::mat::Mat4> matrices;
-	auto view = m_Scene->m_Registry.view<ar::TransformComponent, ar::PointTagComponent>();
-
-	matrices.reserve(view.size_hint());
-	for (auto [entity, transform] :view.each())
-	{
-		matrices.push_back(transform.ModelMatrix);
-	}
-	return matrices;
-}
-
-void EditorLayer::SelectObject(ar::Entity object)
-{
-	object.AddComponent<ar::SelectedTagComponent>();
-	m_State.SelectedObjects.push_back(object);
-
-	if (object.HasComponent<ar::PointTagComponent>())
-		m_State.SelectedPoints.push_back(object);
-}
-
-void EditorLayer::DeselectObject(ar::Entity object)
-{
-	auto& objs = m_State.SelectedObjects;
-	objs.erase(std::remove(objs.begin(), objs.end(), object), objs.end());
-
-	if (object.HasComponent<ar::PointTagComponent>())
-	{
-		auto& pts = m_State.SelectedPoints;
-		pts.erase(std::remove(pts.begin(), pts.end(), object), pts.end());
-	}
-	object.RemoveComponent<ar::SelectedTagComponent>();
-}
-
-ar::Entity EditorLayer::GetLastSelected()
-{
-	if (m_State.SelectedObjects.empty())
-		return { entt::null, nullptr };
-	return m_State.SelectedObjects.back();
-}
-
-void EditorLayer::ClearSelection()
-{
-
-}
-

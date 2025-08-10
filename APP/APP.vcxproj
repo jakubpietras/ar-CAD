@@ -110,25 +110,25 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Layers\EditorSceneController.cpp" />
-    <ClCompile Include="src\Layers\EditorUI.cpp" />
+    <ClCompile Include="src\Controllers\EditorSceneController.cpp" />
+    <ClCompile Include="src\Controllers\EditorUI.cpp" />
     <ClCompile Include="src\Panels\SceneHierarchyPanel.cpp" />
     <ClCompile Include="src\Tools\EditorCursor.cpp" />
     <ClCompile Include="src\Layers\EditorLayer.cpp" />
     <ClCompile Include="src\EditorApp.cpp" />
     <ClCompile Include="src\Source.cpp" />
-    <ClCompile Include="src\Tools\EditorState.cpp" />
+    <ClCompile Include="src\EditorState.cpp" />
     <ClCompile Include="src\Tools\ImGuiUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Layers\EditorSceneController.h" />
-    <ClInclude Include="src\Layers\EditorUI.h" />
+    <ClInclude Include="src\Controllers\EditorSceneController.h" />
+    <ClInclude Include="src\Controllers\EditorUI.h" />
     <ClInclude Include="src\Panels\SceneHierarchyPanel.h" />
-    <ClInclude Include="src\Tools\EditorConstants.h" />
+    <ClInclude Include="src\EditorConstants.h" />
     <ClInclude Include="src\Tools\EditorCursor.h" />
     <ClInclude Include="src\Layers\EditorLayer.h" />
     <ClInclude Include="src\EditorApp.h" />
-    <ClInclude Include="src\Tools\EditorState.h" />
+    <ClInclude Include="src\EditorState.h" />
     <ClInclude Include="src\Tools\ImGuiUtils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
