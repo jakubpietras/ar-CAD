@@ -2,6 +2,7 @@
 #include "EditorState.h"
 #include "ARCAD.h"
 #include "LogUtils.h"
+#include "core/Utils/CurveUtils.h"
 
 class EditorSceneController
 {
@@ -18,20 +19,30 @@ private:
 	ar::Ref<ar::Scene> m_Scene;
 	ar::Ref<ar::CameraController> m_CameraController;
 
+	// Processors
+	void ProcessAdd(EditorState& state);
+	void ProcessSelect(EditorState& state);
+	void ProcessDetach(EditorState& state);
+
+	// Cursor
 	void PlaceCursor(ar::mat::Vec3 clickPosition, ViewportSize viewport, ar::mat::Vec3& cursorPosition);
 
+	// Deletion
 	void DeleteEntities(std::vector<ar::Entity>& entities);
 
+	// Addition
 	void AddPoint(ar::mat::Vec3 spawnPoint);
 	void AddTorus(ar::mat::Vec3 spawnPoint, ar::TorusDesc desc);
 	void AddChain(std::vector<ar::Entity> points);
 
+	// Selection
 	void SelectEntities(std::vector<ar::Entity> entities, bool add = false);
 	void DeselectEntities(std::vector<ar::Entity> entities);
 
-	// Processors
-	void ProcessAdd(EditorState& state);
-	void ProcessDelete(EditorState& state);
-	void ProcessSelect(EditorState& state);
+	// Detach
+	void DetachFromChain(ar::Entity child, ar::Entity parent);
 
+	// Validate
+	void ValidateGeometry();
+	void ValidateSelection(EditorState& state);
 };

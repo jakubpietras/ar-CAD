@@ -17,6 +17,5 @@ namespace ar
 	public:
 		static std::vector<VertexPosition> GenerateTorusVertices(const TorusDesc& desc);
 		static std::vector<std::vector<uint32_t>> GenerateTorusEdges(const TorusDesc& desc);
-
 	};
 }

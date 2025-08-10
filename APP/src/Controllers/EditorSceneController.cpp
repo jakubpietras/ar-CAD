@@ -11,18 +11,24 @@ EditorSceneController::EditorSceneController(ar::Ref<ar::Scene> scene)
 
 void EditorSceneController::ProcessStateChanges(EditorState& state)
 {
+	bool geometryValidation = false,
+		selectionValidation = false;
+
 	if (state.ShouldAddObject)
 	{
 		ProcessAdd(state);
 	}
 	if (state.ShouldDeleteObjects)
 	{
-		ProcessDelete(state);
+		DeleteEntities(state.ObjectsToDelete);
 		state.ClearDeleteState();
+		geometryValidation = true;
+		selectionValidation = true;
 	}
 	if (state.ShouldUpdateSelection)
 	{
 		ProcessSelect(state);
+		selectionValidation = true;
 	}
 	if (state.ShouldRenameObject)
 	{
@@ -31,8 +37,10 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 	}
 	if (state.ShouldDetachPairs)
 	{
-		// todo
+		ProcessDetach(state);
 		state.ClearDetachState();
+		geometryValidation = true;
+		selectionValidation = true;
 	}
 	if (state.ShouldPlaceCursor)
 	{
@@ -44,6 +52,12 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 		m_CameraController->SetAspectRatio(state.Viewport.Width / state.Viewport.Height);
 		state.ViewportResized = false;
 	}
+
+	// Validation
+	if (geometryValidation)
+		ValidateGeometry();
+	if (selectionValidation)
+		ValidateSelection(state);
 }
 
 void EditorSceneController::AddPoint(ar::mat::Vec3 spawnPoint)
@@ -116,6 +130,36 @@ void EditorSceneController::DeselectEntities(std::vector<ar::Entity> entities)
 	}
 }
 
+void EditorSceneController::DetachFromChain(ar::Entity child, ar::Entity parent)
+{
+	auto& points = parent.GetComponent<ar::ControlPointsComponent>().Points;
+	points.erase(std::remove(points.begin(), points.end(), child), points.end());
+}
+
+void EditorSceneController::ValidateGeometry()
+{
+	auto chains = m_Scene->m_Registry.view<ar::ChainTagComponent>();
+	for (auto& chain : chains)
+	{
+		ar::Entity e = { chain, m_Scene.get() };
+		if (!ar::CurveUtils::ValidateChain(e))
+			m_Scene->DestroyEntity(e);
+	}
+}
+
+void EditorSceneController::ValidateSelection(EditorState& state)
+{
+	state.SelectedObjects.erase(
+		std::remove_if(state.SelectedObjects.begin(), state.SelectedObjects.end(),
+			[&](ar::Entity e) { return !e.IsValid(); }),
+		state.SelectedObjects.end()
+	);
+	state.SelectedPoints.clear();
+	for (auto& entity : state.SelectedObjects)
+		if (entity.HasComponent<ar::PointTagComponent>())
+			state.SelectedPoints.push_back(entity);
+}
+
 void EditorSceneController::ProcessAdd(EditorState& state)
 {
 	switch (state.AddObjectType)
@@ -147,21 +191,6 @@ void EditorSceneController::ProcessAdd(EditorState& state)
 	}
 
 	state.ClearAddState();
-}
-
-void EditorSceneController::ProcessDelete(EditorState& state)
-{
-	DeleteEntities(state.ObjectsToDelete);
-
-	state.SelectedObjects.erase(
-		std::remove_if(state.SelectedObjects.begin(), state.SelectedObjects.end(),
-			[&](ar::Entity e) { return !e.IsValid(); }),
-		state.SelectedObjects.end()
-	);
-	state.SelectedPoints.clear();
-	for (auto& entity : state.SelectedObjects)
-		if (entity.HasComponent<ar::PointTagComponent>())
-			state.SelectedPoints.push_back(entity);
 }
 
 void EditorSceneController::ProcessSelect(EditorState& state)
@@ -198,18 +227,18 @@ void EditorSceneController::ProcessSelect(EditorState& state)
 			break;
 		}
 	}
-
-	// update points
-	state.SelectedPoints.clear();
-	for (auto& entity : state.SelectedObjects)
-	{
-		if (entity.HasComponent<ar::PointTagComponent>())
-			state.SelectedPoints.push_back(entity);
-	}
-
 	// clean up temporary buffers and flags
 	state.SelectionCandidates.clear();
 	state.ShouldUpdateSelection = false;
+}
+
+void EditorSceneController::ProcessDetach(EditorState& state)
+{
+	for (auto& pair : state.PairsToDetach)
+	{
+		if (pair.Parent.HasComponent<ar::ChainTagComponent>())
+			DetachFromChain(pair.Child, pair.Parent);
+	}
 }
 
 void EditorSceneController::PlaceCursor(ar::mat::Vec3 clickPosition, ViewportSize viewport, ar::mat::Vec3& cursorPosition)
