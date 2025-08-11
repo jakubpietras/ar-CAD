@@ -47,9 +47,16 @@ struct EditorState
 	bool ShowDetachModal = false;
 	void ClearDetachState();
 
+	// =========================== Attach ==========================
+	std::vector<EntityLink> PairsToAttach{};
+	bool ShouldAttachPairs = false;
+	bool ShowAttachModal = false;
+	void ClearAttachState();
+
 	// =========================== Selection ==========================
 	std::vector<ar::Entity> SelectedObjects{};
 	std::vector<ar::Entity> SelectedPoints{};
+	std::vector<ar::Entity> SelectedCurves{};
 	std::vector<ar::Entity> SelectionCandidates{};
 	SelectionMode SelectionChangeMode = SelectionMode::Replace;
 	bool ShouldUpdateSelection = false;

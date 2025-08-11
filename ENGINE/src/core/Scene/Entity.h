@@ -51,6 +51,12 @@ namespace ar
 			return m_Scene->m_Registry.any_of<T>(m_EntityHandle);
 		}
 
+		template<typename... Components>
+		bool HasAnyComponent()
+		{
+			return (m_Scene->m_Registry.any_of<Components>(m_EntityHandle) || ...);
+		}
+
 		inline bool IsValid() const { return m_Scene->m_Registry.valid(m_EntityHandle); }
 
 		operator bool() const { return m_EntityHandle != entt::null; }

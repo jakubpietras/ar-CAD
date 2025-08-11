@@ -28,6 +28,13 @@ void EditorState::ClearDetachState()
 	ShowDetachModal = false;
 }
 
+void EditorState::ClearAttachState()
+{
+	PairsToAttach.clear();
+	ShouldAttachPairs = false;
+	ShowAttachModal = false;
+}
+
 void EditorState::ClearSelectionState()
 {
 	SelectedObjects.clear();

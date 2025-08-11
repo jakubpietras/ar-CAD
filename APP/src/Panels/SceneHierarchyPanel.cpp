@@ -30,6 +30,7 @@ void SceneHierarchyPanel::DrawParentNode(ar::Entity object)
 	bool hasChildren = object.HasComponent<ar::ControlPointsComponent>(),
 		isSelected = object.HasComponent<ar::SelectedTagComponent>(),
 		selectionEmpty = m_State.SelectedObjects.empty();
+	bool shiftPressed = ar::Input::IsKeyPressed(AR_KEY_LEFT_SHIFT);
 
 	if (!hasChildren)
 		flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
@@ -45,20 +46,25 @@ void SceneHierarchyPanel::DrawParentNode(ar::Entity object)
 
 	if (ImGui::IsItemClicked())
 	{
-		if (isSelected)
-			RequestObjectDeselect(object);
+		if (!shiftPressed)
+		{
+			if (!isSelected || m_State.SelectedObjects.size() > 1)
+			{
+				RequestObjectSelect(object, false);
+			}
+		}
 		else
 		{
-			SelectionMode mode = SelectionMode::Replace;
-			if (ar::Input::IsKeyPressed(AR_KEY_LEFT_SHIFT))
-				mode = SelectionMode::Add;
-			RequestObjectSelect(object, mode == SelectionMode::Add);
+			if (isSelected)
+				RequestObjectDeselect(object);
+			else
+				RequestObjectSelect(object, true);
 		}
 	}
 
 	if (ImGui::BeginPopupContextItem())
 	{
-		DrawEntityContextMenu(object, !selectionEmpty);
+		DrawEntityContextMenu(object, !selectionEmpty, true);
 		ImGui::EndPopup();
 	}
 
@@ -77,6 +83,7 @@ void SceneHierarchyPanel::DrawChildNode(ar::Entity child, ar::Entity parent)
 		ImGuiTreeNodeFlags_Leaf |
 		ImGuiTreeNodeFlags_NoTreePushOnOpen;
 	bool isSelected = child.HasComponent<ar::SelectedTagComponent>(); 
+	bool shiftPressed = ar::Input::IsKeyPressed(AR_KEY_LEFT_SHIFT);
 
 	if (isSelected)
 		flags |= ImGuiTreeNodeFlags_Selected;
@@ -89,27 +96,32 @@ void SceneHierarchyPanel::DrawChildNode(ar::Entity child, ar::Entity parent)
 
 	if (ImGui::IsItemClicked())
 	{
-		if (isSelected)
-			RequestObjectDeselect(child);
+		if (!shiftPressed)
+		{
+			if (!isSelected || m_State.SelectedObjects.size() > 1)
+			{
+				RequestObjectSelect(child, false);
+			}
+		}
 		else
 		{
-			SelectionMode mode = SelectionMode::Replace;
-			if (ar::Input::IsKeyPressed(AR_KEY_LEFT_SHIFT))
-				mode = SelectionMode::Add;
-			RequestObjectSelect(child, mode == SelectionMode::Add);
+			if (isSelected)
+				RequestObjectDeselect(child);
+			else
+				RequestObjectSelect(child, true);
 		}
 	}
 
 	if (ImGui::BeginPopupContextItem())
 	{
-		DrawEntityContextMenu(child, false); // no Delete Selected here
+		DrawEntityContextMenu(child, false, false); // no Delete Selected here
 		ImGui::Separator();
 		DrawLinkContextMenu(child, parent);
 		ImGui::EndPopup();
 	}
 }
 
-void SceneHierarchyPanel::DrawEntityContextMenu(ar::Entity& object, bool allowDeleteSelected)
+void SceneHierarchyPanel::DrawEntityContextMenu(ar::Entity& object, bool allowDeleteSelected, bool allowAttachment)
 {
 	if (ImGui::MenuItem("Rename"))
 	{
@@ -137,6 +149,16 @@ void SceneHierarchyPanel::DrawEntityContextMenu(ar::Entity& object, bool allowDe
 				m_State.SelectedObjects.end()
 			);
 			m_State.ShowDeleteModal = true;
+		}
+	}
+	if (allowAttachment)
+	{
+		ar::ScopedDisable disable(m_State.SelectedCurves.empty() || !object.HasComponent<ar::PointComponent>());
+		if (ImGui::MenuItem("Attach to selected curves"))
+		{
+			for (auto& curve : m_State.SelectedCurves)
+				m_State.PairsToAttach.push_back({ curve, object });
+			m_State.ShowAttachModal = true;
 		}
 	}
 }

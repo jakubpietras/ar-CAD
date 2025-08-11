@@ -27,6 +27,7 @@ void EditorUI::Render()
 	RenderRenameModal();
 	RenderErrorModal();
 	RenderDetachModal();
+	RenderAttachModal();
 }
 
 void EditorUI::RenderCursor(ar::Ref<ar::CameraController> cameraController, ar::mat::Vec3 position)
@@ -264,6 +265,36 @@ void EditorUI::RenderDetachModal()
 		if (ImGui::Button("Cancel", ImVec2(120, 0)))
 		{
 			m_State.ClearDetachState();
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+}
+
+void EditorUI::RenderAttachModal()
+{
+	const char* popupName = "Attach?";
+
+	if (m_State.ShowAttachModal)
+	{
+		ImGui::OpenPopup(popupName);
+		m_State.ShowAttachModal = false;
+	}
+
+	if (ImGui::BeginPopupModal(popupName, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		std::string message = "Are you sure you want to attach selected points to selected curves?";
+		ImGui::TextWrapped(message.c_str());
+
+		if (ImGui::Button("OK", ImVec2(120, 0)))
+		{
+			m_State.ShouldAttachPairs = true;
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Cancel", ImVec2(120, 0)))
+		{
+			m_State.ClearAttachState();
 			ImGui::CloseCurrentPopup();
 		}
 		ImGui::EndPopup();

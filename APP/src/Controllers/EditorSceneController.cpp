@@ -42,6 +42,11 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 		geometryValidation = true;
 		selectionValidation = true;
 	}
+	if (state.ShouldAttachPairs)
+	{
+		ProcessAttach(state);
+		state.ClearAttachState();
+	}
 	if (state.ShouldPlaceCursor)
 	{
 		PlaceCursor(state.ClickPosition, state.Viewport, state.CursorPosition);
@@ -60,7 +65,7 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 		ValidateSelection(state);
 }
 
-void EditorSceneController::AddPoint(ar::mat::Vec3 spawnPoint)
+ar::Entity EditorSceneController::AddPoint(ar::mat::Vec3 spawnPoint)
 {
 	auto entity = m_Scene->CreateEntity("Point");
 
@@ -72,6 +77,17 @@ void EditorSceneController::AddPoint(ar::mat::Vec3 spawnPoint)
 	trc.Translation = spawnPoint;
 	trc.IsRotationEnabled = false;
 	trc.IsScaleEnabled = false;
+
+	return entity;
+}
+
+void EditorSceneController::AddPointToCurves(ar::Entity point, std::vector<ar::Entity> curves)
+{
+	for (auto& curve : curves)
+	{
+		auto& pts = curve.GetComponent<ar::ControlPointsComponent>().Points;
+		pts.push_back(point);
+	}
 }
 
 void EditorSceneController::AddTorus(ar::mat::Vec3 spawnPoint, ar::TorusDesc desc)
@@ -155,9 +171,14 @@ void EditorSceneController::ValidateSelection(EditorState& state)
 		state.SelectedObjects.end()
 	);
 	state.SelectedPoints.clear();
+	state.SelectedCurves.clear();
 	for (auto& entity : state.SelectedObjects)
+	{
 		if (entity.HasComponent<ar::PointComponent>())
 			state.SelectedPoints.push_back(entity);
+		if (entity.HasAnyComponent<ar::ChainTagComponent>())
+			state.SelectedCurves.push_back(entity);
+	}
 }
 
 void EditorSceneController::ProcessAdd(EditorState& state)
@@ -166,7 +187,9 @@ void EditorSceneController::ProcessAdd(EditorState& state)
 	{
 	case ar::ObjectType::POINT:
 	{
-		AddPoint(state.CursorPosition);
+		auto pt = AddPoint(state.CursorPosition);
+		if (!state.SelectedCurves.empty())
+			AddPointToCurves(pt, state.SelectedCurves);
 		break;
 	}
 	case ar::ObjectType::TORUS:
@@ -238,6 +261,17 @@ void EditorSceneController::ProcessDetach(EditorState& state)
 	{
 		if (pair.Parent.HasComponent<ar::ChainTagComponent>())
 			DetachFromChain(pair.Child, pair.Parent);
+	}
+}
+
+void EditorSceneController::ProcessAttach(EditorState& state)
+{
+	for (auto& pair : state.PairsToAttach)
+	{
+		auto& cp = pair.Parent.GetComponent<ar::ControlPointsComponent>().Points;
+		// don't add points if they are already under the parent
+		if (std::find(cp.begin(), cp.end(), pair.Child) == cp.end())
+			cp.push_back(pair.Child);
 	}
 }
 

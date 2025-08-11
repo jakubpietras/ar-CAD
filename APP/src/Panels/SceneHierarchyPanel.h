@@ -13,7 +13,7 @@ private:
 	void DrawParentNode(ar::Entity object);
 	void DrawChildNode(ar::Entity child, ar::Entity parent);
 
-	void DrawEntityContextMenu(ar::Entity& object, bool allowDeleteSelected);
+	void DrawEntityContextMenu(ar::Entity& object, bool allowDeleteSelected, bool allowAttachment);
 	void DrawLinkContextMenu(ar::Entity& child, ar::Entity& parent);
 
 	void RequestObjectSelect(ar::Entity object, bool add = false);

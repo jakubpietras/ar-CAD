@@ -23,6 +23,7 @@ private:
 	void ProcessAdd(EditorState& state);
 	void ProcessSelect(EditorState& state);
 	void ProcessDetach(EditorState& state);
+	void ProcessAttach(EditorState& state);
 
 	// Cursor
 	void PlaceCursor(ar::mat::Vec3 clickPosition, ViewportSize viewport, ar::mat::Vec3& cursorPosition);
@@ -31,7 +32,8 @@ private:
 	void DeleteEntities(std::vector<ar::Entity>& entities);
 
 	// Addition
-	void AddPoint(ar::mat::Vec3 spawnPoint);
+	ar::Entity AddPoint(ar::mat::Vec3 spawnPoint);
+	void AddPointToCurves(ar::Entity point, std::vector<ar::Entity> curves);
 	void AddTorus(ar::mat::Vec3 spawnPoint, ar::TorusDesc desc);
 	void AddChain(std::vector<ar::Entity> points);
 
