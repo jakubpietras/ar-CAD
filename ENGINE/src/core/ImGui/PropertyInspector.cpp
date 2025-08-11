@@ -36,7 +36,6 @@ namespace ar
 	bool PropertyInspector::InspectProperty(const std::string& label, mat::Vec3& value, float minValue, float maxValue)
 	{
 		return ImGui::DragFloat3(label.c_str(), value.Data(), 0.1f, minValue, maxValue);
-
 	}
 
 	bool PropertyInspector::InspectProperty(const std::string& label, UInt2& value, unsigned int minValue, unsigned int maxValue)
@@ -51,6 +50,16 @@ namespace ar
 			value.v = static_cast<uint32_t>(temp[1]);
 		}
 
+		return changed;
+	}
+
+	bool PropertyInspector::InspectProperty(const std::string& label, PivotType& type)
+	{
+		auto current = static_cast<int>(type);
+		static const char* options[] = {"Local origin", "Cursor"};
+		bool changed = ImGui::Combo(label.c_str(), &current, options, IM_ARRAYSIZE(options));
+		if (changed)
+			type = static_cast<PivotType>(current);
 		return changed;
 	}
 

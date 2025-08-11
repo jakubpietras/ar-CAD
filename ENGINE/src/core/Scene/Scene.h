@@ -17,7 +17,7 @@ namespace ar
 		Scene(const Scene&) = delete;
 		Scene& operator=(const Scene&) = delete;
 		
-		void OnUpdate(Ref<PerspectiveCamera> camera);
+		void OnUpdate(Ref<PerspectiveCamera> camera, ar::mat::Vec3 cursorPos, ar::mat::Vec3 meanPos);
 		
 		// Entity management
 		Entity CreateEntity(const std::string& name = std::string());
@@ -36,8 +36,8 @@ namespace ar
 		std::unordered_map<uint32_t, entt::entity> m_EntityMap;
 		
 		// Updates
-		void UpdateScene();
-		void UpdateTransform(TransformComponent& transform);
+		void UpdateScene(ar::mat::Vec3 cursorPos, ar::mat::Vec3 meanPos);
+		void UpdateTransform(TransformComponent& transform, ar::mat::Vec3 cursorPos, ar::mat::Vec3 meanPos);
 
 		// Rendering
 		void RenderScene(Ref<PerspectiveCamera> camera);

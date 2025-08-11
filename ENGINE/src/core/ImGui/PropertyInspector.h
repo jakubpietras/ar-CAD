@@ -1,6 +1,6 @@
 #pragma once
 #include "core/Core.h"
-
+#include "core/Scene/Components.h"
 namespace ar
 {
 	class PropertyInspector
@@ -14,6 +14,7 @@ namespace ar
 
 		static bool InspectProperty(const std::string& label, float& value, float minValue, float maxValue);
 
+		static bool InspectProperty(const std::string& label, PivotType& type);
 
 	private:
 

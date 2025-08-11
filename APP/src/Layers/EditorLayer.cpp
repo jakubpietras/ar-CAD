@@ -28,7 +28,7 @@ void EditorLayer::OnUpdate()
 	ar::RenderCommand::SetClearColor(ar::mat::Vec4(0.18f, 0.18f, 0.24f, 1.0f));
 	ar::RenderCommand::Clear();
 
-	m_Scene->OnUpdate(m_SceneController.GetCamera());
+	m_Scene->OnUpdate(m_SceneController.GetCamera(), m_State.CursorPosition, {0.f, 0.f, 0.f}); // todo: add mean position
 	m_UI.RenderCursor(m_SceneController.GetCameraController(), m_State.CursorPosition);
 
 	m_UI.GetFramebuffer()->Unbind();

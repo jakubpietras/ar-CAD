@@ -51,18 +51,18 @@ namespace ar
 		return {};
 	}
 
-	void Scene::OnUpdate(Ref<PerspectiveCamera> camera)
+	void Scene::OnUpdate(Ref<PerspectiveCamera> camera, ar::mat::Vec3 cursorPos, ar::mat::Vec3 meanPos)
 	{
-		UpdateScene();
+		UpdateScene(cursorPos, meanPos);
 		RenderScene(camera);
 	}
 
-	void Scene::UpdateScene()
+	void Scene::UpdateScene(ar::mat::Vec3 cursorPos, ar::mat::Vec3 meanPos)
 	{
 		auto transformView = m_Registry.view<TransformComponent>();
 		for (auto [entity, tc] : transformView.each())
 		{
-			UpdateTransform(tc);
+			UpdateTransform(tc, cursorPos, meanPos);
 		}
 
 		auto torusView = m_Registry.view<TorusComponent, MeshComponent>();
@@ -82,22 +82,42 @@ namespace ar
 
 	}
 
-	void Scene::UpdateTransform(TransformComponent& tc)
+	void Scene::UpdateTransform(TransformComponent& tc, ar::mat::Vec3 cursorPos, ar::mat::Vec3 meanPos)
 	{
 		if (!tc.DirtyFlag)
 			return;
 
+		ar::mat::Vec3 pivot;
+		switch (tc.PivotPoint)
+		{
+			case PivotType::CURSOR:
+			{
+				pivot = cursorPos;
+				break;
+			}
+			case PivotType::MEAN_SELECTED:
+			{
+				pivot = meanPos;
+				break;
+			}
+			case PivotType::LOCAL_ORIGIN:
+			default:
+			{
+				pivot = tc.Translation;
+			}
+		}
+
 		// ---- Scale ----
-		auto v = tc.Translation - tc.PivotPoint;
+		auto v = tc.Translation - pivot;
 		auto d_scale = tc.Scale / tc.PreviousScale;
 		auto scaled_v = d_scale * v;
-		tc.Translation = tc.PivotPoint + scaled_v;
+		tc.Translation = pivot + scaled_v;
 
 		// ---- Rotation ----
-		v = tc.Translation - tc.PivotPoint;
+		v = tc.Translation - pivot;
 		auto q = mat::RPYToQuat(tc.AnglesRPY - tc.PreviousAnglesRPY);
 		auto rotated_v = q * mat::Quat(0.0f, v.x, v.y, v.z) * mat::Conjugate(q);
-		tc.Translation = tc.PivotPoint + QuatToVec3(rotated_v);
+		tc.Translation = pivot + QuatToVec3(rotated_v);
 		tc.Rotation = mat::Normalize(q * tc.Rotation);
 
 		// ---- Combination ----
@@ -105,8 +125,6 @@ namespace ar
 			mat::TranslationMatrix(tc.Translation) *
 			mat::ToMat4(tc.Rotation) *
 			mat::ScaleMatrix(tc.Scale);
-
-		tc.PivotPoint = tc.Translation;
 
 		tc.DirtyFlag = false;
 	}

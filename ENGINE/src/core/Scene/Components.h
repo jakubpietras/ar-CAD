@@ -11,6 +11,16 @@ namespace ar
 	// forward declarations
 	class Entity;
 
+#pragma region Datatypes
+
+	enum class PivotType
+	{
+		LOCAL_ORIGIN,
+		CURSOR,
+		MEAN_SELECTED
+	};
+
+#pragma endregion
 #pragma region Tags
 
 	struct ChainTagComponent {};
@@ -41,7 +51,7 @@ namespace ar
 
 	struct TransformComponent
 	{
-		mat::Vec3	PivotPoint = { 0.0f, 0.0f, 0.0f };
+		PivotType	PivotPoint = PivotType::LOCAL_ORIGIN;
 
 		mat::Quat	Rotation;
 		mat::Vec3	Translation = { 0.0f, 0.0f, 0.0f },

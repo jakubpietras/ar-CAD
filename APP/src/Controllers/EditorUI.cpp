@@ -80,11 +80,21 @@ void EditorUI::RenderMainMenu()
 			{
 				if (ImGui::MenuItem("Chain")) 
 					RequestAddObject(ar::ObjectType::CHAIN);
-					
+				if (ImGui::MenuItem("Bezier C0"))
+					RequestAddObject(ar::ObjectType::BEZIERC0);
+				if (ImGui::MenuItem("Bezier C2"))
+					RequestAddObject(ar::ObjectType::BEZIERC2);
+				if (ImGui::MenuItem("Interpolated C2"))
+					RequestAddObject(ar::ObjectType::INTERPOLATEDC2);
 				ImGui::EndMenu();
 			}
 			if (ImGui::BeginMenu("Surface"))
 			{
+				if (ImGui::MenuItem("Bezier C0"))
+					RequestAddObject(ar::ObjectType::BEZIERSURFACEC0);
+				if (ImGui::MenuItem("Bezier C2"))
+					RequestAddObject(ar::ObjectType::BEZIERSURFACEC2);
+
 				ImGui::EndMenu();
 			}
 			ImGui::EndMenu();
