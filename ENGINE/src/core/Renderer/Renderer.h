@@ -6,6 +6,13 @@
 
 namespace ar
 {
+
+	enum class RenderPassType
+	{
+		MAIN,
+		SELECTION
+	};
+
 	class Renderer
 	{
 	public:
@@ -18,6 +25,9 @@ namespace ar
 		static void Submit(const Primitive primitive, const std::shared_ptr<Shader>& shader,
 			uint32_t vertexCount, uint32_t instanceCount = 1);
 		static void Submit(MeshComponent& mesh, uint32_t instanceCount = 1);
+
+		static constexpr ar::mat::Vec3 SELECTION_COLOR{ 1.0f, 0.56f, 0.0f };
+
 	private:
 		static std::unique_ptr<VertexArray> s_DummyVAO;
 	};

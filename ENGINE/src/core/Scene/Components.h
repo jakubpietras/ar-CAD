@@ -13,7 +13,6 @@ namespace ar
 
 #pragma region Tags
 
-	struct PointTagComponent {};		// Entities are Points (will render last, etc.)
 	struct ChainTagComponent {};
 	struct SelectedTagComponent {};		// Entities are selected
 	struct VirtualTagComponent {};		// Entities won't show up in the scene hierarchy
@@ -63,7 +62,7 @@ namespace ar
 	{
 		std::shared_ptr<VertexArray>	VertexArray = nullptr;
 		std::shared_ptr<Shader>			Shader = nullptr;
-		mat::Vec3						Color = {1.0f, 1.0f, 1.0f};
+		mat::Vec3						PrimaryColor = {1.0f, 1.0f, 1.0f};
 		Primitive						RenderPrimitive = Primitive::Triangle;
 	};
 
@@ -76,6 +75,11 @@ namespace ar
 
 #pragma endregion
 #pragma region Geometry
+
+	struct PointComponent 
+	{
+		mat::Vec3 Color{ 1.f, 1.f, 1.f };
+	};
 
 	struct TorusComponent
 	{

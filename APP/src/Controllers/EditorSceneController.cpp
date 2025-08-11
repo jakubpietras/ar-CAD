@@ -65,7 +65,7 @@ void EditorSceneController::AddPoint(ar::mat::Vec3 spawnPoint)
 	auto entity = m_Scene->CreateEntity("Point");
 
 	// Point tag component
-	entity.AddComponent<ar::PointTagComponent>();
+	entity.AddComponent<ar::PointComponent>();
 
 	// Transform component
 	auto& trc = entity.AddComponent<ar::TransformComponent>();
@@ -156,7 +156,7 @@ void EditorSceneController::ValidateSelection(EditorState& state)
 	);
 	state.SelectedPoints.clear();
 	for (auto& entity : state.SelectedObjects)
-		if (entity.HasComponent<ar::PointTagComponent>())
+		if (entity.HasComponent<ar::PointComponent>())
 			state.SelectedPoints.push_back(entity);
 }
 
@@ -270,7 +270,7 @@ void EditorSceneController::DeleteEntities(std::vector<ar::Entity>& entities)
 {
 	for (auto& entity : entities)
 	{
-		if (entity.HasComponent<ar::PointTagComponent>())
+		if (entity.HasComponent<ar::PointComponent>())
 		{
 			// remove from all point composites
 			auto view = m_Scene->m_Registry.view<ar::ControlPointsComponent>();

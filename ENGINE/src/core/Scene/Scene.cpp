@@ -1,8 +1,6 @@
 #include "arpch.h"
 #include "Scene.h"
 #include "Entity.h"
-#include "core/Renderer/Renderer.h"
-#include "core/Renderer/RenderCommand.h"
 #include "Components.h"
 #include "core/UID.h"
 
@@ -118,66 +116,123 @@ namespace ar
 		ar::Renderer::BeginScene();
 
 		auto& vpMat = camera->GetVP();
-
-		// Draw grid
-		{
-			auto gridShader = ar::ShaderLib::Get("Grid");
-			ar::RenderCommand::ToggleDepthTest(false);
-			gridShader->SetMat4("u_VP", vpMat);
-			ar::Renderer::Submit(ar::Primitive::Triangle, gridShader, 6);
-			ar::RenderCommand::ToggleDepthTest(true);
-		}
-
-		// Draw meshes (e.g. tori)
-		{
-			auto view = m_Registry.view<MeshComponent, TransformComponent>(entt::exclude<PointTagComponent>);
-			for (auto [entity, mc, tc] : view.each())
-			{
-				mc.Shader->SetMat4("u_VP", vpMat);
-				mc.Shader->SetMat4("u_Model", tc.ModelMatrix);
-				ar::Renderer::Submit(mc);
-			}
-		}
-
-		auto shader = ShaderLib::Get("Basic");
-		shader->SetMat4("u_VP", camera->GetVP());
-		shader->SetMat4("u_Model", mat::Identity());
-
-		// Draw lines
-		{
-			auto view = m_Registry.view<ControlPointsComponent>();
-			for (auto [entity, cp] : view.each())
-			{
-				std::vector<VertexPosition> verts{};
-				for (auto& point : cp.Points)
-				{
-					verts.push_back({ point.GetComponent<TransformComponent>().Translation });
-				}
-
-				auto ent = ar::Entity{ entity, this };
-				if (ent.HasComponent<ChainTagComponent>())
-				{
-					m_PointsVA->ClearBuffers();
-					m_PointsVA->AddVertexBuffer(Ref<VertexBuffer>(VertexBuffer::Create(verts)));
-					ar::Renderer::Submit(Primitive::LineStrip, shader, m_PointsVA);
-				}
-			}
-		}
-
-		// Draw points
-		{
-			std::vector<VertexPosition> pointPositions{};
-			auto view = m_Registry.view<TransformComponent, PointTagComponent>();
-			for (const auto& [e, transform] : view.each())
-				pointPositions.push_back({ transform.Translation });
-			m_PointsVA->ClearBuffers();
-			m_PointsVA->AddVertexBuffer(Ref<VertexBuffer>(VertexBuffer::Create(pointPositions)));
-
-			ar::Renderer::Submit(Primitive::Point, shader, m_PointsVA);
-		}
+		RenderGrid(vpMat);
+		RenderMeshes(vpMat, RenderPassType::MAIN);
+		RenderLines(vpMat, RenderPassType::MAIN);
+		RenderPoints(vpMat, RenderPassType::MAIN);
 
 		ar::Renderer::EndScene();
 	}
 
+
+	void Scene::RenderGrid(ar::mat::Mat4 viewProjection)
+	{
+		auto gridShader = ar::ShaderLib::Get("Grid");
+		ar::RenderCommand::ToggleDepthTest(false);
+		gridShader->SetMat4("u_VP", viewProjection);
+		ar::Renderer::Submit(ar::Primitive::Triangle, gridShader, 6);
+		ar::RenderCommand::ToggleDepthTest(true);
+	}
+
+	void Scene::RenderMeshes(ar::mat::Mat4 viewProjection, RenderPassType pass)
+	{
+		auto view = m_Registry.view<MeshComponent, TransformComponent>(entt::exclude<PointComponent>);
+		for (auto [entity, mc, tc] : view.each())
+		{
+			mc.Shader->SetMat4("u_VP", viewProjection);
+			mc.Shader->SetMat4("u_Model", tc.ModelMatrix);
+
+			switch (pass)
+			{
+				case RenderPassType::MAIN:
+				{
+					bool isSelected = m_Registry.any_of<SelectedTagComponent>(entity);
+					auto color = isSelected ? Renderer::SELECTION_COLOR : mc.PrimaryColor;
+					mc.Shader->SetVec3("u_Color", color);
+					break;
+				}
+			}
+			ar::Renderer::Submit(mc);
+		}
+	}
+
+	void Scene::RenderLines(ar::mat::Mat4 viewProjection, RenderPassType pass)
+	{
+		auto shader = ShaderLib::Get("Basic");
+		shader->SetMat4("u_VP", viewProjection);
+		shader->SetMat4("u_Model", mat::Identity());
+
+		auto view = m_Registry.view<ControlPointsComponent>();
+		for (auto [entity, cp] : view.each())
+		{
+			std::vector<VertexPosition> verts{};
+			verts.reserve(cp.Points.size());
+			for (auto& point : cp.Points)
+			{
+				verts.push_back({ point.GetComponent<TransformComponent>().Translation });
+			}
+
+			ar::mat::Vec3 color{1.f, 1.f, 1.f};
+			switch (pass)
+			{
+				case RenderPassType::MAIN:
+				{
+					color = m_Registry.any_of<SelectedTagComponent>(entity) ? 
+						Renderer::SELECTION_COLOR : ar::mat::Vec3(1.f, 1.f, 1.f);
+					break;
+				}
+			}
+			shader->SetVec3("u_Color", color);
+
+			auto ent = ar::Entity{ entity, this };
+
+			if (ent.HasComponent<ChainTagComponent>())
+			{
+				m_PointsVA->ClearBuffers();
+				m_PointsVA->AddVertexBuffer(Ref<VertexBuffer>(VertexBuffer::Create(verts)));
+				ar::Renderer::Submit(Primitive::LineStrip, shader, m_PointsVA);
+			}
+		}
+	}
+
+	void Scene::RenderPoints(ar::mat::Mat4 viewProjection, RenderPassType pass)
+	{
+		auto shader = ShaderLib::Get("Basic");
+		shader->SetMat4("u_VP", viewProjection);
+		shader->SetMat4("u_Model", mat::Identity());
+
+		std::vector<VertexPosition> unselectedVerts;
+		std::vector<VertexPosition> selectedVerts;
+
+		auto view = m_Registry.view<TransformComponent, PointComponent>();
+		for (const auto& [e, transform, pt] : view.each())
+		{
+			bool selected = m_Registry.any_of<SelectedTagComponent>(e);
+			if (selected)
+				selectedVerts.push_back({ transform.Translation });
+			else
+				unselectedVerts.push_back({ transform.Translation });
+			
+		}
+
+		// Draw unselected
+		if (!unselectedVerts.empty())
+		{
+			shader->SetVec3("u_Color", {1.f, 1.f, 1.f});
+			m_PointsVA->ClearBuffers();
+			m_PointsVA->AddVertexBuffer(Ref<VertexBuffer>(VertexBuffer::Create(unselectedVerts)));
+			ar::Renderer::Submit(Primitive::Point, shader, m_PointsVA);
+		}
+
+		// Draw selected
+		if (!selectedVerts.empty())
+		{
+			shader->SetVec3("u_Color", Renderer::SELECTION_COLOR);
+			m_PointsVA->ClearBuffers();
+			m_PointsVA->AddVertexBuffer(Ref<VertexBuffer>(VertexBuffer::Create(selectedVerts)));
+			ar::Renderer::Submit(Primitive::Point, shader, m_PointsVA);
+		}
+		
+	}
 
 }

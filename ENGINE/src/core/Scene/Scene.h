@@ -3,6 +3,8 @@
 #include "core/Renderer/Camera.h"
 #include "core/Renderer/Shader.h"
 #include "core/Scene/Components.h"
+#include "core/Renderer/Renderer.h"
+#include "core/Renderer/RenderCommand.h"
 
 namespace ar
 {
@@ -37,7 +39,12 @@ namespace ar
 		void UpdateScene();
 		void UpdateTransform(TransformComponent& transform);
 
+		// Rendering
 		void RenderScene(Ref<PerspectiveCamera> camera);
+		void RenderGrid(ar::mat::Mat4 viewProjection);
+		void RenderMeshes(ar::mat::Mat4 viewProjection, RenderPassType pass);
+		void RenderLines(ar::mat::Mat4 viewProjection, RenderPassType pass);
+		void RenderPoints(ar::mat::Mat4 viewProjection, RenderPassType pass);
 
 		// Utility
 		Ref<VertexArray> m_PointsVA;
