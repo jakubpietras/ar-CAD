@@ -1,8 +1,8 @@
 #include "EditorSceneController.h"
 #include "EditorConstants.h"
 
-EditorSceneController::EditorSceneController(ar::Ref<ar::Scene> scene)
-	: m_Scene(scene),
+EditorSceneController::EditorSceneController(ar::Ref<ar::Scene> scene, EditorUI& ui)
+	: m_Scene(scene), m_UI(ui),
 	m_CameraController(std::make_shared<ar::CameraController>(
 		EditorCameraConstants::FOV, 0.0f,
 		EditorCameraConstants::NearPlane, EditorCameraConstants::FarPlane,
@@ -55,7 +55,14 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 	if (state.ViewportResized)
 	{
 		m_CameraController->SetAspectRatio(state.Viewport.Width / state.Viewport.Height);
+		m_UI.ResizeFramebuffer(state.Viewport);
+		m_Scene->ResizePickingFramebuffer(state.Viewport.Width, state.Viewport.Height);
 		state.ViewportResized = false;
+	}
+	if (state.ShouldProcessPicking)
+	{
+		ProcessPicking(state);
+		state.ClearPickingState();
 	}
 
 	// Validation
@@ -275,7 +282,15 @@ void EditorSceneController::ProcessAttach(EditorState& state)
 	}
 }
 
-void EditorSceneController::PlaceCursor(ar::mat::Vec3 clickPosition, ViewportSize viewport, ar::mat::Vec3& cursorPosition)
+void EditorSceneController::ProcessPicking(EditorState& state)
+{
+	auto id = m_Scene->ReadPixel(state.PickClickStart.x, state.PickClickStart.y);
+	auto e = m_Scene->GetEntityByID(id);
+	if (e)
+		state.SelectedObjects.push_back(e);
+}
+
+void EditorSceneController::PlaceCursor(ar::mat::Vec2 clickPosition, ViewportSize viewport, ar::mat::Vec3& cursorPosition)
 {
 	float xPos = clickPosition.x;
 	float yPos = clickPosition.y;

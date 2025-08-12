@@ -40,10 +40,35 @@ const ar::Ref<ar::Framebuffer>& EditorUI::GetFramebuffer()
 	return m_ViewportFramebuffer;
 }
 
+void EditorUI::ResizeFramebuffer(ViewportSize newSize)
+{
+	m_ViewportFramebuffer->Resize(static_cast<uint32_t>(newSize.Width), static_cast<uint32_t>(newSize.Height));
+}
+
+ar::mat::Vec2 EditorUI::GetClickPosition()
+{
+	ImVec2 viewport_pos = ImGui::GetItemRectMin();
+	ImVec2 viewport_size = ImGui::GetItemRectSize();
+	ImVec2 mouse_pos = ImGui::GetIO().MousePos;
+
+	float xPos = mouse_pos.x - viewport_pos.x;
+	float yPos = mouse_pos.y - viewport_pos.y;
+
+	if (xPos < 0 || yPos < 0 ||
+		xPos >= viewport_size.x ||
+		yPos >= viewport_size.y)
+	{
+		return { 0.f, 0.f };
+	}
+	return { xPos, yPos };
+}
+
 void EditorUI::RenderStatsWindow()
 {
-	ImGui::Begin("Stats");
-	ImGui::TextWrapped("Current entity count: %d", m_Scene->GetEntityCount());
+	ImGui::Begin("State");
+	ImGui::TextWrapped("* Entity count: %d", m_Scene->GetEntityCount());
+	ImGui::TextWrapped("* Viewport size: [%f, %f]", m_State.Viewport.Width, m_State.Viewport.Height);
+	ImGui::TextWrapped("* Last mouse click: [%f, %f]", m_State.ClickPosition.x, m_State.ClickPosition.y);
 	ImGui::End();
 }
 
@@ -140,7 +165,6 @@ void EditorUI::RenderViewport()
 	{
 		m_State.Viewport = { viewportSize.x, viewportSize.y };
 		m_State.ViewportResized = true;
-		m_ViewportFramebuffer->Resize(static_cast<uint32_t>(viewportSize.x), static_cast<uint32_t>(viewportSize.y));
 	}
 
 	ImGui::Image(
@@ -149,9 +173,8 @@ void EditorUI::RenderViewport()
 		ImVec2(0, 1), ImVec2(1, 0)
 	);
 
-		
-	if (ar::Input::IsMouseButtonPressed(AR_MOUSE_BUTTON_RIGHT) && ar::Input::IsKeyPressed(AR_KEY_LEFT_SHIFT))
-		RequestPlaceCursor();
+	if (ar::Input::IsAnyMouseButtonPressed())
+		m_State.ClickPosition = GetClickPosition();
 
 	ImGui::End();
 	ImGui::PopStyleVar();
@@ -315,25 +338,11 @@ void EditorUI::RequestAddObject(ar::ObjectType type)
 {
 	m_State.AddObjectType = type;
 	m_State.ShouldAddObject = true;
-}
+}/*
 
 void EditorUI::RequestPlaceCursor()
 {
-	ImVec2 viewport_pos = ImGui::GetItemRectMin();
-	ImVec2 viewport_size = ImGui::GetItemRectSize();
-	ImVec2 mouse_pos = ImGui::GetIO().MousePos;
-
-	float xPos = mouse_pos.x - viewport_pos.x;
-	float yPos = mouse_pos.y - viewport_pos.y;
-
-	if (xPos < 0 || yPos < 0 ||
-		xPos >= viewport_size.x ||
-		yPos >= viewport_size.y)
-	{
-		return;
-	}
-
-	m_State.ClickPosition = { xPos, yPos, 0.0f };
+	m_State.ClickPosition = GetClickPosition();
 	m_State.ShouldPlaceCursor = true;
-}
+}*/
 

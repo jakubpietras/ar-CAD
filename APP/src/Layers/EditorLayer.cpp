@@ -6,7 +6,8 @@ EditorLayer::EditorLayer(float aspectRatio)
 	: 
 	m_Scene(std::make_shared<ar::Scene>()),
 	m_UI(m_State, m_Scene),
-	m_SceneController(m_Scene)
+	m_SceneController(m_Scene, m_UI),
+	m_SceneRenderer(m_Scene)
 {
 	m_State.Viewport = { 1920.f, 1080.f };
 	m_State.ViewportResized = true;
@@ -23,24 +24,53 @@ void EditorLayer::OnUpdate()
 {
 	m_SceneController.OnUpdateCamera();
 	m_SceneController.ProcessStateChanges(m_State);
+	m_Scene->OnUpdate(m_SceneController.GetCamera(), m_State.CursorPosition, {0.f, 0.f, 0.f}); // todo: add mean position
+	
 	m_UI.GetFramebuffer()->Bind();
 
-	ar::RenderCommand::SetClearColor(ar::mat::Vec4(0.18f, 0.18f, 0.24f, 1.0f));
-	ar::RenderCommand::Clear();
-
-	m_Scene->OnUpdate(m_SceneController.GetCamera(), m_State.CursorPosition, {0.f, 0.f, 0.f}); // todo: add mean position
+	//m_Scene->Render(m_SceneController.GetCamera(), ar::RenderPassType::MAIN);
+	m_SceneRenderer.RenderScene(m_SceneController.GetCamera(), ar::RenderPassType::MAIN);
 	m_UI.RenderCursor(m_SceneController.GetCameraController(), m_State.CursorPosition);
 
 	m_UI.GetFramebuffer()->Unbind();
+
+	/*m_Scene->BeginPicking();
+	m_Scene->Render(m_SceneController.GetCamera(), ar::RenderPassType::SELECTION);
+	m_Scene->EndPicking();*/
 }
 
 void EditorLayer::OnEvent(ar::Event& event)
 {
 	m_SceneController.OnEventCamera(event);
 	ar::EventDispatcher dispatcher(event);
+	dispatcher.Dispatch<ar::MouseButtonPressedEvent>(AR_BIND_EVENT_FN(EditorLayer::OnMouseButtonPressed));
+	dispatcher.Dispatch<ar::MouseButtonReleasedEvent>(AR_BIND_EVENT_FN(EditorLayer::OnMouseButtonReleased));
 }
 
 void EditorLayer::OnImGuiRender() 
 {
 	m_UI.Render();
+}
+
+bool EditorLayer::OnMouseButtonPressed(ar::MouseButtonPressedEvent& event)
+{
+	if (event.GetMouseButton() == AR_MOUSE_BUTTON_LEFT)
+	{
+		m_State.PickClickStart = m_State.ClickPosition;
+	}
+	return false;
+}
+
+bool EditorLayer::OnMouseButtonReleased(ar::MouseButtonReleasedEvent& event)
+{
+	if (event.GetMouseButton() == AR_MOUSE_BUTTON_RIGHT && ar::Input::IsKeyPressed(AR_KEY_LEFT_SHIFT))
+	{
+		m_State.ShouldPlaceCursor = true;
+	}
+	else if (event.GetMouseButton() == AR_MOUSE_BUTTON_LEFT)
+	{
+		m_State.PickClickEnd = m_State.ClickPosition;
+		m_State.ShouldProcessPicking = true;
+	}
+	return false;
 }

@@ -5,6 +5,7 @@
 #include "core/Scene/Components.h"
 #include "core/Renderer/Renderer.h"
 #include "core/Renderer/RenderCommand.h"
+#include "core/Renderer/Framebuffer.h"
 
 namespace ar
 {
@@ -18,7 +19,7 @@ namespace ar
 		Scene& operator=(const Scene&) = delete;
 		
 		void OnUpdate(Ref<PerspectiveCamera> camera, ar::mat::Vec3 cursorPos, ar::mat::Vec3 meanPos);
-		
+
 		// Entity management
 		Entity CreateEntity(const std::string& name = std::string());
 		void DestroyEntity(Entity entity);
@@ -31,23 +32,23 @@ namespace ar
 			return m_Registry.view<Components...>();
 		}
 
+		// Picking
+		void ResizePickingFramebuffer(float width, float height);
+		void BeginPicking();
+		void EndPicking();
+		uint32_t ReadPixel(int x, int y);
+
 		entt::registry m_Registry;
 	private:
 		std::unordered_map<uint32_t, entt::entity> m_EntityMap;
-		
+		Ref<VertexArray> m_PointsVA;
+		Ref<Framebuffer> m_PickingFB;
+
 		// Updates
 		void UpdateScene(ar::mat::Vec3 cursorPos, ar::mat::Vec3 meanPos);
 		void UpdateTransform(TransformComponent& transform, ar::mat::Vec3 cursorPos, ar::mat::Vec3 meanPos);
 
-		// Rendering
-		void RenderScene(Ref<PerspectiveCamera> camera);
-		void RenderGrid(ar::mat::Mat4 viewProjection);
-		void RenderMeshes(ar::mat::Mat4 viewProjection, RenderPassType pass);
-		void RenderLines(ar::mat::Mat4 viewProjection, RenderPassType pass);
-		void RenderPoints(ar::mat::Mat4 viewProjection, RenderPassType pass);
-
 		// Utility
-		Ref<VertexArray> m_PointsVA;
 
 		friend class Entity;
 		friend class SceneHierarchyPanel;

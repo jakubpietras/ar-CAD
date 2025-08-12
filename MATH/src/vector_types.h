@@ -7,6 +7,186 @@ namespace ar
 	namespace mat
 	{
 		struct Vec4;	// forward declaration
+		struct Vec2
+		{
+			float x, y;
+			inline const float* Data() const { return &x; };
+			inline float* Data() { return &x; };
+			constexpr Vec2(float x = 0.0f, float y = 0.0f, float z = 0.0f) : x(x), y(y) {}
+
+			/// <summary>
+			/// Component-wise sum of two vectors.
+			/// </summary>
+			/// <param name="other">The vector to add.</param>
+			/// <returns></returns>
+			constexpr Vec2 operator+(const Vec2& other) const
+			{
+				return { x + other.x, y + other.y };
+			}
+
+			/// <summary>
+			/// Component-wise sum of two vectors.
+			/// </summary>
+			/// <param name="other">The vector to add.</param>
+			/// <returns></returns>
+			constexpr Vec2& operator+=(const Vec2& other)
+			{
+				x += other.x;
+				y += other.y;
+				return *this;
+			}
+
+			/// <summary>
+			/// Component-wise difference of two vectors.
+			/// </summary>
+			/// <param name="other">The vector to subtract.</param>
+			/// <returns></returns>
+			constexpr Vec2 operator-(const Vec2& other) const
+			{
+				return { x - other.x, y - other.y };
+			}
+
+			/// <summary>
+			/// Component-wise difference of two vectors.
+			/// </summary>
+			/// <param name="other">The vector to subtract.</param>
+			/// <returns></returns>
+			constexpr Vec2& operator-=(const Vec2& other)
+			{
+				x -= other.x;
+				y -= other.y;
+				return *this;
+			}
+
+			/// <summary>
+			/// Component-wise multiplication by a scalar.
+			/// </summary>
+			/// <param name="scalar"></param>
+			/// <returns></returns>
+			constexpr Vec2 operator*(const float scalar) const
+			{
+				return { x * scalar, y * scalar };
+			}
+
+			/// <summary>
+			/// Multiplies a scalar with a vector (scalar on the left-hand side).
+			/// </summary>
+			/// <param name="scalar">The scalar multiplier.</param>
+			/// <param name="v">The vector being multiplied.</param>
+			/// <returns>A scaled vector.</returns>
+			constexpr friend Vec2 operator*(float scalar, const Vec2& v);
+
+			/// <summary>
+			/// Component-wise multiplication by a scalar.
+			/// </summary>
+			/// <param name="scalar"></param>
+			/// <returns></returns>
+			constexpr Vec2& operator*=(const float scalar)
+			{
+				x *= scalar;
+				y *= scalar;
+				return *this;
+			}
+
+			/// <summary>
+			/// Component-wise multiplication by a vector.
+			/// </summary>
+			/// <param name="other"></param>
+			/// <returns></returns>
+			constexpr Vec2 operator*(const Vec2& other) const
+			{
+				return { x * other.x, y * other.y };
+			}
+
+			/// <summary>
+			/// Component-wise multiplication by a vector.
+			/// </summary>
+			/// <param name="other"></param>
+			/// <returns></returns>
+			constexpr Vec2& operator*=(const Vec2& other)
+			{
+				x *= other.x;
+				y *= other.y;
+				return *this;
+			}
+
+			/// <summary>
+			/// Component-wise division by a scalar.
+			/// </summary>
+			/// <param name="scalar"></param>
+			/// <returns></returns>
+			constexpr Vec2 operator/(const float scalar) const
+			{
+				assert(scalar != 0.0f && "Vec2 division by zero");
+				return { x / scalar, y / scalar };
+			}
+
+			/// <summary>
+			/// Component-wise division by a scalar.
+			/// </summary>
+			/// <param name="scalar"></param>
+			/// <returns></returns>
+			constexpr Vec2& operator/=(const float scalar)
+			{
+				assert(scalar != 0.0f && "Vec2 division by zero");
+				x /= scalar;
+				y /= scalar;
+				return *this;
+			}
+
+			/// <summary>
+			/// Component-wise division by a vector.
+			/// </summary>
+			/// <param name="other"></param>
+			/// <returns></returns>
+			constexpr Vec2 operator/(const Vec2& other) const
+			{
+				assert(other.x != 0.0f && other.y != 0.0f && "Vec2 component-wise division by zero");
+				return { x / other.x, y / other.y};
+			}
+
+			/// <summary>
+			/// Component-wise division by a vector.
+			/// </summary>
+			/// <param name="scalar"></param>
+			/// <returns></returns>
+			constexpr Vec2& operator/=(const Vec2& other)
+			{
+				assert(other.x != 0.0f && other.y != 0.0f && "Vec2 component-wise division by zero");
+				x /= other.x;
+				y /= other.y;
+				return *this;
+			}
+
+			/// <summary>
+			/// Component-wise inequality comparison operator.
+			/// </summary>
+			/// <param name="other">The vector to compare.</param>
+			/// <returns>True if vectors differ on any component, false otherwise.</returns>
+			constexpr bool operator!=(const Vec2& other) const
+			{
+				return x != other.x || y != other.y;
+			}
+
+			/// <summary>
+			/// Component-wise equality comparison operator.
+			/// </summary>
+			/// <param name="other">The vector to compare.</param>
+			/// <returns>True if vectors are identical, false otherwise.</returns>
+			constexpr bool operator==(const Vec2& other) const
+			{
+				return x == other.x && y == other.y;
+			}
+
+			/// <summary>
+			/// Unary negation.
+			/// </summary>
+			/// <returns>Vector with negated components.</returns>
+			constexpr Vec2 operator-() const
+			{
+				return { -x, -y };
+			}
+		};
 		struct Vec3
 		{
 			float x, y, z;

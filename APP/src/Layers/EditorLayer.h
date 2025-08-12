@@ -8,6 +8,7 @@
 
 #include "Controllers/EditorUI.h"
 #include "Controllers/EditorSceneController.h"
+#include "core/Scene/SceneRenderer.h"
 
 class EditorLayer : public ar::Layer
 {
@@ -20,8 +21,12 @@ public:
 	void OnEvent(ar::Event& event) override;
 	void OnImGuiRender() override;
 
+	bool OnMouseButtonPressed(ar::MouseButtonPressedEvent& event);
+	bool OnMouseButtonReleased(ar::MouseButtonReleasedEvent& event);
+
 private:
 	ar::Ref<ar::Scene> m_Scene;
+	ar::SceneRenderer m_SceneRenderer;
 	EditorState m_State;
 	EditorUI m_UI;
 	EditorSceneController m_SceneController;

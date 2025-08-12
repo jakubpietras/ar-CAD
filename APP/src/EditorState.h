@@ -62,13 +62,20 @@ struct EditorState
 	bool ShouldUpdateSelection = false;
 	void ClearSelectionState();
 
+	// =========================== Picking ==========================
+	ar::mat::Vec2 PickClickStart{ 0.f, 0.f };
+	ar::mat::Vec2 PickClickEnd{ 0.f, 0.f };
+	bool ShouldProcessPicking = false;
+	void ClearPickingState();
+
+
 	// =========================== Viewport ==========================
 	ViewportSize Viewport { 0.f, 0.f };
 	bool ViewportResized = false;
 
 	// =========================== Cursor ==========================
 	ar::mat::Vec3 CursorPosition{ 0.0f, 0.0f, 0.0f };
-	ar::mat::Vec3 ClickPosition{ 0.0f, 0.0f, 0.0f };
+	ar::mat::Vec2 ClickPosition{ 0.0f, 0.0f };
 	bool ShouldPlaceCursor = false;
 
 	// ============================= Errors ===========================

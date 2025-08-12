@@ -18,6 +18,7 @@ namespace ar
 		void SetInt(const std::string& name, int value) const override;
 		void SetFloat(const std::string& name, float value) const override;
 		void SetBool(const std::string& name, bool value) const override;
+		void SetUInt(const std::string& name, uint32_t value) const override;
 
 	protected:
 		std::string LoadSource(const std::string& path) override;

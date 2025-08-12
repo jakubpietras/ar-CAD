@@ -126,6 +126,9 @@
     <ClCompile Include="src\core\Utils\CurveUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\core\Scene\SceneRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\core\Application.h">
@@ -296,6 +299,9 @@
     <ClInclude Include="src\LogUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\core\Scene\SceneRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\resources\shaders\OpenGL\default.vert" />
@@ -306,6 +312,7 @@
     <None Include="src\resources\shaders\OpenGL\basic.frag" />
     <None Include="src\resources\shaders\OpenGL\points.vert" />
     <None Include="src\resources\shaders\OpenGL\points.frag" />
+    <None Include="src\resources\shaders\OpenGL\picking.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\resources\icons\logo.png">

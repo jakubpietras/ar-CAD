@@ -75,16 +75,21 @@ namespace ar
 	{
 		if (m_Description.Format == TextureFormat::D24S8)
 		{
-			// todo (not needed for now)
 			AR_ASSERT(false, "Not implemented yet, should not be used");
 		}
 		else
 		{
-			// texture
 			glTextureStorage2D(m_ID, 1, GetGLInternalFormat(m_Description.Format),
 				m_Description.Width, m_Description.Height);
+
+			GLenum format = GetDataFormat(m_Description.Format);
+			GLenum type = GL_UNSIGNED_BYTE;
+
+			if (m_Description.Format == TextureFormat::R32)
+				type = GL_UNSIGNED_INT;
+
 			glTextureSubImage2D(m_ID, 0, 0, 0, m_Description.Width, m_Description.Height,
-				GetDataFormat(m_Description.Format), GL_UNSIGNED_BYTE, data);
+				format, type, data);
 			AR_GL_CHECK();
 		}
 	}
@@ -94,6 +99,7 @@ namespace ar
 		switch (format)
 		{
 		case TextureFormat::R8: return GL_RED_INTEGER;
+		case TextureFormat::R32: return GL_RED_INTEGER;
 		case TextureFormat::RGBA8: return GL_RGBA;
 		case TextureFormat::D24S8:
 		default:
@@ -108,6 +114,7 @@ namespace ar
 		{
 		case TextureFormat::R8: return GL_R8;
 		case TextureFormat::RGBA8: return GL_RGBA8;
+		case TextureFormat::R32: return GL_R32UI;
 		case TextureFormat::D24S8:
 		default:
 			AR_ASSERT(false, "Incorrect TextureFormat");

@@ -1,4 +1,5 @@
 #pragma once
+#include "Texture.h"
 
 namespace ar
 {
@@ -6,6 +7,7 @@ namespace ar
 	{
 		uint32_t Width = 0, Height = 0;
 		uint32_t Samples = 1;
+		TextureFormat Format = TextureFormat::RGBA8;
 	};
 
 	class Framebuffer

@@ -69,6 +69,12 @@ namespace ar
 			SetInt(name, 0);
 	}
 
+	void OGLShader::SetUInt(const std::string& name, uint32_t value) const
+	{
+		auto location = glGetUniformLocation(m_programID, name.c_str());
+		glProgramUniform1ui(m_programID, location, value);
+	}
+
 	std::string OGLShader::LoadSource(const std::string& path)
 	{
 		std::ifstream istrm(path);

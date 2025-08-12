@@ -26,7 +26,7 @@ namespace ar
 		TextureDesc texDesc = {
 		m_Description.Width,				// Width
 		m_Description.Height,				// Height
-		TextureFormat::RGBA8				// Format
+		m_Description.Format				// Format
 		};
 		m_ColorAttachment = std::unique_ptr<Texture>(Texture::Create(texDesc));
 		texDesc.Format = TextureFormat::D24S8;

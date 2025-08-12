@@ -11,6 +11,7 @@ public:
 	void Render();
 	void RenderCursor(ar::Ref<ar::CameraController> cameraController, ar::mat::Vec3 position);
 	const ar::Ref<ar::Framebuffer>& GetFramebuffer();
+	void ResizeFramebuffer(ViewportSize newSize);
 
 private:
 	EditorState& m_State;
@@ -20,6 +21,8 @@ private:
 	ar::Scope<ar::Texture> m_MenuIcon;
 	ar::Ref<ar::Framebuffer> m_ViewportFramebuffer;
 	
+	ar::mat::Vec2 GetClickPosition();
+
 	void RenderStatsWindow();
 	void RenderMainMenu();
 	void RenderInspectorWindow();
@@ -34,5 +37,5 @@ private:
 	void RenderAttachModal();
 
 	void RequestAddObject(ar::ObjectType type);
-	void RequestPlaceCursor();
+	// void RequestPlaceCursor();
 };

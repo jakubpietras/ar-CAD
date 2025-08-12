@@ -3,11 +3,13 @@
 #include "Entity.h"
 #include "Components.h"
 #include "core/UID.h"
+#include "core/Renderer/Framebuffer.h"
 
 namespace ar
 {
 
 	Scene::Scene()
+		: m_PickingFB(std::shared_ptr<Framebuffer>(Framebuffer::Create({ 1920, 1080, 1, TextureFormat::R32 })))
 	{
 		AR_INFO("Scene initialized!");
 		m_PointsVA = Ref<VertexArray>(VertexArray::Create());
@@ -51,10 +53,57 @@ namespace ar
 		return {};
 	}
 
+	void Scene::ResizePickingFramebuffer(float width, float height)
+	{
+		m_PickingFB->Resize(static_cast<uint32_t>(width), static_cast<uint32_t>(height));
+	}
+
+	void Scene::BeginPicking()
+	{
+		m_PickingFB->Bind();
+
+		GLuint clearValue = 0;
+		glClearBufferuiv(GL_COLOR, 0, &clearValue);
+
+		glClear(GL_DEPTH_BUFFER_BIT);
+	}
+
+	void Scene::EndPicking()
+	{
+		m_PickingFB->Unbind();
+	}
+
+	uint32_t Scene::ReadPixel(int x, int y)
+	{
+		uint32_t pixelID = 0;
+		m_PickingFB->Bind();
+
+		// Debug: Read entire framebuffer to see if there's ANY non-zero data
+		int width = 100, height = 100; // or your actual FB dimensions
+		std::vector<uint32_t> allPixels(width * height);
+		glReadPixels(0, 0, width, height, GL_RED, GL_UNSIGNED_INT, allPixels.data());
+
+		uint32_t nonZeroCount = 0;
+		uint32_t maxValue = 0;
+		for (uint32_t val : allPixels) {
+			if (val != 0) {
+				nonZeroCount++;
+				maxValue = std::max(maxValue, val);
+			}
+		}
+
+		AR_TRACE("Non-zero pixels: {0}, Max value: {1}", nonZeroCount, maxValue);
+
+		// Original read
+		glReadPixels(x, y, 1, 1, GL_RED, GL_UNSIGNED_INT, &pixelID);
+		m_PickingFB->Unbind();
+
+		return pixelID;
+	}
+
 	void Scene::OnUpdate(Ref<PerspectiveCamera> camera, ar::mat::Vec3 cursorPos, ar::mat::Vec3 meanPos)
 	{
 		UpdateScene(cursorPos, meanPos);
-		RenderScene(camera);
 	}
 
 	void Scene::UpdateScene(ar::mat::Vec3 cursorPos, ar::mat::Vec3 meanPos)
@@ -127,130 +176,6 @@ namespace ar
 			mat::ScaleMatrix(tc.Scale);
 
 		tc.DirtyFlag = false;
-	}
-
-	void Scene::RenderScene(Ref<PerspectiveCamera> camera)
-	{
-		ar::Renderer::BeginScene();
-
-		auto& vpMat = camera->GetVP();
-		RenderGrid(vpMat);
-		RenderMeshes(vpMat, RenderPassType::MAIN);
-		RenderLines(vpMat, RenderPassType::MAIN);
-		RenderPoints(vpMat, RenderPassType::MAIN);
-
-		ar::Renderer::EndScene();
-	}
-
-
-	void Scene::RenderGrid(ar::mat::Mat4 viewProjection)
-	{
-		auto gridShader = ar::ShaderLib::Get("Grid");
-		ar::RenderCommand::ToggleDepthTest(false);
-		gridShader->SetMat4("u_VP", viewProjection);
-		ar::Renderer::Submit(ar::Primitive::Triangle, gridShader, 6);
-		ar::RenderCommand::ToggleDepthTest(true);
-	}
-
-	void Scene::RenderMeshes(ar::mat::Mat4 viewProjection, RenderPassType pass)
-	{
-		auto view = m_Registry.view<MeshComponent, TransformComponent>(entt::exclude<PointComponent>);
-		for (auto [entity, mc, tc] : view.each())
-		{
-			mc.Shader->SetMat4("u_VP", viewProjection);
-			mc.Shader->SetMat4("u_Model", tc.ModelMatrix);
-
-			switch (pass)
-			{
-				case RenderPassType::MAIN:
-				{
-					bool isSelected = m_Registry.any_of<SelectedTagComponent>(entity);
-					auto color = isSelected ? Renderer::SELECTION_COLOR : mc.PrimaryColor;
-					mc.Shader->SetVec3("u_Color", color);
-					break;
-				}
-			}
-			ar::Renderer::Submit(mc);
-		}
-	}
-
-	void Scene::RenderLines(ar::mat::Mat4 viewProjection, RenderPassType pass)
-	{
-		auto shader = ShaderLib::Get("Basic");
-		shader->SetMat4("u_VP", viewProjection);
-		shader->SetMat4("u_Model", mat::Identity());
-
-		auto view = m_Registry.view<ControlPointsComponent>();
-		for (auto [entity, cp] : view.each())
-		{
-			std::vector<VertexPosition> verts{};
-			verts.reserve(cp.Points.size());
-			for (auto& point : cp.Points)
-			{
-				verts.push_back({ point.GetComponent<TransformComponent>().Translation });
-			}
-
-			ar::mat::Vec3 color{1.f, 1.f, 1.f};
-			switch (pass)
-			{
-				case RenderPassType::MAIN:
-				{
-					color = m_Registry.any_of<SelectedTagComponent>(entity) ? 
-						Renderer::SELECTION_COLOR : ar::mat::Vec3(1.f, 1.f, 1.f);
-					break;
-				}
-			}
-			shader->SetVec3("u_Color", color);
-
-			auto ent = ar::Entity{ entity, this };
-
-			if (ent.HasComponent<ChainTagComponent>())
-			{
-				m_PointsVA->ClearBuffers();
-				m_PointsVA->AddVertexBuffer(Ref<VertexBuffer>(VertexBuffer::Create(verts)));
-				ar::Renderer::Submit(Primitive::LineStrip, shader, m_PointsVA);
-			}
-		}
-	}
-
-	void Scene::RenderPoints(ar::mat::Mat4 viewProjection, RenderPassType pass)
-	{
-		auto shader = ShaderLib::Get("Basic");
-		shader->SetMat4("u_VP", viewProjection);
-		shader->SetMat4("u_Model", mat::Identity());
-
-		std::vector<VertexPosition> unselectedVerts;
-		std::vector<VertexPosition> selectedVerts;
-
-		auto view = m_Registry.view<TransformComponent, PointComponent>();
-		for (const auto& [e, transform, pt] : view.each())
-		{
-			bool selected = m_Registry.any_of<SelectedTagComponent>(e);
-			if (selected)
-				selectedVerts.push_back({ transform.Translation });
-			else
-				unselectedVerts.push_back({ transform.Translation });
-			
-		}
-
-		// Draw unselected
-		if (!unselectedVerts.empty())
-		{
-			shader->SetVec3("u_Color", {1.f, 1.f, 1.f});
-			m_PointsVA->ClearBuffers();
-			m_PointsVA->AddVertexBuffer(Ref<VertexBuffer>(VertexBuffer::Create(unselectedVerts)));
-			ar::Renderer::Submit(Primitive::Point, shader, m_PointsVA);
-		}
-
-		// Draw selected
-		if (!selectedVerts.empty())
-		{
-			shader->SetVec3("u_Color", Renderer::SELECTION_COLOR);
-			m_PointsVA->ClearBuffers();
-			m_PointsVA->AddVertexBuffer(Ref<VertexBuffer>(VertexBuffer::Create(selectedVerts)));
-			ar::Renderer::Submit(Primitive::Point, shader, m_PointsVA);
-		}
-		
 	}
 
 }

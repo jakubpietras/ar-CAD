@@ -3,11 +3,12 @@
 #include "ARCAD.h"
 #include "LogUtils.h"
 #include "core/Utils/CurveUtils.h"
+#include "EditorUI.h"
 
 class EditorSceneController
 {
 public:
-	EditorSceneController(ar::Ref<ar::Scene> scene);
+	EditorSceneController(ar::Ref<ar::Scene> scene, EditorUI& ui);
 
 	inline ar::Ref<ar::PerspectiveCamera> GetCamera() { return m_CameraController->GetCamera(); }
 	inline ar::Ref<ar::CameraController> GetCameraController() { return m_CameraController; }
@@ -17,6 +18,7 @@ public:
 
 private:
 	ar::Ref<ar::Scene> m_Scene;
+	EditorUI& m_UI;
 	ar::Ref<ar::CameraController> m_CameraController;
 
 	// Processors
@@ -24,9 +26,10 @@ private:
 	void ProcessSelect(EditorState& state);
 	void ProcessDetach(EditorState& state);
 	void ProcessAttach(EditorState& state);
+	void ProcessPicking(EditorState& state);
 
 	// Cursor
-	void PlaceCursor(ar::mat::Vec3 clickPosition, ViewportSize viewport, ar::mat::Vec3& cursorPosition);
+	void PlaceCursor(ar::mat::Vec2 clickPosition, ViewportSize viewport, ar::mat::Vec3& cursorPosition);
 
 	// Deletion
 	void DeleteEntities(std::vector<ar::Entity>& entities);
@@ -40,6 +43,7 @@ private:
 	// Selection
 	void SelectEntities(std::vector<ar::Entity> entities, bool add = false);
 	void DeselectEntities(std::vector<ar::Entity> entities);
+	void UpdateSelectionFromID(uint32_t id);
 
 	// Detach
 	void DetachFromChain(ar::Entity child, ar::Entity parent);

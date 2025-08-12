@@ -5,6 +5,7 @@ namespace ar
 	enum class TextureFormat
 	{
 		R8,
+		R32,
 		RGBA8,
 		D24S8
 	};

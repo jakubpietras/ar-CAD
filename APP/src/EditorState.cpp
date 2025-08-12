@@ -44,6 +44,13 @@ void EditorState::ClearSelectionState()
 	SelectionChangeMode = SelectionMode::Replace;
 }
 
+void EditorState::ClearPickingState()
+{
+	PickClickStart = { 0.f, 0.f };
+	PickClickEnd = { 0.f, 0.f };
+	ShouldProcessPicking = false;
+}
+
 void EditorState::ClearErrorState()
 {
 	ErrorMessages.clear();
