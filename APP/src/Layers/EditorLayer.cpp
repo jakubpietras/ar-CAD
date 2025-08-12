@@ -6,7 +6,7 @@ EditorLayer::EditorLayer(float aspectRatio)
 	: 
 	m_Scene(std::make_shared<ar::Scene>()),
 	m_UI(m_State, m_Scene),
-	m_SceneController(m_Scene, m_UI),
+	m_SceneController(m_Scene, m_SceneRenderer),
 	m_SceneRenderer(m_Scene)
 {
 	m_State.Viewport = { 1920.f, 1080.f };
@@ -25,18 +25,7 @@ void EditorLayer::OnUpdate()
 	m_SceneController.OnUpdateCamera();
 	m_SceneController.ProcessStateChanges(m_State);
 	m_Scene->OnUpdate(m_SceneController.GetCamera(), m_State.CursorPosition, {0.f, 0.f, 0.f}); // todo: add mean position
-	
-	m_UI.GetFramebuffer()->Bind();
-
-	//m_Scene->Render(m_SceneController.GetCamera(), ar::RenderPassType::MAIN);
-	m_SceneRenderer.RenderScene(m_SceneController.GetCamera(), ar::RenderPassType::MAIN);
-	m_UI.RenderCursor(m_SceneController.GetCameraController(), m_State.CursorPosition);
-
-	m_UI.GetFramebuffer()->Unbind();
-
-	/*m_Scene->BeginPicking();
-	m_Scene->Render(m_SceneController.GetCamera(), ar::RenderPassType::SELECTION);
-	m_Scene->EndPicking();*/
+	m_SceneRenderer.RenderMain(m_SceneController.GetCameraController(), m_State.CursorPosition);
 }
 
 void EditorLayer::OnEvent(ar::Event& event)
@@ -49,7 +38,7 @@ void EditorLayer::OnEvent(ar::Event& event)
 
 void EditorLayer::OnImGuiRender() 
 {
-	m_UI.Render();
+	m_UI.Render(m_SceneRenderer.GetMainFramebuffer());
 }
 
 bool EditorLayer::OnMouseButtonPressed(ar::MouseButtonPressedEvent& event)

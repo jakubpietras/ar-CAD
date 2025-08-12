@@ -4,11 +4,12 @@
 #include "LogUtils.h"
 #include "core/Utils/CurveUtils.h"
 #include "EditorUI.h"
+#include "core/Scene/SceneRenderer.h"
 
 class EditorSceneController
 {
 public:
-	EditorSceneController(ar::Ref<ar::Scene> scene, EditorUI& ui);
+	EditorSceneController(ar::Ref<ar::Scene> scene, ar::SceneRenderer& sceneRender);
 
 	inline ar::Ref<ar::PerspectiveCamera> GetCamera() { return m_CameraController->GetCamera(); }
 	inline ar::Ref<ar::CameraController> GetCameraController() { return m_CameraController; }
@@ -18,8 +19,8 @@ public:
 
 private:
 	ar::Ref<ar::Scene> m_Scene;
-	EditorUI& m_UI;
 	ar::Ref<ar::CameraController> m_CameraController;
+	ar::SceneRenderer& m_SceneRenderer;
 
 	// Processors
 	void ProcessAdd(EditorState& state);

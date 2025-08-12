@@ -31,18 +31,9 @@ namespace ar
 		{
 			return m_Registry.view<Components...>();
 		}
-
-		// Picking
-		void ResizePickingFramebuffer(float width, float height);
-		void BeginPicking();
-		void EndPicking();
-		uint32_t ReadPixel(int x, int y);
-
 		entt::registry m_Registry;
 	private:
 		std::unordered_map<uint32_t, entt::entity> m_EntityMap;
-		Ref<VertexArray> m_PointsVA;
-		Ref<Framebuffer> m_PickingFB;
 
 		// Updates
 		void UpdateScene(ar::mat::Vec3 cursorPos, ar::mat::Vec3 meanPos);

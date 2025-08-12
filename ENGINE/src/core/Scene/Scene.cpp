@@ -9,10 +9,8 @@ namespace ar
 {
 
 	Scene::Scene()
-		: m_PickingFB(std::shared_ptr<Framebuffer>(Framebuffer::Create({ 1920, 1080, 1, TextureFormat::R32 })))
 	{
 		AR_INFO("Scene initialized!");
-		m_PointsVA = Ref<VertexArray>(VertexArray::Create());
 	}
 
 	Scene::~Scene() { }
@@ -51,54 +49,6 @@ namespace ar
 		if (m_EntityMap.find(id) != m_EntityMap.end())
 			return { m_EntityMap.at(id), this };
 		return {};
-	}
-
-	void Scene::ResizePickingFramebuffer(float width, float height)
-	{
-		m_PickingFB->Resize(static_cast<uint32_t>(width), static_cast<uint32_t>(height));
-	}
-
-	void Scene::BeginPicking()
-	{
-		m_PickingFB->Bind();
-
-		GLuint clearValue = 0;
-		glClearBufferuiv(GL_COLOR, 0, &clearValue);
-
-		glClear(GL_DEPTH_BUFFER_BIT);
-	}
-
-	void Scene::EndPicking()
-	{
-		m_PickingFB->Unbind();
-	}
-
-	uint32_t Scene::ReadPixel(int x, int y)
-	{
-		uint32_t pixelID = 0;
-		m_PickingFB->Bind();
-
-		// Debug: Read entire framebuffer to see if there's ANY non-zero data
-		int width = 100, height = 100; // or your actual FB dimensions
-		std::vector<uint32_t> allPixels(width * height);
-		glReadPixels(0, 0, width, height, GL_RED, GL_UNSIGNED_INT, allPixels.data());
-
-		uint32_t nonZeroCount = 0;
-		uint32_t maxValue = 0;
-		for (uint32_t val : allPixels) {
-			if (val != 0) {
-				nonZeroCount++;
-				maxValue = std::max(maxValue, val);
-			}
-		}
-
-		AR_TRACE("Non-zero pixels: {0}, Max value: {1}", nonZeroCount, maxValue);
-
-		// Original read
-		glReadPixels(x, y, 1, 1, GL_RED, GL_UNSIGNED_INT, &pixelID);
-		m_PickingFB->Unbind();
-
-		return pixelID;
 	}
 
 	void Scene::OnUpdate(Ref<PerspectiveCamera> camera, ar::mat::Vec3 cursorPos, ar::mat::Vec3 meanPos)

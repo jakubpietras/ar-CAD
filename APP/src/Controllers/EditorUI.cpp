@@ -6,20 +6,20 @@ EditorUI::EditorUI(EditorState& state, ar::Ref<ar::Scene> scene)
 	: m_State(state), 
 	m_Scene(scene), 
 	m_SceneHierarchyPanel(state),
-	m_MenuIcon(std::unique_ptr<ar::Texture>(ar::Texture::Create("resources/icons/logo.png"))),
-	m_ViewportFramebuffer(std::shared_ptr<ar::Framebuffer>(ar::Framebuffer::Create({ 1920, 1080 })))
+	m_MenuIcon(std::unique_ptr<ar::Texture>(ar::Texture::Create("resources/icons/logo.png")))
+	//m_ViewportFramebuffer(std::shared_ptr<ar::Framebuffer>(ar::Framebuffer::Create({ 1920, 1080 })))
 {
 	m_SceneHierarchyPanel.SetContext(scene);
 }
 
-void EditorUI::Render()
+void EditorUI::Render(ar::Ref<ar::Framebuffer> mainFB)
 {
 	// Panels
 	RenderStatsWindow();
 	RenderMainMenu();
 	RenderCursorControls();
 	RenderInspectorWindow();
-	RenderViewport();
+	RenderViewport(mainFB);
 	m_SceneHierarchyPanel.Render();
 
 	// Modals
@@ -30,20 +30,20 @@ void EditorUI::Render()
 	RenderAttachModal();
 }
 
-void EditorUI::RenderCursor(ar::Ref<ar::CameraController> cameraController, ar::mat::Vec3 position)
-{
-	m_Cursor.Render(cameraController, m_ViewportFramebuffer->GetHeight(), position);
-}
-
-const ar::Ref<ar::Framebuffer>& EditorUI::GetFramebuffer()
-{
-	return m_ViewportFramebuffer;
-}
-
-void EditorUI::ResizeFramebuffer(ViewportSize newSize)
-{
-	m_ViewportFramebuffer->Resize(static_cast<uint32_t>(newSize.Width), static_cast<uint32_t>(newSize.Height));
-}
+//void EditorUI::RenderCursor(ar::Ref<ar::CameraController> cameraController, ar::mat::Vec3 position)
+//{
+//	m_Cursor.Render(cameraController, m_ViewportFramebuffer->GetHeight(), position);
+//}
+//
+//const ar::Ref<ar::Framebuffer>& EditorUI::GetFramebuffer()
+//{
+//	return m_ViewportFramebuffer;
+//}
+//
+//void EditorUI::ResizeFramebuffer(ViewportSize newSize)
+//{
+//	m_ViewportFramebuffer->Resize(static_cast<uint32_t>(newSize.Width), static_cast<uint32_t>(newSize.Height));
+//}
 
 ar::mat::Vec2 EditorUI::GetClickPosition()
 {
@@ -152,7 +152,7 @@ void EditorUI::RenderCursorControls()
 	ImGui::End();
 }
 
-void EditorUI::RenderViewport()
+void EditorUI::RenderViewport(ar::Ref<ar::Framebuffer> mainFB)
 {
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 	ImGui::Begin("Viewport");
@@ -168,7 +168,7 @@ void EditorUI::RenderViewport()
 	}
 
 	ImGui::Image(
-		(ImTextureID)(uintptr_t)m_ViewportFramebuffer->GetColorAttachment(),
+		(ImTextureID)(uintptr_t)mainFB->GetColorAttachment(),
 		viewportSize,
 		ImVec2(0, 1), ImVec2(1, 0)
 	);

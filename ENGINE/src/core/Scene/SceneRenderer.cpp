@@ -5,26 +5,85 @@
 
 namespace ar
 {
+	const float SceneRenderer::CURSOR_SIZE = 15.0f;
 
 	SceneRenderer::SceneRenderer(Ref<Scene> scene)
-		: m_Scene(scene)
+		: m_Scene(scene),
+		m_PickingFB(std::shared_ptr<Framebuffer>(Framebuffer::Create({ 1920, 1080, 1, TextureFormat::R32 }))),
+		m_MainFB(std::shared_ptr<ar::Framebuffer>(ar::Framebuffer::Create({ 1920, 1080 }))),
+		m_CursorModelMtx(mat::Identity())
 	{
 		m_PointsVA = Ref<VertexArray>(VertexArray::Create());
+
+		m_CursorMesh = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
+		std::vector<ar::VertexPositionColor> vertices{
+			{{1.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
+			{{0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
+			{{0.0f, 1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},
+			{{0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},
+			{{0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
+			{{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}}
+		};
+		m_CursorMesh->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(vertices)));
 	}
 
-	void SceneRenderer::RenderScene(Ref<PerspectiveCamera> camera, RenderPassType pass)
+	void SceneRenderer::OnResize(mat::Vec2 newVP)
 	{
+		m_MainFB->Resize(static_cast<uint32_t>(newVP.x), static_cast<uint32_t>(newVP.y));
+		m_PickingFB->Resize(static_cast<uint32_t>(newVP.x), static_cast<uint32_t>(newVP.y));
+	}
+
+	void SceneRenderer::RenderMain(const Ref<CameraController>& cameraController, mat::Vec3 cursorPos)
+	{
+		m_MainFB->Bind();
+
 		ar::RenderCommand::SetClearColor(ar::mat::Vec4(0.18f, 0.18f, 0.24f, 1.0f));
 		ar::RenderCommand::Clear();
 		ar::RenderCommand::ToggleDepthTest(true);
 		ar::RenderCommand::ToggleBlendColor(true);
 		glPointSize(8.0f);
-		auto& vpMat = camera->GetVP();
-		if (pass == RenderPassType::MAIN)
-			RenderGrid(vpMat);
-		RenderMeshes(vpMat, pass);
-		RenderLines(vpMat, pass);
-		RenderPoints(vpMat, pass);
+		auto& vpMat = cameraController->GetCamera()->GetVP();
+		RenderGrid(vpMat);
+		RenderMeshes(vpMat, RenderPassType::MAIN);
+		RenderLines(vpMat, RenderPassType::MAIN);
+		RenderPoints(vpMat, RenderPassType::MAIN);
+		RenderCursor(cameraController, cursorPos);
+
+		m_MainFB->Unbind();
+	}
+
+	void SceneRenderer::RenderPicking(const Ref<CameraController>& cameraController)
+	{
+		m_PickingFB->Bind();
+
+		ar::RenderCommand::Clear();
+		GLuint clearValue = 0;
+		glClearBufferuiv(GL_COLOR, 0, &clearValue);
+
+
+		m_PickingFB->Unbind();
+	}
+
+	void SceneRenderer::RenderCursor(ar::Ref<ar::CameraController> camera, ar::mat::Vec3 position)
+	{
+		auto positionViewSpace = camera->GetCamera()->GetView() * ar::mat::Vec4(position, 1.0f);
+		float depth = std::abs(positionViewSpace.z);
+		float pixelSizeAtDepth = 2.0f * depth * tan(camera->GetFOV() * 0.5f) / m_MainFB->GetHeight();
+		float scale = pixelSizeAtDepth * CURSOR_SIZE;
+
+		m_CursorModelMtx =
+			ar::mat::TranslationMatrix(position)
+			* ar::mat::ScaleMatrix({ scale, scale, scale });
+
+		auto shader = ar::ShaderLib::Get("BasicColor");
+		shader->SetMat4("u_Model", m_CursorModelMtx);
+		shader->SetMat4("u_VP", camera->GetCamera()->GetVP());
+
+		ar::RenderCommand::SetLineThickness(3);
+		ar::RenderCommand::ToggleDepthTest(false);
+		ar::Renderer::Submit(ar::Primitive::Line, shader, m_CursorMesh, 6);
+		ar::RenderCommand::ToggleDepthTest(false);
+		ar::RenderCommand::SetLineThickness();
 	}
 
 	void SceneRenderer::RenderGrid(ar::mat::Mat4 viewProjection)
