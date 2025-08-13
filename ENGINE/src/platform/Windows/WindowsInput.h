@@ -12,5 +12,8 @@ namespace ar
 		virtual bool IsAnyMouseButtonPressedImpl() override;
 		virtual float GetMouseXImpl() override;
 		virtual float GetMouseYImpl() override;
+
+		bool IsAnyMouseButtonReleasedImpl() override;
+
 	};
 }

@@ -7,7 +7,6 @@ EditorUI::EditorUI(EditorState& state, ar::Ref<ar::Scene> scene)
 	m_Scene(scene), 
 	m_SceneHierarchyPanel(state),
 	m_MenuIcon(std::unique_ptr<ar::Texture>(ar::Texture::Create("resources/icons/logo.png")))
-	//m_ViewportFramebuffer(std::shared_ptr<ar::Framebuffer>(ar::Framebuffer::Create({ 1920, 1080 })))
 {
 	m_SceneHierarchyPanel.SetContext(scene);
 }
@@ -29,21 +28,6 @@ void EditorUI::Render(ar::Ref<ar::Framebuffer> mainFB)
 	RenderDetachModal();
 	RenderAttachModal();
 }
-
-//void EditorUI::RenderCursor(ar::Ref<ar::CameraController> cameraController, ar::mat::Vec3 position)
-//{
-//	m_Cursor.Render(cameraController, m_ViewportFramebuffer->GetHeight(), position);
-//}
-//
-//const ar::Ref<ar::Framebuffer>& EditorUI::GetFramebuffer()
-//{
-//	return m_ViewportFramebuffer;
-//}
-//
-//void EditorUI::ResizeFramebuffer(ViewportSize newSize)
-//{
-//	m_ViewportFramebuffer->Resize(static_cast<uint32_t>(newSize.Width), static_cast<uint32_t>(newSize.Height));
-//}
 
 ar::mat::Vec2 EditorUI::GetClickPosition()
 {
@@ -173,7 +157,7 @@ void EditorUI::RenderViewport(ar::Ref<ar::Framebuffer> mainFB)
 		ImVec2(0, 1), ImVec2(1, 0)
 	);
 
-	if (ar::Input::IsAnyMouseButtonPressed())
+	if (ar::Input::IsAnyMouseButtonPressed() || ar::Input::IsAnyMouseButtonReleased())
 		m_State.ClickPosition = GetClickPosition();
 
 	ImGui::End();
@@ -338,11 +322,5 @@ void EditorUI::RequestAddObject(ar::ObjectType type)
 {
 	m_State.AddObjectType = type;
 	m_State.ShouldAddObject = true;
-}/*
-
-void EditorUI::RequestPlaceCursor()
-{
-	m_State.ClickPosition = GetClickPosition();
-	m_State.ShouldPlaceCursor = true;
-}*/
+}
 

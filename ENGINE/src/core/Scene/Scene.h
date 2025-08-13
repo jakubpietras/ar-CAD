@@ -39,8 +39,6 @@ namespace ar
 		void UpdateScene(ar::mat::Vec3 cursorPos, ar::mat::Vec3 meanPos);
 		void UpdateTransform(TransformComponent& transform, ar::mat::Vec3 cursorPos, ar::mat::Vec3 meanPos);
 
-		// Utility
-
 		friend class Entity;
 		friend class SceneHierarchyPanel;
 	};

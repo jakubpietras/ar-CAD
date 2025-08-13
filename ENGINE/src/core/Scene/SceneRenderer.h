@@ -4,6 +4,7 @@
 #include "core/Renderer/VertexArray.h"
 #include "core/CameraController.h"
 #include "core/Renderer/Renderer.h"
+#include <unordered_set>
 
 namespace ar
 {
@@ -18,14 +19,10 @@ namespace ar
 		void RenderMain(const Ref<CameraController>& cameraController, mat::Vec3 cursorPos);
 		void RenderPicking(const Ref<CameraController>& cameraController);
 
+		std::unordered_set<uint32_t> ReadPixels(ar::mat::Vec2 boxStart, ar::mat::Vec2 boxEnd);
+
 		Ref<Framebuffer> GetMainFramebuffer() const { return m_MainFB; }
 		Ref<Framebuffer> GetPickingFramebuffer() const { return m_PickingFB; }
-
-		void RenderCursor(ar::Ref<ar::CameraController> cameraController, ar::mat::Vec3 position);
-		void RenderGrid(ar::mat::Mat4 viewProjection);
-		void RenderMeshes(ar::mat::Mat4 viewProjection, RenderPassType pass);
-		void RenderLines(ar::mat::Mat4 viewProjection, RenderPassType pass);
-		void RenderPoints(ar::mat::Mat4 viewProjection, RenderPassType pass);
 
 	private:
 		static const float CURSOR_SIZE;
@@ -33,11 +30,17 @@ namespace ar
 		
 		Ref<VertexArray> m_PointsVA;
 		Ref<VertexArray> m_CursorMesh;
-		
 		ar::mat::Mat4 m_CursorModelMtx;
 
 		Ref<Framebuffer> m_MainFB;
 		Ref<Framebuffer> m_PickingFB;
+	
+		void RenderCursor(ar::Ref<ar::CameraController> cameraController, ar::mat::Vec3 position);
+		void RenderGrid(ar::mat::Mat4 viewProjection);
+		void RenderMeshes(ar::mat::Mat4 viewProjection, RenderPassType pass);
+		void RenderLines(ar::mat::Mat4 viewProjection, RenderPassType pass);
+		void RenderPoints(ar::mat::Mat4 viewProjection, RenderPassType pass);
+	
 	};
 
 }

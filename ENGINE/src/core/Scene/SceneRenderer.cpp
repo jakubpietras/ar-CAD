@@ -57,11 +57,43 @@ namespace ar
 		m_PickingFB->Bind();
 
 		ar::RenderCommand::Clear();
+		ar::RenderCommand::ToggleBlendColor(false);
 		GLuint clearValue = 0;
 		glClearBufferuiv(GL_COLOR, 0, &clearValue);
 
+		glPointSize(8.0f);
+		auto& vpMat = cameraController->GetCamera()->GetVP();
+		RenderMeshes(vpMat, RenderPassType::SELECTION);
+		RenderLines(vpMat, RenderPassType::SELECTION);
+		RenderPoints(vpMat, RenderPassType::SELECTION);
 
 		m_PickingFB->Unbind();
+	}
+
+	std::unordered_set<uint32_t> SceneRenderer::ReadPixels(ar::mat::Vec2 boxStart, ar::mat::Vec2 boxEnd)
+	{
+		auto x = static_cast<int>(std::min(boxStart.x, boxEnd.x));
+		auto y = static_cast<int>(std::min(boxStart.y, boxEnd.y));
+		auto w = static_cast<int>(std::abs(boxEnd.x - boxStart.x));
+		auto h = static_cast<int>(std::abs(boxEnd.y - boxStart.y));
+		int flippedY = m_PickingFB->GetHeight() - y - h;
+		// if LMB is pressed and released in the same spot, then we want to read one pixel (not 0)
+		w = std::max(w, 1);
+		h = std::max(h, 1);
+		
+		std::vector<uint32_t> pixels(w * h);
+
+		m_PickingFB->Bind();
+		glReadPixels(x, flippedY, w, h, GL_RED_INTEGER, GL_UNSIGNED_INT, pixels.data());
+		m_PickingFB->Unbind();
+
+		std::unordered_set<uint32_t> uniqueIDs;
+		for (auto id : pixels)
+		{
+			if (id != 0)
+				uniqueIDs.insert(id);
+		}
+		return uniqueIDs;
 	}
 
 	void SceneRenderer::RenderCursor(ar::Ref<ar::CameraController> camera, ar::mat::Vec3 position)

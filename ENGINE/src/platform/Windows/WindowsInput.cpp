@@ -48,4 +48,18 @@ namespace ar
 
 		return (float)ypos;
 	}
+
+	bool WindowsInput::IsAnyMouseButtonReleasedImpl()
+	{
+		auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
+
+		static const std::vector<uint32_t> codes = { AR_MOUSE_BUTTON_LEFT, AR_MOUSE_BUTTON_RIGHT, AR_MOUSE_BUTTON_MIDDLE };
+		for (const auto& code : codes)
+		{
+			if (glfwGetMouseButton(window, code) == GLFW_RELEASE)
+				return true;
+		}
+		return false;
+	}
+
 }

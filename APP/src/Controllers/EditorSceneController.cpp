@@ -14,6 +14,11 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 	bool geometryValidation = false,
 		selectionValidation = false;
 
+	if (state.ShouldProcessPicking)
+	{
+		ProcessPicking(state);
+		state.ClearPickingState();
+	}
 	if (state.ShouldAddObject)
 	{
 		ProcessAdd(state);
@@ -57,11 +62,6 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 		m_CameraController->SetAspectRatio(state.Viewport.Width / state.Viewport.Height);
 		m_SceneRenderer.OnResize({ state.Viewport.Width, state.Viewport.Height });
 		state.ViewportResized = false;
-	}
-	if (state.ShouldProcessPicking)
-	{
-		ProcessPicking(state);
-		state.ClearPickingState();
 	}
 
 	// Validation
@@ -283,7 +283,15 @@ void EditorSceneController::ProcessAttach(EditorState& state)
 
 void EditorSceneController::ProcessPicking(EditorState& state)
 {
-	// todo: picking
+	auto ids = m_SceneRenderer.ReadPixels(state.PickClickStart, state.PickClickEnd);
+	
+	auto entities = std::vector<ar::Entity>();
+	for (auto& id : ids)
+	{
+		auto e = m_Scene->GetEntityByID(id);
+		if (e) state.SelectionCandidates.push_back(e);
+	}
+	state.ShouldUpdateSelection = true;
 }
 
 void EditorSceneController::PlaceCursor(ar::mat::Vec2 clickPosition, ViewportSize viewport, ar::mat::Vec3& cursorPosition)

@@ -1,6 +1,5 @@
 #pragma once
 #include <imgui.h>
-#include "Tools/EditorCursor.h"
 #include "Panels/SceneHierarchyPanel.h"
 
 class EditorUI
@@ -9,18 +8,12 @@ public:
 	EditorUI(EditorState& state, ar::Ref<ar::Scene> scene);
 
 	void Render(ar::Ref<ar::Framebuffer> mainFB);
-	//void RenderCursor(ar::Ref<ar::CameraController> cameraController, ar::mat::Vec3 position);
-	//const ar::Ref<ar::Framebuffer>& GetFramebuffer();
-	//void ResizeFramebuffer(ViewportSize newSize);
 
 private:
 	EditorState& m_State;
 	ar::Ref<ar::Scene> m_Scene;
-	//EditorCursor m_Cursor;
 	SceneHierarchyPanel m_SceneHierarchyPanel;
 	ar::Scope<ar::Texture> m_MenuIcon;
-
-	//ar::Ref<ar::Framebuffer> m_ViewportFramebuffer;
 	
 	ar::mat::Vec2 GetClickPosition();
 
@@ -38,5 +31,4 @@ private:
 	void RenderAttachModal();
 
 	void RequestAddObject(ar::ObjectType type);
-	// void RequestPlaceCursor();
 };
