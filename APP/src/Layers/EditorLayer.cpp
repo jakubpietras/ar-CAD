@@ -24,8 +24,9 @@ void EditorLayer::OnUpdate()
 {
 	m_SceneController.OnUpdateCamera();
 	m_SceneController.ProcessStateChanges(m_State);
-	m_Scene->OnUpdate(m_SceneController.GetCamera(), m_State.CursorPosition, {0.f, 0.f, 0.f}); // todo: add mean position
-	m_SceneRenderer.RenderMain(m_SceneController.GetCameraController(), m_State.CursorPosition);
+	m_Scene->OnUpdate(m_SceneController.GetCamera(), m_State.CursorPosition, m_State.SelectedMeanPosition); // todo: add mean position
+	m_SceneRenderer.RenderMain(m_SceneController.GetCameraController(), m_State.CursorPosition, m_State.SelectedMeanPosition, 
+		m_State.SelectedObjectsWithTransforms.size() > 1);
 	m_SceneRenderer.RenderPicking(m_SceneController.GetCameraController());
 }
 

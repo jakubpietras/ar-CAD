@@ -56,3 +56,15 @@ void EditorState::ClearErrorState()
 	ErrorMessages.clear();
 	ShowErrorModal = false;
 }
+
+void EditorState::ClearGroupTransformState()
+{
+	GroupTranslation = { 0.f, 0.f, 0.f };
+	GroupPreviousTranslation = { 0.f, 0.f, 0.f };
+
+	GroupRotation = { 0.f, 0.f, 0.f };
+	GroupPreviousRotation = { 0.f, 0.f, 0.f };
+
+	GroupScale = { 0.f, 0.f, 0.f };
+	GroupPreviousScale = { 0.f, 0.f, 0.f };
+}

@@ -14,11 +14,14 @@ EditorUI::EditorUI(EditorState& state, ar::Ref<ar::Scene> scene)
 void EditorUI::Render(ar::Ref<ar::Framebuffer> mainFB)
 {
 	// Panels
+	if (m_State.SelectedObjectsWithTransforms.size() > 1)
+		RenderGroupTransformControls();
 	RenderStatsWindow();
 	RenderMainMenu();
 	RenderCursorControls();
 	RenderInspectorWindow();
 	RenderViewport(mainFB);
+	
 	m_SceneHierarchyPanel.Render();
 
 	RenderPickingBox();
@@ -49,6 +52,15 @@ ar::mat::Vec2 EditorUI::GetClickPosition()
 	return { xPos, yPos };
 }
 
+void EditorUI::RenderGroupTransformControls()
+{
+	ImGui::Begin("Group Transform");
+
+	
+
+	ImGui::End();
+}
+
 void EditorUI::RenderPickingBox()
 {
 	if (m_State.IsBoxPicking)
@@ -70,6 +82,7 @@ void EditorUI::RenderStatsWindow()
 	ImGui::TextWrapped("* Viewport size: [%f, %f]", m_State.Viewport.Width, m_State.Viewport.Height);
 	ImGui::TextWrapped("* Viewport mouse position: [%f, %f]", m_State.MousePosViewport.x, m_State.MousePosViewport.y);
 	ImGui::TextWrapped("* Global mouse position: [%f, %f]", m_State.MousePosGlobal.x, m_State.MousePosGlobal.y);
+	ImGui::TextWrapped("* Selection mean position: [%f, %f, %f]", m_State.SelectedMeanPosition.x, m_State.SelectedMeanPosition.y, m_State.SelectedMeanPosition.z);
 	ImGui::End();
 }
 

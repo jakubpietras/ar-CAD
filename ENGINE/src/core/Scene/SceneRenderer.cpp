@@ -6,12 +6,13 @@
 namespace ar
 {
 	const float SceneRenderer::CURSOR_SIZE = 15.0f;
+	const float SceneRenderer::MEAN_POINT_SIZE = 7.0f;
 
 	SceneRenderer::SceneRenderer(Ref<Scene> scene)
 		: m_Scene(scene),
 		m_PickingFB(std::shared_ptr<Framebuffer>(Framebuffer::Create({ 1920, 1080, 1, TextureFormat::R32 }))),
 		m_MainFB(std::shared_ptr<ar::Framebuffer>(ar::Framebuffer::Create({ 1920, 1080 }))),
-		m_CursorModelMtx(mat::Identity())
+		m_CursorModelMtx(mat::Identity()), m_MeanPointModelMtx(mat::Identity())
 	{
 		m_PointsVA = Ref<VertexArray>(VertexArray::Create());
 
@@ -25,6 +26,17 @@ namespace ar
 			{{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}}
 		};
 		m_CursorMesh->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(vertices)));
+
+		m_MeanPointMesh = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
+		std::vector<ar::VertexPositionColor> verts{
+			{{1.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
+			{{-1.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
+			{{0.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
+			{{0.0f, -1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
+			{{0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f}},
+			{{0.0f, 0.0f, -1.0f}, {1.0f, 0.0f, 0.0f}}
+		};
+		m_MeanPointMesh->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(verts)));
 	}
 
 	void SceneRenderer::OnResize(mat::Vec2 newVP)
@@ -33,7 +45,7 @@ namespace ar
 		m_PickingFB->Resize(static_cast<uint32_t>(newVP.x), static_cast<uint32_t>(newVP.y));
 	}
 
-	void SceneRenderer::RenderMain(const Ref<CameraController>& cameraController, mat::Vec3 cursorPos)
+	void SceneRenderer::RenderMain(const Ref<CameraController>& cameraController, mat::Vec3 cursorPos, mat::Vec3 meanPointPos, bool renderMeanPoint)
 	{
 		m_MainFB->Bind();
 
@@ -47,6 +59,8 @@ namespace ar
 		RenderMeshes(vpMat, RenderPassType::MAIN);
 		RenderLines(vpMat, RenderPassType::MAIN);
 		RenderPoints(vpMat, RenderPassType::MAIN);
+		if (renderMeanPoint)
+			RenderMeanPoint(cameraController, meanPointPos);
 		RenderCursor(cameraController, cursorPos);
 
 		m_MainFB->Unbind();
@@ -94,6 +108,28 @@ namespace ar
 				uniqueIDs.insert(id);
 		}
 		return uniqueIDs;
+	}
+
+	void SceneRenderer::RenderMeanPoint(ar::Ref<ar::CameraController> camera, ar::mat::Vec3 position)
+	{
+		auto positionViewSpace = camera->GetCamera()->GetView() * ar::mat::Vec4(position, 1.0f);
+		float depth = std::abs(positionViewSpace.z);
+		float pixelSizeAtDepth = 2.0f * depth * tan(camera->GetFOV() * 0.5f) / m_MainFB->GetHeight();
+		float scale = pixelSizeAtDepth * MEAN_POINT_SIZE;
+
+		m_MeanPointModelMtx =
+			ar::mat::TranslationMatrix(position)
+			* ar::mat::ScaleMatrix({ scale, scale, scale });
+
+		auto shader = ar::ShaderLib::Get("BasicColor");
+		shader->SetMat4("u_Model", m_MeanPointModelMtx);
+		shader->SetMat4("u_VP", camera->GetCamera()->GetVP());
+
+		ar::RenderCommand::SetLineThickness(3);
+		ar::RenderCommand::ToggleDepthTest(false);
+		ar::Renderer::Submit(ar::Primitive::Line, shader, m_MeanPointMesh, 6);
+		ar::RenderCommand::ToggleDepthTest(false);
+		ar::RenderCommand::SetLineThickness();
 	}
 
 	void SceneRenderer::RenderCursor(ar::Ref<ar::CameraController> camera, ar::mat::Vec3 position)

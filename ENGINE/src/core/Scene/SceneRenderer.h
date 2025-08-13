@@ -16,7 +16,7 @@ namespace ar
 
 		void OnResize(mat::Vec2 newVP);
 
-		void RenderMain(const Ref<CameraController>& cameraController, mat::Vec3 cursorPos);
+		void RenderMain(const Ref<CameraController>& cameraController, mat::Vec3 cursorPos, mat::Vec3 meanPointPos, bool renderMeanPoint);
 		void RenderPicking(const Ref<CameraController>& cameraController);
 
 		std::unordered_set<uint32_t> ReadPixels(ar::mat::Vec2 boxStart, ar::mat::Vec2 boxEnd);
@@ -26,15 +26,18 @@ namespace ar
 
 	private:
 		static const float CURSOR_SIZE;
+		static const float MEAN_POINT_SIZE;
+
 		Ref<Scene> m_Scene;
 		
 		Ref<VertexArray> m_PointsVA;
-		Ref<VertexArray> m_CursorMesh;
-		ar::mat::Mat4 m_CursorModelMtx;
+		Ref<VertexArray> m_CursorMesh, m_MeanPointMesh;
+		ar::mat::Mat4 m_CursorModelMtx, m_MeanPointModelMtx;
 
 		Ref<Framebuffer> m_MainFB;
 		Ref<Framebuffer> m_PickingFB;
 	
+		void RenderMeanPoint(ar::Ref<ar::CameraController> cameraController, ar::mat::Vec3 position);
 		void RenderCursor(ar::Ref<ar::CameraController> cameraController, ar::mat::Vec3 position);
 		void RenderGrid(ar::mat::Mat4 viewProjection);
 		void RenderMeshes(ar::mat::Mat4 viewProjection, RenderPassType pass);

@@ -152,6 +152,25 @@ void EditorSceneController::DeselectEntities(std::vector<ar::Entity> entities)
 	}
 }
 
+void EditorSceneController::UpdateMeanPoint(EditorState& state)
+{
+	// compute mean position of the selected objects
+	if (state.SelectedObjectsWithTransforms.size() > 1)
+	{
+		ar::mat::Vec3 sum{ 0.f, 0.f, 0.f };
+		uint32_t count = 0;
+		for (auto& object : state.SelectedObjectsWithTransforms)
+		{
+			auto& transform = object.GetComponent<ar::TransformComponent>();
+			sum += transform.Translation;
+			count++;
+		}
+		state.SelectedMeanPosition = sum / count;
+	}
+	else
+		state.SelectedMeanPosition = { 0.f, 0.f, 0.f };
+}
+
 void EditorSceneController::DetachFromChain(ar::Entity child, ar::Entity parent)
 {
 	auto& points = parent.GetComponent<ar::ControlPointsComponent>().Points;
@@ -178,13 +197,17 @@ void EditorSceneController::ValidateSelection(EditorState& state)
 	);
 	state.SelectedPoints.clear();
 	state.SelectedCurves.clear();
+	state.SelectedObjectsWithTransforms.clear();
 	for (auto& entity : state.SelectedObjects)
 	{
 		if (entity.HasComponent<ar::PointComponent>())
 			state.SelectedPoints.push_back(entity);
 		if (entity.HasAnyComponent<ar::ChainTagComponent>())
 			state.SelectedCurves.push_back(entity);
+		if (entity.HasComponent<ar::TransformComponent>())
+			state.SelectedObjectsWithTransforms.push_back(entity);
 	}
+	UpdateMeanPoint(state);
 }
 
 void EditorSceneController::ProcessAdd(EditorState& state)

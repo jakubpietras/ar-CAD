@@ -44,7 +44,7 @@ private:
 	// Selection
 	void SelectEntities(std::vector<ar::Entity> entities, bool add = false);
 	void DeselectEntities(std::vector<ar::Entity> entities);
-	void UpdateSelectionFromID(uint32_t id);
+	void UpdateMeanPoint(EditorState& state);
 
 	// Detach
 	void DetachFromChain(ar::Entity child, ar::Entity parent);

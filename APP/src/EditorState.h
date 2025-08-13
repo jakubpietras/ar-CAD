@@ -57,7 +57,9 @@ struct EditorState
 	std::vector<ar::Entity> SelectedObjects{};
 	std::vector<ar::Entity> SelectedPoints{};
 	std::vector<ar::Entity> SelectedCurves{};
+	std::vector<ar::Entity> SelectedObjectsWithTransforms{};
 	std::vector<ar::Entity> SelectionCandidates{};
+	ar::mat::Vec3 SelectedMeanPosition {0.f, 0.f, 0.f};
 	SelectionMode SelectionChangeMode = SelectionMode::Replace;
 	bool ShouldUpdateSelection = false;
 	void ClearSelectionState();
@@ -88,4 +90,17 @@ struct EditorState
 	std::vector<std::string> ErrorMessages{};
 	bool ShowErrorModal = false;
 	void ClearErrorState();
+
+	// ============================= Group Transform ===========================
+	ar::mat::Vec3 GroupTranslation{ 0.f, 0.f, 0.f };
+	ar::mat::Vec3 GroupPreviousTranslation{ 0.f, 0.f, 0.f };
+
+	ar::mat::Vec3 GroupRotation{ 0.f, 0.f, 0.f };
+	ar::mat::Vec3 GroupPreviousRotation{ 0.f, 0.f, 0.f };
+	
+	ar::mat::Vec3 GroupScale{ 0.f, 0.f, 0.f };
+	ar::mat::Vec3 GroupPreviousScale{ 0.f, 0.f, 0.f };
+
+	bool ShouldApplyGroupTransform = false;
+	void ClearGroupTransformState();
 };
