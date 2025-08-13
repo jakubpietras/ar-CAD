@@ -28,14 +28,27 @@ namespace ar
 		glVertexArrayVertexBuffer(vao, bindingIndex, m_ID, 0, m_Layout.GetStride());
 		for (auto& attribute : m_Layout)
 		{
-			glVertexArrayAttribFormat(
-				vao,
-				attribIndex,
-				attribute.GetCount(),
-				attribute.GetOpenGLType(),
-				attribute.Normalized ? GL_TRUE : GL_FALSE,
-				attribute.Offset
-			);
+			if (attribute.Type == AttributeType::Int || attribute.Type == AttributeType::UInt)
+			{
+				glVertexArrayAttribIFormat(
+					vao,
+					attribIndex,
+					attribute.GetCount(),
+					attribute.GetOpenGLType(),
+					attribute.Offset
+				);
+			}
+			else
+			{
+				glVertexArrayAttribFormat(
+					vao,
+					attribIndex,
+					attribute.GetCount(),
+					attribute.GetOpenGLType(),
+					attribute.Normalized ? GL_TRUE : GL_FALSE,
+					attribute.Offset
+				);
+			}
 			glVertexArrayAttribBinding(vao, attribIndex, bindingIndex);
 			glVertexArrayBindingDivisor(vao, bindingIndex, attribute.Divisor);
 			glEnableVertexArrayAttrib(vao, attribIndex);

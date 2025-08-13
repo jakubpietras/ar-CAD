@@ -9,6 +9,11 @@ namespace ar
 	const BufferLayout VertexPosition::s_Layout{ 
 		{"a_Position", AttributeType::Float3, 0}
 	};
+
+	const BufferLayout VertexPositionID::s_Layout{
+		{"a_Position", AttributeType::Float3, 0},
+		{"a_ID", AttributeType::UInt, 0}
+	};
 	
 	const BufferLayout VertexPositionColor::s_Layout{ 
 		{"a_Position", AttributeType::Float3, 0},

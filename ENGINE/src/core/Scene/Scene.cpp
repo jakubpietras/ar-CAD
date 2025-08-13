@@ -69,8 +69,9 @@ namespace ar
 		{
 			if (!toc.DirtyFlag)
 				continue;
+			auto e = ar::Entity(entity, this);
 			mc.VertexArray->ClearBuffers();
-			toc.Vertices = ar::TorusUtils::GenerateTorusVertices(toc.Description);
+			toc.Vertices = ar::TorusUtils::GenerateTorusVertices(toc.Description, e.GetID());
 			toc.Edges = ar::TorusUtils::GenerateTorusEdges(toc.Description);
 			mc.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(toc.Vertices)));
 			auto indexBuffers = ar::IndexBuffer::Create(toc.Edges);

@@ -153,7 +153,6 @@ namespace ar
 					pickingShader->SetMat4("u_Model", tc.ModelMatrix);
 
 					auto idComp = m_Scene->m_Registry.get<IDComponent>(entity);
-					pickingShader->SetUInt("u_EntityID", idComp.ID);
 					mc.Shader = pickingShader;
 					ar::Renderer::Submit(mc);
 					mc.Shader = mainShader;
@@ -172,11 +171,12 @@ namespace ar
 		auto view = m_Scene->m_Registry.view<ControlPointsComponent>();
 		for (auto [entity, cp] : view.each())
 		{
-			std::vector<VertexPosition> verts{};
+			auto parentEntity = ar::Entity(entity, m_Scene.get());
+			std::vector<VertexPositionID> verts{};
 			verts.reserve(cp.Points.size());
 			for (auto& point : cp.Points)
 			{
-				verts.push_back({ point.GetComponent<TransformComponent>().Translation });
+				verts.push_back({ point.GetComponent<TransformComponent>().Translation, parentEntity.GetID()});
 			}
 
 			switch (pass)
@@ -190,15 +190,10 @@ namespace ar
 				}
 				case RenderPassType::SELECTION:
 				{
-					auto idComp = m_Scene->m_Registry.get<IDComponent>(entity);
-					shader->SetUInt("u_EntityID", idComp.ID);
 					break;
 				}
 			}
-
-			auto ent = Entity{ entity, m_Scene.get()};
-
-			if (ent.HasComponent<ChainTagComponent>())
+			if (parentEntity.HasComponent<ChainTagComponent>())
 			{
 				m_PointsVA->ClearBuffers();
 				m_PointsVA->AddVertexBuffer(Ref<VertexBuffer>(VertexBuffer::Create(verts)));
@@ -213,37 +208,54 @@ namespace ar
 		shader->SetMat4("u_VP", viewProjection);
 		shader->SetMat4("u_Model", mat::Identity());
 
-		std::vector<VertexPosition> unselectedVerts;
-		std::vector<VertexPosition> selectedVerts;
+		std::vector<VertexPositionID> unselectedVerts, selectedVerts;
 
 		auto view = m_Scene->m_Registry.view<TransformComponent, PointComponent>();
 		for (const auto& [e, transform, pt] : view.each())
 		{
+			auto entity = ar::Entity(e, m_Scene.get());
 			bool selected = m_Scene->m_Registry.any_of<SelectedTagComponent>(e);
 			if (selected)
-				selectedVerts.push_back({ transform.Translation });
+				selectedVerts.push_back({ transform.Translation, entity.GetID() });
 			else
-				unselectedVerts.push_back({ transform.Translation });
-
+				unselectedVerts.push_back({ transform.Translation, entity.GetID() });
 		}
 
-		// todo: IDs in SELECTION pass type
-		// Draw unselected
-		if (!unselectedVerts.empty())
+		switch (pass)
 		{
-			shader->SetVec3("u_Color", { 1.f, 1.f, 1.f });
-			m_PointsVA->ClearBuffers();
-			m_PointsVA->AddVertexBuffer(Ref<VertexBuffer>(VertexBuffer::Create(unselectedVerts)));
-			ar::Renderer::Submit(Primitive::Point, shader, m_PointsVA);
-		}
+			case RenderPassType::MAIN:
+			{
+				if (!unselectedVerts.empty())
+				{
+					shader->SetVec3("u_Color", { 1.f, 1.f, 1.f });
+					m_PointsVA->ClearBuffers();
+					m_PointsVA->AddVertexBuffer(Ref<VertexBuffer>(VertexBuffer::Create(unselectedVerts)));
+					ar::Renderer::Submit(Primitive::Point, shader, m_PointsVA);
+				}
 
-		// Draw selected
-		if (!selectedVerts.empty())
-		{
-			shader->SetVec3("u_Color", Renderer::SELECTION_COLOR);
-			m_PointsVA->ClearBuffers();
-			m_PointsVA->AddVertexBuffer(Ref<VertexBuffer>(VertexBuffer::Create(selectedVerts)));
-			ar::Renderer::Submit(Primitive::Point, shader, m_PointsVA);
+				if (!selectedVerts.empty())
+				{
+					shader->SetVec3("u_Color", Renderer::SELECTION_COLOR);
+					m_PointsVA->ClearBuffers();
+					m_PointsVA->AddVertexBuffer(Ref<VertexBuffer>(VertexBuffer::Create(selectedVerts)));
+					ar::Renderer::Submit(Primitive::Point, shader, m_PointsVA);
+				}
+				break;
+			}
+			case RenderPassType::SELECTION:
+			{
+				std::vector<VertexPositionID> allVerts;
+				allVerts.reserve(unselectedVerts.size() + selectedVerts.size());
+				allVerts.insert(allVerts.end(), unselectedVerts.begin(), unselectedVerts.end());
+				allVerts.insert(allVerts.end(), selectedVerts.begin(), selectedVerts.end());
+
+				m_PointsVA->ClearBuffers();
+				m_PointsVA->AddVertexBuffer(Ref<VertexBuffer>(VertexBuffer::Create(allVerts)));
+				ar::Renderer::Submit(Primitive::Point, shader, m_PointsVA);
+				break;
+			}
+			default:
+				return;
 		}
 	}
 

@@ -94,7 +94,7 @@ namespace ar
 	struct TorusComponent
 	{
 		TorusDesc							Description;
-		std::vector<VertexPosition>			Vertices {};
+		std::vector<VertexPositionID>			Vertices {};
 		std::vector<std::vector<uint32_t>>	Edges {};
 		bool								DirtyFlag = true;
 	};

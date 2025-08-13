@@ -4,9 +4,9 @@
 namespace ar
 {
 
-	std::vector<ar::VertexPosition> TorusUtils::GenerateTorusVertices(const TorusDesc& desc)
+	std::vector<ar::VertexPositionID> TorusUtils::GenerateTorusVertices(const TorusDesc& desc, uint32_t id)
 	{
-		std::vector<VertexPosition> vertices;
+		std::vector<VertexPositionID> vertices;
 		auto pi = static_cast<float>(acos(-1));
 		float x, y, z, u, v;
 		for (uint32_t i = 0; i < desc.Samples.v; i++)
@@ -19,7 +19,7 @@ namespace ar
 				x = (desc.LargeRadius + desc.SmallRadius * cos(v)) * cos(u);
 				y = desc.SmallRadius * sin(v);
 				z = (desc.LargeRadius + desc.SmallRadius * cos(v)) * sin(u);
-				vertices.push_back({ { x, y, z } });
+				vertices.push_back({ { x, y, z }, id });
 			}
 		}
 		return vertices;

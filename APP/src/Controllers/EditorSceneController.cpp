@@ -103,7 +103,7 @@ void EditorSceneController::AddTorus(ar::mat::Vec3 spawnPoint, ar::TorusDesc des
 	// Torus component
 	auto& tc = entity.AddComponent<ar::TorusComponent>();
 	tc.Description = desc;
-	tc.Vertices = ar::TorusUtils::GenerateTorusVertices(desc);
+	tc.Vertices = ar::TorusUtils::GenerateTorusVertices(desc, entity.GetID());
 	tc.Edges = ar::TorusUtils::GenerateTorusEdges(desc);
 
 	// Transform component
