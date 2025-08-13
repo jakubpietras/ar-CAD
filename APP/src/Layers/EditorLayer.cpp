@@ -46,7 +46,9 @@ bool EditorLayer::OnMouseButtonPressed(ar::MouseButtonPressedEvent& event)
 {
 	if (event.GetMouseButton() == AR_MOUSE_BUTTON_LEFT)
 	{
-		m_State.PickClickStart = m_State.ClickPosition;
+		m_State.PickClickStart = m_State.MousePosViewport;
+		m_State.BoxStart = m_State.MousePosGlobal;
+		m_State.IsBoxPicking = true;
 	}
 	return false;
 }
@@ -59,8 +61,13 @@ bool EditorLayer::OnMouseButtonReleased(ar::MouseButtonReleasedEvent& event)
 	}
 	else if (event.GetMouseButton() == AR_MOUSE_BUTTON_LEFT)
 	{
-		m_State.PickClickEnd = m_State.ClickPosition;
+		m_State.PickClickEnd = m_State.MousePosViewport;
+		if (ar::Input::IsKeyPressed(AR_KEY_LEFT_SHIFT))
+			m_State.PickingMode = SelectionMode::Add;
+		else
+			m_State.PickingMode = SelectionMode::Replace;
 		m_State.ShouldProcessPicking = true;
+		m_State.IsBoxPicking = false;
 	}
 	return false;
 }

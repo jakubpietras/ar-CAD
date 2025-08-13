@@ -54,7 +54,7 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 	}
 	if (state.ShouldPlaceCursor)
 	{
-		PlaceCursor(state.ClickPosition, state.Viewport, state.CursorPosition);
+		PlaceCursor(state.MousePosViewport, state.Viewport, state.CursorPosition);
 		state.ShouldPlaceCursor = false;
 	}
 	if (state.ViewportResized)
@@ -235,10 +235,10 @@ void EditorSceneController::ProcessSelect(EditorState& state)
 		}
 		case SelectionMode::Add:
 		{
-			SelectEntities(state.SelectionCandidates, true);
 			for (auto& e : state.SelectionCandidates)
 				if (std::find(state.SelectedObjects.begin(), state.SelectedObjects.end(), e) == state.SelectedObjects.end())
 				{
+					SelectEntities({e}, true);
 					state.SelectedObjects.push_back(e);
 				}
 			break;
@@ -286,10 +286,13 @@ void EditorSceneController::ProcessPicking(EditorState& state)
 	auto ids = m_SceneRenderer.ReadPixels(state.PickClickStart, state.PickClickEnd);
 	
 	auto entities = std::vector<ar::Entity>();
+	
+	state.SelectionChangeMode = state.PickingMode;
 	for (auto& id : ids)
 	{
 		auto e = m_Scene->GetEntityByID(id);
-		if (e) state.SelectionCandidates.push_back(e);
+		if (std::find(state.SelectionCandidates.begin(), state.SelectionCandidates.end(), e) == state.SelectionCandidates.end())
+			state.SelectionCandidates.push_back(e);
 	}
 	state.ShouldUpdateSelection = true;
 }

@@ -17,6 +17,7 @@ private:
 	
 	ar::mat::Vec2 GetClickPosition();
 
+	void RenderPickingBox();
 	void RenderStatsWindow();
 	void RenderMainMenu();
 	void RenderInspectorWindow();

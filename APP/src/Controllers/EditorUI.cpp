@@ -21,6 +21,8 @@ void EditorUI::Render(ar::Ref<ar::Framebuffer> mainFB)
 	RenderViewport(mainFB);
 	m_SceneHierarchyPanel.Render();
 
+	RenderPickingBox();
+
 	// Modals
 	RenderDeleteModal();
 	RenderRenameModal();
@@ -47,12 +49,27 @@ ar::mat::Vec2 EditorUI::GetClickPosition()
 	return { xPos, yPos };
 }
 
+void EditorUI::RenderPickingBox()
+{
+	if (m_State.IsBoxPicking)
+	{
+		ImDrawList* draw_list = ImGui::GetForegroundDrawList();
+		draw_list->AddRect(
+			ImVec2(m_State.BoxStart.x, m_State.BoxStart.y),
+			ImVec2(m_State.MousePosGlobal.x, m_State.MousePosGlobal.y),
+			IM_COL32(255, 255, 255, 128), // Semi-transparent white
+			0.0f, 0, 1.0f
+		);
+	}
+}
+
 void EditorUI::RenderStatsWindow()
 {
 	ImGui::Begin("State");
 	ImGui::TextWrapped("* Entity count: %d", m_Scene->GetEntityCount());
 	ImGui::TextWrapped("* Viewport size: [%f, %f]", m_State.Viewport.Width, m_State.Viewport.Height);
-	ImGui::TextWrapped("* Last mouse click: [%f, %f]", m_State.ClickPosition.x, m_State.ClickPosition.y);
+	ImGui::TextWrapped("* Viewport mouse position: [%f, %f]", m_State.MousePosViewport.x, m_State.MousePosViewport.y);
+	ImGui::TextWrapped("* Global mouse position: [%f, %f]", m_State.MousePosGlobal.x, m_State.MousePosGlobal.y);
 	ImGui::End();
 }
 
@@ -157,8 +174,9 @@ void EditorUI::RenderViewport(ar::Ref<ar::Framebuffer> mainFB)
 		ImVec2(0, 1), ImVec2(1, 0)
 	);
 
-	if (ar::Input::IsAnyMouseButtonPressed() || ar::Input::IsAnyMouseButtonReleased())
-		m_State.ClickPosition = GetClickPosition();
+	auto mouse = ImGui::GetMousePos();
+	m_State.MousePosViewport = GetClickPosition();
+	m_State.MousePosGlobal = { mouse.x, mouse.y };
 
 	ImGui::End();
 	ImGui::PopStyleVar();

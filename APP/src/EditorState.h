@@ -65,9 +65,15 @@ struct EditorState
 	// =========================== Picking ==========================
 	ar::mat::Vec2 PickClickStart{ 0.f, 0.f };
 	ar::mat::Vec2 PickClickEnd{ 0.f, 0.f };
+	ar::mat::Vec2 BoxStart{ 0.f, 0.f };
+	SelectionMode PickingMode = SelectionMode::Replace;
+	bool IsBoxPicking = false;
 	bool ShouldProcessPicking = false;
 	void ClearPickingState();
 
+	// =========================== Picking ==========================
+	ar::mat::Vec2 MousePosViewport{ 0.f, 0.f };
+	ar::mat::Vec2 MousePosGlobal{ 0.f, 0.f };
 
 	// =========================== Viewport ==========================
 	ViewportSize Viewport { 0.f, 0.f };
