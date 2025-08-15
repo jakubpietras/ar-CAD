@@ -92,15 +92,14 @@ struct EditorState
 	void ClearErrorState();
 
 	// ============================= Group Transform ===========================
+	std::unordered_map<uint32_t, ar::TransformComponent> OriginalTransforms{};
 	ar::mat::Vec3 GroupTranslation{ 0.f, 0.f, 0.f };
-	ar::mat::Vec3 GroupPreviousTranslation{ 0.f, 0.f, 0.f };
+	ar::mat::Vec3 GroupAnglesRPY{ 0.f, 0.f, 0.f };
+	ar::mat::Vec3 GroupScale{ 1.f, 1.f, 1.f };
+	bool UniformGroupScale = false;
 
-	ar::mat::Vec3 GroupRotation{ 0.f, 0.f, 0.f };
-	ar::mat::Vec3 GroupPreviousRotation{ 0.f, 0.f, 0.f };
-	
-	ar::mat::Vec3 GroupScale{ 0.f, 0.f, 0.f };
-	ar::mat::Vec3 GroupPreviousScale{ 0.f, 0.f, 0.f };
-
+	bool ShouldBeginGroupTransform = false;
 	bool ShouldApplyGroupTransform = false;
+	bool ShouldEndGroupTransform = false;
 	void ClearGroupTransformState();
 };

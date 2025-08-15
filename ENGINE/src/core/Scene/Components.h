@@ -16,8 +16,7 @@ namespace ar
 	enum class PivotType
 	{
 		LOCAL_ORIGIN,
-		CURSOR,
-		MEAN_SELECTED
+		CURSOR
 	};
 
 #pragma endregion
@@ -62,7 +61,7 @@ namespace ar
 					PreviousScale = { 1.0f, 1.0f, 1.0f };
 		mat::Mat4	ModelMatrix = mat::Identity();
 
-
+		bool		GroupTransformation = false;
 		bool		IsRotationEnabled = true;
 		bool		IsScaleEnabled = true;
 		bool		DirtyFlag = true;

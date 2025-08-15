@@ -28,6 +28,7 @@ private:
 	void ProcessDetach(EditorState& state);
 	void ProcessAttach(EditorState& state);
 	void ProcessPicking(EditorState& state);
+	void ProcessGroupTransform(EditorState& state);
 
 	// Cursor
 	void PlaceCursor(ar::mat::Vec2 clickPosition, ViewportSize viewport, ar::mat::Vec3& cursorPosition);
@@ -45,6 +46,8 @@ private:
 	void SelectEntities(std::vector<ar::Entity> entities, bool add = false);
 	void DeselectEntities(std::vector<ar::Entity> entities);
 	void UpdateMeanPoint(EditorState& state);
+	void BeginGroupTransform(EditorState& state);
+	void EndGroupTransform(EditorState& state);
 
 	// Detach
 	void DetachFromChain(ar::Entity child, ar::Entity parent);

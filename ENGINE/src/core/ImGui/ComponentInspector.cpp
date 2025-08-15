@@ -37,21 +37,33 @@ void ar::ComponentInspector::InspectComponent(TorusComponent& torus)
 void ar::ComponentInspector::InspectComponent(TransformComponent& transform)
 {
 	if (PropertyInspector::InspectProperty("Translation", transform.Translation, transform.PreviousTranslation, -20.0f, 20.0f))
+	{
+		transform.GroupTransformation = false;
 		transform.DirtyFlag = true;
+	}
 	{
 		ScopedDisable disabled(!transform.IsRotationEnabled && !transform.IsScaleEnabled);
 		if (PropertyInspector::InspectProperty("Pivot", transform.PivotPoint))
+		{
+			transform.GroupTransformation = false;
 			transform.DirtyFlag = true;
+		}
 	}
 	{
 		ScopedDisable disabled(!transform.IsRotationEnabled);
 		if (PropertyInspector::InspectProperty("Rotation", transform.AnglesRPY, transform.PreviousAnglesRPY, -180.0f, 180.0f))
+		{
+			transform.GroupTransformation = false;
 			transform.DirtyFlag = true;
+		}
 	}
 	{
 		ScopedDisable disabled(!transform.IsScaleEnabled);
 		if (PropertyInspector::InspectProperty("Scale", transform.Scale, transform.PreviousScale, 0.1f, 10.0f))
+		{
+			transform.GroupTransformation = false;
 			transform.DirtyFlag = true;
+		}
 	}
 }
 

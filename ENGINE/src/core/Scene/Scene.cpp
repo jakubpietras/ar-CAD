@@ -61,7 +61,12 @@ namespace ar
 		auto transformView = m_Registry.view<TransformComponent>();
 		for (auto [entity, tc] : transformView.each())
 		{
-			UpdateTransform(tc, cursorPos, meanPos);
+			if (tc.GroupTransformation)
+				UpdateTransform(tc, meanPos);
+			else if (tc.PivotPoint == PivotType::CURSOR)
+				UpdateTransform(tc, cursorPos);
+			else
+				UpdateTransform(tc, tc.Translation);
 		}
 
 		auto torusView = m_Registry.view<TorusComponent, MeshComponent>();
@@ -82,50 +87,51 @@ namespace ar
 
 	}
 
-	void Scene::UpdateTransform(TransformComponent& tc, ar::mat::Vec3 cursorPos, ar::mat::Vec3 meanPos)
+	void Scene::UpdateTransform(TransformComponent& tc, ar::mat::Vec3 pivot)
 	{
 		if (!tc.DirtyFlag)
 			return;
 
-		ar::mat::Vec3 pivot;
-		switch (tc.PivotPoint)
+		if (tc.GroupTransformation)
 		{
-			case PivotType::CURSOR:
-			{
-				pivot = cursorPos;
-				break;
-			}
-			case PivotType::MEAN_SELECTED:
-			{
-				pivot = meanPos;
-				break;
-			}
-			case PivotType::LOCAL_ORIGIN:
-			default:
-			{
-				pivot = tc.Translation;
-			}
+			// ---- Scale ----
+			auto v = tc.PreviousTranslation - pivot;
+			auto d_scale = tc.Scale / tc.PreviousScale;
+			auto scaled_v = d_scale * v;
+			auto scaledPos = pivot + scaled_v;
+
+			// ---- Rotation ----
+			v = scaledPos - pivot;
+			auto totalRotationDelta = tc.AnglesRPY - tc.PreviousAnglesRPY;
+			auto q = mat::RPYToQuat(totalRotationDelta);
+			auto rotated_v = q * mat::Quat(0.0f, v.x, v.y, v.z) * mat::Conjugate(q);
+			auto rotatedPos = pivot + QuatToVec3(rotated_v);
+
+			// ---- Translation ----
+			tc.Translation = rotatedPos + (tc.Translation - tc.PreviousTranslation);
+			tc.Rotation = mat::RPYToQuat(tc.AnglesRPY);
 		}
+		else
+		{
+			// ---- Scale ----
+			auto v = tc.Translation - pivot;
+			auto d_scale = tc.Scale / tc.PreviousScale;
+			auto scaled_v = d_scale * v;
+			tc.Translation = pivot + scaled_v;
 
-		// ---- Scale ----
-		auto v = tc.Translation - pivot;
-		auto d_scale = tc.Scale / tc.PreviousScale;
-		auto scaled_v = d_scale * v;
-		tc.Translation = pivot + scaled_v;
-
-		// ---- Rotation ----
-		v = tc.Translation - pivot;
-		auto q = mat::RPYToQuat(tc.AnglesRPY - tc.PreviousAnglesRPY);
-		auto rotated_v = q * mat::Quat(0.0f, v.x, v.y, v.z) * mat::Conjugate(q);
-		tc.Translation = pivot + QuatToVec3(rotated_v);
-		tc.Rotation = mat::Normalize(q * tc.Rotation);
+			// ---- Rotation ----
+			v = tc.Translation - pivot;
+			auto q = mat::RPYToQuat(tc.AnglesRPY - tc.PreviousAnglesRPY);
+			auto rotated_v = q * mat::Quat(0.0f, v.x, v.y, v.z) * mat::Conjugate(q);
+			tc.Translation = pivot + QuatToVec3(rotated_v);
+			tc.Rotation = mat::Normalize(q * tc.Rotation);
+		}
 
 		// ---- Combination ----
 		tc.ModelMatrix =
 			mat::TranslationMatrix(tc.Translation) *
 			mat::ToMat4(tc.Rotation) *
 			mat::ScaleMatrix(tc.Scale);
-
 		tc.DirtyFlag = false;
 	}
 

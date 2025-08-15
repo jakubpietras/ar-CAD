@@ -64,6 +64,23 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 		state.ViewportResized = false;
 	}
 
+	// Group Transforms
+	if (state.ShouldBeginGroupTransform)
+	{
+		BeginGroupTransform(state);
+		state.ShouldBeginGroupTransform = false;
+	}
+	if (state.ShouldApplyGroupTransform)
+	{
+		ProcessGroupTransform(state);
+		state.ShouldApplyGroupTransform = false;
+	}
+	if (state.ShouldEndGroupTransform)
+	{
+		EndGroupTransform(state);
+		state.ShouldEndGroupTransform = false;
+	}
+
 	// Validation
 	if (geometryValidation)
 		ValidateGeometry();
@@ -171,6 +188,36 @@ void EditorSceneController::UpdateMeanPoint(EditorState& state)
 		state.SelectedMeanPosition = { 0.f, 0.f, 0.f };
 }
 
+void EditorSceneController::BeginGroupTransform(EditorState& state)
+{
+	state.OriginalTransforms.clear();
+	for (auto& entity : state.SelectedObjects)
+	{
+		if (entity.HasComponent<ar::TransformComponent>())
+		{
+			auto& t = entity.GetComponent<ar::TransformComponent>();
+			t.GroupTransformation = true;
+			ar::TransformComponent transformCopy = t;
+			state.OriginalTransforms.emplace(entity.GetID(), transformCopy);
+		}
+	}
+}
+
+void EditorSceneController::EndGroupTransform(EditorState& state)
+{
+	state.ClearGroupTransformState();
+	for (auto& entity : state.SelectedObjects)
+	{
+		if (entity.HasComponent<ar::TransformComponent>())
+		{
+			auto& t = entity.GetComponent<ar::TransformComponent>();
+			t.GroupTransformation = false;
+		}
+	}
+	state.OriginalTransforms.clear();
+	UpdateMeanPoint(state);
+}
+
 void EditorSceneController::DetachFromChain(ar::Entity child, ar::Entity parent)
 {
 	auto& points = parent.GetComponent<ar::ControlPointsComponent>().Points;
@@ -205,8 +252,12 @@ void EditorSceneController::ValidateSelection(EditorState& state)
 		if (entity.HasAnyComponent<ar::ChainTagComponent>())
 			state.SelectedCurves.push_back(entity);
 		if (entity.HasComponent<ar::TransformComponent>())
+		{
 			state.SelectedObjectsWithTransforms.push_back(entity);
+		}
 	}
+
+	// middle point
 	UpdateMeanPoint(state);
 }
 
@@ -318,6 +369,32 @@ void EditorSceneController::ProcessPicking(EditorState& state)
 			state.SelectionCandidates.push_back(e);
 	}
 	state.ShouldUpdateSelection = true;
+}
+
+void EditorSceneController::ProcessGroupTransform(EditorState& state)
+{
+	for (auto& object : state.SelectedObjectsWithTransforms)
+	{
+		auto& originalTransform = state.OriginalTransforms.at(object.GetID());
+		auto& transform = object.GetComponent<ar::TransformComponent>();
+
+
+		transform.PreviousTranslation = originalTransform.Translation;
+		transform.PreviousAnglesRPY = originalTransform.AnglesRPY;
+		transform.PreviousScale = originalTransform.Scale;
+
+		transform.Translation = originalTransform.Translation + state.GroupTranslation;
+
+		transform.AnglesRPY = originalTransform.AnglesRPY + state.GroupAnglesRPY;
+		transform.AnglesRPY.x = std::fmod(transform.AnglesRPY.x + 180.0f, 360.0f) - 180.0f;
+		transform.AnglesRPY.y = std::fmod(transform.AnglesRPY.y + 180.0f, 360.0f) - 180.0f;
+		transform.AnglesRPY.z = std::fmod(transform.AnglesRPY.z + 180.0f, 360.0f) - 180.0f;
+
+		transform.Scale = originalTransform.Scale * state.GroupScale;
+
+		transform.GroupTransformation = true;
+		transform.DirtyFlag = true;
+	}
 }
 
 void EditorSceneController::PlaceCursor(ar::mat::Vec2 clickPosition, ViewportSize viewport, ar::mat::Vec3& cursorPosition)

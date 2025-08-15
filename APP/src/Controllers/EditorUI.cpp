@@ -56,7 +56,49 @@ void EditorUI::RenderGroupTransformControls()
 {
 	ImGui::Begin("Group Transform");
 
-	
+	// Translate
+	if (ImGui::DragFloat3("dTranslate", m_State.GroupTranslation.Data(), 0.1f, -10.0f, 10.0f))
+		m_State.ShouldApplyGroupTransform = true;
+
+	if (ImGui::IsItemActivated())
+		m_State.ShouldBeginGroupTransform = true;
+	if (ImGui::IsItemDeactivated())
+		m_State.ShouldEndGroupTransform = true;
+
+	// Rotate
+	if (ImGui::DragFloat3("dRotate", m_State.GroupAnglesRPY.Data(), 0.1f, -180.0f, 180.0f))
+		m_State.ShouldApplyGroupTransform = true;
+	if (ImGui::IsItemActivated())
+		m_State.ShouldBeginGroupTransform = true;
+	if (ImGui::IsItemDeactivated())
+		m_State.ShouldEndGroupTransform = true;
+
+	// Scale
+
+	ImGui::Checkbox("Uniform scaling", &m_State.UniformGroupScale);
+	{
+		ar::ScopedDisable disabled(m_State.UniformGroupScale);
+
+		if (ImGui::DragFloat3("dScale", m_State.GroupScale.Data(), 0.05f, 0.1f, 20.0f))
+			m_State.ShouldApplyGroupTransform = true;
+		if (ImGui::IsItemActivated())
+			m_State.ShouldBeginGroupTransform = true;
+		if (ImGui::IsItemDeactivated())
+			m_State.ShouldEndGroupTransform = true;
+	}
+	{
+		ar::ScopedDisable disabled(!m_State.UniformGroupScale);
+		if (ImGui::DragFloat("dUScale", &m_State.GroupScale.x, 0.05f, 0.1f, 20.0f))
+		{
+			m_State.GroupScale.y = m_State.GroupScale.x;
+			m_State.GroupScale.z = m_State.GroupScale.x;
+			m_State.ShouldApplyGroupTransform = true;
+		}
+		if (ImGui::IsItemActivated())
+			m_State.ShouldBeginGroupTransform = true;
+		if (ImGui::IsItemDeactivated())
+			m_State.ShouldEndGroupTransform = true;
+	}
 
 	ImGui::End();
 }
