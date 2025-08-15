@@ -313,6 +313,10 @@
     <None Include="src\resources\shaders\OpenGL\points.vert" />
     <None Include="src\resources\shaders\OpenGL\points.frag" />
     <None Include="src\resources\shaders\OpenGL\picking.frag" />
+    <None Include="src\resources\shaders\OpenGL\bezier.vert" />
+    <None Include="src\resources\shaders\OpenGL\bezier.tesc" />
+    <None Include="src\resources\shaders\OpenGL\bezier.tese" />
+    <None Include="src\resources\shaders\OpenGL\bezier.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\resources\icons\logo.png">

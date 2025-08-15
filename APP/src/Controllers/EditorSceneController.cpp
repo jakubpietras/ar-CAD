@@ -1,5 +1,6 @@
 #include "EditorSceneController.h"
 #include "EditorConstants.h"
+#include "core/Renderer/Shader.h"
 
 EditorSceneController::EditorSceneController(ar::Ref<ar::Scene> scene, ar::SceneRenderer& sceneRender)
 	: m_Scene(scene), m_SceneRenderer(sceneRender),
@@ -110,6 +111,7 @@ void EditorSceneController::AddPointToCurves(ar::Entity point, std::vector<ar::E
 	{
 		auto& pts = curve.GetComponent<ar::ControlPointsComponent>().Points;
 		pts.push_back(point);
+		point.GetComponent<ar::PointComponent>().Parents.push_back(curve);
 	}
 }
 
@@ -134,6 +136,7 @@ void EditorSceneController::AddTorus(ar::mat::Vec3 spawnPoint, ar::TorusDesc des
 	mc.RenderPrimitive = ar::Primitive::LineLoop;
 
 	// VertexArray
+	// todo: dlaczego scope???
 	mc.VertexArray = ar::Scope<ar::VertexArray>(ar::VertexArray::Create());
 	mc.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(tc.Vertices)));
 	auto indexBuffers = ar::IndexBuffer::Create(tc.Edges);
@@ -142,14 +145,26 @@ void EditorSceneController::AddTorus(ar::mat::Vec3 spawnPoint, ar::TorusDesc des
 
 	// Shader
 	mc.Shader = ar::ShaderLib::Get("Basic");
+	mc.PickingShader = ar::ShaderLib::Get("Picking");
 }
 
 void EditorSceneController::AddChain(std::vector<ar::Entity> points)
 {
 	AR_ASSERT(points.size() > 1, "Too few points to create a chain.");
 	auto entity = m_Scene->CreateEntity("Chain");
-	entity.AddComponent<ar::ChainTagComponent>();
-	entity.AddComponent<ar::ControlPointsComponent>(points);
+	entity.AddComponent<ar::ChainComponent>();
+
+	auto& cp = entity.AddComponent<ar::ControlPointsComponent>(points);
+	for (auto& point : points)
+		point.GetComponent<ar::PointComponent>().Parents.push_back(entity);
+	
+	auto& mesh = entity.AddComponent<ar::MeshComponent>();
+
+	mesh.VertexArray = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
+	mesh.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(cp.GetVertexData(entity.GetID()))));
+	mesh.Shader = ar::ShaderLib::Get("Basic");
+	mesh.PickingShader = ar::ShaderLib::Get("Picking");
+	mesh.RenderPrimitive = ar::Primitive::LineStrip;
 }
 
 void EditorSceneController::SelectEntities(std::vector<ar::Entity> entities, bool add /*= false*/)
@@ -222,11 +237,16 @@ void EditorSceneController::DetachFromChain(ar::Entity child, ar::Entity parent)
 {
 	auto& points = parent.GetComponent<ar::ControlPointsComponent>().Points;
 	points.erase(std::remove(points.begin(), points.end(), child), points.end());
+	for (auto& point : points)
+	{
+		auto& parents = point.GetComponent<ar::PointComponent>().Parents;
+		parents.erase(std::remove(parents.begin(), parents.end(), parent), parents.end());
+	}
 }
 
 void EditorSceneController::ValidateGeometry()
 {
-	auto chains = m_Scene->m_Registry.view<ar::ChainTagComponent>();
+	auto chains = m_Scene->m_Registry.view<ar::ChainComponent>();
 	for (auto& chain : chains)
 	{
 		ar::Entity e = { chain, m_Scene.get() };
@@ -249,7 +269,7 @@ void EditorSceneController::ValidateSelection(EditorState& state)
 	{
 		if (entity.HasComponent<ar::PointComponent>())
 			state.SelectedPoints.push_back(entity);
-		if (entity.HasAnyComponent<ar::ChainTagComponent>())
+		if (entity.HasAnyComponent<ar::ChainComponent>())
 			state.SelectedCurves.push_back(entity);
 		if (entity.HasComponent<ar::TransformComponent>())
 		{
@@ -339,7 +359,7 @@ void EditorSceneController::ProcessDetach(EditorState& state)
 {
 	for (auto& pair : state.PairsToDetach)
 	{
-		if (pair.Parent.HasComponent<ar::ChainTagComponent>())
+		if (pair.Parent.HasComponent<ar::ChainComponent>())
 			DetachFromChain(pair.Child, pair.Parent);
 	}
 }
@@ -351,7 +371,10 @@ void EditorSceneController::ProcessAttach(EditorState& state)
 		auto& cp = pair.Parent.GetComponent<ar::ControlPointsComponent>().Points;
 		// don't add points if they are already under the parent
 		if (std::find(cp.begin(), cp.end(), pair.Child) == cp.end())
+		{
 			cp.push_back(pair.Child);
+			pair.Child.GetComponent<ar::PointComponent>().Parents.push_back(pair.Parent);
+		}
 	}
 }
 

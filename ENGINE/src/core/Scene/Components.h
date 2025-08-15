@@ -8,6 +8,12 @@
 
 namespace ar
 {
+	enum class ShaderType
+	{
+		MAIN,
+		PICKING
+	};
+
 	// forward declarations
 	class Entity;
 
@@ -22,7 +28,6 @@ namespace ar
 #pragma endregion
 #pragma region Tags
 
-	struct ChainTagComponent {};
 	struct SelectedTagComponent {};		// Entities are selected
 	struct VirtualTagComponent {};		// Entities won't show up in the scene hierarchy
 
@@ -70,16 +75,34 @@ namespace ar
 	struct MeshComponent
 	{
 		std::shared_ptr<VertexArray>	VertexArray = nullptr;
-		std::shared_ptr<Shader>			Shader = nullptr;
+		std::shared_ptr<Shader>			Shader = nullptr,
+										PickingShader = nullptr;
+		ShaderType						ShaderUsed = ShaderType::MAIN;
 		mat::Vec3						PrimaryColor = {1.0f, 1.0f, 1.0f};
 		Primitive						RenderPrimitive = Primitive::Triangle;
+		bool							DirtyFlag = false;
+
+		inline std::shared_ptr<ar::Shader> GetShader() const
+		{
+			switch (ShaderUsed)
+			{
+			case ShaderType::MAIN: { return Shader; }
+			case ShaderType::PICKING: { return PickingShader; }
+			default: return nullptr;
+			}
+		}
+
 	};
 
 	struct ControlPointsComponent
 	{
 		ControlPointsComponent();
 		ControlPointsComponent(std::vector<Entity> initialPoints);
-		std::vector<Entity> Points;
+		std::vector<Entity> Points{};
+		std::vector<uint32_t> Indices{};
+
+
+		std::vector<VertexPositionID> GetVertexData(uint32_t id);
 	};
 
 #pragma endregion
@@ -88,14 +111,22 @@ namespace ar
 	struct PointComponent 
 	{
 		mat::Vec3 Color{ 1.f, 1.f, 1.f };
+		std::vector<Entity> Parents{};
 	};
 
 	struct TorusComponent
 	{
 		TorusDesc							Description;
-		std::vector<VertexPositionID>			Vertices {};
+		std::vector<VertexPositionID>		Vertices {};
 		std::vector<std::vector<uint32_t>>	Edges {};
 		bool								DirtyFlag = true;
+	};
+	
+	struct ChainComponent {};
+
+	struct BezierC0Component
+	{
+		bool ShowPolygon = false;
 	};
 
 #pragma endregion

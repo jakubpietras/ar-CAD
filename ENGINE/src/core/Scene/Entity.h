@@ -67,6 +67,8 @@ namespace ar
 		const std::string& GetName();
 		void SetName(const std::string& newName);
 
+		VertexPositionID GetPositionID();
+
 		bool operator==(const Entity& other) const
 		{
 			return m_EntityHandle == other.m_EntityHandle && m_Scene == other.m_Scene;

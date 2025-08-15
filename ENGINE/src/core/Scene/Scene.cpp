@@ -58,33 +58,10 @@ namespace ar
 
 	void Scene::UpdateScene(ar::mat::Vec3 cursorPos, ar::mat::Vec3 meanPos)
 	{
-		auto transformView = m_Registry.view<TransformComponent>();
-		for (auto [entity, tc] : transformView.each())
-		{
-			if (tc.GroupTransformation)
-				UpdateTransform(tc, meanPos);
-			else if (tc.PivotPoint == PivotType::CURSOR)
-				UpdateTransform(tc, cursorPos);
-			else
-				UpdateTransform(tc, tc.Translation);
-		}
-
-		auto torusView = m_Registry.view<TorusComponent, MeshComponent>();
-		for (auto [entity, toc, mc] : torusView.each())
-		{
-			if (!toc.DirtyFlag)
-				continue;
-			auto e = ar::Entity(entity, this);
-			mc.VertexArray->ClearBuffers();
-			toc.Vertices = ar::TorusUtils::GenerateTorusVertices(toc.Description, e.GetID());
-			toc.Edges = ar::TorusUtils::GenerateTorusEdges(toc.Description);
-			mc.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(toc.Vertices)));
-			auto indexBuffers = ar::IndexBuffer::Create(toc.Edges);
-			for (auto& ib : indexBuffers)
-				mc.VertexArray->AddIndexBuffer(ib);
-			toc.DirtyFlag = false;
-		}
-
+		FlagDirtyMeshes();
+		UpdateAllTransforms(cursorPos, meanPos);
+		UpdateMeshes();
+		UpdateTori();
 	}
 
 	void Scene::UpdateTransform(TransformComponent& tc, ar::mat::Vec3 pivot)
@@ -133,6 +110,69 @@ namespace ar
 			mat::ToMat4(tc.Rotation) *
 			mat::ScaleMatrix(tc.Scale);
 		tc.DirtyFlag = false;
+	}
+
+	void Scene::FlagDirtyMeshes()
+	{
+		auto pointView = m_Registry.view<PointComponent, TransformComponent>();
+		for (auto [entity, pc, tc] : pointView.each())
+		{
+			if (!tc.DirtyFlag)
+				continue;
+			for (auto parent : pc.Parents)
+				parent.GetComponent<MeshComponent>().DirtyFlag = true;
+		}
+	}
+
+	void Scene::UpdateAllTransforms(ar::mat::Vec3 cursorPos, ar::mat::Vec3 meanPos)
+	{
+		auto transformView = m_Registry.view<TransformComponent>();
+		for (auto [entity, tc] : transformView.each())
+		{
+			if (tc.GroupTransformation)
+				UpdateTransform(tc, meanPos);
+			else if (tc.PivotPoint == PivotType::CURSOR)
+				UpdateTransform(tc, cursorPos);
+			else
+				UpdateTransform(tc, tc.Translation);
+		}
+	}
+
+	void Scene::UpdateMeshes()
+	{
+		auto meshView = m_Registry.view<ControlPointsComponent, MeshComponent>();
+		for (auto [entity, cp, mesh] : meshView.each())
+		{
+			if (!mesh.DirtyFlag)
+				continue;
+
+			auto e = ar::Entity(entity, this);
+			mesh.VertexArray->ClearBuffers();
+			mesh.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(cp.GetVertexData(e.GetID()))));
+			if (!cp.Indices.empty())
+				mesh.VertexArray->AddIndexBuffer(ar::Ref<ar::IndexBuffer>(ar::IndexBuffer::Create(cp.Indices)));
+
+			mesh.DirtyFlag = false;
+		}
+	}
+
+	void Scene::UpdateTori()
+	{
+		auto torusView = m_Registry.view<TorusComponent, MeshComponent>();
+		for (auto [entity, toc, mc] : torusView.each())
+		{
+			if (!toc.DirtyFlag)
+				continue;
+			auto e = ar::Entity(entity, this);
+			mc.VertexArray->ClearBuffers();
+			toc.Vertices = ar::TorusUtils::GenerateTorusVertices(toc.Description, e.GetID());
+			toc.Edges = ar::TorusUtils::GenerateTorusEdges(toc.Description);
+			mc.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(toc.Vertices)));
+			auto indexBuffers = ar::IndexBuffer::Create(toc.Edges);
+			for (auto& ib : indexBuffers)
+				mc.VertexArray->AddIndexBuffer(ib);
+			toc.DirtyFlag = false;
+		}
 	}
 
 }

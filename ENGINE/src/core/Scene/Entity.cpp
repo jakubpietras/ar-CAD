@@ -25,4 +25,13 @@ namespace ar
 		return GetComponent<TagComponent>().Tag;
 	}
 
+	ar::VertexPositionID Entity::GetPositionID()
+	{
+		auto check = HasComponent<TransformComponent>();
+		AR_ASSERT(check, "Attempted to get VertexPositionID from an entity that has no transform");
+
+		auto position = GetComponent<TransformComponent>().Translation;
+		return { position, GetID() };
+	}
+
 }

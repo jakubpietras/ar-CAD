@@ -38,6 +38,12 @@ namespace ar
 		// Updates
 		void UpdateScene(ar::mat::Vec3 cursorPos, ar::mat::Vec3 meanPos);
 		void UpdateTransform(TransformComponent& tc, ar::mat::Vec3 pivot);
+		void FlagDirtyMeshes();
+		void UpdateAllTransforms(ar::mat::Vec3 cursorPos, ar::mat::Vec3 meanPos);
+		void UpdateMeshes();
+		void UpdateTori();
+
+		
 
 		friend class Entity;
 		friend class SceneHierarchyPanel;

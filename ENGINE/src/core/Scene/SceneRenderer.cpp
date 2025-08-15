@@ -57,7 +57,6 @@ namespace ar
 		auto& vpMat = cameraController->GetCamera()->GetVP();
 		RenderGrid(vpMat);
 		RenderMeshes(vpMat, RenderPassType::MAIN);
-		RenderLines(vpMat, RenderPassType::MAIN);
 		RenderPoints(vpMat, RenderPassType::MAIN);
 		if (renderMeanPoint)
 			RenderMeanPoint(cameraController, meanPointPos);
@@ -78,7 +77,6 @@ namespace ar
 		glPointSize(8.0f);
 		auto& vpMat = cameraController->GetCamera()->GetVP();
 		RenderMeshes(vpMat, RenderPassType::SELECTION);
-		RenderLines(vpMat, RenderPassType::SELECTION);
 		RenderPoints(vpMat, RenderPassType::SELECTION);
 
 		m_PickingFB->Unbind();
@@ -165,16 +163,22 @@ namespace ar
 
 	void SceneRenderer::RenderMeshes(ar::mat::Mat4 viewProjection, RenderPassType pass)
 	{
-		auto view = m_Scene->m_Registry.view<MeshComponent, TransformComponent>(entt::exclude<PointComponent>);
-		for (auto [entity, mc, tc] : view.each())
+		auto view = m_Scene->m_Registry.view<MeshComponent>(entt::exclude<PointComponent>);
+		for (auto [entity, mc] : view.each())
 		{
+			auto e = ar::Entity(entity, m_Scene.get());
+			auto hasTransform = e.HasComponent<TransformComponent>();
+			auto model = hasTransform ? e.GetComponent<TransformComponent>().ModelMatrix : mat::Identity();
+
 			switch (pass)
 			{
 				case RenderPassType::MAIN:
 				{
-					auto& shader = mc.Shader;
+					mc.ShaderUsed = ShaderType::MAIN;
+					auto shader = mc.GetShader();
 					shader->SetMat4("u_VP", viewProjection);
-					shader->SetMat4("u_Model", tc.ModelMatrix);
+					shader->SetMat4("u_Model", model);
+
 					bool isSelected = m_Scene->m_Registry.any_of<SelectedTagComponent>(entity);
 					auto color = isSelected ? Renderer::SELECTION_COLOR : mc.PrimaryColor;
 					shader->SetVec3("u_Color", color);
@@ -183,57 +187,13 @@ namespace ar
 				}
 				case RenderPassType::SELECTION:
 				{
-					auto mainShader = mc.Shader;
-					auto pickingShader = ar::ShaderLib::Get("Picking");
+					mc.ShaderUsed = ShaderType::PICKING;
+					auto pickingShader = mc.GetShader();
 					pickingShader->SetMat4("u_VP", viewProjection);
-					pickingShader->SetMat4("u_Model", tc.ModelMatrix);
-
-					auto idComp = m_Scene->m_Registry.get<IDComponent>(entity);
-					mc.Shader = pickingShader;
+					pickingShader->SetMat4("u_Model", model);
 					ar::Renderer::Submit(mc);
-					mc.Shader = mainShader;
 					break;
 				}
-			}
-		}
-	}
-
-	void SceneRenderer::RenderLines(ar::mat::Mat4 viewProjection, RenderPassType pass)
-	{
-		auto shader = pass == RenderPassType::MAIN ? ShaderLib::Get("Basic") : ShaderLib::Get("Picking");
-		shader->SetMat4("u_VP", viewProjection);
-		shader->SetMat4("u_Model", mat::Identity());
-
-		auto view = m_Scene->m_Registry.view<ControlPointsComponent>();
-		for (auto [entity, cp] : view.each())
-		{
-			auto parentEntity = ar::Entity(entity, m_Scene.get());
-			std::vector<VertexPositionID> verts{};
-			verts.reserve(cp.Points.size());
-			for (auto& point : cp.Points)
-			{
-				verts.push_back({ point.GetComponent<TransformComponent>().Translation, parentEntity.GetID()});
-			}
-
-			switch (pass)
-			{
-				case RenderPassType::MAIN:
-				{
-					auto color = m_Scene->m_Registry.any_of<SelectedTagComponent>(entity) ?
-						Renderer::SELECTION_COLOR : ar::mat::Vec3(1.f, 1.f, 1.f);
-					shader->SetVec3("u_Color", color);
-					break;
-				}
-				case RenderPassType::SELECTION:
-				{
-					break;
-				}
-			}
-			if (parentEntity.HasComponent<ChainTagComponent>())
-			{
-				m_PointsVA->ClearBuffers();
-				m_PointsVA->AddVertexBuffer(Ref<VertexBuffer>(VertexBuffer::Create(verts)));
-				ar::Renderer::Submit(Primitive::LineStrip, shader, m_PointsVA);
 			}
 		}
 	}

@@ -47,7 +47,9 @@ namespace ar
 
 	void Renderer::Submit(MeshComponent& mesh, uint32_t instanceCount /*= 1*/)
 	{
-		mesh.Shader->Use();
+		auto shader = mesh.GetShader();
+
+		shader->Use();
 		mesh.VertexArray->Bind();
 		if (mesh.VertexArray->IsIndexed())
 			RenderCommand::DrawIndexed(mesh.RenderPrimitive, mesh.VertexArray, instanceCount);
