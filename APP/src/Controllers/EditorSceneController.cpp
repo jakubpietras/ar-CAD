@@ -23,6 +23,7 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 	if (state.ShouldAddObject)
 	{
 		ProcessAdd(state);
+		state.ClearAddState();
 	}
 	if (state.ShouldDeleteObjects)
 	{
@@ -84,7 +85,7 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 
 	// Validation
 	if (geometryValidation)
-		ValidateGeometry();
+		ValidateGeometry(state);
 	if (selectionValidation)
 		ValidateSelection(state);
 }
@@ -136,8 +137,7 @@ void EditorSceneController::AddTorus(ar::mat::Vec3 spawnPoint, ar::TorusDesc des
 	mc.RenderPrimitive = ar::Primitive::LineLoop;
 
 	// VertexArray
-	// todo: dlaczego scope???
-	mc.VertexArray = ar::Scope<ar::VertexArray>(ar::VertexArray::Create());
+	mc.VertexArray = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
 	mc.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(tc.Vertices)));
 	auto indexBuffers = ar::IndexBuffer::Create(tc.Edges);
 	for (auto& ib : indexBuffers)
@@ -165,6 +165,27 @@ void EditorSceneController::AddChain(std::vector<ar::Entity> points)
 	mesh.Shader = ar::ShaderLib::Get("Basic");
 	mesh.PickingShader = ar::ShaderLib::Get("Picking");
 	mesh.RenderPrimitive = ar::Primitive::LineStrip;
+}
+
+void EditorSceneController::AddCurveC0(std::vector<ar::Entity> points)
+{
+	AR_ASSERT(points.size() > 1, "Too few points to create a curve.");
+	auto entity = m_Scene->CreateEntity("Curve C0");
+	entity.AddComponent<ar::CurveC0Component>();
+
+	auto& cp = entity.AddComponent<ar::ControlPointsComponent>(points);
+	for (auto& point : points)
+		point.GetComponent<ar::PointComponent>().Parents.push_back(entity);
+
+	auto& mesh = entity.AddComponent<ar::MeshComponent>();
+	mesh.VertexArray = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
+	mesh.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(cp.GetVertexData(entity.GetID()))));
+	mesh.VertexArray->AddIndexBuffer(ar::Ref<ar::IndexBuffer>(ar::IndexBuffer::Create(ar::CurveUtils::GenerateC0Indices(points.size()))));
+	mesh.Shader = ar::ShaderLib::Get("CurveC0");
+	mesh.PickingShader = ar::ShaderLib::Get("CurveC0Picking");
+	mesh.RenderPrimitive = ar::Primitive::Patch;
+	mesh.TessellationPatchSize = 4;
+	mesh.AdaptiveDrawing = true;
 }
 
 void EditorSceneController::SelectEntities(std::vector<ar::Entity> entities, bool add /*= false*/)
@@ -233,25 +254,82 @@ void EditorSceneController::EndGroupTransform(EditorState& state)
 	UpdateMeanPoint(state);
 }
 
-void EditorSceneController::DetachFromChain(ar::Entity child, ar::Entity parent)
+void EditorSceneController::DetachPoint(ar::Entity child, ar::Entity parent)
 {
 	auto& points = parent.GetComponent<ar::ControlPointsComponent>().Points;
 	points.erase(std::remove(points.begin(), points.end(), child), points.end());
-	for (auto& point : points)
-	{
-		auto& parents = point.GetComponent<ar::PointComponent>().Parents;
-		parents.erase(std::remove(parents.begin(), parents.end(), parent), parents.end());
-	}
+
+	parent.GetComponent<ar::MeshComponent>().DirtyFlag = true;
 }
 
-void EditorSceneController::ValidateGeometry()
+void EditorSceneController::ValidateGeometry(EditorState& state)
 {
-	auto chains = m_Scene->m_Registry.view<ar::ChainComponent>();
-	for (auto& chain : chains)
+	// 1. Remove invalid curves from points
+	auto view = m_Scene->m_Registry.view<ar::PointComponent>();
+	for (auto [entity, pc] : view.each())
 	{
-		ar::Entity e = { chain, m_Scene.get() };
-		if (!ar::CurveUtils::ValidateChain(e))
-			m_Scene->DestroyEntity(e);
+		auto point = ar::Entity(entity, m_Scene.get());
+		pc.Parents.erase(std::remove_if(pc.Parents.begin(), pc.Parents.end(),
+			[&](ar::Entity parent) 
+			{
+				if (!parent.IsValid())
+					return true;
+
+				// Check if parent still references this point
+				if (parent.HasComponent<ar::ControlPointsComponent>())
+				{
+					auto& points = parent.GetComponent<ar::ControlPointsComponent>().Points;
+					bool parentStillReferencesPoint = std::find(points.begin(), points.end(), point) != points.end();
+
+					if (!parentStillReferencesPoint)
+					{
+						parent.GetComponent<ar::MeshComponent>().DirtyFlag = true;
+						return true; 
+					}
+				}
+				return false;
+			}), pc.Parents.end());
+	}
+
+	// 2. Remove invalid points from curves
+	auto cpView = m_Scene->m_Registry.view<ar::ControlPointsComponent>();
+	for (auto [entity, cp] : cpView.each())
+	{
+		auto pointContainer = ar::Entity(entity, m_Scene.get());
+		size_t originalSize = cp.Points.size();
+		cp.Points.erase(std::remove_if(cp.Points.begin(), cp.Points.end(),
+			[](ar::Entity point) { return !point.IsValid(); }), cp.Points.end());
+
+		if (cp.Points.size() != originalSize)
+		{
+			pointContainer.GetComponent<ar::MeshComponent>().DirtyFlag = true;
+		}
+	}
+
+	// 3. Validate and destroy invalid curves (check ALL curves, not just selected)
+	std::vector<ar::Entity> curvesToDestroy;
+	for (auto [entity, cp] : cpView.each())
+	{
+		ar::Entity curve(entity, m_Scene.get());
+		if (!ar::CurveUtils::ValidateCurve(curve))
+		{
+			// Clean up parent references before destroying
+			for (auto& point : cp.Points)
+			{
+				if (point.IsValid())
+				{
+					auto& parents = point.GetComponent<ar::PointComponent>().Parents;
+					parents.erase(std::remove(parents.begin(), parents.end(), curve), parents.end());
+				}
+			}
+			curvesToDestroy.push_back(curve);
+		}
+	}
+
+	// 4. Destroy invalid curves
+	for (auto& curve : curvesToDestroy)
+	{
+		m_Scene->DestroyEntity(curve);
 	}
 }
 
@@ -269,7 +347,7 @@ void EditorSceneController::ValidateSelection(EditorState& state)
 	{
 		if (entity.HasComponent<ar::PointComponent>())
 			state.SelectedPoints.push_back(entity);
-		if (entity.HasAnyComponent<ar::ChainComponent>())
+		if (entity.HasAnyComponent<ar::ChainComponent, ar::CurveC0Component>())
 			state.SelectedCurves.push_back(entity);
 		if (entity.HasComponent<ar::TransformComponent>())
 		{
@@ -302,10 +380,21 @@ void EditorSceneController::ProcessAdd(EditorState& state)
 		if (state.SelectedPoints.size() < 2)
 		{
 			state.ShowErrorModal = true;
-			state.ErrorMessages.emplace_back("To create a chain, you need at least 2 points selected in the scene hierarchy!");
+			state.ErrorMessages.emplace_back("To create a chain, you need at least 2 points selected!");
 		}
 		else
 			AddChain(state.SelectedPoints);
+		break;
+	}
+	case ar::ObjectType::BEZIERC0:
+	{
+		if (state.SelectedPoints.size() < 2)
+		{
+			state.ShowErrorModal = true;
+			state.ErrorMessages.emplace_back("To create a Bezier curve, you need at least 2 points selected!");
+		}
+		else
+			AddCurveC0(state.SelectedPoints);
 		break;
 	}
 	case ar::ObjectType::NONE:
@@ -313,7 +402,6 @@ void EditorSceneController::ProcessAdd(EditorState& state)
 		AR_ASSERT(false, "Trying to create an object with uknown type");
 	}
 
-	state.ClearAddState();
 }
 
 void EditorSceneController::ProcessSelect(EditorState& state)
@@ -359,8 +447,7 @@ void EditorSceneController::ProcessDetach(EditorState& state)
 {
 	for (auto& pair : state.PairsToDetach)
 	{
-		if (pair.Parent.HasComponent<ar::ChainComponent>())
-			DetachFromChain(pair.Child, pair.Parent);
+		DetachPoint(pair.Child, pair.Parent);
 	}
 }
 
@@ -449,15 +536,6 @@ void EditorSceneController::DeleteEntities(std::vector<ar::Entity>& entities)
 {
 	for (auto& entity : entities)
 	{
-		if (entity.HasComponent<ar::PointComponent>())
-		{
-			// remove from all point composites
-			auto view = m_Scene->m_Registry.view<ar::ControlPointsComponent>();
-			for (auto [e, cp] : view.each())
-			{
-				cp.Points.erase(std::remove(cp.Points.begin(), cp.Points.end(), entity), cp.Points.end());
-			}
-		}
 		m_Scene->DestroyEntity(entity);
 	}
 }

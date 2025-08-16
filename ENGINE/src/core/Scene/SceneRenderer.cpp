@@ -45,7 +45,7 @@ namespace ar
 		m_PickingFB->Resize(static_cast<uint32_t>(newVP.x), static_cast<uint32_t>(newVP.y));
 	}
 
-	void SceneRenderer::RenderMain(const Ref<CameraController>& cameraController, mat::Vec3 cursorPos, mat::Vec3 meanPointPos, bool renderMeanPoint)
+	void SceneRenderer::RenderMain(const Ref<CameraController>& cameraController, mat::Vec2 viewport, mat::Vec3 cursorPos, mat::Vec3 meanPointPos, bool renderMeanPoint)
 	{
 		m_MainFB->Bind();
 
@@ -56,7 +56,7 @@ namespace ar
 		glPointSize(8.0f);
 		auto& vpMat = cameraController->GetCamera()->GetVP();
 		RenderGrid(vpMat);
-		RenderMeshes(vpMat, RenderPassType::MAIN);
+		RenderMeshes(vpMat, RenderPassType::MAIN, viewport);
 		RenderPoints(vpMat, RenderPassType::MAIN);
 		if (renderMeanPoint)
 			RenderMeanPoint(cameraController, meanPointPos);
@@ -65,7 +65,7 @@ namespace ar
 		m_MainFB->Unbind();
 	}
 
-	void SceneRenderer::RenderPicking(const Ref<CameraController>& cameraController)
+	void SceneRenderer::RenderPicking(const Ref<CameraController>& cameraController, mat::Vec2 viewport)
 	{
 		m_PickingFB->Bind();
 
@@ -76,7 +76,7 @@ namespace ar
 
 		glPointSize(8.0f);
 		auto& vpMat = cameraController->GetCamera()->GetVP();
-		RenderMeshes(vpMat, RenderPassType::SELECTION);
+		RenderMeshes(vpMat, RenderPassType::SELECTION, viewport);
 		RenderPoints(vpMat, RenderPassType::SELECTION);
 
 		m_PickingFB->Unbind();
@@ -161,7 +161,7 @@ namespace ar
 		ar::RenderCommand::ToggleDepthTest(true);
 	}
 
-	void SceneRenderer::RenderMeshes(ar::mat::Mat4 viewProjection, RenderPassType pass)
+	void SceneRenderer::RenderMeshes(ar::mat::Mat4 viewProjection, RenderPassType pass, ar::mat::Vec2 viewport)
 	{
 		auto view = m_Scene->m_Registry.view<MeshComponent>(entt::exclude<PointComponent>);
 		for (auto [entity, mc] : view.each())
@@ -178,6 +178,8 @@ namespace ar
 					auto shader = mc.GetShader();
 					shader->SetMat4("u_VP", viewProjection);
 					shader->SetMat4("u_Model", model);
+					if (mc.AdaptiveDrawing)
+						shader->SetVec2("u_Viewport", viewport.Data());
 
 					bool isSelected = m_Scene->m_Registry.any_of<SelectedTagComponent>(entity);
 					auto color = isSelected ? Renderer::SELECTION_COLOR : mc.PrimaryColor;
@@ -191,6 +193,8 @@ namespace ar
 					auto pickingShader = mc.GetShader();
 					pickingShader->SetMat4("u_VP", viewProjection);
 					pickingShader->SetMat4("u_Model", model);
+					if (mc.AdaptiveDrawing)
+						pickingShader->SetVec2("u_Viewport", viewport.Data());
 					ar::Renderer::Submit(mc);
 					break;
 				}

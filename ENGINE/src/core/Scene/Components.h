@@ -8,16 +8,16 @@
 
 namespace ar
 {
+	// forward declarations
+	class Entity;
+
+#pragma region Datatypes
+
 	enum class ShaderType
 	{
 		MAIN,
 		PICKING
 	};
-
-	// forward declarations
-	class Entity;
-
-#pragma region Datatypes
 
 	enum class PivotType
 	{
@@ -80,7 +80,9 @@ namespace ar
 		ShaderType						ShaderUsed = ShaderType::MAIN;
 		mat::Vec3						PrimaryColor = {1.0f, 1.0f, 1.0f};
 		Primitive						RenderPrimitive = Primitive::Triangle;
-		bool							DirtyFlag = false;
+		size_t							TessellationPatchSize = 4;
+		bool							DirtyFlag = false,
+										AdaptiveDrawing = false;
 
 		inline std::shared_ptr<ar::Shader> GetShader() const
 		{
@@ -124,7 +126,7 @@ namespace ar
 	
 	struct ChainComponent {};
 
-	struct BezierC0Component
+	struct CurveC0Component
 	{
 		bool ShowPolygon = false;
 	};

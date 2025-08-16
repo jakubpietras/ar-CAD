@@ -3,7 +3,7 @@
 
 EditorApp::EditorApp()
 {
-	PushLayer(new EditorLayer(GetAspectRatio()));
+	PushLayer(new EditorLayer());
 }
 
 EditorApp::~EditorApp()

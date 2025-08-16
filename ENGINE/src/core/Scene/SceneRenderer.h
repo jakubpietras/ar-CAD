@@ -16,8 +16,8 @@ namespace ar
 
 		void OnResize(mat::Vec2 newVP);
 
-		void RenderMain(const Ref<CameraController>& cameraController, mat::Vec3 cursorPos, mat::Vec3 meanPointPos, bool renderMeanPoint);
-		void RenderPicking(const Ref<CameraController>& cameraController);
+		void RenderMain(const Ref<CameraController>& cameraController, mat::Vec2 viewport, mat::Vec3 cursorPos, mat::Vec3 meanPointPos, bool renderMeanPoint);
+		void RenderPicking(const Ref<CameraController>& cameraController, mat::Vec2 viewport);
 
 		std::unordered_set<uint32_t> ReadPixels(ar::mat::Vec2 boxStart, ar::mat::Vec2 boxEnd);
 
@@ -40,7 +40,7 @@ namespace ar
 		void RenderMeanPoint(ar::Ref<ar::CameraController> cameraController, ar::mat::Vec3 position);
 		void RenderCursor(ar::Ref<ar::CameraController> cameraController, ar::mat::Vec3 position);
 		void RenderGrid(ar::mat::Mat4 viewProjection);
-		void RenderMeshes(ar::mat::Mat4 viewProjection, RenderPassType pass);
+		void RenderMeshes(ar::mat::Mat4 viewProjection, RenderPassType pass, ar::mat::Vec2 viewport);
 		void RenderLines(ar::mat::Mat4 viewProjection, RenderPassType pass);
 		void RenderPoints(ar::mat::Mat4 viewProjection, RenderPassType pass);
 	

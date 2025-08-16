@@ -39,9 +39,15 @@ namespace ar
 			"resources/shaders/OpenGL/basic.vert",
 			"resources/shaders/OpenGL/picking.frag"
 		));
-		s_Shaders["BezierCurve"] = Ref<Shader>(Shader::Create(
+		s_Shaders["CurveC0"] = Ref<Shader>(Shader::Create(
 			"resources/shaders/OpenGL/bezier.vert",
 			"resources/shaders/OpenGL/bezier.frag",
+			"resources/shaders/OpenGL/bezier.tesc",
+			"resources/shaders/OpenGL/bezier.tese"
+		));
+		s_Shaders["CurveC0Picking"] = Ref<Shader>(Shader::Create(
+			"resources/shaders/OpenGL/bezier.vert",
+			"resources/shaders/OpenGL/bezierPicking.frag",
 			"resources/shaders/OpenGL/bezier.tesc",
 			"resources/shaders/OpenGL/bezier.tese"
 		));

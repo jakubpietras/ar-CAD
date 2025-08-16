@@ -4,6 +4,7 @@
 #include "Components.h"
 #include "core/UID.h"
 #include "core/Renderer/Framebuffer.h"
+#include <core/Utils/CurveUtils.h>
 
 namespace ar
 {
@@ -149,8 +150,12 @@ namespace ar
 			auto e = ar::Entity(entity, this);
 			mesh.VertexArray->ClearBuffers();
 			mesh.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(cp.GetVertexData(e.GetID()))));
-			if (!cp.Indices.empty())
-				mesh.VertexArray->AddIndexBuffer(ar::Ref<ar::IndexBuffer>(ar::IndexBuffer::Create(cp.Indices)));
+			if (e.HasComponent<ar::CurveC0Component>())
+			{
+				// todo: limit generation of new indices to only when vertex count changes
+				auto indices = ar::CurveUtils::GenerateC0Indices(cp.Points.size());
+				mesh.VertexArray->AddIndexBuffer(ar::Ref<ar::IndexBuffer>(ar::IndexBuffer::Create(indices)));
+			}
 
 			mesh.DirtyFlag = false;
 		}

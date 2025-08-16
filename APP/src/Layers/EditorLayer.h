@@ -11,7 +11,7 @@
 class EditorLayer : public ar::Layer
 {
 public:
-	EditorLayer(float aspectRatio);
+	EditorLayer();
 
 	void OnAttach() override;
 	void OnDetach() override;

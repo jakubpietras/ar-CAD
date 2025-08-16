@@ -41,6 +41,7 @@ private:
 	void AddPointToCurves(ar::Entity point, std::vector<ar::Entity> curves);
 	void AddTorus(ar::mat::Vec3 spawnPoint, ar::TorusDesc desc);
 	void AddChain(std::vector<ar::Entity> points);
+	void AddCurveC0(std::vector<ar::Entity> points);
 
 	// Selection
 	void SelectEntities(std::vector<ar::Entity> entities, bool add = false);
@@ -50,9 +51,9 @@ private:
 	void EndGroupTransform(EditorState& state);
 
 	// Detach
-	void DetachFromChain(ar::Entity child, ar::Entity parent);
+	void DetachPoint(ar::Entity child, ar::Entity parent);
 
 	// Validate
-	void ValidateGeometry();
+	void ValidateGeometry(EditorState& state);
 	void ValidateSelection(EditorState& state);
 };

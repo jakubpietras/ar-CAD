@@ -87,12 +87,6 @@ namespace ar
 		overlay->OnAttach();
 	}
 
-	float Application::GetAspectRatio()
-	{
-		// todo: fix
-		return 1920.0f / 1080.0f;
-	}
-
 	void Application::ImGuiBlockEvents(bool status)
 	{
 		m_ImGuiLayer->BlockEvents(status);

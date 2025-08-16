@@ -51,6 +51,10 @@ namespace ar
 
 		shader->Use();
 		mesh.VertexArray->Bind();
+
+		if (mesh.RenderPrimitive == Primitive::Patch)
+			RenderCommand::SetTessellationPatchSize(mesh.TessellationPatchSize);
+
 		if (mesh.VertexArray->IsIndexed())
 			RenderCommand::DrawIndexed(mesh.RenderPrimitive, mesh.VertexArray, instanceCount);
 		else

@@ -2,7 +2,7 @@
 #include "core/ImGui/ScopedDisable.h"
 #include "EditorConstants.h"
 
-EditorLayer::EditorLayer(float aspectRatio)
+EditorLayer::EditorLayer()
 	: 
 	m_Scene(std::make_shared<ar::Scene>()),
 	m_UI(m_State, m_Scene),
@@ -24,10 +24,12 @@ void EditorLayer::OnUpdate()
 {
 	m_SceneController.OnUpdateCamera();
 	m_SceneController.ProcessStateChanges(m_State);
-	m_Scene->OnUpdate(m_SceneController.GetCamera(), m_State.CursorPosition, m_State.SelectedMeanPosition); // todo: add mean position
-	m_SceneRenderer.RenderMain(m_SceneController.GetCameraController(), m_State.CursorPosition, m_State.SelectedMeanPosition, 
+	m_Scene->OnUpdate(m_SceneController.GetCamera(), m_State.CursorPosition, m_State.SelectedMeanPosition);
+
+	ar::mat::Vec2 viewport = { m_State.Viewport.Width, m_State.Viewport.Height };
+	m_SceneRenderer.RenderMain(m_SceneController.GetCameraController(), viewport, m_State.CursorPosition, m_State.SelectedMeanPosition, 
 		m_State.SelectedObjectsWithTransforms.size() > 1);
-	m_SceneRenderer.RenderPicking(m_SceneController.GetCameraController());
+	m_SceneRenderer.RenderPicking(m_SceneController.GetCameraController(), viewport);
 }
 
 void EditorLayer::OnEvent(ar::Event& event)

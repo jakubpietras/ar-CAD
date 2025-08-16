@@ -8,6 +8,7 @@ namespace ar
 		LineLoop,
 		LineStrip,
 		Point,
-		Triangle
+		Triangle,
+		Patch
 	};
 }

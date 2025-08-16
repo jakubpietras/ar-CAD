@@ -7,14 +7,17 @@ layout (vertices = 4) out;
 
 // data which goes into tessellation control
 in vec3 PosControl[];
+flat in uint IDControl[];
 
 // data which goes out tessellation control and into evaluation
 out vec3 PosEval[];
+flat out uint IDEval[];
 
 void main()
 {
 	// gl_InvocationID tracks which vertex of the patch we are currently processing
 	PosEval[gl_InvocationID] = PosControl[gl_InvocationID];
+	IDEval[gl_InvocationID] = IDControl[gl_InvocationID];
 
 	vec4 P0 = gl_in[0].gl_Position, 
 	P1 = gl_in[1].gl_Position,
@@ -35,7 +38,7 @@ void main()
 	vec2 MaxPoint = max(max(ScreenP0, ScreenP1), max(ScreenP2, ScreenP3));
 	vec2 Diagonal = MaxPoint - MinPoint;
 
-	int Segments = max(int(Diagonal.x * Diagonal.y), 4);
+	int Segments = int(length(MaxPoint - MinPoint));
 
 	// tessellation levels
 	gl_TessLevelOuter[0] = 1;				// how many lines

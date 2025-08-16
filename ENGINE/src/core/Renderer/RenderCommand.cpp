@@ -38,5 +38,10 @@ namespace ar
 		glDepthMask(flag);
 	}
 
+	void RenderCommand::SetTessellationPatchSize(size_t size)
+	{
+		glPatchParameteri(GL_PATCH_VERTICES, size);
+	}
+
 	ar::RendererAPI* RenderCommand::s_RendererAPI = new ar::OGLRendererAPI();
 }
