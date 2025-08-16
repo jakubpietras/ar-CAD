@@ -61,6 +61,7 @@ namespace ar
 		if (renderMeanPoint)
 			RenderMeanPoint(cameraController, meanPointPos);
 		RenderCursor(cameraController, cursorPos);
+		RenderPolygons(vpMat);
 
 		m_MainFB->Unbind();
 	}
@@ -125,7 +126,7 @@ namespace ar
 
 		ar::RenderCommand::SetLineThickness(3);
 		ar::RenderCommand::ToggleDepthTest(false);
-		ar::Renderer::Submit(ar::Primitive::Line, shader, m_MeanPointMesh, 6);
+		ar::Renderer::Submit(ar::Primitive::Line, shader, m_MeanPointMesh, false);
 		ar::RenderCommand::ToggleDepthTest(false);
 		ar::RenderCommand::SetLineThickness();
 	}
@@ -147,7 +148,7 @@ namespace ar
 
 		ar::RenderCommand::SetLineThickness(3);
 		ar::RenderCommand::ToggleDepthTest(false);
-		ar::Renderer::Submit(ar::Primitive::Line, shader, m_CursorMesh, 6);
+		ar::Renderer::Submit(ar::Primitive::Line, shader, m_CursorMesh, false, 1);
 		ar::RenderCommand::ToggleDepthTest(false);
 		ar::RenderCommand::SetLineThickness();
 	}
@@ -184,7 +185,7 @@ namespace ar
 					bool isSelected = m_Scene->m_Registry.any_of<SelectedTagComponent>(entity);
 					auto color = isSelected ? Renderer::SELECTION_COLOR : mc.PrimaryColor;
 					shader->SetVec3("u_Color", color);
-					ar::Renderer::Submit(mc);
+					ar::Renderer::Submit(mc, mc.VertexArray->IsIndexed());
 					break;
 				}
 				case RenderPassType::SELECTION:
@@ -195,9 +196,28 @@ namespace ar
 					pickingShader->SetMat4("u_Model", model);
 					if (mc.AdaptiveDrawing)
 						pickingShader->SetVec2("u_Viewport", viewport.Data());
-					ar::Renderer::Submit(mc);
+					ar::Renderer::Submit(mc, mc.VertexArray->IsIndexed());
 					break;
 				}
+			}
+		}
+	}
+
+	void SceneRenderer::RenderPolygons(ar::mat::Mat4 viewProjection)
+	{
+		// Render Bezier polygons
+
+		auto view = m_Scene->m_Registry.view<CurveC0Component, MeshComponent>();
+		auto shader = ShaderLib::Get("Basic");
+		shader->SetMat4("u_VP", viewProjection);
+		shader->SetMat4("u_Model", mat::Identity());
+		shader->SetVec3("u_Color", { 0.5f, 0.5f, 1.0f });
+
+		for (auto [entity, cc, mc] : view.each())
+		{
+			if (cc.ShowPolygon)
+			{
+				ar::Renderer::Submit(Primitive::LineStrip, shader, mc.VertexArray, false);
 			}
 		}
 	}

@@ -19,11 +19,11 @@ namespace ar
 	}
 
 	void Renderer::Submit(const Primitive primitive, const std::shared_ptr<Shader>& shader,
-		const std::shared_ptr<VertexArray>& vertexArray, uint32_t instanceCount)
+		const std::shared_ptr<VertexArray>& vertexArray, bool indexed, uint32_t instanceCount)
 	{
 		shader->Use();
 		vertexArray->Bind();
-		if (vertexArray->IsIndexed())
+		if (indexed)
 		{
 			RenderCommand::DrawIndexed(primitive, vertexArray, instanceCount);
 		}
@@ -33,7 +33,7 @@ namespace ar
 	}
 
 	void Renderer::Submit(const Primitive primitive, const std::shared_ptr<Shader>& shader,
-		uint32_t vertexCount, uint32_t instanceCount)
+		uint32_t vertexCount, bool indexed, uint32_t instanceCount)
 	{
 		// Should be used if data is defined inside the shader (e.g. a quad)
 		if (!s_DummyVAO)
@@ -45,7 +45,7 @@ namespace ar
 		s_DummyVAO->Unbind();
 	}
 
-	void Renderer::Submit(MeshComponent& mesh, uint32_t instanceCount /*= 1*/)
+	void Renderer::Submit(MeshComponent& mesh, bool indexed, uint32_t instanceCount /*= 1*/)
 	{
 		auto shader = mesh.GetShader();
 
@@ -55,7 +55,7 @@ namespace ar
 		if (mesh.RenderPrimitive == Primitive::Patch)
 			RenderCommand::SetTessellationPatchSize(mesh.TessellationPatchSize);
 
-		if (mesh.VertexArray->IsIndexed())
+		if (indexed)
 			RenderCommand::DrawIndexed(mesh.RenderPrimitive, mesh.VertexArray, instanceCount);
 		else
 			RenderCommand::Draw(mesh.RenderPrimitive, mesh.VertexArray, instanceCount);

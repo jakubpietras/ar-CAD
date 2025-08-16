@@ -41,7 +41,7 @@ namespace ar
 		void RenderCursor(ar::Ref<ar::CameraController> cameraController, ar::mat::Vec3 position);
 		void RenderGrid(ar::mat::Mat4 viewProjection);
 		void RenderMeshes(ar::mat::Mat4 viewProjection, RenderPassType pass, ar::mat::Vec2 viewport);
-		void RenderLines(ar::mat::Mat4 viewProjection, RenderPassType pass);
+		void RenderPolygons(ar::mat::Mat4 viewProjection);
 		void RenderPoints(ar::mat::Mat4 viewProjection, RenderPassType pass);
 	
 	};

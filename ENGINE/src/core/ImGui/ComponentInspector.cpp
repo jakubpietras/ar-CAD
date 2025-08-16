@@ -15,8 +15,10 @@ void ar::ComponentInspector::ShowInspector(Entity entity)
 	if (ImGui::BeginTabBar("Inspector", tab_bar_flags))
 	{
 		ShowComponentInspector<ar::TorusComponent>(entity, "Props");
-		ShowComponentInspector<ar::MeshComponent>(entity, "Mesh");
+		//ShowComponentInspector<ar::MeshComponent>(entity, "Mesh");
 		ShowComponentInspector<ar::TransformComponent>(entity, "Transform");
+		ShowComponentInspector<ar::CurveC0Component>(entity, "Props");
+
 		
 		// rest...
 		ImGui::EndTabBar();
@@ -32,6 +34,11 @@ void ar::ComponentInspector::InspectComponent(TorusComponent& torus)
 	if (PropertyInspector::InspectProperty("Samples", torus.Description.Samples, 3u, 64u))
 		torus.DirtyFlag = true;
 
+}
+
+void ar::ComponentInspector::InspectComponent(CurveC0Component& curve)
+{
+	ImGui::Checkbox("Show polygon", &curve.ShowPolygon);
 }
 
 void ar::ComponentInspector::InspectComponent(TransformComponent& transform)
