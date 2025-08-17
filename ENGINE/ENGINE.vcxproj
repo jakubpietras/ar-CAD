@@ -209,6 +209,7 @@
     <None Include="src\resources\shaders\OpenGL\bezier.tese" />
     <None Include="src\resources\shaders\OpenGL\bezier.vert" />
     <None Include="src\resources\shaders\OpenGL\bezierPicking.frag" />
+    <None Include="src\resources\shaders\OpenGL\bspline.tesc" />
     <None Include="src\resources\shaders\OpenGL\grid.frag" />
     <None Include="src\resources\shaders\OpenGL\grid.vert" />
     <None Include="src\resources\shaders\OpenGL\default.frag" />

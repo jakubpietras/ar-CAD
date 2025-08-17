@@ -11,5 +11,6 @@ namespace ar
 
 		static bool ValidateCurve(Entity& entity);
 		static std::vector<uint32_t> GenerateC0Indices(size_t pointCount);
+		static std::vector<uint32_t> GenerateC2Indices(size_t pointCount);
 	};
 }

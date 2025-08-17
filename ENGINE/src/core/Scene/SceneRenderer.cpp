@@ -7,6 +7,8 @@ namespace ar
 {
 	const float SceneRenderer::CURSOR_SIZE = 15.0f;
 	const float SceneRenderer::MEAN_POINT_SIZE = 7.0f;
+	const mat::Vec3 SceneRenderer::POLYGON_COLOR = { .702f, .302f, 1.f };
+	const mat::Vec3 SceneRenderer::MIDDLE_POINT_COLOR = { .702f, .302f, 1.f };
 
 	SceneRenderer::SceneRenderer(Ref<Scene> scene)
 		: m_Scene(scene),
@@ -29,12 +31,12 @@ namespace ar
 
 		m_MeanPointMesh = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
 		std::vector<ar::VertexPositionColor> verts{
-			{{1.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
-			{{-1.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
-			{{0.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
-			{{0.0f, -1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
-			{{0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f}},
-			{{0.0f, 0.0f, -1.0f}, {1.0f, 0.0f, 0.0f}}
+			{{1.0f, 0.0f, 0.0f}, MIDDLE_POINT_COLOR},
+			{{-1.0f, 0.0f, 0.0f}, MIDDLE_POINT_COLOR},
+			{{0.0f, 1.0f, 0.0f}, MIDDLE_POINT_COLOR},
+			{{0.0f, -1.0f, 0.0f}, MIDDLE_POINT_COLOR},
+			{{0.0f, 0.0f, 1.0f}, MIDDLE_POINT_COLOR},
+			{{0.0f, 0.0f, -1.0f}, MIDDLE_POINT_COLOR}
 		};
 		m_MeanPointMesh->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(verts)));
 	}
@@ -206,19 +208,23 @@ namespace ar
 	void SceneRenderer::RenderPolygons(ar::mat::Mat4 viewProjection)
 	{
 		// Render Bezier polygons
+		auto c0curves = m_Scene->m_Registry.view<CurveC0Component, MeshComponent>();
+		auto c2curves = m_Scene->m_Registry.view<CurveC2Component, MeshComponent>();
 
-		auto view = m_Scene->m_Registry.view<CurveC0Component, MeshComponent>();
 		auto shader = ShaderLib::Get("Basic");
 		shader->SetMat4("u_VP", viewProjection);
 		shader->SetMat4("u_Model", mat::Identity());
-		shader->SetVec3("u_Color", { 0.5f, 0.5f, 1.0f });
+		shader->SetVec3("u_Color", POLYGON_COLOR);
 
-		for (auto [entity, cc, mc] : view.each())
+		for (const auto& [entity, cc, mc] : c0curves.each())
 		{
 			if (cc.ShowPolygon)
-			{
 				ar::Renderer::Submit(Primitive::LineStrip, shader, mc.VertexArray, false);
-			}
+		}
+		for (const auto& [entity, cc, mc] : c2curves.each())
+		{
+			if (cc.ShowPolygon)
+				ar::Renderer::Submit(Primitive::LineStrip, shader, mc.VertexArray, false);
 		}
 	}
 

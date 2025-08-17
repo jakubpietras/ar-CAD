@@ -28,5 +28,6 @@ namespace ar
 		static void InspectComponent(MeshComponent& mesh);
 		static void InspectComponent(TransformComponent& transform);
 		static void InspectComponent(CurveC0Component& curve);
+		static void InspectComponent(CurveC2Component& curve);
 	};
 }

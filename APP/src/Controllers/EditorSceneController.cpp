@@ -188,6 +188,27 @@ void EditorSceneController::AddCurveC0(std::vector<ar::Entity> points)
 	mesh.AdaptiveDrawing = true;
 }
 
+void EditorSceneController::AddCurveC2(std::vector<ar::Entity> points)
+{
+	AR_ASSERT(points.size() > 1, "Too few points to create a curve.");
+	auto entity = m_Scene->CreateEntity("Curve C2");
+	entity.AddComponent<ar::CurveC2Component>();
+
+	auto& cp = entity.AddComponent<ar::ControlPointsComponent>(points);
+	for (auto& point : points)
+		point.GetComponent<ar::PointComponent>().Parents.push_back(entity);
+
+	auto& mesh = entity.AddComponent<ar::MeshComponent>();
+	mesh.VertexArray = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
+	mesh.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(cp.GetVertexData(entity.GetID()))));
+	mesh.VertexArray->AddIndexBuffer(ar::Ref<ar::IndexBuffer>(ar::IndexBuffer::Create(ar::CurveUtils::GenerateC2Indices(points.size()))));
+	mesh.Shader = ar::ShaderLib::Get("CurveC2");
+	mesh.PickingShader = ar::ShaderLib::Get("CurveC2Picking");
+	mesh.RenderPrimitive = ar::Primitive::Patch;
+	mesh.TessellationPatchSize = 4;
+	mesh.AdaptiveDrawing = true;
+}
+
 void EditorSceneController::SelectEntities(std::vector<ar::Entity> entities, bool add /*= false*/)
 {
 	for (auto& entity : entities)
@@ -265,7 +286,7 @@ void EditorSceneController::DetachPoint(ar::Entity child, ar::Entity parent)
 void EditorSceneController::ValidateGeometry(EditorState& state)
 {
 	// 1. Remove invalid curves from points
-	auto view = m_Scene->m_Registry.view<ar::PointComponent>();
+	auto view = m_Scene->m_Registry.view<ar::PointComponent>(entt::exclude<ar::VirtualTagComponent>);
 	for (auto [entity, pc] : view.each())
 	{
 		auto point = ar::Entity(entity, m_Scene.get());
@@ -345,14 +366,13 @@ void EditorSceneController::ValidateSelection(EditorState& state)
 	state.SelectedObjectsWithTransforms.clear();
 	for (auto& entity : state.SelectedObjects)
 	{
-		if (entity.HasComponent<ar::PointComponent>())
+		if (entity.HasComponent<ar::PointComponent>() 
+			&& !entity.HasComponent<ar::VirtualTagComponent>())
 			state.SelectedPoints.push_back(entity);
-		if (entity.HasAnyComponent<ar::ChainComponent, ar::CurveC0Component>())
+		if (entity.HasAnyComponent<ar::ChainComponent, ar::CurveC0Component, ar::CurveC2Component>())
 			state.SelectedCurves.push_back(entity);
 		if (entity.HasComponent<ar::TransformComponent>())
-		{
 			state.SelectedObjectsWithTransforms.push_back(entity);
-		}
 	}
 
 	// middle point
@@ -395,6 +415,17 @@ void EditorSceneController::ProcessAdd(EditorState& state)
 		}
 		else
 			AddCurveC0(state.SelectedPoints);
+		break;
+	}
+	case ar::ObjectType::BEZIERC2:
+	{
+		if (state.SelectedPoints.size() < 2)
+		{
+			state.ShowErrorModal = true;
+			state.ErrorMessages.emplace_back("To create a B-spline curve, you need at least 2 points selected!");
+		}
+		else
+			AddCurveC2(state.SelectedPoints);
 		break;
 	}
 	case ar::ObjectType::NONE:

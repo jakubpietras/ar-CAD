@@ -28,6 +28,9 @@ namespace ar
 		static const float CURSOR_SIZE;
 		static const float MEAN_POINT_SIZE;
 
+		static const mat::Vec3 POLYGON_COLOR;
+		static const mat::Vec3 MIDDLE_POINT_COLOR;
+
 		Ref<Scene> m_Scene;
 		
 		Ref<VertexArray> m_PointsVA;

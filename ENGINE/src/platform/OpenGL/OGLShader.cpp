@@ -104,13 +104,41 @@ namespace ar
 	void OGLShader::LinkProgram(std::vector<uint32_t>& shaders)
 	{
 		m_programID = glCreateProgram();
+
 		for (auto& shader : shaders)
 			glAttachShader(m_programID, shader);
 
 		glLinkProgram(m_programID);
+
 		GLint status;
 		glGetProgramiv(m_programID, GL_LINK_STATUS, &status);
-		AR_ASSERT(GL_FALSE != status, "Linking a shader program failed.");
+
+		if (status == GL_FALSE) {
+			// Get the length of the info log
+			GLint logLength;
+			glGetProgramiv(m_programID, GL_INFO_LOG_LENGTH, &logLength);
+
+			if (logLength > 0) {
+				// Retrieve the info log
+				std::vector<char> log(logLength);
+				glGetProgramInfoLog(m_programID, logLength, nullptr, log.data());
+
+				// Clean up the failed program
+				glDeleteProgram(m_programID);
+				m_programID = 0;
+
+				// Create detailed error message
+				std::string errorMsg = "Shader program linking failed:\n";
+				errorMsg += std::string(log.begin(), log.end());
+
+				AR_ASSERT(false, errorMsg.c_str());
+			}
+			else {
+				glDeleteProgram(m_programID);
+				m_programID = 0;
+				AR_ASSERT(false, "Shader program linking failed with no error log.");
+			}
+		}
 	}
 
 	void OGLShader::DeleteShaders(std::vector<uint32_t>& shaders)

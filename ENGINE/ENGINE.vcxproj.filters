@@ -318,6 +318,7 @@
     <None Include="src\resources\shaders\OpenGL\bezier.tese" />
     <None Include="src\resources\shaders\OpenGL\bezier.frag" />
     <None Include="src\resources\shaders\OpenGL\bezierPicking.frag" />
+    <None Include="src\resources\shaders\OpenGL\bspline.tesc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\resources\icons\logo.png">

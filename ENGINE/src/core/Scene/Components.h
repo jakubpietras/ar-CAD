@@ -131,5 +131,10 @@ namespace ar
 		bool ShowPolygon = false;
 	};
 
+	struct CurveC2Component
+	{
+		bool ShowPolygon = false;
+	};
+
 #pragma endregion
 }

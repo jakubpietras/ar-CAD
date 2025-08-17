@@ -51,6 +51,19 @@ namespace ar
 			"resources/shaders/OpenGL/bezier.tesc",
 			"resources/shaders/OpenGL/bezier.tese"
 		));
+		s_Shaders["CurveC2"] = Ref<Shader>(Shader::Create(
+			"resources/shaders/OpenGL/bezier.vert",
+			"resources/shaders/OpenGL/bezier.frag",
+			"resources/shaders/OpenGL/bspline.tesc",
+			"resources/shaders/OpenGL/bezier.tese"
+		));
+		s_Shaders["CurveC2Picking"] = Ref<Shader>(Shader::Create(
+			"resources/shaders/OpenGL/bezier.vert",
+			"resources/shaders/OpenGL/bezierPicking.frag",
+			"resources/shaders/OpenGL/bspline.tesc",
+			"resources/shaders/OpenGL/bezier.tese"
+		));
+
 	}
 
 	ar::Ref<ar::Shader> ShaderLib::Get(const std::string& name)
