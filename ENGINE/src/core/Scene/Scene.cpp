@@ -5,6 +5,7 @@
 #include "core/UID.h"
 #include "core/Renderer/Framebuffer.h"
 #include <core/Utils/CurveUtils.h>
+#include "core/Utils/GeneralUtils.h"
 
 namespace ar
 {
@@ -149,7 +150,12 @@ namespace ar
 
 			auto e = ar::Entity(entity, this);
 			mesh.VertexArray->ClearBuffers();
-			mesh.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(cp.GetVertexData(e.GetID()))));
+			if (e.HasComponent<ar::InterpolatedC2Component>())
+				mesh.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(ar::CurveUtils::GetIntC2VertexData(cp.Points, e.GetID()))));
+			else
+				mesh.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(ar::GeneralUtils::GetVertexData(cp.Points, e.GetID()))));
+
+
 			if (e.HasComponent<ar::CurveC0Component>())
 			{
 				// todo: limit generation of new indices to only when vertex count changes

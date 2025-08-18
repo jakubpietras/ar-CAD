@@ -102,9 +102,6 @@ namespace ar
 		ControlPointsComponent(std::vector<Entity> initialPoints);
 		std::vector<Entity> Points{};
 		std::vector<uint32_t> Indices{};
-
-
-		std::vector<VertexPositionID> GetVertexData(uint32_t id);
 	};
 
 #pragma endregion
@@ -115,6 +112,12 @@ namespace ar
 		mat::Vec3 Color{ 1.f, 1.f, 1.f };
 		std::vector<Entity> Parents{};
 	};
+
+	//struct VirtualPointComponent
+	//{
+	//	mat::Vec3 Color{ 1.f, 1.f, 1.f };
+	//	ar::Entity Parent;
+	//};
 
 	struct TorusComponent
 	{
@@ -134,6 +137,12 @@ namespace ar
 	struct CurveC2Component
 	{
 		bool ShowPolygon = false;
+		bool DirtyFlag = false;	 // true == Bezier points changed, need to regenerate de Boor + Bezier
+	};
+
+	struct InterpolatedC2Component
+	{
+
 	};
 
 #pragma endregion

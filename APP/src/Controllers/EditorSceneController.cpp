@@ -1,6 +1,7 @@
 #include "EditorSceneController.h"
 #include "EditorConstants.h"
 #include "core/Renderer/Shader.h"
+#include "core/Utils/GeneralUtils.h"
 
 EditorSceneController::EditorSceneController(ar::Ref<ar::Scene> scene, ar::SceneRenderer& sceneRender)
 	: m_Scene(scene), m_SceneRenderer(sceneRender),
@@ -161,7 +162,9 @@ void EditorSceneController::AddChain(std::vector<ar::Entity> points)
 	auto& mesh = entity.AddComponent<ar::MeshComponent>();
 
 	mesh.VertexArray = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
-	mesh.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(cp.GetVertexData(entity.GetID()))));
+	//mesh.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(cp.GetVertexData(entity.GetID()))));
+
+	mesh.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(ar::GeneralUtils::GetVertexData(cp.Points, entity.GetID()))));
 	mesh.Shader = ar::ShaderLib::Get("Basic");
 	mesh.PickingShader = ar::ShaderLib::Get("Picking");
 	mesh.RenderPrimitive = ar::Primitive::LineStrip;
@@ -179,7 +182,10 @@ void EditorSceneController::AddCurveC0(std::vector<ar::Entity> points)
 
 	auto& mesh = entity.AddComponent<ar::MeshComponent>();
 	mesh.VertexArray = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
-	mesh.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(cp.GetVertexData(entity.GetID()))));
+//	mesh.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(cp.GetVertexData(entity.GetID()))));
+	mesh.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(ar::GeneralUtils::GetVertexData(cp.Points, entity.GetID()))));
+
+
 	mesh.VertexArray->AddIndexBuffer(ar::Ref<ar::IndexBuffer>(ar::IndexBuffer::Create(ar::CurveUtils::GenerateC0Indices(points.size()))));
 	mesh.Shader = ar::ShaderLib::Get("CurveC0");
 	mesh.PickingShader = ar::ShaderLib::Get("CurveC0Picking");
@@ -200,10 +206,33 @@ void EditorSceneController::AddCurveC2(std::vector<ar::Entity> points)
 
 	auto& mesh = entity.AddComponent<ar::MeshComponent>();
 	mesh.VertexArray = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
-	mesh.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(cp.GetVertexData(entity.GetID()))));
+	//mesh.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(cp.GetVertexData(entity.GetID()))));
+	mesh.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(ar::GeneralUtils::GetVertexData(cp.Points, entity.GetID()))));
+	
 	mesh.VertexArray->AddIndexBuffer(ar::Ref<ar::IndexBuffer>(ar::IndexBuffer::Create(ar::CurveUtils::GenerateC2Indices(points.size()))));
 	mesh.Shader = ar::ShaderLib::Get("CurveC2");
 	mesh.PickingShader = ar::ShaderLib::Get("CurveC2Picking");
+	mesh.RenderPrimitive = ar::Primitive::Patch;
+	mesh.TessellationPatchSize = 4;
+	mesh.AdaptiveDrawing = true;
+}
+
+void EditorSceneController::AddInterpolatedC2(std::vector<ar::Entity> points)
+{
+	AR_ASSERT(points.size() > 1, "Too few points to create a curve.");
+	auto entity = m_Scene->CreateEntity("Interpolated C2");
+	entity.AddComponent<ar::InterpolatedC2Component>();
+
+	auto& cp = entity.AddComponent<ar::ControlPointsComponent>(points);
+	for (auto& point : points)
+		point.GetComponent<ar::PointComponent>().Parents.push_back(entity);
+
+	auto& mesh = entity.AddComponent<ar::MeshComponent>();
+	mesh.VertexArray = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
+	mesh.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(ar::CurveUtils::GetIntC2VertexData(cp.Points, entity.GetID()))));
+
+	mesh.Shader = ar::ShaderLib::Get("CurveC0");
+	mesh.PickingShader = ar::ShaderLib::Get("CurveC0Picking");
 	mesh.RenderPrimitive = ar::Primitive::Patch;
 	mesh.TessellationPatchSize = 4;
 	mesh.AdaptiveDrawing = true;
@@ -369,7 +398,7 @@ void EditorSceneController::ValidateSelection(EditorState& state)
 		if (entity.HasComponent<ar::PointComponent>() 
 			&& !entity.HasComponent<ar::VirtualTagComponent>())
 			state.SelectedPoints.push_back(entity);
-		if (entity.HasAnyComponent<ar::ChainComponent, ar::CurveC0Component, ar::CurveC2Component>())
+		if (entity.HasAnyComponent<ar::ChainComponent, ar::CurveC0Component, ar::CurveC2Component, ar::InterpolatedC2Component>())
 			state.SelectedCurves.push_back(entity);
 		if (entity.HasComponent<ar::TransformComponent>())
 			state.SelectedObjectsWithTransforms.push_back(entity);
@@ -426,6 +455,17 @@ void EditorSceneController::ProcessAdd(EditorState& state)
 		}
 		else
 			AddCurveC2(state.SelectedPoints);
+		break;
+	}
+	case ar::ObjectType::INTERPOLATEDC2:
+	{
+		if (state.SelectedPoints.size() < 2)
+		{
+			state.ShowErrorModal = true;
+			state.ErrorMessages.emplace_back("To create an interpolated C2 curve, you need at least 2 points selected!");
+		}
+		else
+			AddInterpolatedC2(state.SelectedPoints);
 		break;
 	}
 	case ar::ObjectType::NONE:
@@ -492,6 +532,7 @@ void EditorSceneController::ProcessAttach(EditorState& state)
 		{
 			cp.push_back(pair.Child);
 			pair.Child.GetComponent<ar::PointComponent>().Parents.push_back(pair.Parent);
+			pair.Parent.GetComponent<ar::MeshComponent>().DirtyFlag = true;
 		}
 	}
 }

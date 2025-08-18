@@ -257,7 +257,10 @@ namespace ar
 			/// <param name="scalar">The scalar multiplier.</param>
 			/// <param name="v">The vector being multiplied.</param>
 			/// <returns>A scaled vector.</returns>
-			constexpr friend Vec3 operator*(float scalar, const Vec3& v);
+			constexpr friend Vec3 operator*(float scalar, const Vec3& v)
+			{
+				return { v.x * scalar, v.y * scalar, v.z * scalar };
+			}
 
 			/// <summary>
 			/// Component-wise multiplication by a scalar.

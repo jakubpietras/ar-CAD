@@ -4,3 +4,4 @@
 #include "matrix_types.h"
 #include "quaternion.h"
 #include "transformations.h"
+#include "solvers.h"

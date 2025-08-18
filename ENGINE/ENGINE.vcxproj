@@ -98,6 +98,7 @@
     <ClCompile Include="src\core\Scene\Entity.cpp" />
     <ClCompile Include="src\core\stb_image.cpp" />
     <ClCompile Include="src\core\Utils\CurveUtils.cpp" />
+    <ClCompile Include="src\core\Utils\GeneralUtils.cpp" />
     <ClCompile Include="src\core\Utils\TorusUtils.cpp" />
     <ClCompile Include="src\platform\OpenGL\OGLTexture.cpp" />
     <ClCompile Include="src\platform\OpenGL\OGLFramebuffer.cpp" />

@@ -43,6 +43,7 @@ private:
 	void AddChain(std::vector<ar::Entity> points);
 	void AddCurveC0(std::vector<ar::Entity> points);
 	void AddCurveC2(std::vector<ar::Entity> points);
+	void AddInterpolatedC2(std::vector<ar::Entity> points);
 
 	// Selection
 	void SelectEntities(std::vector<ar::Entity> entities, bool add = false);
