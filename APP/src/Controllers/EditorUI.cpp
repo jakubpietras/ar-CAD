@@ -25,6 +25,7 @@ void EditorUI::Render(ar::Ref<ar::Framebuffer> mainFB)
 	m_SceneHierarchyPanel.Render();
 
 	RenderPickingBox();
+	RenderAddObjectPopup();
 
 	// Modals
 	RenderDeleteModal();
@@ -149,35 +150,7 @@ void EditorUI::RenderMainMenu()
 
 		if (ImGui::BeginMenu("Add"))
 		{
-			if (ImGui::MenuItem("Point")) 
-				RequestAddObject(ar::ObjectType::POINT);
-			if (ImGui::BeginMenu("Mesh"))
-			{
-				if (ImGui::MenuItem("Torus")) 
-					RequestAddObject(ar::ObjectType::TORUS);
-				ImGui::EndMenu();
-			}
-			if (ImGui::BeginMenu("Curve"))
-			{
-				if (ImGui::MenuItem("Chain")) 
-					RequestAddObject(ar::ObjectType::CHAIN);
-				if (ImGui::MenuItem("Bezier C0"))
-					RequestAddObject(ar::ObjectType::BEZIERC0);
-				if (ImGui::MenuItem("Bezier C2"))
-					RequestAddObject(ar::ObjectType::BEZIERC2);
-				if (ImGui::MenuItem("Interpolated C2"))
-					RequestAddObject(ar::ObjectType::INTERPOLATEDC2);
-				ImGui::EndMenu();
-			}
-			if (ImGui::BeginMenu("Surface"))
-			{
-				if (ImGui::MenuItem("Bezier C0"))
-					RequestAddObject(ar::ObjectType::BEZIERSURFACEC0);
-				if (ImGui::MenuItem("Bezier C2"))
-					RequestAddObject(ar::ObjectType::BEZIERSURFACEC2);
-
-				ImGui::EndMenu();
-			}
+			RenderAddMenu();
 			ImGui::EndMenu();
 		}
 
@@ -235,6 +208,55 @@ void EditorUI::RenderViewport(ar::Ref<ar::Framebuffer> mainFB)
 
 	ImGui::End();
 	ImGui::PopStyleVar();
+}
+
+void EditorUI::RenderAddObjectPopup()
+{
+	if (ar::Input::IsKeyPressed(AR_KEY_LEFT_SHIFT) && ar::Input::IsKeyPressed(AR_KEY_A))
+		ImGui::OpenPopup("addObjectsPopup");
+	if (ImGui::BeginPopup("addObjectsPopup"))
+	{
+		RenderAddMenu();
+		ImGui::EndPopup();
+	}
+}
+
+void EditorUI::RenderAddSurfacePopup()
+{
+	// TODO: render add surface popup
+}
+
+void EditorUI::RenderAddMenu()
+{
+	if (ImGui::MenuItem("Point"))
+		RequestAddObject(ar::ObjectType::POINT);
+	if (ImGui::BeginMenu("Mesh"))
+	{
+		if (ImGui::MenuItem("Torus"))
+			RequestAddObject(ar::ObjectType::TORUS);
+		ImGui::EndMenu();
+	}
+	if (ImGui::BeginMenu("Curve"))
+	{
+		if (ImGui::MenuItem("Chain"))
+			RequestAddObject(ar::ObjectType::CHAIN);
+		if (ImGui::MenuItem("Bezier C0"))
+			RequestAddObject(ar::ObjectType::BEZIERC0);
+		if (ImGui::MenuItem("Bezier C2"))
+			RequestAddObject(ar::ObjectType::BEZIERC2);
+		if (ImGui::MenuItem("Interpolated C2"))
+			RequestAddObject(ar::ObjectType::INTERPOLATEDC2);
+		ImGui::EndMenu();
+	}
+	if (ImGui::BeginMenu("Surface"))
+	{
+		if (ImGui::MenuItem("Bezier C0"))
+			RequestAddObject(ar::ObjectType::BEZIERSURFACEC0);
+		if (ImGui::MenuItem("Bezier C2"))
+			RequestAddObject(ar::ObjectType::BEZIERSURFACEC2);
+
+		ImGui::EndMenu();
+	}
 }
 
 void EditorUI::RenderDeleteModal()

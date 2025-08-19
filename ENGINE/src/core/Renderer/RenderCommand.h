@@ -1,6 +1,7 @@
 #pragma once
 #include "RendererAPI.h"
 #include "Primitive.h"
+#include "LogUtils.h"
 
 namespace ar
 {
@@ -19,11 +20,14 @@ namespace ar
 		inline static void Draw(const Primitive primitive,
 			const std::shared_ptr<VertexArray>& vertexArray, uint32_t instanceCount = 1)
 		{
+			AR_ASSERT(vertexArray->GetVertexCount(), "Drawing from empty buffers");
 			s_RendererAPI->Draw(primitive, vertexArray, instanceCount);
 		}
 		inline static void DrawIndexed(const Primitive primitive,
 			const std::shared_ptr<VertexArray>& vertexArray, uint32_t instanceCount)
 		{
+			AR_ASSERT(vertexArray->GetVertexCount(), "Drawing from empty vertex buffers");
+			AR_ASSERT(vertexArray->GetIndexCount(), "Drawing with empty index buffer");
 			s_RendererAPI->DrawIndexed(primitive, vertexArray, instanceCount);
 		}
 		inline static void DrawEmpty(const Primitive primitive, uint32_t vertexCount, 

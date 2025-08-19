@@ -4,6 +4,7 @@
 #include "core/Renderer/Shader.h"
 #include "core/Renderer/Primitive.h"
 #include "core/Utils/TorusUtils.h"
+#include "core/Utils/SurfaceUtils.h"
 
 
 namespace ar
@@ -30,6 +31,7 @@ namespace ar
 
 	struct SelectedTagComponent {};		// Entities are selected
 	struct VirtualTagComponent {};		// Entities won't show up in the scene hierarchy
+	struct HiddenMeshTagComponent{};
 
 #pragma endregion
 #pragma region General
@@ -131,18 +133,25 @@ namespace ar
 
 	struct CurveC0Component
 	{
-		bool ShowPolygon = false;
+		bool	ShowPolygon = false;
 	};
 
 	struct CurveC2Component
 	{
-		bool ShowPolygon = false;
-		bool DirtyFlag = false;	 // true == Bezier points changed, need to regenerate de Boor + Bezier
+		bool	ShowPolygon = false,
+				DirtyFlag = false;	 // true == Bezier points changed, need to regenerate de Boor + Bezier
 	};
 
 	struct InterpolatedC2Component
 	{
 
+	};
+
+	struct BezierSurfaceC0Component
+	{
+		SurfaceDesc			Description;
+		bool				ShowNet = false,
+							DirtyFlag = false;
 	};
 
 #pragma endregion

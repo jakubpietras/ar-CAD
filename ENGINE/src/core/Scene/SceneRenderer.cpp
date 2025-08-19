@@ -59,6 +59,7 @@ namespace ar
 		auto& vpMat = cameraController->GetCamera()->GetVP();
 		RenderGrid(vpMat);
 		RenderMeshes(vpMat, RenderPassType::MAIN, viewport);
+		RenderSurfaces(vpMat, RenderPassType::MAIN);
 		RenderPoints(vpMat, RenderPassType::MAIN);
 		if (renderMeanPoint)
 			RenderMeanPoint(cameraController, meanPointPos);
@@ -80,6 +81,7 @@ namespace ar
 		glPointSize(8.0f);
 		auto& vpMat = cameraController->GetCamera()->GetVP();
 		RenderMeshes(vpMat, RenderPassType::SELECTION, viewport);
+		RenderSurfaces(vpMat, RenderPassType::SELECTION);
 		RenderPoints(vpMat, RenderPassType::SELECTION);
 
 		m_PickingFB->Unbind();
@@ -166,7 +168,7 @@ namespace ar
 
 	void SceneRenderer::RenderMeshes(ar::mat::Mat4 viewProjection, RenderPassType pass, ar::mat::Vec2 viewport)
 	{
-		auto view = m_Scene->m_Registry.view<MeshComponent>(entt::exclude<PointComponent>);
+		auto view = m_Scene->m_Registry.view<MeshComponent>(entt::exclude<PointComponent, HiddenMeshTagComponent, BezierSurfaceC0Component>);
 		for (auto [entity, mc] : view.each())
 		{
 			auto e = ar::Entity(entity, m_Scene.get());
@@ -205,6 +207,55 @@ namespace ar
 		}
 	}
 
+	void SceneRenderer::RenderSurfaces(ar::mat::Mat4 viewProjection, RenderPassType pass)
+	{
+		// TODO: render surfaces
+		auto view = m_Scene->m_Registry.view<MeshComponent, BezierSurfaceC0Component>(entt::exclude<HiddenMeshTagComponent>);
+		for (auto [entity, mc, bs] : view.each())
+		{
+			auto model = mat::Identity();
+			switch (pass)
+			{
+				case RenderPassType::MAIN:
+				{
+					mc.ShaderUsed = ShaderType::MAIN;
+					auto shader = mc.GetShader();
+					shader->SetMat4("u_VP", viewProjection);
+					shader->SetMat4("u_Model", model);
+					shader->SetUInt("u_SamplesU", bs.Description.Samples.u);
+					shader->SetUInt("u_SamplesV", bs.Description.Samples.v);
+
+					bool isSelected = m_Scene->m_Registry.any_of<SelectedTagComponent>(entity);
+					auto color = isSelected ? Renderer::SELECTION_COLOR : mc.PrimaryColor;
+					shader->SetVec3("u_Color", color);
+
+					shader->SetBool("u_SwitchCoords", false);
+					ar::Renderer::Submit(mc, mc.VertexArray->IsIndexed());
+					shader->SetBool("u_SwitchCoords", true);
+					ar::Renderer::Submit(mc, mc.VertexArray->IsIndexed());
+
+					break;
+				}
+				case RenderPassType::SELECTION:
+				{
+					mc.ShaderUsed = ShaderType::PICKING;
+					auto pickingShader = mc.GetShader();
+					pickingShader->SetMat4("u_VP", viewProjection);
+					pickingShader->SetMat4("u_Model", model);
+					pickingShader->SetUInt("u_SamplesU", bs.Description.Samples.u);
+					pickingShader->SetUInt("u_SamplesV", bs.Description.Samples.v);
+
+					pickingShader->SetBool("u_SwitchCoords", false);
+					ar::Renderer::Submit(mc, mc.VertexArray->IsIndexed());
+					pickingShader->SetBool("u_SwitchCoords", true);
+					ar::Renderer::Submit(mc, mc.VertexArray->IsIndexed());
+
+					break;
+				}
+			}
+		}
+	}
+
 	void SceneRenderer::RenderPolygons(ar::mat::Mat4 viewProjection)
 	{
 		// Render Bezier polygons
@@ -237,6 +288,9 @@ namespace ar
 		std::vector<VertexPositionID> unselectedVerts, selectedVerts;
 
 		auto view = m_Scene->m_Registry.view<TransformComponent, PointComponent>();
+		if (!view.size_hint())
+			return;
+
 		for (const auto& [e, transform, pt] : view.each())
 		{
 			auto entity = ar::Entity(e, m_Scene.get());
@@ -275,9 +329,12 @@ namespace ar
 				allVerts.insert(allVerts.end(), unselectedVerts.begin(), unselectedVerts.end());
 				allVerts.insert(allVerts.end(), selectedVerts.begin(), selectedVerts.end());
 
-				m_PointsVA->ClearBuffers();
-				m_PointsVA->AddVertexBuffer(Ref<VertexBuffer>(VertexBuffer::Create(allVerts)));
-				ar::Renderer::Submit(Primitive::Point, shader, m_PointsVA);
+				if (!allVerts.empty())
+				{
+					m_PointsVA->ClearBuffers();
+					m_PointsVA->AddVertexBuffer(Ref<VertexBuffer>(VertexBuffer::Create(allVerts)));
+					ar::Renderer::Submit(Primitive::Point, shader, m_PointsVA);
+				}
 				break;
 			}
 			default:

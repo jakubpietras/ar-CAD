@@ -66,6 +66,8 @@ namespace ar
 		uint32_t GetID();
 		const std::string& GetName();
 		void SetName(const std::string& newName);
+		void Hide();
+		void Show();
 
 		VertexPositionID GetPositionID();
 

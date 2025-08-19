@@ -16,11 +16,13 @@ public:
 	inline void OnUpdateCamera() { m_CameraController->OnUpdate(); }
 	inline void OnEventCamera(ar::Event& event) { m_CameraController->OnEvent(event); }
 	void ProcessStateChanges(EditorState& state);
+	void SetupScene();
 
 private:
 	ar::Ref<ar::Scene> m_Scene;
 	ar::Ref<ar::CameraController> m_CameraController;
 	ar::SceneRenderer& m_SceneRenderer;
+	ar::Entity m_TempSurface;
 
 	// Processors
 	void ProcessAdd(EditorState& state);
@@ -37,6 +39,10 @@ private:
 	void DeleteEntities(std::vector<ar::Entity>& entities);
 
 	// Addition
+	void SetupTempSurface();
+	void UpdateTempSurface(ar::SurfaceDesc desc, ar::mat::Vec3 position);
+
+	// ---
 	ar::Entity AddPoint(ar::mat::Vec3 spawnPoint);
 	void AddPointToCurves(ar::Entity point, std::vector<ar::Entity> curves);
 	void AddTorus(ar::mat::Vec3 spawnPoint, ar::TorusDesc desc);

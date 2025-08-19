@@ -9,6 +9,6 @@ namespace ar
 	{
 	public:
 		static std::vector<VertexPositionID> GetVertexData(std::vector<Entity> points, uint32_t id);
-
+		static std::vector<VertexPositionID> GetVertexData(std::vector<ar::mat::Vec3> positions, uint32_t id);
 	};
 }

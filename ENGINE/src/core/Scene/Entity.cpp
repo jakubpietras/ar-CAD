@@ -34,4 +34,16 @@ namespace ar
 		return { position, GetID() };
 	}
 
+	void Entity::Hide()
+	{
+		if (!HasComponent<HiddenMeshTagComponent>())
+			AddComponent<HiddenMeshTagComponent>();
+	}
+
+	void Entity::Show()
+	{
+		if (HasComponent<HiddenMeshTagComponent>())
+			RemoveComponent<HiddenMeshTagComponent>();
+	}
+
 }

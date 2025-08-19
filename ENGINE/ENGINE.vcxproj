@@ -99,6 +99,7 @@
     <ClCompile Include="src\core\stb_image.cpp" />
     <ClCompile Include="src\core\Utils\CurveUtils.cpp" />
     <ClCompile Include="src\core\Utils\GeneralUtils.cpp" />
+    <ClCompile Include="src\core\Utils\SurfaceUtils.cpp" />
     <ClCompile Include="src\core\Utils\TorusUtils.cpp" />
     <ClCompile Include="src\platform\OpenGL\OGLTexture.cpp" />
     <ClCompile Include="src\platform\OpenGL\OGLFramebuffer.cpp" />
@@ -218,6 +219,11 @@
     <None Include="src\resources\shaders\OpenGL\picking.frag" />
     <None Include="src\resources\shaders\OpenGL\points.frag" />
     <None Include="src\resources\shaders\OpenGL\points.vert" />
+    <None Include="src\resources\shaders\OpenGL\surface.frag" />
+    <None Include="src\resources\shaders\OpenGL\surface.tesc" />
+    <None Include="src\resources\shaders\OpenGL\surface.tese" />
+    <None Include="src\resources\shaders\OpenGL\surface.vert" />
+    <None Include="src\resources\shaders\OpenGL\surfacePicking.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\resources\icons\icon.png" />

@@ -12,7 +12,6 @@ namespace ar
 		static bool ValidateCurve(Entity& entity);
 		static std::vector<uint32_t> GenerateC0Indices(size_t pointCount);
 		static std::vector<uint32_t> GenerateC2Indices(size_t pointCount);
-		static std::vector<uint32_t> GenerateIntC2Indices(size_t pointCount);
 
 		static std::vector<VertexPositionID> GetIntC2VertexData(std::vector<ar::Entity> knots, uint32_t id);
 

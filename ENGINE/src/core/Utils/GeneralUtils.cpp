@@ -17,4 +17,13 @@ namespace ar
 		return data;
 	}
 
+	std::vector<ar::VertexPositionID> GeneralUtils::GetVertexData(std::vector<ar::mat::Vec3> positions, uint32_t id)
+	{
+		std::vector<VertexPositionID> data;
+		data.reserve(positions.size());
+		for (auto& position : positions)
+			data.push_back({ position, id });
+		return data;
+	}
+
 }

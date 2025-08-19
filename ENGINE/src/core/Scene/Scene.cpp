@@ -158,13 +158,13 @@ namespace ar
 
 			if (e.HasComponent<ar::CurveC0Component>())
 			{
-				// todo: limit generation of new indices to only when vertex count changes
+				// todo (maybe): limit generation of new indices to only when vertex count changes
 				auto indices = ar::CurveUtils::GenerateC0Indices(cp.Points.size());
 				mesh.VertexArray->AddIndexBuffer(ar::Ref<ar::IndexBuffer>(ar::IndexBuffer::Create(indices)));
 			}
 			if (e.HasComponent<ar::CurveC2Component>())
 			{
-				// todo: limit generation of new indices to only when vertex count changes
+				// todo (maybe): limit generation of new indices to only when vertex count changes
 				auto indices = ar::CurveUtils::GenerateC2Indices(cp.Points.size());
 				mesh.VertexArray->AddIndexBuffer(ar::Ref<ar::IndexBuffer>(ar::IndexBuffer::Create(indices)));
 			}

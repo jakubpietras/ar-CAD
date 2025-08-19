@@ -24,6 +24,10 @@ private:
 	void RenderInspectorWindow();
 	void RenderCursorControls();
 	void RenderViewport(ar::Ref<ar::Framebuffer> mainFB);
+	void RenderAddObjectPopup();
+	void RenderAddSurfacePopup();
+
+	void RenderAddMenu();
 
 	// modal
 	void RenderDeleteModal();

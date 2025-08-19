@@ -3,6 +3,7 @@
 void EditorState::ClearAddState()
 {
 	AddObjectType = ar::ObjectType::NONE;
+	NewSurfaceDesc = { {1, 1}, {4, 4} };
 	ShouldAddObject = false;
 }
 

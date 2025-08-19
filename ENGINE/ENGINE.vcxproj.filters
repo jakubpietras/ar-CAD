@@ -132,6 +132,9 @@
     <ClCompile Include="src\core\Utils\GeneralUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\core\Utils\SurfaceUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\core\Application.h">
@@ -322,6 +325,11 @@
     <None Include="src\resources\shaders\OpenGL\bezier.frag" />
     <None Include="src\resources\shaders\OpenGL\bezierPicking.frag" />
     <None Include="src\resources\shaders\OpenGL\bspline.tesc" />
+    <None Include="src\resources\shaders\OpenGL\surface.vert" />
+    <None Include="src\resources\shaders\OpenGL\surface.tesc" />
+    <None Include="src\resources\shaders\OpenGL\surface.tese" />
+    <None Include="src\resources\shaders\OpenGL\surface.frag" />
+    <None Include="src\resources\shaders\OpenGL\surfacePicking.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\resources\icons\logo.png">

@@ -2,6 +2,7 @@
 #include <vector>
 #include "core/Scene/Entity.h"
 #include "core/Scene/ObjectTypes.h"
+#include "core/Utils/SurfaceUtils.h"
 
 struct EntityLink
 {
@@ -26,6 +27,12 @@ struct EditorState
 	// =========================== Add ==========================
 	ar::ObjectType AddObjectType = ar::ObjectType::NONE;
 	bool ShouldAddObject = false;
+
+	// -- Add surface
+	ar::SurfaceDesc NewSurfaceDesc{ {1, 1}, {4, 4} };
+	bool ShouldRecreateTempSurf = false;
+	bool ShouldHideTempSurf = false;
+	bool ShouldShowTempSurf = false;
 	void ClearAddState();
 
 	// =========================== Delete ==========================

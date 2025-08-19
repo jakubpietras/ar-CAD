@@ -9,7 +9,8 @@ EditorSceneController::EditorSceneController(ar::Ref<ar::Scene> scene, ar::Scene
 		EditorCameraConstants::FOV, 0.0f,
 		EditorCameraConstants::NearPlane, EditorCameraConstants::FarPlane,
 		EditorCameraConstants::ArcballRadius))
-{ }
+{
+}
 
 void EditorSceneController::ProcessStateChanges(EditorState& state)
 {
@@ -83,12 +84,32 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 		EndGroupTransform(state);
 		state.ShouldEndGroupTransform = false;
 	}
+	if (state.ShouldRecreateTempSurf)
+	{
+		UpdateTempSurface(state.NewSurfaceDesc, state.CursorPosition);
+		state.ShouldRecreateTempSurf = false;
+	}
+	if (state.ShouldHideTempSurf)
+	{
+		m_TempSurface.Hide();
+		state.ShouldHideTempSurf = false;
+	}
+	if (state.ShouldShowTempSurf)
+	{
+		m_TempSurface.Show();
+		state.ShouldShowTempSurf = false;
+	}
 
 	// Validation
 	if (geometryValidation)
 		ValidateGeometry(state);
 	if (selectionValidation)
 		ValidateSelection(state);
+}
+
+void EditorSceneController::SetupScene()
+{
+	SetupTempSurface();
 }
 
 ar::Entity EditorSceneController::AddPoint(ar::mat::Vec3 spawnPoint)
@@ -610,4 +631,35 @@ void EditorSceneController::DeleteEntities(std::vector<ar::Entity>& entities)
 	{
 		m_Scene->DestroyEntity(entity);
 	}
+}
+
+void EditorSceneController::SetupTempSurface()
+{
+	// todo: add other types (cylinders, c2)
+	AR_ASSERT(points.size() > 1, "Too few points to create a curve.");
+	auto entity = m_Scene->CreateEntity("Surface");
+	m_TempSurface = entity;
+	entity.AddComponent<ar::VirtualTagComponent>();
+	entity.AddComponent<ar::BezierSurfaceC0Component>();
+
+	ar::SurfaceDesc desc;
+	auto& mesh = entity.AddComponent<ar::MeshComponent>();
+	mesh.VertexArray = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
+	auto positions = ar::SurfaceUtils::GenerateRectangleC0Data(desc, { .0f, .0f, .0f });
+	mesh.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(ar::GeneralUtils::GetVertexData(positions, entity.GetID()))));
+
+	mesh.VertexArray->AddIndexBuffer(ar::Ref<ar::IndexBuffer>(ar::IndexBuffer::Create(ar::SurfaceUtils::GenerateSurfaceC0Indices(desc))));
+	mesh.Shader = ar::ShaderLib::Get("SurfaceC0");
+	mesh.PickingShader = ar::ShaderLib::Get("SurfaceC0Picking");
+	mesh.RenderPrimitive = ar::Primitive::Patch;
+	mesh.TessellationPatchSize = 16;
+}
+
+void EditorSceneController::UpdateTempSurface(ar::SurfaceDesc desc, ar::mat::Vec3 position)
+{
+	// todo: add other types (cylinders, c2)
+	auto positions = ar::SurfaceUtils::GenerateRectangleC0Data(desc, position);
+	auto& mesh = m_TempSurface.GetComponent<ar::MeshComponent>();
+	mesh.VertexArray->ClearBuffers();
+	mesh.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(ar::GeneralUtils::GetVertexData(positions, m_TempSurface.GetID()))));
 }

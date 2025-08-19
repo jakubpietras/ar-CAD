@@ -63,7 +63,18 @@ namespace ar
 			"resources/shaders/OpenGL/bspline.tesc",
 			"resources/shaders/OpenGL/bezier.tese"
 		));
-
+		s_Shaders["SurfaceC0"] = Ref<Shader>(Shader::Create(
+			"resources/shaders/OpenGL/surface.vert",
+			"resources/shaders/OpenGL/surface.frag",
+			"resources/shaders/OpenGL/surface.tesc",
+			"resources/shaders/OpenGL/surface.tese"
+		));
+		s_Shaders["SurfaceC0Picking"] = Ref<Shader>(Shader::Create(
+			"resources/shaders/OpenGL/surface.vert",
+			"resources/shaders/OpenGL/surfacePicking.frag",
+			"resources/shaders/OpenGL/surface.tesc",
+			"resources/shaders/OpenGL/surface.tese"
+		));
 	}
 
 	ar::Ref<ar::Shader> ShaderLib::Get(const std::string& name)
