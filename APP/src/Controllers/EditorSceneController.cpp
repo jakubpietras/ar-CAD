@@ -84,32 +84,35 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 		EndGroupTransform(state);
 		state.ShouldEndGroupTransform = false;
 	}
-	if (state.ShouldRecreateTempSurf)
+
+	// Add surfaces
+	if (state.NewSurfaceBegin)
 	{
-		UpdateTempSurface(state.NewSurfaceDesc, state.CursorPosition);
-		state.ShouldRecreateTempSurf = false;
+		// todo: create a temporary surface
+		state.NewSurfaceBegin = false;
 	}
-	if (state.ShouldHideTempSurf)
+	if (state.NewSurfaceDescChanged)
 	{
-		m_TempSurface.Hide();
-		state.ShouldHideTempSurf = false;
+		// todo: update temporary surface
+		state.NewSurfaceDescChanged = false;
 	}
-	if (state.ShouldShowTempSurf)
+	if (state.NewSurfaceAccepted)
 	{
-		m_TempSurface.Show();
-		state.ShouldShowTempSurf = false;
+		// todo: add points to temporary surface and unhook
+		state.NewSurfaceAccepted = false;
 	}
+	if (state.NewSurfaceRejected)
+	{
+		// todo: destroy entity and unhook
+		state.NewSurfaceRejected = false;
+	}
+	
 
 	// Validation
 	if (geometryValidation)
 		ValidateGeometry(state);
 	if (selectionValidation)
 		ValidateSelection(state);
-}
-
-void EditorSceneController::SetupScene()
-{
-	SetupTempSurface();
 }
 
 ar::Entity EditorSceneController::AddPoint(ar::mat::Vec3 spawnPoint)

@@ -25,9 +25,10 @@ private:
 	void RenderCursorControls();
 	void RenderViewport(ar::Ref<ar::Framebuffer> mainFB);
 	void RenderAddObjectPopup();
-	void RenderAddSurfacePopup();
 
 	void RenderAddMenu();
+	bool RenderRectangleControls();
+	bool RenderCylinderControls();
 
 	// modal
 	void RenderDeleteModal();
@@ -35,6 +36,8 @@ private:
 	void RenderErrorModal();
 	void RenderDetachModal();
 	void RenderAttachModal();
+	void RenderAddSurfaceC0Modal();
+	void RenderAddSurfaceC2Modal();
 
 	void RequestAddObject(ar::ObjectType type);
 };

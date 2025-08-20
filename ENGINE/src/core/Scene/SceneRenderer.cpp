@@ -325,6 +325,9 @@ namespace ar
 			case RenderPassType::SELECTION:
 			{
 				std::vector<VertexPositionID> allVerts;
+				if (unselectedVerts.empty() && selectedVerts.empty())
+					break;
+
 				allVerts.reserve(unselectedVerts.size() + selectedVerts.size());
 				allVerts.insert(allVerts.end(), unselectedVerts.begin(), unselectedVerts.end());
 				allVerts.insert(allVerts.end(), selectedVerts.begin(), selectedVerts.end());

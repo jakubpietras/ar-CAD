@@ -29,10 +29,14 @@ struct EditorState
 	bool ShouldAddObject = false;
 
 	// -- Add surface
+	bool ShouldShowSurfaceC0Modal = false;
+	bool ShouldShowSurfaceC2Modal = false;
+
 	ar::SurfaceDesc NewSurfaceDesc{ {1, 1}, {4, 4} };
-	bool ShouldRecreateTempSurf = false;
-	bool ShouldHideTempSurf = false;
-	bool ShouldShowTempSurf = false;
+	bool NewSurfaceBegin = false;
+	bool NewSurfaceDescChanged = false;						// recreate temporary object
+	bool NewSurfaceAccepted = false;						// add real points
+	bool NewSurfaceRejected = false;						// destroy temporary object
 	void ClearAddState();
 
 	// =========================== Delete ==========================

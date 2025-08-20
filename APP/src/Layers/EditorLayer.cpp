@@ -16,7 +16,6 @@ EditorLayer::EditorLayer()
 void EditorLayer::OnAttach() 
 {
 	ar::ShaderLib::Init();
-	m_SceneController.SetupScene();
 }
 
 void EditorLayer::OnDetach() { }

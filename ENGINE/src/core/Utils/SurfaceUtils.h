@@ -4,11 +4,20 @@
 
 namespace ar
 {
+
+	enum class SurfaceType
+	{
+		RECTANGLEC0,
+		CYLINDERC0,
+		RECTANGLEC2,
+		CYLINDERC2
+	};
+
 	struct SurfaceDesc
 	{
-		UInt2	Size{ 1, 1 },
-				Samples{ 4, 4 };
-		bool	IsCylinder = false;
+		UInt2			Size{ 1, 1 },
+						Samples{ 4, 4 };
+		SurfaceType		Type;
 	};
 
 	class SurfaceUtils

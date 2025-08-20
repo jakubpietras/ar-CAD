@@ -33,6 +33,8 @@ void EditorUI::Render(ar::Ref<ar::Framebuffer> mainFB)
 	RenderErrorModal();
 	RenderDetachModal();
 	RenderAttachModal();
+	RenderAddSurfaceC0Modal();
+	RenderAddSurfaceC2Modal();
 }
 
 ar::mat::Vec2 EditorUI::GetClickPosition()
@@ -221,11 +223,6 @@ void EditorUI::RenderAddObjectPopup()
 	}
 }
 
-void EditorUI::RenderAddSurfacePopup()
-{
-	// TODO: render add surface popup
-}
-
 void EditorUI::RenderAddMenu()
 {
 	if (ImGui::MenuItem("Point"))
@@ -251,12 +248,34 @@ void EditorUI::RenderAddMenu()
 	if (ImGui::BeginMenu("Surface"))
 	{
 		if (ImGui::MenuItem("Bezier C0"))
-			RequestAddObject(ar::ObjectType::BEZIERSURFACEC0);
+			m_State.ShouldShowSurfaceC0Modal = true;
 		if (ImGui::MenuItem("Bezier C2"))
-			RequestAddObject(ar::ObjectType::BEZIERSURFACEC2);
+			m_State.ShouldShowSurfaceC2Modal = true;
 
 		ImGui::EndMenu();
 	}
+}
+
+bool EditorUI::RenderRectangleControls()
+{
+	bool changed = false;
+	static const uint32_t rectSamplesMin = 1, rectSamplesMax = 64;
+	ImGui::TextWrapped("Rectangle");
+	if(ImGui::DragScalarN("samples", ImGuiDataType_U32, &m_State.NewSurfaceDesc.Samples.u, 2, 1.0f, &rectSamplesMin, &rectSamplesMax))
+		changed = true;
+	return changed;
+}
+
+bool EditorUI::RenderCylinderControls()
+{
+	bool changed = false;
+	static const uint32_t cylSamplesMin = 1, cylSamplesMax = 64;
+	ImGui::TextWrapped("Cylinder");
+	if(ImGui::DragScalarN("samples", ImGuiDataType_U32, &m_State.NewSurfaceDesc.Samples.u, 2, 1.0f, &cylSamplesMin, &cylSamplesMax))
+		changed = true;
+	if (m_State.NewSurfaceDesc.Samples.u < 3)
+		m_State.NewSurfaceDesc.Samples.u = 3;
+	return changed;
 }
 
 void EditorUI::RenderDeleteModal()
@@ -411,6 +430,122 @@ void EditorUI::RenderAttachModal()
 		}
 		ImGui::EndPopup();
 	}
+}
+
+void EditorUI::RenderAddSurfaceC0Modal()
+{
+	const char* popupName = "New Bezier surface C0";
+
+	if (m_State.ShouldShowSurfaceC0Modal)
+	{
+		ImGui::OpenPopup(popupName);
+		m_State.NewSurfaceBegin = true;
+		m_State.ShouldShowSurfaceC0Modal = false;
+	}
+
+	ImGui::PushStyleColor(ImGuiCol_ModalWindowDimBg, ImVec4(0, 0, 0, 0));
+
+	if (ImGui::BeginPopupModal(popupName, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		static int current = 0;
+		static const char* options[] = { "Rectangle", "Cylinder" };
+		if (ImGui::Combo("Type", &current, options, IM_ARRAYSIZE(options)))
+		{
+			switch (current)
+			{
+			case 0: 
+				m_State.NewSurfaceDesc.Type = ar::SurfaceType::RECTANGLEC0; 
+				break;
+			case 1: 
+				m_State.NewSurfaceDesc.Type = ar::SurfaceType::CYLINDERC0; 
+				break;
+			}
+		}
+
+		if (m_State.NewSurfaceDesc.Type == ar::SurfaceType::RECTANGLEC0)
+		{
+			if (RenderRectangleControls())
+				m_State.NewSurfaceDescChanged = true;
+		}
+		else
+		{
+			if (RenderCylinderControls())
+				m_State.NewSurfaceDescChanged = true;
+		}
+
+		if (ImGui::Button("Accept", ImVec2(120, 0)))
+		{
+			m_State.NewSurfaceAccepted = true;
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Cancel", ImVec2(120, 0)))
+		{
+			m_State.NewSurfaceRejected = true;
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+
+	ImGui::PopStyleColor();
+}
+
+void EditorUI::RenderAddSurfaceC2Modal()
+{
+	const char* popupName = "New Bezier surface C2";
+
+	if (m_State.ShouldShowSurfaceC2Modal)
+	{
+		ImGui::OpenPopup(popupName);
+		m_State.NewSurfaceBegin = true;
+		m_State.ShouldShowSurfaceC2Modal = false;
+	}
+
+	ImGui::PushStyleColor(ImGuiCol_ModalWindowDimBg, ImVec4(0, 0, 0, 0));
+
+	if (ImGui::BeginPopupModal(popupName, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		static int current = 0;
+		static const char* options[] = { "Rectangle", "Cylinder" };
+		if (ImGui::Combo("Type", &current, options, IM_ARRAYSIZE(options)))
+		{
+			switch (current)
+			{
+			case 0:
+				m_State.NewSurfaceDesc.Type = ar::SurfaceType::RECTANGLEC2;
+				break;
+			case 1:
+				m_State.NewSurfaceDesc.Type = ar::SurfaceType::CYLINDERC2;
+				break;
+			}
+		}
+
+		if (m_State.NewSurfaceDesc.Type == ar::SurfaceType::RECTANGLEC2)
+		{
+			if (RenderRectangleControls())
+				m_State.NewSurfaceDescChanged = true;
+		}
+		else
+		{
+			if (RenderCylinderControls())
+				m_State.NewSurfaceDescChanged = true;
+		}
+			
+		if (ImGui::Button("Accept", ImVec2(120, 0)))
+		{
+			m_State.NewSurfaceAccepted = true;
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Cancel", ImVec2(120, 0)))
+		{
+			m_State.NewSurfaceRejected = true;
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+
+	ImGui::PopStyleColor();
 }
 
 void EditorUI::RequestAddObject(ar::ObjectType type)

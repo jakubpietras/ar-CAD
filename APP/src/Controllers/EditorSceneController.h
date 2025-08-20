@@ -16,7 +16,6 @@ public:
 	inline void OnUpdateCamera() { m_CameraController->OnUpdate(); }
 	inline void OnEventCamera(ar::Event& event) { m_CameraController->OnEvent(event); }
 	void ProcessStateChanges(EditorState& state);
-	void SetupScene();
 
 private:
 	ar::Ref<ar::Scene> m_Scene;
