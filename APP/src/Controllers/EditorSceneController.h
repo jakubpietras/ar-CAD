@@ -38,18 +38,23 @@ private:
 	void DeleteEntities(std::vector<ar::Entity>& entities);
 
 	// Addition
-	void SetupTempSurface();
-	void UpdateTempSurface(ar::SurfaceDesc desc, ar::mat::Vec3 position);
+	void CreateTempSurface(ar::SurfaceDesc desc, ar::mat::Vec3 position);
+	void UpdateTempSurface(ar::SurfaceDesc& desc, ar::mat::Vec3 position);
+	void AcceptTempSurface(EditorState& state);
+	void RejectTempSurface();
 
 	// ---
+
 	ar::Entity AddPoint(ar::mat::Vec3 spawnPoint);
-	void AddPointToCurves(ar::Entity point, std::vector<ar::Entity> curves);
+	void AddSurfacePoints(ar::Entity surface, ar::SurfaceDesc desc, ar::mat::Vec3 origin);
 	void AddTorus(ar::mat::Vec3 spawnPoint, ar::TorusDesc desc);
 	void AddChain(std::vector<ar::Entity> points);
 	void AddCurveC0(std::vector<ar::Entity> points);
 	void AddCurveC2(std::vector<ar::Entity> points);
 	void AddInterpolatedC2(std::vector<ar::Entity> points);
 
+	void AttachPointToCurves(ar::Entity point, std::vector<ar::Entity> curves);
+	
 	// Selection
 	void SelectEntities(std::vector<ar::Entity> entities, bool add = false);
 	void DeselectEntities(std::vector<ar::Entity> entities);

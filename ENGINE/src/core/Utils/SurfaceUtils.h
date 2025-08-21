@@ -15,21 +15,27 @@ namespace ar
 
 	struct SurfaceDesc
 	{
-		UInt2			Size{ 1, 1 },
-						Samples{ 4, 4 };
+		ar::mat::Vec2	Dimensions{ 1.f, 1.f };	// Measure along the surface in u and v (extent)
+		UInt2			Size{ 16, 16 },			// Number of CONTROL POINTS in u and v (use internally)
+						Samples{ 4, 4 },		// Density of the mesh
+						Segments{ 1, 1 };		// Number of SEGMENTS in u and v
 		SurfaceType		Type;
 	};
 
 	class SurfaceUtils
 	{
 	public:
+		static std::vector<mat::Vec3> GenerateSurfaceData(SurfaceDesc desc, mat::Vec3 origin);
+		static std::vector<uint32_t> GenerateSurfaceIndices(SurfaceDesc desc);
+		
+	private:
 		static std::vector<mat::Vec3> GenerateRectangleC0Data(SurfaceDesc desc, mat::Vec3 origin);
 		static std::vector<mat::Vec3> GenerateCylinderC0Data(SurfaceDesc desc, mat::Vec3 origin);
 		static std::vector<mat::Vec3> GenerateRectangleC2Data(SurfaceDesc desc, mat::Vec3 origin);
 		static std::vector<mat::Vec3> GenerateCylinderC2Data(SurfaceDesc desc, mat::Vec3 origin);
 
-		static std::vector<uint32_t> GenerateSurfaceC0Indices(SurfaceDesc desc);
+		static std::vector<uint32_t> GenerateRectangleC0Indices(SurfaceDesc desc);
+		static std::vector<uint32_t> GenerateCylinderC0Indices(SurfaceDesc desc);
 		static std::vector<uint32_t> GenerateSurfaceC2Indices(SurfaceDesc desc);
-
 	};
 }

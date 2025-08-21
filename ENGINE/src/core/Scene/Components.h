@@ -154,5 +154,12 @@ namespace ar
 							DirtyFlag = false;
 	};
 
+	struct BezierSurfaceC2Component
+	{
+		SurfaceDesc			Description;
+		bool				ShowNet = false,
+							DirtyFlag = false;
+	};
+
 #pragma endregion
 }

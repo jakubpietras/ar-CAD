@@ -169,6 +169,11 @@ namespace ar
 				mesh.VertexArray->AddIndexBuffer(ar::Ref<ar::IndexBuffer>(ar::IndexBuffer::Create(indices)));
 			}
 
+			if (!cp.Indices.empty())
+			{
+				mesh.VertexArray->AddIndexBuffer(ar::Ref<ar::IndexBuffer>(ar::IndexBuffer::Create(cp.Indices)));
+			}
+
 			mesh.DirtyFlag = false;
 		}
 	}

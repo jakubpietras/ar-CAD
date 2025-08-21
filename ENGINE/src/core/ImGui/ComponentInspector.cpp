@@ -19,6 +19,8 @@ void ar::ComponentInspector::ShowInspector(Entity entity)
 		ShowComponentInspector<ar::TransformComponent>(entity, "Transform");
 		ShowComponentInspector<ar::CurveC0Component>(entity, "Props");
 		ShowComponentInspector<ar::CurveC2Component>(entity, "Props");
+		ShowComponentInspector<ar::BezierSurfaceC0Component>(entity, "Props");
+		ShowComponentInspector<ar::BezierSurfaceC2Component>(entity, "Props");
 
 		// rest...
 		ImGui::EndTabBar();
@@ -34,6 +36,18 @@ void ar::ComponentInspector::InspectComponent(TorusComponent& torus)
 	if (PropertyInspector::InspectProperty("Samples", torus.Description.Samples, 3u, 64u))
 		torus.DirtyFlag = true;
 
+}
+
+void ar::ComponentInspector::InspectComponent(BezierSurfaceC2Component& surface)
+{
+	// todo
+}
+
+void ar::ComponentInspector::InspectComponent(BezierSurfaceC0Component& surface)
+{
+	ImGui::Checkbox("Show net", &surface.ShowNet);
+	if (PropertyInspector::InspectProperty("Samples", surface.Description.Samples, 4u, 64u))
+		surface.DirtyFlag = true;
 }
 
 void ar::ComponentInspector::InspectComponent(CurveC2Component& curve)

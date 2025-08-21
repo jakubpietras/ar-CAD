@@ -259,22 +259,24 @@ void EditorUI::RenderAddMenu()
 bool EditorUI::RenderRectangleControls()
 {
 	bool changed = false;
-	static const uint32_t rectSamplesMin = 1, rectSamplesMax = 64;
-	ImGui::TextWrapped("Rectangle");
-	if(ImGui::DragScalarN("samples", ImGuiDataType_U32, &m_State.NewSurfaceDesc.Samples.u, 2, 1.0f, &rectSamplesMin, &rectSamplesMax))
+	static const uint32_t rectSegmentsMin = 1, rectSegmentsMax = 64, rectSizeMin = 1, rectSizeMax = 100;
+	if(ImGui::DragScalarN("segments", ImGuiDataType_U32, &m_State.NewSurfaceDesc.Segments.u, 2, 1.0f, &rectSegmentsMin, &rectSegmentsMax))
 		changed = true;
+	if (ImGui::DragFloat2("size", m_State.NewSurfaceDesc.Dimensions.Data(), 0.1f))
+		changed = true;
+
 	return changed;
 }
 
 bool EditorUI::RenderCylinderControls()
 {
 	bool changed = false;
-	static const uint32_t cylSamplesMin = 1, cylSamplesMax = 64;
+	static const uint32_t cylSegmentsMin = 1, cylSegmentsMax = 64;
 	ImGui::TextWrapped("Cylinder");
-	if(ImGui::DragScalarN("samples", ImGuiDataType_U32, &m_State.NewSurfaceDesc.Samples.u, 2, 1.0f, &cylSamplesMin, &cylSamplesMax))
+	if (ImGui::DragScalarN("segments", ImGuiDataType_U32, &m_State.NewSurfaceDesc.Segments.u, 2, 1.0f, &cylSegmentsMin, &cylSegmentsMax))
 		changed = true;
-	if (m_State.NewSurfaceDesc.Samples.u < 3)
-		m_State.NewSurfaceDesc.Samples.u = 3;
+	if (m_State.NewSurfaceDesc.Segments.u < 3)
+		m_State.NewSurfaceDesc.Segments.u = 3;
 	return changed;
 }
 

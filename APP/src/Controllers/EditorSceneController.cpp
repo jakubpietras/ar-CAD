@@ -88,26 +88,27 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 	// Add surfaces
 	if (state.NewSurfaceBegin)
 	{
-		// todo: create a temporary surface
+		CreateTempSurface(state.NewSurfaceDesc, state.CursorPosition);
 		state.NewSurfaceBegin = false;
 	}
 	if (state.NewSurfaceDescChanged)
 	{
-		// todo: update temporary surface
+		UpdateTempSurface(state.NewSurfaceDesc, state.CursorPosition);
 		state.NewSurfaceDescChanged = false;
 	}
 	if (state.NewSurfaceAccepted)
 	{
-		// todo: add points to temporary surface and unhook
+		AcceptTempSurface(state);
+		state.NewSurfaceDesc = {};
 		state.NewSurfaceAccepted = false;
 	}
 	if (state.NewSurfaceRejected)
 	{
-		// todo: destroy entity and unhook
+		RejectTempSurface();
+		state.NewSurfaceDesc = {};
 		state.NewSurfaceRejected = false;
 	}
 	
-
 	// Validation
 	if (geometryValidation)
 		ValidateGeometry(state);
@@ -131,7 +132,25 @@ ar::Entity EditorSceneController::AddPoint(ar::mat::Vec3 spawnPoint)
 	return entity;
 }
 
-void EditorSceneController::AddPointToCurves(ar::Entity point, std::vector<ar::Entity> curves)
+void EditorSceneController::AddSurfacePoints(ar::Entity surface, ar::SurfaceDesc desc, ar::mat::Vec3 origin)
+{
+	auto& cp = surface.AddComponent<ar::ControlPointsComponent>();
+	std::vector<ar::mat::Vec3> positions;
+	std::vector<uint32_t> indices;
+	
+	positions = ar::SurfaceUtils::GenerateSurfaceData(desc, origin);
+	indices = ar::SurfaceUtils::GenerateSurfaceIndices(desc);
+
+	for (auto& spawnPoint : positions)
+	{
+		auto point = AddPoint(spawnPoint);
+		cp.Points.push_back(point);
+		point.GetComponent<ar::PointComponent>().Parents.push_back(surface);
+	}
+	cp.Indices = indices;
+}
+
+void EditorSceneController::AttachPointToCurves(ar::Entity point, std::vector<ar::Entity> curves)
 {
 	for (auto& curve : curves)
 	{
@@ -440,7 +459,7 @@ void EditorSceneController::ProcessAdd(EditorState& state)
 	{
 		auto pt = AddPoint(state.CursorPosition);
 		if (!state.SelectedCurves.empty())
-			AddPointToCurves(pt, state.SelectedCurves);
+			AttachPointToCurves(pt, state.SelectedCurves);
 		break;
 	}
 	case ar::ObjectType::TORUS:
@@ -636,33 +655,119 @@ void EditorSceneController::DeleteEntities(std::vector<ar::Entity>& entities)
 	}
 }
 
-void EditorSceneController::SetupTempSurface()
+void EditorSceneController::CreateTempSurface(ar::SurfaceDesc desc, ar::mat::Vec3 position)
 {
-	// todo: add other types (cylinders, c2)
-	AR_ASSERT(points.size() > 1, "Too few points to create a curve.");
-	auto entity = m_Scene->CreateEntity("Surface");
-	m_TempSurface = entity;
-	entity.AddComponent<ar::VirtualTagComponent>();
-	entity.AddComponent<ar::BezierSurfaceC0Component>();
+	std::vector<ar::mat::Vec3> positions;
+	std::vector<uint32_t> indices;
+	ar::Ref<ar::Shader> shader, pickingShader;
 
-	ar::SurfaceDesc desc;
-	auto& mesh = entity.AddComponent<ar::MeshComponent>();
+	m_TempSurface = m_Scene->CreateEntity("Surface");
+	m_TempSurface.AddComponent<ar::VirtualTagComponent>();
+	positions = ar::SurfaceUtils::GenerateSurfaceData(desc, position);
+	indices = ar::SurfaceUtils::GenerateSurfaceIndices(desc);
+
+
+	switch (desc.Type)
+	{
+		case ar::SurfaceType::RECTANGLEC0:
+		{
+			m_TempSurface.AddComponent<ar::BezierSurfaceC0Component>();
+			shader = ar::ShaderLib::Get("SurfaceC0");
+			pickingShader = ar::ShaderLib::Get("SurfaceC0Picking");
+			break;
+		}
+		case ar::SurfaceType::CYLINDERC0:
+		{
+			m_TempSurface.AddComponent<ar::BezierSurfaceC0Component>();
+			shader = ar::ShaderLib::Get("SurfaceC0");
+			pickingShader = ar::ShaderLib::Get("SurfaceC0Picking");
+			break;
+		}
+		case ar::SurfaceType::RECTANGLEC2:
+		{
+			m_TempSurface.AddComponent<ar::BezierSurfaceC2Component>();
+			// todo: change to correct shaders
+			shader = ar::ShaderLib::Get("SurfaceC0");
+			pickingShader = ar::ShaderLib::Get("SurfaceC0Picking");
+			break;
+		}
+		case ar::SurfaceType::CYLINDERC2:
+		{
+			m_TempSurface.AddComponent<ar::BezierSurfaceC2Component>();
+			// todo: change to correct shaders
+			shader = ar::ShaderLib::Get("SurfaceC0");
+			pickingShader = ar::ShaderLib::Get("SurfaceC0Picking");
+			break;
+		}
+	}
+
+	auto& mesh = m_TempSurface.AddComponent<ar::MeshComponent>();
 	mesh.VertexArray = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
-	auto positions = ar::SurfaceUtils::GenerateRectangleC0Data(desc, { .0f, .0f, .0f });
-	mesh.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(ar::GeneralUtils::GetVertexData(positions, entity.GetID()))));
-
-	mesh.VertexArray->AddIndexBuffer(ar::Ref<ar::IndexBuffer>(ar::IndexBuffer::Create(ar::SurfaceUtils::GenerateSurfaceC0Indices(desc))));
-	mesh.Shader = ar::ShaderLib::Get("SurfaceC0");
-	mesh.PickingShader = ar::ShaderLib::Get("SurfaceC0Picking");
+	mesh.VertexArray->AddVertexBuffer(
+		ar::Ref<ar::VertexBuffer>(
+			ar::VertexBuffer::Create(
+			ar::GeneralUtils::GetVertexData(positions, m_TempSurface.GetID())
+		))
+	);
+	mesh.VertexArray->AddIndexBuffer(
+		ar::Ref<ar::IndexBuffer>(
+			ar::IndexBuffer::Create(indices)
+		));
+	mesh.Shader = shader;
+	mesh.PickingShader = pickingShader;
 	mesh.RenderPrimitive = ar::Primitive::Patch;
 	mesh.TessellationPatchSize = 16;
 }
 
-void EditorSceneController::UpdateTempSurface(ar::SurfaceDesc desc, ar::mat::Vec3 position)
+void EditorSceneController::UpdateTempSurface(ar::SurfaceDesc& desc, ar::mat::Vec3 position)
 {
-	// todo: add other types (cylinders, c2)
-	auto positions = ar::SurfaceUtils::GenerateRectangleC0Data(desc, position);
+	std::vector<ar::mat::Vec3> positions;
+	std::vector<uint32_t> indices;
+	switch (desc.Type)
+	{
+		case ar::SurfaceType::RECTANGLEC0:
+		{
+			desc.Size = { 3 * desc.Segments.u + 1, 3 * desc.Segments.v + 1 };
+			break;
+		}
+		case ar::SurfaceType::CYLINDERC0:
+		{
+			desc.Size = { 3 * desc.Segments.u + 1, 3 * desc.Segments.v };
+			break;
+		}
+		case ar::SurfaceType::RECTANGLEC2:
+		{
+			desc.Size = { desc.Segments.u + 3, desc.Segments.v + 3 };
+			break;
+		}
+		case ar::SurfaceType::CYLINDERC2:
+		{
+			desc.Size = { desc.Segments.u + 3, desc.Segments.v };
+			break;
+		}
+	}
+
+	positions = ar::SurfaceUtils::GenerateSurfaceData(desc, position);
+	indices = ar::SurfaceUtils::GenerateSurfaceIndices(desc);
+
 	auto& mesh = m_TempSurface.GetComponent<ar::MeshComponent>();
 	mesh.VertexArray->ClearBuffers();
 	mesh.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(ar::GeneralUtils::GetVertexData(positions, m_TempSurface.GetID()))));
+	mesh.VertexArray->AddIndexBuffer(
+		ar::Ref<ar::IndexBuffer>(
+			ar::IndexBuffer::Create(indices)
+		));
+}
+
+void EditorSceneController::AcceptTempSurface(EditorState& state)
+{
+	m_TempSurface.RemoveComponent<ar::VirtualTagComponent>();
+	AddSurfacePoints(m_TempSurface, state.NewSurfaceDesc, state.CursorPosition);
+	m_TempSurface = ar::Entity(entt::null, nullptr);
+}
+
+void EditorSceneController::RejectTempSurface()
+{
+	m_Scene->DestroyEntity(m_TempSurface);
+	m_TempSurface = ar::Entity(entt::null, nullptr);
 }
