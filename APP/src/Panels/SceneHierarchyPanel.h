@@ -22,4 +22,6 @@ private:
 	EditorState& m_State;
 	ar::Ref<ar::Scene> m_Scene;
 
+	bool m_ShowUnselectedPoints = false;
+
 };

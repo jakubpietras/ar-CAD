@@ -144,6 +144,7 @@ void EditorSceneController::AddSurfacePoints(ar::Entity surface, ar::SurfaceDesc
 	for (auto& spawnPoint : positions)
 	{
 		auto point = AddPoint(spawnPoint);
+		point.AddComponent<ar::SurfacePointTagComponent>();
 		cp.Points.push_back(point);
 		point.GetComponent<ar::PointComponent>().Parents.push_back(surface);
 	}

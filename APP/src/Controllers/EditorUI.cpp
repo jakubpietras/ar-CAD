@@ -277,6 +277,12 @@ bool EditorUI::RenderCylinderControls()
 		changed = true;
 	if (m_State.NewSurfaceDesc.Segments.u < 3)
 		m_State.NewSurfaceDesc.Segments.u = 3;
+
+	if (ImGui::DragFloat("radius", &m_State.NewSurfaceDesc.Dimensions.x, 0.1f, 0.1f, 10.0f))
+		changed = true;
+	if (ImGui::DragFloat("height", &m_State.NewSurfaceDesc.Dimensions.y, 0.1f, 0.1f, 10.f))
+		changed = true;
+
 	return changed;
 }
 
@@ -457,9 +463,11 @@ void EditorUI::RenderAddSurfaceC0Modal()
 			{
 			case 0: 
 				m_State.NewSurfaceDesc.Type = ar::SurfaceType::RECTANGLEC0; 
+				m_State.NewSurfaceDescChanged = true;
 				break;
 			case 1: 
 				m_State.NewSurfaceDesc.Type = ar::SurfaceType::CYLINDERC0; 
+				m_State.NewSurfaceDescChanged = true;
 				break;
 			}
 		}
@@ -515,9 +523,11 @@ void EditorUI::RenderAddSurfaceC2Modal()
 			{
 			case 0:
 				m_State.NewSurfaceDesc.Type = ar::SurfaceType::RECTANGLEC2;
+				m_State.NewSurfaceDescChanged = true;
 				break;
 			case 1:
 				m_State.NewSurfaceDesc.Type = ar::SurfaceType::CYLINDERC2;
+				m_State.NewSurfaceDescChanged = true;
 				break;
 			}
 		}

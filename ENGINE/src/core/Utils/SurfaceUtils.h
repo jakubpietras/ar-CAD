@@ -16,6 +16,7 @@ namespace ar
 	struct SurfaceDesc
 	{
 		ar::mat::Vec2	Dimensions{ 1.f, 1.f };	// Measure along the surface in u and v (extent)
+												// (for cylinders, x is radius, y is height)
 		UInt2			Size{ 16, 16 },			// Number of CONTROL POINTS in u and v (use internally)
 						Samples{ 4, 4 },		// Density of the mesh
 						Segments{ 1, 1 };		// Number of SEGMENTS in u and v
@@ -37,5 +38,6 @@ namespace ar
 		static std::vector<uint32_t> GenerateRectangleC0Indices(SurfaceDesc desc);
 		static std::vector<uint32_t> GenerateCylinderC0Indices(SurfaceDesc desc);
 		static std::vector<uint32_t> GenerateSurfaceC2Indices(SurfaceDesc desc);
+		static std::vector<uint32_t> GenerateCylinderC2Indices(SurfaceDesc desc);
 	};
 }

@@ -32,6 +32,7 @@ namespace ar
 	struct SelectedTagComponent {};		// Entities are selected
 	struct VirtualTagComponent {};		// Entities won't show up in the scene hierarchy
 	struct HiddenMeshTagComponent{};
+	struct SurfacePointTagComponent{};
 
 #pragma endregion
 #pragma region General

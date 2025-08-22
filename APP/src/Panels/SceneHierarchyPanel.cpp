@@ -9,10 +9,12 @@ void SceneHierarchyPanel::Render()
 	AR_ASSERT(m_Scene, "Context (Scene) not set!");
 
 	ImGui::Begin("Scene Hierarchy");
-	
+	ImGui::Checkbox("Show unselected points", &m_ShowUnselectedPoints);
 	for (auto entity : m_Scene->m_Registry.view<entt::entity>(entt::exclude<ar::VirtualTagComponent>))
 	{
 		ar::Entity e{ entity, m_Scene.get() };
+		if (e.HasComponent<ar::PointComponent>() && !e.HasComponent<ar::SelectedTagComponent>() && !m_ShowUnselectedPoints)
+			continue;
 		DrawParentNode(e);
 	}
 
@@ -128,10 +130,19 @@ void SceneHierarchyPanel::DrawEntityContextMenu(ar::Entity& object, bool allowDe
 		m_State.ObjectToRename = object;
 		m_State.ShowRenameModal = true;
 	}
-	if (ImGui::MenuItem("Delete"))
 	{
-		m_State.ObjectsToDelete.push_back(object);
-		m_State.ShowDeleteModal = true;
+		ar::ScopedDisable disabled(object.HasComponent<ar::SurfacePointTagComponent>());
+		if (ImGui::MenuItem("Delete"))
+		{
+			m_State.ObjectsToDelete.push_back(object);
+			if (object.HasAnyComponent<ar::BezierSurfaceC0Component, ar::BezierSurfaceC2Component>())
+			{
+				// delete all points contained in the surface
+				auto& points = object.GetComponent<ar::ControlPointsComponent>().Points;
+				m_State.ObjectsToDelete.insert(m_State.ObjectsToDelete.end(), points.begin(), points.end());
+			}
+			m_State.ShowDeleteModal = true;
+		}
 	}
 	if (allowDeleteSelected)
 	{
@@ -165,10 +176,14 @@ void SceneHierarchyPanel::DrawEntityContextMenu(ar::Entity& object, bool allowDe
 
 void SceneHierarchyPanel::DrawLinkContextMenu(ar::Entity& child, ar::Entity& parent)
 {
-	if (ImGui::MenuItem("Detach"))
+	bool surfaceParent = parent.HasAnyComponent<ar::BezierSurfaceC0Component, ar::BezierSurfaceC2Component>();
 	{
-		m_State.PairsToDetach.push_back({ parent, child });
-		m_State.ShowDetachModal = true;
+		ar::ScopedDisable disable(surfaceParent);
+		if (ImGui::MenuItem("Detach"))
+		{
+			m_State.PairsToDetach.push_back({ parent, child });
+			m_State.ShowDetachModal = true;
+		}
 	}
 }
 
