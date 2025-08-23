@@ -11,7 +11,7 @@ flat in uint IDControl[];
 
 // data which goes out tessellation control and into evaluation
 out vec3 PosEval[];
-flat out uint IDEval[];
+patch out uint IDEval;
 
 void main()
 {
@@ -31,26 +31,30 @@ void main()
     else if (gl_InvocationID == 3) 
         PosEval[gl_InvocationID] = ((1.0/6.0) * (P1 + 4.0 * P2 + P3)).xyz;
     
-	IDEval[gl_InvocationID] = IDControl[gl_InvocationID];
+	if (gl_InvocationID == 0)
+	{
+		IDEval = IDControl[gl_InvocationID];
 
-	// adaptive drawing
-	vec3 P0_NDC = P0.xyz / P0.w, 
-	P1_NDC = P1.xyz / P1.w,
-	P2_NDC = P2.xyz / P2.w, 
-	P3_NDC = P3.xyz / P3.w;
+		// adaptive drawing
+		vec3 P0_NDC = P0.xyz / P0.w, 
+		P1_NDC = P1.xyz / P1.w,
+		P2_NDC = P2.xyz / P2.w, 
+		P3_NDC = P3.xyz / P3.w;
 
-	vec2 ScreenP0 = (P0_NDC.xy * 0.5 + 0.5) * u_Viewport,
-	ScreenP1 = (P1_NDC.xy * 0.5 + 0.5) * u_Viewport,
-	ScreenP2 = (P2_NDC.xy * 0.5 + 0.5) * u_Viewport,
-	ScreenP3 = (P3_NDC.xy * 0.5 + 0.5) * u_Viewport;
+		vec2 ScreenP0 = (P0_NDC.xy * 0.5 + 0.5) * u_Viewport,
+		ScreenP1 = (P1_NDC.xy * 0.5 + 0.5) * u_Viewport,
+		ScreenP2 = (P2_NDC.xy * 0.5 + 0.5) * u_Viewport,
+		ScreenP3 = (P3_NDC.xy * 0.5 + 0.5) * u_Viewport;
 
-	vec2 MinPoint = min(min(ScreenP0, ScreenP1), min(ScreenP2, ScreenP3));
-	vec2 MaxPoint = max(max(ScreenP0, ScreenP1), max(ScreenP2, ScreenP3));
-	vec2 Diagonal = MaxPoint - MinPoint;
+		vec2 MinPoint = min(min(ScreenP0, ScreenP1), min(ScreenP2, ScreenP3));
+		vec2 MaxPoint = max(max(ScreenP0, ScreenP1), max(ScreenP2, ScreenP3));
+		vec2 Diagonal = MaxPoint - MinPoint;
 
-	int Segments = int(length(MaxPoint - MinPoint));
+		int Segments = int(length(MaxPoint - MinPoint));
 
-	// tessellation levels
-	gl_TessLevelOuter[0] = 1;				// how many lines
-	gl_TessLevelOuter[1] = Segments;		// how many segments for each line
+		// tessellation levels
+		gl_TessLevelOuter[0] = 1;				// how many lines
+		gl_TessLevelOuter[1] = Segments;		// how many segments for each line
+	}
+	
 }

@@ -687,17 +687,15 @@ void EditorSceneController::CreateTempSurface(ar::SurfaceDesc desc, ar::mat::Vec
 		case ar::SurfaceType::RECTANGLEC2:
 		{
 			m_TempSurface.AddComponent<ar::BezierSurfaceC2Component>();
-			// todo: change to correct shaders
-			shader = ar::ShaderLib::Get("SurfaceC0");
-			pickingShader = ar::ShaderLib::Get("SurfaceC0Picking");
+			shader = ar::ShaderLib::Get("SurfaceC2");
+			pickingShader = ar::ShaderLib::Get("SurfaceC2Picking");
 			break;
 		}
 		case ar::SurfaceType::CYLINDERC2:
 		{
 			m_TempSurface.AddComponent<ar::BezierSurfaceC2Component>();
-			// todo: change to correct shaders
-			shader = ar::ShaderLib::Get("SurfaceC0");
-			pickingShader = ar::ShaderLib::Get("SurfaceC0Picking");
+			shader = ar::ShaderLib::Get("SurfaceC2");
+			pickingShader = ar::ShaderLib::Get("SurfaceC2Picking");
 			break;
 		}
 	}

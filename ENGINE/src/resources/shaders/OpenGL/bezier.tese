@@ -8,7 +8,7 @@ layout (isolines, equal_spacing) in;
 
 // control points passed from tessellation control
 in vec3 PosEval[];
-flat in uint IDEval[];
+patch in uint IDEval;
 
 flat out uint IDFrag;
 
@@ -69,5 +69,5 @@ void main()
         CurvePoint = ComputeBernstein(PosEval[0], PosEval[1], PosEval[2], PosEval[3], t);
     }
     gl_Position = u_VP * u_Model * vec4(CurvePoint, 1.0f);
-    IDFrag = IDEval[0];
+    IDFrag = IDEval;
 }

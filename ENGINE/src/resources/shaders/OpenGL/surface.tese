@@ -3,7 +3,7 @@
 layout (isolines, equal_spacing) in;
 
 in vec3 PosEval[];
-flat in uint IDEval[];
+patch in uint IDEval;
 
 flat out uint IDFrag;
 
@@ -43,5 +43,5 @@ void main()
 	}
 	vec4 pointPos = u_VP * u_Model * vec4(point, 1.0f);
 	gl_Position = pointPos;
-	IDFrag = IDEval[0];
+	IDFrag = IDEval;
 }
