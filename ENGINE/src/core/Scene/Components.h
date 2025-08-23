@@ -77,7 +77,8 @@ namespace ar
 
 	struct MeshComponent
 	{
-		std::shared_ptr<VertexArray>	VertexArray = nullptr;
+		std::shared_ptr<VertexArray>	VertexArray = nullptr,
+										ControlMesh = nullptr;
 		std::shared_ptr<Shader>			Shader = nullptr,
 										PickingShader = nullptr;
 		ShaderType						ShaderUsed = ShaderType::MAIN;

@@ -126,6 +126,36 @@ namespace ar
 
 	}
 
+	std::vector<uint32_t> SurfaceUtils::GenerateControlMeshIndices(uint32_t pointsU, uint32_t pointsV)
+	{
+		std::vector<uint32_t> indices;
+		for (int v = 0; v < pointsV; v++)
+		{
+			for (int u = 0; u < pointsU; u++)
+			{
+				uint32_t index = v * pointsU + u;
+				if (u == 0 || u == pointsU - 1)
+					indices.push_back(index);
+				else
+					indices.insert(indices.end(), { index, index });
+			}	
+		}
+
+		for (int u = 0; u < pointsU; u++)
+		{
+			for (int v = 0; v < pointsV; v++)
+			{
+				uint32_t index = v * pointsU + u;
+				if (v == 0 || v == pointsV - 1)
+					indices.push_back(index);
+				else
+					indices.insert(indices.end(), { index, index });
+			}
+		}
+		
+		return indices;
+	}
+
 	std::vector<uint32_t> SurfaceUtils::GenerateRectangleC0Indices(SurfaceDesc desc)
 	{
 		auto indices = std::vector<uint32_t>();
@@ -145,24 +175,23 @@ namespace ar
 		return indices;
 	}
 
+	
+
 	std::vector<uint32_t> SurfaceUtils::GenerateCylinderC0Indices(SurfaceDesc desc)
 	{
 		auto indices = std::vector<uint32_t>();
 
-		int su = 0, sv = 0, base = 0;
-		for (sv = 0; sv < desc.Segments.v; sv++)
+		for (int sv = 0; sv < desc.Segments.v; sv++)
 		{
-			for (su = 0; su < desc.Segments.u - 1; su++)
+			for (int su = 0; su < desc.Segments.u; su++)
 			{
-				base = (sv * 3) * desc.Size.u + (su * 3);
+				int base = (sv) * desc.Size.u + (su);
 				for (int j = 0; j < 4; j++)
 				{
 					for (int i = 0; i < 4; i++)
 						indices.push_back(base + j * desc.Size.u + i);
 				}
 			}
-
-
 		}
 		return indices;
 	}

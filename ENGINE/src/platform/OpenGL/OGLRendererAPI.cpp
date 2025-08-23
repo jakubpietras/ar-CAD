@@ -41,6 +41,13 @@ namespace ar
 		glDrawArraysInstanced(GetOGLPrimitive(primitive), 0, vertexCount, instanceCount);
 	}
 
+	void OGLRendererAPI::DrawIndexedOverride(const Primitive primitive, const std::shared_ptr<VertexArray>& vertexArray, std::shared_ptr<IndexBuffer> ibOverride, uint32_t instanceCount /*= 1*/)
+	{
+		ibOverride->Bind(vertexArray->GetID());
+		glDrawElementsInstanced(GetOGLPrimitive(primitive), ibOverride->GetCount(),
+			GL_UNSIGNED_INT, nullptr, instanceCount);
+	}
+
 	GLenum OGLRendererAPI::GetOGLPrimitive(Primitive primitive)
 	{
 		switch (primitive)

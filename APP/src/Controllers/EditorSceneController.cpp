@@ -687,33 +687,39 @@ void EditorSceneController::CreateTempSurface(ar::SurfaceDesc desc, ar::mat::Vec
 		case ar::SurfaceType::RECTANGLEC2:
 		{
 			m_TempSurface.AddComponent<ar::BezierSurfaceC2Component>();
-			// todo: change to correct shaders
-			shader = ar::ShaderLib::Get("SurfaceC0");
-			pickingShader = ar::ShaderLib::Get("SurfaceC0Picking");
+			shader = ar::ShaderLib::Get("SurfaceC2");
+			pickingShader = ar::ShaderLib::Get("SurfaceC2Picking");
 			break;
 		}
 		case ar::SurfaceType::CYLINDERC2:
 		{
 			m_TempSurface.AddComponent<ar::BezierSurfaceC2Component>();
-			// todo: change to correct shaders
-			shader = ar::ShaderLib::Get("SurfaceC0");
-			pickingShader = ar::ShaderLib::Get("SurfaceC0Picking");
+			shader = ar::ShaderLib::Get("SurfaceC2");
+			pickingShader = ar::ShaderLib::Get("SurfaceC2Picking");
 			break;
 		}
 	}
 
 	auto& mesh = m_TempSurface.AddComponent<ar::MeshComponent>();
 	mesh.VertexArray = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
-	mesh.VertexArray->AddVertexBuffer(
-		ar::Ref<ar::VertexBuffer>(
-			ar::VertexBuffer::Create(
+	mesh.ControlMesh = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
+	
+	auto vb = ar::Ref<ar::VertexBuffer>(
+		ar::VertexBuffer::Create(
 			ar::GeneralUtils::GetVertexData(positions, m_TempSurface.GetID())
-		))
-	);
+		));
+	mesh.VertexArray->AddVertexBuffer(vb);
+	mesh.ControlMesh->AddVertexBuffer(vb);
+	
 	mesh.VertexArray->AddIndexBuffer(
 		ar::Ref<ar::IndexBuffer>(
 			ar::IndexBuffer::Create(indices)
 		));
+	mesh.ControlMesh->AddIndexBuffer(
+		ar::Ref<ar::IndexBuffer>(
+			ar::IndexBuffer::Create(ar::SurfaceUtils::GenerateControlMeshIndices(desc.Size.u, desc.Size.v))
+		));
+
 	mesh.Shader = shader;
 	mesh.PickingShader = pickingShader;
 	mesh.RenderPrimitive = ar::Primitive::Patch;
@@ -753,10 +759,19 @@ void EditorSceneController::UpdateTempSurface(ar::SurfaceDesc& desc, ar::mat::Ve
 
 	auto& mesh = m_TempSurface.GetComponent<ar::MeshComponent>();
 	mesh.VertexArray->ClearBuffers();
-	mesh.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(ar::GeneralUtils::GetVertexData(positions, m_TempSurface.GetID()))));
+	mesh.ControlMesh->ClearBuffers();
+
+	auto vb = ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(ar::GeneralUtils::GetVertexData(positions, m_TempSurface.GetID())));
+
+	mesh.VertexArray->AddVertexBuffer(vb);
+	mesh.ControlMesh->AddVertexBuffer(vb);
 	mesh.VertexArray->AddIndexBuffer(
 		ar::Ref<ar::IndexBuffer>(
 			ar::IndexBuffer::Create(indices)
+		));
+	mesh.ControlMesh->AddIndexBuffer(
+		ar::Ref<ar::IndexBuffer>(
+			ar::IndexBuffer::Create(ar::SurfaceUtils::GenerateControlMeshIndices(desc.Size.u, desc.Size.v))
 		));
 }
 

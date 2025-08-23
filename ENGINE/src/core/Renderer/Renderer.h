@@ -25,6 +25,7 @@ namespace ar
 		static void Submit(const Primitive primitive, const std::shared_ptr<Shader>& shader,
 			uint32_t vertexCount, bool indexed = false, uint32_t instanceCount = 1);
 		static void Submit(MeshComponent& mesh, bool indexed = false, uint32_t instanceCount = 1);
+		static void Submit(MeshComponent& mesh, std::shared_ptr<IndexBuffer> ibOverride);
 
 		static constexpr ar::mat::Vec3 SELECTION_COLOR{ 1.0f, 0.56f, 0.0f };
 

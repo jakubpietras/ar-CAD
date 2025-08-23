@@ -28,6 +28,7 @@ namespace ar
 	public:
 		static std::vector<mat::Vec3> GenerateSurfaceData(SurfaceDesc desc, mat::Vec3 origin);
 		static std::vector<uint32_t> GenerateSurfaceIndices(SurfaceDesc desc);
+		static std::vector<uint32_t> GenerateControlMeshIndices(uint32_t pointsU, uint32_t pointsV);
 		
 	private:
 		static std::vector<mat::Vec3> GenerateRectangleC0Data(SurfaceDesc desc, mat::Vec3 origin);

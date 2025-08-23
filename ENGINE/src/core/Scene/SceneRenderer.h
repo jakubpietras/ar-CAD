@@ -46,6 +46,7 @@ namespace ar
 		void RenderMeshes(ar::mat::Mat4 viewProjection, RenderPassType pass, ar::mat::Vec2 viewport);
 		void RenderSurfaces(ar::mat::Mat4 viewProjection, RenderPassType pass);
 		void RenderPolygons(ar::mat::Mat4 viewProjection);
+		void RenderNets(ar::mat::Mat4 viewProjection);
 		void RenderPoints(ar::mat::Mat4 viewProjection, RenderPassType pass);
 	
 	};

@@ -65,6 +65,7 @@ namespace ar
 			RenderMeanPoint(cameraController, meanPointPos);
 		RenderCursor(cameraController, cursorPos);
 		RenderPolygons(vpMat);
+		RenderNets(vpMat);
 
 		m_MainFB->Unbind();
 	}
@@ -275,6 +276,29 @@ namespace ar
 		for (const auto& [entity, cc, mc] : c2curves.each())
 		{
 			if (cc.ShowPolygon)
+				ar::Renderer::Submit(Primitive::LineStrip, shader, mc.VertexArray, false);
+		}
+	}
+
+	void SceneRenderer::RenderNets(ar::mat::Mat4 viewProjection)
+	{
+		// Render Bezier nets
+		auto c0curves = m_Scene->m_Registry.view<BezierSurfaceC0Component, MeshComponent>();
+		auto c2curves = m_Scene->m_Registry.view<BezierSurfaceC2Component, MeshComponent>();
+
+		auto shader = ShaderLib::Get("Basic");
+		shader->SetMat4("u_VP", viewProjection);
+		shader->SetMat4("u_Model", mat::Identity());
+		shader->SetVec3("u_Color", POLYGON_COLOR);
+
+		for (const auto& [entity, cc, mc] : c0curves.each())
+		{
+			if (cc.ShowNet)
+				ar::Renderer::Submit(Primitive::LineStrip, shader, mc.VertexArray, false);
+		}
+		for (const auto& [entity, cc, mc] : c2curves.each())
+		{
+			if (cc.ShowNet)
 				ar::Renderer::Submit(Primitive::LineStrip, shader, mc.VertexArray, false);
 		}
 	}

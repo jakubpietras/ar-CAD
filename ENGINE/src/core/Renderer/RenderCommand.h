@@ -30,6 +30,14 @@ namespace ar
 			AR_ASSERT(vertexArray->GetIndexCount(), "Drawing with empty index buffer");
 			s_RendererAPI->DrawIndexed(primitive, vertexArray, instanceCount);
 		}
+		inline static void DrawIndexedOverride(const Primitive primitive,
+			const std::shared_ptr<VertexArray>& vertexArray, std::shared_ptr<IndexBuffer> ibOverride, 
+			uint32_t instanceCount = 1)
+		{
+			AR_ASSERT(vertexArray->GetVertexCount(), "Drawing from empty vertex buffers");
+			AR_ASSERT(vertexArray->GetIndexCount(), "Drawing with empty index buffer");
+			s_RendererAPI->DrawIndexedOverride(primitive, vertexArray, ibOverride, instanceCount);
+		}
 		inline static void DrawEmpty(const Primitive primitive, uint32_t vertexCount, 
 			uint32_t instanceCount = 1)
 		{

@@ -223,6 +223,7 @@
     <None Include="src\resources\shaders\OpenGL\surface.tesc" />
     <None Include="src\resources\shaders\OpenGL\surface.tese" />
     <None Include="src\resources\shaders\OpenGL\surface.vert" />
+    <None Include="src\resources\shaders\OpenGL\surfaceC2.tesc" />
     <None Include="src\resources\shaders\OpenGL\surfacePicking.frag" />
   </ItemGroup>
   <ItemGroup>

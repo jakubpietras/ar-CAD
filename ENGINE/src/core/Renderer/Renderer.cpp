@@ -62,4 +62,19 @@ namespace ar
 		mesh.VertexArray->Unbind();
 	}
 
+	void Renderer::Submit(MeshComponent& mesh, std::shared_ptr<IndexBuffer> ibOverride)
+	{
+		auto shader = mesh.GetShader();
+
+		shader->Use();
+		mesh.VertexArray->Bind();
+
+		if (mesh.RenderPrimitive == Primitive::Patch)
+			RenderCommand::SetTessellationPatchSize(mesh.TessellationPatchSize);
+
+		RenderCommand::DrawIndexedOverride(mesh.RenderPrimitive, mesh.VertexArray, ibOverride);
+		
+		mesh.VertexArray->Unbind();
+	}
+
 }

@@ -330,6 +330,7 @@
     <None Include="src\resources\shaders\OpenGL\surface.tese" />
     <None Include="src\resources\shaders\OpenGL\surface.frag" />
     <None Include="src\resources\shaders\OpenGL\surfacePicking.frag" />
+    <None Include="src\resources\shaders\OpenGL\surfaceC2.tesc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\resources\icons\logo.png">

@@ -18,6 +18,9 @@ namespace ar
 		
 		void DrawEmpty(const Primitive primitive, uint32_t vertexCount,
 			uint32_t instanceCount = 1) override;
+
+		void DrawIndexedOverride(const Primitive primitive, const std::shared_ptr<VertexArray>& vertexArray, std::shared_ptr<IndexBuffer> ibOverride, uint32_t instanceCount = 1) override;
+
 	private:
 		GLenum GetOGLPrimitive(Primitive primitive);
 	};

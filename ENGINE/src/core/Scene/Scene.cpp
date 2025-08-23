@@ -168,6 +168,18 @@ namespace ar
 				auto indices = ar::CurveUtils::GenerateC2Indices(cp.Points.size());
 				mesh.VertexArray->AddIndexBuffer(ar::Ref<ar::IndexBuffer>(ar::IndexBuffer::Create(indices)));
 			}
+			if (e.HasComponent<ar::BezierSurfaceC0Component>())
+			{
+				auto desc = e.GetComponent<BezierSurfaceC0Component>().Description;
+				auto indices = ar::SurfaceUtils::GenerateControlMeshIndices(desc.Size.u, desc.Size.v);
+				mesh.ControlMesh->AddIndexBuffer(ar::Ref<ar::IndexBuffer>(ar::IndexBuffer::Create(indices)));
+			}
+			if (e.HasComponent<ar::BezierSurfaceC2Component>())
+			{
+				auto desc = e.GetComponent<BezierSurfaceC2Component>().Description;
+				auto indices = ar::SurfaceUtils::GenerateControlMeshIndices(desc.Size.u, desc.Size.v);
+				mesh.ControlMesh->AddIndexBuffer(ar::Ref<ar::IndexBuffer>(ar::IndexBuffer::Create(indices)));
+			}
 
 			if (!cp.Indices.empty())
 			{
