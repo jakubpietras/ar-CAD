@@ -7,20 +7,27 @@ layout (vertices = 16) out;
 
 in vec3 PosControl[];    // de Boor points
 out vec3 PosEval[];
+flat in uint IDControl[];
+patch out uint IDEval;
 
 void main()
 {
-	if (!u_SwitchCoords)
+	if (gl_InvocationID == 0)
 	{
-		gl_TessLevelOuter[0] = u_SamplesU + 1; // how many isolines
-		gl_TessLevelOuter[1] = u_SamplesV + 1; // how many times split each line
+		IDEval = IDControl[gl_InvocationID];
+
+		if (!u_SwitchCoords)
+	    {
+	    	gl_TessLevelOuter[0] = u_SamplesU + 1; // how many isolines
+	    	gl_TessLevelOuter[1] = u_SamplesV + 1; // how many times split each line
+	    }
+	    else
+	    {
+	    	gl_TessLevelOuter[0] = u_SamplesV + 1; // how many isolines
+	    	gl_TessLevelOuter[1] = u_SamplesU + 1; // how many times split each line
+	    }
 	}
-	else
-	{
-		gl_TessLevelOuter[0] = u_SamplesV + 1; // how many isolines
-		gl_TessLevelOuter[1] = u_SamplesU + 1; // how many times split each line
-	}
-    
+
     vec3 p[16], // intermediate Bezier points
         B[16];  // Bezier points
 

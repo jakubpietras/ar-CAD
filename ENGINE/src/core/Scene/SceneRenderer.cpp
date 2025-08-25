@@ -275,6 +275,15 @@ namespace ar
 			if (cc.ShowPolygon)
 				ar::Renderer::Submit(Primitive::LineStrip, shader, mc.VertexArray, false);
 		}
+
+		auto surfaces = m_Scene->m_Registry.view<SurfaceComponent, ControlMeshComponent>();
+		for (const auto& [entity, sc, cmc] : surfaces.each())
+		{
+			if (sc.ShowNet)
+				ar::Renderer::Submit(Primitive::Line, cmc.Shader, cmc.VertexArray, true);
+		}
+
+
 	}
 
 	void SceneRenderer::RenderPoints(ar::mat::Mat4 viewProjection, RenderPassType pass)

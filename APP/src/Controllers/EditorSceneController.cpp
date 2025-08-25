@@ -99,13 +99,13 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 	if (state.NewSurfaceAccepted)
 	{
 		AcceptTempSurface(state);
-		state.NewSurfaceDesc = {};
+		state.NewSurfaceDesc = { {1, 1}, {4, 4} };
 		state.NewSurfaceAccepted = false;
 	}
 	if (state.NewSurfaceRejected)
 	{
 		RejectTempSurface();
-		state.NewSurfaceDesc = {};
+		state.NewSurfaceDesc = { {1, 1}, {4, 4} };
 		state.NewSurfaceRejected = false;
 	}
 	
@@ -153,6 +153,18 @@ void EditorSceneController::AddSurfacePoints(ar::Entity surface, ar::SurfaceDesc
 	desc = ar::SurfaceUtils::AdjustSurfaceDescription(desc);
 	indices = ar::SurfaceUtils::GenerateSurfaceRefIndices(desc);
 	cp.Indices = indices;
+
+	auto& mc = surface.GetComponent<ar::MeshComponent>();
+	mc.VertexArray->ClearBuffers();
+	auto vb = ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(ar::GeneralUtils::GetVertexData(cp.Points, surface.GetID())));
+	mc.VertexArray->AddVertexBuffer(vb);
+	mc.VertexArray->AddIndexBuffer(ar::Ref<ar::IndexBuffer>(ar::IndexBuffer::Create(indices)));
+
+	auto& cpm = surface.AddComponent<ar::ControlMeshComponent>();
+	cpm.VertexArray = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
+	cpm.VertexArray->AddVertexBuffer(vb);
+	cpm.VertexArray->AddIndexBuffer(ar::Ref<ar::IndexBuffer>(ar::IndexBuffer::Create(ar::SurfaceUtils::GenerateControlMeshIndices(desc, indices))));
+	cpm.Shader = ar::ShaderLib::Get("Basic");
 }
 
 void EditorSceneController::AttachPointToCurves(ar::Entity point, std::vector<ar::Entity> curves)

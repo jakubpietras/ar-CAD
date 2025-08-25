@@ -105,7 +105,6 @@ namespace ar
 		std::shared_ptr<Shader>			Shader = nullptr;
 		UInt2							Size = { 1, 1 };
 		bool							DirtyFlag = false,
-										IsClosed = false,
 										IsVisible = true;
 	};
 
