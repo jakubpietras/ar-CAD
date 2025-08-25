@@ -70,16 +70,17 @@ void SceneHierarchyPanel::DrawParentNode(ar::Entity object)
 		ImGui::EndPopup();
 	}
 
+	int counter = 0;
 	if (nodeOpen && hasChildren)
 	{
 		for (auto& point : object.GetComponent<ar::ControlPointsComponent>().Points)
-			DrawChildNode(point, object);
+			DrawChildNode(point, object, counter++);
 
 		ImGui::TreePop();
 	}
 }
 
-void SceneHierarchyPanel::DrawChildNode(ar::Entity child, ar::Entity parent)
+void SceneHierarchyPanel::DrawChildNode(ar::Entity child, ar::Entity parent, int counter)
 {
 	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DrawLinesFull |
 		ImGuiTreeNodeFlags_Leaf |
@@ -89,9 +90,9 @@ void SceneHierarchyPanel::DrawChildNode(ar::Entity child, ar::Entity parent)
 
 	if (isSelected)
 		flags |= ImGuiTreeNodeFlags_Selected;
-
+	auto label = std::to_string(child.GetID()) + "##" + std::to_string(counter);
 	ImGui::TreeNodeEx(
-		(void*)(intptr_t)child.GetID(),
+		label.c_str(),
 		flags,
 		"%s", child.GetName().c_str()
 	);

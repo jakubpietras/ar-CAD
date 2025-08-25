@@ -11,7 +11,7 @@ public:
 
 private:
 	void DrawParentNode(ar::Entity object);
-	void DrawChildNode(ar::Entity child, ar::Entity parent);
+	void DrawChildNode(ar::Entity child, ar::Entity parent, int counter);
 
 	void DrawEntityContextMenu(ar::Entity& object, bool allowDeleteSelected, bool allowAttachment);
 	void DrawLinkContextMenu(ar::Entity& child, ar::Entity& parent);
