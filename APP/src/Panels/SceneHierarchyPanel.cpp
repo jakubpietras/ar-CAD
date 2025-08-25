@@ -135,7 +135,7 @@ void SceneHierarchyPanel::DrawEntityContextMenu(ar::Entity& object, bool allowDe
 		if (ImGui::MenuItem("Delete"))
 		{
 			m_State.ObjectsToDelete.push_back(object);
-			if (object.HasAnyComponent<ar::BezierSurfaceC0Component, ar::BezierSurfaceC2Component>())
+			if (object.HasComponent<ar::SurfaceComponent>())
 			{
 				// delete all points contained in the surface
 				auto& points = object.GetComponent<ar::ControlPointsComponent>().Points;
@@ -176,7 +176,7 @@ void SceneHierarchyPanel::DrawEntityContextMenu(ar::Entity& object, bool allowDe
 
 void SceneHierarchyPanel::DrawLinkContextMenu(ar::Entity& child, ar::Entity& parent)
 {
-	bool surfaceParent = parent.HasAnyComponent<ar::BezierSurfaceC0Component, ar::BezierSurfaceC2Component>();
+	bool surfaceParent = parent.HasComponent<ar::SurfaceComponent>();
 	{
 		ar::ScopedDisable disable(surfaceParent);
 		if (ImGui::MenuItem("Detach"))

@@ -52,6 +52,8 @@ private:
 	void AddCurveC0(std::vector<ar::Entity> points);
 	void AddCurveC2(std::vector<ar::Entity> points);
 	void AddInterpolatedC2(std::vector<ar::Entity> points);
+	void AddSurface(ar::mat::Vec3 spawnPoint, ar::SurfaceDesc desc);		// user-generated
+	void AddSurface(std::vector<ar::Entity> points, ar::SurfaceDesc desc);	// serialized
 
 	void AttachPointToCurves(ar::Entity point, std::vector<ar::Entity> curves);
 	

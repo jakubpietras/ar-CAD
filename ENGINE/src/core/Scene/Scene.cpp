@@ -122,7 +122,9 @@ namespace ar
 			if (!tc.DirtyFlag)
 				continue;
 			for (auto parent : pc.Parents)
+			{
 				parent.GetComponent<MeshComponent>().DirtyFlag = true;
+			}
 		}
 	}
 

@@ -137,17 +137,21 @@ void EditorSceneController::AddSurfacePoints(ar::Entity surface, ar::SurfaceDesc
 	auto& cp = surface.AddComponent<ar::ControlPointsComponent>();
 	std::vector<ar::mat::Vec3> positions;
 	std::vector<uint32_t> indices;
-	
+	std::vector<ar::Entity> points;
+
 	positions = ar::SurfaceUtils::GenerateSurfaceData(desc, origin);
-	indices = ar::SurfaceUtils::GenerateSurfaceIndices(desc);
 
 	for (auto& spawnPoint : positions)
 	{
 		auto point = AddPoint(spawnPoint);
 		point.AddComponent<ar::SurfacePointTagComponent>();
-		cp.Points.push_back(point);
+		points.push_back(point);
 		point.GetComponent<ar::PointComponent>().Parents.push_back(surface);
 	}
+
+	cp.Points = ar::SurfaceUtils::GeneratePointReferences(desc, points);
+	desc = ar::SurfaceUtils::AdjustSurfaceDescription(desc);
+	indices = ar::SurfaceUtils::GenerateSurfaceRefIndices(desc);
 	cp.Indices = indices;
 }
 
@@ -667,37 +671,16 @@ void EditorSceneController::CreateTempSurface(ar::SurfaceDesc desc, ar::mat::Vec
 	positions = ar::SurfaceUtils::GenerateSurfaceData(desc, position);
 	indices = ar::SurfaceUtils::GenerateSurfaceIndices(desc);
 
-
-	switch (desc.Type)
+	m_TempSurface.AddComponent<ar::SurfaceComponent>();
+	if (desc.Type == ar::SurfaceType::RECTANGLEC0 || desc.Type == ar::SurfaceType::CYLINDERC0)
 	{
-		case ar::SurfaceType::RECTANGLEC0:
-		{
-			m_TempSurface.AddComponent<ar::BezierSurfaceC0Component>();
-			shader = ar::ShaderLib::Get("SurfaceC0");
-			pickingShader = ar::ShaderLib::Get("SurfaceC0Picking");
-			break;
-		}
-		case ar::SurfaceType::CYLINDERC0:
-		{
-			m_TempSurface.AddComponent<ar::BezierSurfaceC0Component>();
-			shader = ar::ShaderLib::Get("SurfaceC0");
-			pickingShader = ar::ShaderLib::Get("SurfaceC0Picking");
-			break;
-		}
-		case ar::SurfaceType::RECTANGLEC2:
-		{
-			m_TempSurface.AddComponent<ar::BezierSurfaceC2Component>();
-			shader = ar::ShaderLib::Get("SurfaceC2");
-			pickingShader = ar::ShaderLib::Get("SurfaceC2Picking");
-			break;
-		}
-		case ar::SurfaceType::CYLINDERC2:
-		{
-			m_TempSurface.AddComponent<ar::BezierSurfaceC2Component>();
-			shader = ar::ShaderLib::Get("SurfaceC2");
-			pickingShader = ar::ShaderLib::Get("SurfaceC2Picking");
-			break;
-		}
+		shader = ar::ShaderLib::Get("SurfaceC0");
+		pickingShader = ar::ShaderLib::Get("SurfaceC0Picking");
+	}
+	else
+	{
+		shader = ar::ShaderLib::Get("SurfaceC2");
+		pickingShader = ar::ShaderLib::Get("SurfaceC2Picking");
 	}
 
 	auto& mesh = m_TempSurface.AddComponent<ar::MeshComponent>();
@@ -731,7 +714,7 @@ void EditorSceneController::UpdateTempSurface(ar::SurfaceDesc& desc, ar::mat::Ve
 		}
 		case ar::SurfaceType::CYLINDERC0:
 		{
-			desc.Size = { 3 * desc.Segments.u + 1, 3 * desc.Segments.v };
+			desc.Size = { 3 * desc.Segments.u, 3 * desc.Segments.v + 1 };
 			break;
 		}
 		case ar::SurfaceType::RECTANGLEC2:
@@ -741,7 +724,7 @@ void EditorSceneController::UpdateTempSurface(ar::SurfaceDesc& desc, ar::mat::Ve
 		}
 		case ar::SurfaceType::CYLINDERC2:
 		{
-			desc.Size = { desc.Segments.u + 3, desc.Segments.v };
+			desc.Size = { desc.Segments.u, desc.Segments.v + 3 };
 			break;
 		}
 	}

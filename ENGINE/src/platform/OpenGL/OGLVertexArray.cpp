@@ -65,6 +65,10 @@ namespace ar
 		{
 			glDisableVertexArrayAttrib(m_ID, i);
 		}
+		for (uint32_t i = 0; i < m_BindingIndex; ++i)
+		{
+			glVertexArrayVertexBuffer(m_ID, i, 0, 0, 0);
+		}
 		glVertexArrayElementBuffer(m_ID, 0);
 
 		m_VertexBuffers.clear();

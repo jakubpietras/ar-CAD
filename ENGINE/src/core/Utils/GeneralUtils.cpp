@@ -4,7 +4,6 @@
 
 namespace ar
 {
-
 	std::vector<ar::VertexPositionID> GeneralUtils::GetVertexData(std::vector<Entity> points, uint32_t id)
 	{
 		std::vector<VertexPositionID> data;
@@ -25,5 +24,4 @@ namespace ar
 			data.push_back({ position, id });
 		return data;
 	}
-
 }

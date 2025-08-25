@@ -60,12 +60,11 @@ namespace ar
 		RenderGrid(vpMat);
 		RenderMeshes(vpMat, RenderPassType::MAIN, viewport);
 		RenderSurfaces(vpMat, RenderPassType::MAIN);
-		RenderPoints(vpMat, RenderPassType::MAIN);
 		if (renderMeanPoint)
 			RenderMeanPoint(cameraController, meanPointPos);
 		RenderCursor(cameraController, cursorPos);
 		RenderPolygons(vpMat);
-
+		RenderPoints(vpMat, RenderPassType::MAIN);
 		m_MainFB->Unbind();
 	}
 
@@ -168,7 +167,7 @@ namespace ar
 
 	void SceneRenderer::RenderMeshes(ar::mat::Mat4 viewProjection, RenderPassType pass, ar::mat::Vec2 viewport)
 	{
-		auto view = m_Scene->m_Registry.view<MeshComponent>(entt::exclude<PointComponent, HiddenMeshTagComponent, BezierSurfaceC0Component>);
+		auto view = m_Scene->m_Registry.view<MeshComponent>(entt::exclude<PointComponent, HiddenMeshTagComponent, SurfaceComponent>);
 		for (auto [entity, mc] : view.each())
 		{
 			auto e = ar::Entity(entity, m_Scene.get());
@@ -209,8 +208,7 @@ namespace ar
 
 	void SceneRenderer::RenderSurfaces(ar::mat::Mat4 viewProjection, RenderPassType pass)
 	{
-		// TODO: render surfaces
-		auto view = m_Scene->m_Registry.view<MeshComponent, BezierSurfaceC0Component>(entt::exclude<HiddenMeshTagComponent>);
+		auto view = m_Scene->m_Registry.view<MeshComponent, SurfaceComponent>(entt::exclude<HiddenMeshTagComponent>);
 		for (auto [entity, mc, bs] : view.each())
 		{
 			auto model = mat::Identity();

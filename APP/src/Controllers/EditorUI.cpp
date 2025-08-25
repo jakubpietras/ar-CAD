@@ -260,9 +260,9 @@ bool EditorUI::RenderRectangleControls()
 {
 	bool changed = false;
 	static const uint32_t rectSegmentsMin = 1, rectSegmentsMax = 64, rectSizeMin = 1, rectSizeMax = 100;
-	if(ImGui::DragScalarN("segments", ImGuiDataType_U32, &m_State.NewSurfaceDesc.Segments.u, 2, 1.0f, &rectSegmentsMin, &rectSegmentsMax))
+	if(ImGui::DragScalarN("segments##rect", ImGuiDataType_U32, &m_State.NewSurfaceDesc.Segments.u, 2, 1.0f, &rectSegmentsMin, &rectSegmentsMax))
 		changed = true;
-	if (ImGui::DragFloat2("size", m_State.NewSurfaceDesc.Dimensions.Data(), 0.1f))
+	if (ImGui::DragFloat2("size##rect", m_State.NewSurfaceDesc.Dimensions.Data(), 0.1f))
 		changed = true;
 
 	return changed;
@@ -273,14 +273,14 @@ bool EditorUI::RenderCylinderControls()
 	bool changed = false;
 	static const uint32_t cylSegmentsMin = 1, cylSegmentsMax = 64;
 	ImGui::TextWrapped("Cylinder");
-	if (ImGui::DragScalarN("segments", ImGuiDataType_U32, &m_State.NewSurfaceDesc.Segments.u, 2, 1.0f, &cylSegmentsMin, &cylSegmentsMax))
+	if (ImGui::DragScalarN("segments##cyl", ImGuiDataType_U32, &m_State.NewSurfaceDesc.Segments.u, 2, 1.0f, &cylSegmentsMin, &cylSegmentsMax))
 		changed = true;
 	if (m_State.NewSurfaceDesc.Segments.u < 3)
 		m_State.NewSurfaceDesc.Segments.u = 3;
 
-	if (ImGui::DragFloat("radius", &m_State.NewSurfaceDesc.Dimensions.x, 0.1f, 0.1f, 10.0f))
+	if (ImGui::DragFloat("radius##cyl", &m_State.NewSurfaceDesc.Dimensions.x, 0.1f, 0.1f, 10.0f))
 		changed = true;
-	if (ImGui::DragFloat("height", &m_State.NewSurfaceDesc.Dimensions.y, 0.1f, 0.1f, 10.f))
+	if (ImGui::DragFloat("height##cyl", &m_State.NewSurfaceDesc.Dimensions.y, 0.1f, 0.1f, 10.f))
 		changed = true;
 
 	return changed;
@@ -449,17 +449,18 @@ void EditorUI::RenderAddSurfaceC0Modal()
 		ImGui::OpenPopup(popupName);
 		m_State.NewSurfaceBegin = true;
 		m_State.ShouldShowSurfaceC0Modal = false;
+		m_State.NewSurfaceDesc.Type = ar::SurfaceType::RECTANGLEC0;
 	}
 
 	ImGui::PushStyleColor(ImGuiCol_ModalWindowDimBg, ImVec4(0, 0, 0, 0));
 
 	if (ImGui::BeginPopupModal(popupName, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 	{
-		static int current = 0;
+		static int currentC0 = 0;
 		static const char* options[] = { "Rectangle", "Cylinder" };
-		if (ImGui::Combo("Type", &current, options, IM_ARRAYSIZE(options)))
+		if (ImGui::Combo("C0 Type", &currentC0, options, IM_ARRAYSIZE(options)))
 		{
-			switch (current)
+			switch (currentC0)
 			{
 			case 0: 
 				m_State.NewSurfaceDesc.Type = ar::SurfaceType::RECTANGLEC0; 
@@ -509,17 +510,18 @@ void EditorUI::RenderAddSurfaceC2Modal()
 		ImGui::OpenPopup(popupName);
 		m_State.NewSurfaceBegin = true;
 		m_State.ShouldShowSurfaceC2Modal = false;
+		m_State.NewSurfaceDesc.Type = ar::SurfaceType::RECTANGLEC2;
 	}
 
 	ImGui::PushStyleColor(ImGuiCol_ModalWindowDimBg, ImVec4(0, 0, 0, 0));
 
 	if (ImGui::BeginPopupModal(popupName, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 	{
-		static int current = 0;
+		static int currentC2 = 0;
 		static const char* options[] = { "Rectangle", "Cylinder" };
-		if (ImGui::Combo("Type", &current, options, IM_ARRAYSIZE(options)))
+		if (ImGui::Combo("C2 Type", &currentC2, options, IM_ARRAYSIZE(options)))
 		{
-			switch (current)
+			switch (currentC2)
 			{
 			case 0:
 				m_State.NewSurfaceDesc.Type = ar::SurfaceType::RECTANGLEC2;

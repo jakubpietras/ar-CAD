@@ -99,6 +99,16 @@ namespace ar
 
 	};
 
+	struct ControlMeshComponent
+	{
+		std::shared_ptr<VertexArray>	VertexArray = nullptr;
+		std::shared_ptr<Shader>			Shader = nullptr;
+		UInt2							Size = { 1, 1 };
+		bool							DirtyFlag = false,
+										IsClosed = false,
+										IsVisible = true;
+	};
+
 	struct ControlPointsComponent
 	{
 		ControlPointsComponent();
@@ -115,12 +125,6 @@ namespace ar
 		mat::Vec3 Color{ 1.f, 1.f, 1.f };
 		std::vector<Entity> Parents{};
 	};
-
-	//struct VirtualPointComponent
-	//{
-	//	mat::Vec3 Color{ 1.f, 1.f, 1.f };
-	//	ar::Entity Parent;
-	//};
 
 	struct TorusComponent
 	{
@@ -143,19 +147,9 @@ namespace ar
 				DirtyFlag = false;	 // true == Bezier points changed, need to regenerate de Boor + Bezier
 	};
 
-	struct InterpolatedC2Component
-	{
+	struct InterpolatedC2Component { };
 
-	};
-
-	struct BezierSurfaceC0Component
-	{
-		SurfaceDesc			Description;
-		bool				ShowNet = false,
-							DirtyFlag = false;
-	};
-
-	struct BezierSurfaceC2Component
+	struct SurfaceComponent
 	{
 		SurfaceDesc			Description;
 		bool				ShowNet = false,

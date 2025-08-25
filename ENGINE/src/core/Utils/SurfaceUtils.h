@@ -4,7 +4,7 @@
 
 namespace ar
 {
-
+	class Entity;
 	enum class SurfaceType
 	{
 		RECTANGLEC0,
@@ -28,6 +28,9 @@ namespace ar
 	public:
 		static std::vector<mat::Vec3> GenerateSurfaceData(SurfaceDesc desc, mat::Vec3 origin);
 		static std::vector<uint32_t> GenerateSurfaceIndices(SurfaceDesc desc);
+		static std::vector<ar::Entity> GeneratePointReferences(SurfaceDesc desc, std::vector<ar::Entity> points);
+		static std::vector<uint32_t> GenerateSurfaceRefIndices(SurfaceDesc desc);
+		static SurfaceDesc AdjustSurfaceDescription(SurfaceDesc desc);
 		
 	private:
 		static std::vector<mat::Vec3> GenerateRectangleC0Data(SurfaceDesc desc, mat::Vec3 origin);
@@ -37,7 +40,8 @@ namespace ar
 
 		static std::vector<uint32_t> GenerateRectangleC0Indices(SurfaceDesc desc);
 		static std::vector<uint32_t> GenerateCylinderC0Indices(SurfaceDesc desc);
-		static std::vector<uint32_t> GenerateSurfaceC2Indices(SurfaceDesc desc);
+		static std::vector<uint32_t> GenerateRectangleC2Indices(SurfaceDesc desc);
 		static std::vector<uint32_t> GenerateCylinderC2Indices(SurfaceDesc desc);
+
 	};
 }
