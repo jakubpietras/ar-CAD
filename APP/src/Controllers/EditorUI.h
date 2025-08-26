@@ -30,6 +30,10 @@ private:
 	bool RenderRectangleControls();
 	bool RenderCylinderControls();
 
+	void OpenImportDialog();
+	void OpenExportDialog();
+	std::string OpenFileDialog();
+
 	// modal
 	void RenderDeleteModal();
 	void RenderRenameModal();

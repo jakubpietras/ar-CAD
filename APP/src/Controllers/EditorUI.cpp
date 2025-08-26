@@ -1,6 +1,7 @@
 #include "EditorUI.h"
 #include "core/ImGui/ComponentInspector.h"
 #include "core/ImGui/ScopedDisable.h"
+#include <nfd.h>
 
 EditorUI::EditorUI(EditorState& state, ar::Ref<ar::Scene> scene)
 	: m_State(state), 
@@ -143,8 +144,8 @@ void EditorUI::RenderMainMenu()
 
 		if (ImGui::BeginMenu("File"))
 		{
-			if (ImGui::MenuItem("Save", "CTRL+S")) {}
-			if (ImGui::MenuItem("Load", "CTRL+L")) {}
+			if (ImGui::MenuItem("Save", "CTRL+S")) { OpenExportDialog(); }
+			if (ImGui::MenuItem("Load", "CTRL+L")) { OpenImportDialog(); }
 			ImGui::Separator();
 			if (ImGui::MenuItem("Quit", "CTRL+Q")) {}
 			ImGui::EndMenu();
@@ -284,6 +285,56 @@ bool EditorUI::RenderCylinderControls()
 		changed = true;
 
 	return changed;
+}
+
+void EditorUI::OpenImportDialog()
+{
+	auto path = OpenFileDialog();
+	if (!path.empty())
+	{
+		// todo: import
+		AR_TRACE("Path: {0}", path);
+	}
+	else
+		AR_TRACE("No path opened");
+}
+
+void EditorUI::OpenExportDialog()
+{
+	auto path = OpenFileDialog();
+	if (!path.empty())
+	{
+		// todo: export
+		AR_TRACE("Path: {0}", path);
+	}
+	else
+		AR_TRACE("No path opened");
+}
+
+std::string EditorUI::OpenFileDialog()
+{
+	std::string path;
+	nfdu8char_t* outPath;
+	nfdu8filteritem_t filters[2] = { { "Scene", "json" }, { "Headers", "h,hpp" } };
+	nfdopendialogu8args_t args = { 0 };
+	args.filterList = filters;
+	args.filterCount = 2;
+	nfdresult_t result = NFD_OpenDialogU8_With(&outPath, &args);
+	if (result == NFD_OKAY)
+	{
+		path = std::string(static_cast<char*>(outPath));
+		AR_TRACE("File {0} opened sucessfully", path);
+		NFD_FreePathU8(outPath);
+	}
+	else if (result == NFD_CANCEL)
+	{
+		AR_TRACE("File dialog closed (action canceled)");
+	}
+	else
+	{
+		AR_ERROR("Error opening file: {0}", NFD_GetError());
+	}
+	return path;
 }
 
 void EditorUI::RenderDeleteModal()

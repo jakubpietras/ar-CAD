@@ -90,6 +90,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\core\Scene\SceneFactory.cpp" />
+    <ClCompile Include="src\core\Serialization\SceneExporter.cpp" />
+    <ClCompile Include="src\core\Serialization\SceneImporter.cpp" />
     <ClCompile Include="src\core\Scene\SceneRenderer.cpp" />
     <ClCompile Include="src\core\ImGui\PropertyInspector.cpp" />
     <ClCompile Include="src\core\ImGui\ComponentInspector.cpp" />
@@ -137,6 +140,9 @@
     <ClCompile Include="src\core\UID.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\core\Scene\SceneFactory.h" />
+    <ClInclude Include="src\core\Serialization\SceneExporter.h" />
+    <ClInclude Include="src\core\Serialization\SceneImporter.h" />
     <ClInclude Include="src\core\Scene\SceneRenderer.h" />
     <ClInclude Include="src\LogUtils.h" />
     <ClInclude Include="src\core\ImGui\PropertyInspector.h" />

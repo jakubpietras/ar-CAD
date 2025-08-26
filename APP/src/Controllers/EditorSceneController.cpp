@@ -8,7 +8,8 @@ EditorSceneController::EditorSceneController(ar::Ref<ar::Scene> scene, ar::Scene
 	m_CameraController(std::make_shared<ar::CameraController>(
 		EditorCameraConstants::FOV, 0.0f,
 		EditorCameraConstants::NearPlane, EditorCameraConstants::FarPlane,
-		EditorCameraConstants::ArcballRadius))
+		EditorCameraConstants::ArcballRadius)),
+	m_Factory(scene)
 {
 }
 
@@ -116,57 +117,6 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 		ValidateSelection(state);
 }
 
-ar::Entity EditorSceneController::AddPoint(ar::mat::Vec3 spawnPoint)
-{
-	auto entity = m_Scene->CreateEntity("Point");
-
-	// Point tag component
-	entity.AddComponent<ar::PointComponent>();
-
-	// Transform component
-	auto& trc = entity.AddComponent<ar::TransformComponent>();
-	trc.Translation = spawnPoint;
-	trc.IsRotationEnabled = false;
-	trc.IsScaleEnabled = false;
-
-	return entity;
-}
-
-void EditorSceneController::AddSurfacePoints(ar::Entity surface, ar::SurfaceDesc desc, ar::mat::Vec3 origin)
-{
-	auto& cp = surface.AddComponent<ar::ControlPointsComponent>();
-	std::vector<ar::mat::Vec3> positions;
-	std::vector<uint32_t> indices;
-	std::vector<ar::Entity> points;
-
-	positions = ar::SurfaceUtils::GenerateSurfaceData(desc, origin);
-
-	for (auto& spawnPoint : positions)
-	{
-		auto point = AddPoint(spawnPoint);
-		point.AddComponent<ar::SurfacePointTagComponent>();
-		points.push_back(point);
-		point.GetComponent<ar::PointComponent>().Parents.push_back(surface);
-	}
-
-	cp.Points = ar::SurfaceUtils::GeneratePointReferences(desc, points);
-	desc = ar::SurfaceUtils::AdjustSurfaceDescription(desc);
-	indices = ar::SurfaceUtils::GenerateSurfaceRefIndices(desc);
-	cp.Indices = indices;
-
-	auto& mc = surface.GetComponent<ar::MeshComponent>();
-	mc.VertexArray->ClearBuffers();
-	auto vb = ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(ar::GeneralUtils::GetVertexData(cp.Points, surface.GetID())));
-	mc.VertexArray->AddVertexBuffer(vb);
-	mc.VertexArray->AddIndexBuffer(ar::Ref<ar::IndexBuffer>(ar::IndexBuffer::Create(indices)));
-
-	auto& cpm = surface.AddComponent<ar::ControlMeshComponent>();
-	cpm.VertexArray = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
-	cpm.VertexArray->AddVertexBuffer(vb);
-	cpm.VertexArray->AddIndexBuffer(ar::Ref<ar::IndexBuffer>(ar::IndexBuffer::Create(ar::SurfaceUtils::GenerateControlMeshIndices(desc, indices))));
-	cpm.Shader = ar::ShaderLib::Get("Basic");
-}
-
 void EditorSceneController::AttachPointToCurves(ar::Entity point, std::vector<ar::Entity> curves)
 {
 	for (auto& curve : curves)
@@ -175,127 +125,6 @@ void EditorSceneController::AttachPointToCurves(ar::Entity point, std::vector<ar
 		pts.push_back(point);
 		point.GetComponent<ar::PointComponent>().Parents.push_back(curve);
 	}
-}
-
-void EditorSceneController::AddTorus(ar::mat::Vec3 spawnPoint, ar::TorusDesc desc)
-{
-	auto entity = m_Scene->CreateEntity("Torus");
-
-	// Torus component
-	auto& tc = entity.AddComponent<ar::TorusComponent>();
-	tc.Description = desc;
-	tc.Vertices = ar::TorusUtils::GenerateTorusVertices(desc, entity.GetID());
-	tc.Edges = ar::TorusUtils::GenerateTorusEdges(desc);
-
-	// Transform component
-	auto& trc = entity.AddComponent<ar::TransformComponent>();
-	trc.Translation = spawnPoint;
-
-	// Mesh (render) component
-	auto& mc = entity.AddComponent<ar::MeshComponent>();
-
-	// Primitive
-	mc.RenderPrimitive = ar::Primitive::LineLoop;
-
-	// VertexArray
-	mc.VertexArray = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
-	mc.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(tc.Vertices)));
-	auto indexBuffers = ar::IndexBuffer::Create(tc.Edges);
-	for (auto& ib : indexBuffers)
-		mc.VertexArray->AddIndexBuffer(ib);
-
-	// Shader
-	mc.Shader = ar::ShaderLib::Get("Basic");
-	mc.PickingShader = ar::ShaderLib::Get("Picking");
-}
-
-void EditorSceneController::AddChain(std::vector<ar::Entity> points)
-{
-	AR_ASSERT(points.size() > 1, "Too few points to create a chain.");
-	auto entity = m_Scene->CreateEntity("Chain");
-	entity.AddComponent<ar::ChainComponent>();
-
-	auto& cp = entity.AddComponent<ar::ControlPointsComponent>(points);
-	for (auto& point : points)
-		point.GetComponent<ar::PointComponent>().Parents.push_back(entity);
-	
-	auto& mesh = entity.AddComponent<ar::MeshComponent>();
-
-	mesh.VertexArray = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
-	//mesh.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(cp.GetVertexData(entity.GetID()))));
-
-	mesh.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(ar::GeneralUtils::GetVertexData(cp.Points, entity.GetID()))));
-	mesh.Shader = ar::ShaderLib::Get("Basic");
-	mesh.PickingShader = ar::ShaderLib::Get("Picking");
-	mesh.RenderPrimitive = ar::Primitive::LineStrip;
-}
-
-void EditorSceneController::AddCurveC0(std::vector<ar::Entity> points)
-{
-	AR_ASSERT(points.size() > 1, "Too few points to create a curve.");
-	auto entity = m_Scene->CreateEntity("Curve C0");
-	entity.AddComponent<ar::CurveC0Component>();
-
-	auto& cp = entity.AddComponent<ar::ControlPointsComponent>(points);
-	for (auto& point : points)
-		point.GetComponent<ar::PointComponent>().Parents.push_back(entity);
-
-	auto& mesh = entity.AddComponent<ar::MeshComponent>();
-	mesh.VertexArray = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
-//	mesh.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(cp.GetVertexData(entity.GetID()))));
-	mesh.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(ar::GeneralUtils::GetVertexData(cp.Points, entity.GetID()))));
-
-
-	mesh.VertexArray->AddIndexBuffer(ar::Ref<ar::IndexBuffer>(ar::IndexBuffer::Create(ar::CurveUtils::GenerateC0Indices(points.size()))));
-	mesh.Shader = ar::ShaderLib::Get("CurveC0");
-	mesh.PickingShader = ar::ShaderLib::Get("CurveC0Picking");
-	mesh.RenderPrimitive = ar::Primitive::Patch;
-	mesh.TessellationPatchSize = 4;
-	mesh.AdaptiveDrawing = true;
-}
-
-void EditorSceneController::AddCurveC2(std::vector<ar::Entity> points)
-{
-	AR_ASSERT(points.size() > 1, "Too few points to create a curve.");
-	auto entity = m_Scene->CreateEntity("Curve C2");
-	entity.AddComponent<ar::CurveC2Component>();
-
-	auto& cp = entity.AddComponent<ar::ControlPointsComponent>(points);
-	for (auto& point : points)
-		point.GetComponent<ar::PointComponent>().Parents.push_back(entity);
-
-	auto& mesh = entity.AddComponent<ar::MeshComponent>();
-	mesh.VertexArray = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
-	//mesh.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(cp.GetVertexData(entity.GetID()))));
-	mesh.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(ar::GeneralUtils::GetVertexData(cp.Points, entity.GetID()))));
-	
-	mesh.VertexArray->AddIndexBuffer(ar::Ref<ar::IndexBuffer>(ar::IndexBuffer::Create(ar::CurveUtils::GenerateC2Indices(points.size()))));
-	mesh.Shader = ar::ShaderLib::Get("CurveC2");
-	mesh.PickingShader = ar::ShaderLib::Get("CurveC2Picking");
-	mesh.RenderPrimitive = ar::Primitive::Patch;
-	mesh.TessellationPatchSize = 4;
-	mesh.AdaptiveDrawing = true;
-}
-
-void EditorSceneController::AddInterpolatedC2(std::vector<ar::Entity> points)
-{
-	AR_ASSERT(points.size() > 1, "Too few points to create a curve.");
-	auto entity = m_Scene->CreateEntity("Interpolated C2");
-	entity.AddComponent<ar::InterpolatedC2Component>();
-
-	auto& cp = entity.AddComponent<ar::ControlPointsComponent>(points);
-	for (auto& point : points)
-		point.GetComponent<ar::PointComponent>().Parents.push_back(entity);
-
-	auto& mesh = entity.AddComponent<ar::MeshComponent>();
-	mesh.VertexArray = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
-	mesh.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(ar::CurveUtils::GetIntC2VertexData(cp.Points, entity.GetID()))));
-
-	mesh.Shader = ar::ShaderLib::Get("CurveC0");
-	mesh.PickingShader = ar::ShaderLib::Get("CurveC0Picking");
-	mesh.RenderPrimitive = ar::Primitive::Patch;
-	mesh.TessellationPatchSize = 4;
-	mesh.AdaptiveDrawing = true;
 }
 
 void EditorSceneController::SelectEntities(std::vector<ar::Entity> entities, bool add /*= false*/)
@@ -474,14 +303,16 @@ void EditorSceneController::ProcessAdd(EditorState& state)
 	{
 	case ar::ObjectType::POINT:
 	{
-		auto pt = AddPoint(state.CursorPosition);
+		//auto pt = AddPoint(state.CursorPosition);
+
+		auto pt = m_Factory.CreatePoint(state.CursorPosition);
 		if (!state.SelectedCurves.empty())
 			AttachPointToCurves(pt, state.SelectedCurves);
 		break;
 	}
 	case ar::ObjectType::TORUS:
 	{
-		AddTorus(state.CursorPosition, {});
+		m_Factory.CreateTorus(state.CursorPosition, {});
 		break;
 	}
 	case ar::ObjectType::CHAIN:
@@ -492,7 +323,7 @@ void EditorSceneController::ProcessAdd(EditorState& state)
 			state.ErrorMessages.emplace_back("To create a chain, you need at least 2 points selected!");
 		}
 		else
-			AddChain(state.SelectedPoints);
+			m_Factory.CreateChain(state.SelectedPoints);
 		break;
 	}
 	case ar::ObjectType::BEZIERC0:
@@ -503,7 +334,7 @@ void EditorSceneController::ProcessAdd(EditorState& state)
 			state.ErrorMessages.emplace_back("To create a Bezier curve, you need at least 2 points selected!");
 		}
 		else
-			AddCurveC0(state.SelectedPoints);
+			m_Factory.CreateCurveC0(state.SelectedPoints);
 		break;
 	}
 	case ar::ObjectType::BEZIERC2:
@@ -514,7 +345,7 @@ void EditorSceneController::ProcessAdd(EditorState& state)
 			state.ErrorMessages.emplace_back("To create a B-spline curve, you need at least 2 points selected!");
 		}
 		else
-			AddCurveC2(state.SelectedPoints);
+			m_Factory.CreateCurveC2(state.SelectedPoints);
 		break;
 	}
 	case ar::ObjectType::INTERPOLATEDC2:
@@ -525,7 +356,7 @@ void EditorSceneController::ProcessAdd(EditorState& state)
 			state.ErrorMessages.emplace_back("To create an interpolated C2 curve, you need at least 2 points selected!");
 		}
 		else
-			AddInterpolatedC2(state.SelectedPoints);
+			m_Factory.CreateInterpolatedC2(state.SelectedPoints);
 		break;
 	}
 	case ar::ObjectType::NONE:
@@ -756,7 +587,7 @@ void EditorSceneController::UpdateTempSurface(ar::SurfaceDesc& desc, ar::mat::Ve
 void EditorSceneController::AcceptTempSurface(EditorState& state)
 {
 	m_TempSurface.RemoveComponent<ar::VirtualTagComponent>();
-	AddSurfacePoints(m_TempSurface, state.NewSurfaceDesc, state.CursorPosition);
+	m_Factory.CreateSurface(state.CursorPosition, state.NewSurfaceDesc, m_TempSurface);
 	m_TempSurface = ar::Entity(entt::null, nullptr);
 }
 

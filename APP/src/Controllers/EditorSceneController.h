@@ -5,6 +5,7 @@
 #include "core/Utils/CurveUtils.h"
 #include "EditorUI.h"
 #include "core/Scene/SceneRenderer.h"
+#include "core/Scene/SceneFactory.h"
 
 class EditorSceneController
 {
@@ -22,6 +23,7 @@ private:
 	ar::Ref<ar::CameraController> m_CameraController;
 	ar::SceneRenderer& m_SceneRenderer;
 	ar::Entity m_TempSurface;
+	ar::SceneFactory m_Factory;
 
 	// Processors
 	void ProcessAdd(EditorState& state);
@@ -42,18 +44,6 @@ private:
 	void UpdateTempSurface(ar::SurfaceDesc& desc, ar::mat::Vec3 position);
 	void AcceptTempSurface(EditorState& state);
 	void RejectTempSurface();
-
-	// ---
-
-	ar::Entity AddPoint(ar::mat::Vec3 spawnPoint);
-	void AddSurfacePoints(ar::Entity surface, ar::SurfaceDesc desc, ar::mat::Vec3 origin);
-	void AddTorus(ar::mat::Vec3 spawnPoint, ar::TorusDesc desc);
-	void AddChain(std::vector<ar::Entity> points);
-	void AddCurveC0(std::vector<ar::Entity> points);
-	void AddCurveC2(std::vector<ar::Entity> points);
-	void AddInterpolatedC2(std::vector<ar::Entity> points);
-	void AddSurface(ar::mat::Vec3 spawnPoint, ar::SurfaceDesc desc);		// user-generated
-	void AddSurface(std::vector<ar::Entity> points, ar::SurfaceDesc desc);	// serialized
 
 	void AttachPointToCurves(ar::Entity point, std::vector<ar::Entity> curves);
 	
