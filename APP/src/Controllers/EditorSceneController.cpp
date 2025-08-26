@@ -2,6 +2,7 @@
 #include "EditorConstants.h"
 #include "core/Renderer/Shader.h"
 #include "core/Utils/GeneralUtils.h"
+#include "core/Serialization/SceneImporter.h"
 
 EditorSceneController::EditorSceneController(ar::Ref<ar::Scene> scene, ar::SceneRenderer& sceneRender)
 	: m_Scene(scene), m_SceneRenderer(sceneRender),
@@ -109,7 +110,20 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 		state.NewSurfaceDesc = { {1, 1}, {4, 4} };
 		state.NewSurfaceRejected = false;
 	}
-	
+
+	if (state.ShouldImport)
+	{
+		ar::SceneImporter::Import(state.Filepath, m_Factory);
+		state.ShouldImport = false;
+		state.Filepath = "";
+	}
+	if (state.ShouldExport)
+	{
+		// todo: export
+		state.ShouldExport = false;
+		state.Filepath = "";
+	}
+
 	// Validation
 	if (geometryValidation)
 		ValidateGeometry(state);
@@ -305,14 +319,14 @@ void EditorSceneController::ProcessAdd(EditorState& state)
 	{
 		//auto pt = AddPoint(state.CursorPosition);
 
-		auto pt = m_Factory.CreatePoint(state.CursorPosition);
+		auto pt = m_Factory.CreatePoint(state.CursorPosition, std::nullopt, "Point");
 		if (!state.SelectedCurves.empty())
 			AttachPointToCurves(pt, state.SelectedCurves);
 		break;
 	}
 	case ar::ObjectType::TORUS:
 	{
-		m_Factory.CreateTorus(state.CursorPosition, {});
+		m_Factory.CreateTorus(state.CursorPosition, {}, std::nullopt, "Torus");
 		break;
 	}
 	case ar::ObjectType::CHAIN:
@@ -323,7 +337,7 @@ void EditorSceneController::ProcessAdd(EditorState& state)
 			state.ErrorMessages.emplace_back("To create a chain, you need at least 2 points selected!");
 		}
 		else
-			m_Factory.CreateChain(state.SelectedPoints);
+			m_Factory.CreateChain(state.SelectedPoints, std::nullopt, "Chain");
 		break;
 	}
 	case ar::ObjectType::BEZIERC0:
@@ -334,7 +348,7 @@ void EditorSceneController::ProcessAdd(EditorState& state)
 			state.ErrorMessages.emplace_back("To create a Bezier curve, you need at least 2 points selected!");
 		}
 		else
-			m_Factory.CreateCurveC0(state.SelectedPoints);
+			m_Factory.CreateCurveC0(state.SelectedPoints, std::nullopt, "CurveC0");
 		break;
 	}
 	case ar::ObjectType::BEZIERC2:
@@ -345,7 +359,7 @@ void EditorSceneController::ProcessAdd(EditorState& state)
 			state.ErrorMessages.emplace_back("To create a B-spline curve, you need at least 2 points selected!");
 		}
 		else
-			m_Factory.CreateCurveC2(state.SelectedPoints);
+			m_Factory.CreateCurveC2(state.SelectedPoints, std::nullopt, "CurveC2");
 		break;
 	}
 	case ar::ObjectType::INTERPOLATEDC2:
@@ -356,7 +370,7 @@ void EditorSceneController::ProcessAdd(EditorState& state)
 			state.ErrorMessages.emplace_back("To create an interpolated C2 curve, you need at least 2 points selected!");
 		}
 		else
-			m_Factory.CreateInterpolatedC2(state.SelectedPoints);
+			m_Factory.CreateInterpolatedC2(state.SelectedPoints, std::nullopt, "InterpolatedC2");
 		break;
 	}
 	case ar::ObjectType::NONE:
@@ -509,7 +523,7 @@ void EditorSceneController::CreateTempSurface(ar::SurfaceDesc desc, ar::mat::Vec
 	std::vector<uint32_t> indices;
 	ar::Ref<ar::Shader> shader, pickingShader;
 
-	m_TempSurface = m_Scene->CreateEntity("Surface");
+	m_TempSurface = m_Scene->CreateEntity(std::nullopt, "Surface");
 	m_TempSurface.AddComponent<ar::VirtualTagComponent>();
 	positions = ar::SurfaceUtils::GenerateSurfaceData(desc, position);
 	indices = ar::SurfaceUtils::GenerateSurfaceIndices(desc);

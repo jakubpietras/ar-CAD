@@ -63,7 +63,7 @@ namespace ar
 		if (renderMeanPoint)
 			RenderMeanPoint(cameraController, meanPointPos);
 		RenderCursor(cameraController, cursorPos);
-		RenderPolygons(vpMat);
+		//RenderPolygons(vpMat);
 		RenderPoints(vpMat, RenderPassType::MAIN);
 		m_MainFB->Unbind();
 	}

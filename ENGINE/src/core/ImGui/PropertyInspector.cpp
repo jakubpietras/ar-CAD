@@ -11,7 +11,7 @@ namespace ar
 		return ImGui::DragFloat3(label.c_str(), value.Data(), 0.1f, minValue, maxValue);
 	}
 
-	bool PropertyInspector::InspectProperty(const std::string& label, UInt2& value, UInt2& oldValue, unsigned int minValue, unsigned int maxValue)
+	bool PropertyInspector::InspectProperty(const std::string& label, mat::UInt2& value, mat::UInt2& oldValue, unsigned int minValue, unsigned int maxValue)
 	{
 		oldValue = value;
 
@@ -38,7 +38,7 @@ namespace ar
 		return ImGui::DragFloat3(label.c_str(), value.Data(), 0.1f, minValue, maxValue);
 	}
 
-	bool PropertyInspector::InspectProperty(const std::string& label, UInt2& value, unsigned int minValue, unsigned int maxValue)
+	bool PropertyInspector::InspectProperty(const std::string& label, mat::UInt2& value, unsigned int minValue, unsigned int maxValue)
 	{
 		int temp[2] = {
 			static_cast<int>(value.u),

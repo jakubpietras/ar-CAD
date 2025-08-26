@@ -152,7 +152,6 @@ namespace ar
 		}
 		return refs;
 	}
-
 	std::vector<uint32_t> SurfaceUtils::GenerateSurfaceRefIndices(SurfaceDesc desc)
 	{
 		auto indices = std::vector<uint32_t>();
@@ -181,6 +180,7 @@ namespace ar
 		}
 		else
 		{
+			// todo: fix for c2
 			for (int segmentV = 0; segmentV < desc.Segments.v; segmentV++)
 			{
 				for (int segmentU = 0; segmentU < desc.Segments.u; segmentU++)
@@ -201,6 +201,55 @@ namespace ar
 
 		return indices;
 	}
+	//std::vector<uint32_t> SurfaceUtils::GenerateSurfaceRefIndices(SurfaceDesc desc)
+	//{
+	//	auto indices = std::vector<uint32_t>();
+	//	auto getIndex = [&](int u, int v) -> uint32_t {
+	//		return v * desc.Size.u + u;
+	//		};
+
+	//	if (desc.Type == SurfaceType::RECTANGLEC0 || desc.Type == SurfaceType::CYLINDERC0)
+	//	{
+	//		for (int segmentV = 0; segmentV * 3 < desc.Size.v; segmentV++)
+	//		{
+	//			for (int segmentU = 0; segmentU * 3 < desc.Size.u; segmentU++)
+	//			{
+	//				int baseU = segmentU * 3;
+	//				int baseV = segmentV * 3;
+
+	//				for (int localV = 0; localV < 4; localV++)
+	//				{
+	//					for (int localU = 0; localU < 4; localU++)
+	//					{
+	//						indices.push_back(getIndex(baseU + localU, baseV + localV));
+	//					}
+	//				}
+	//			}
+	//		}
+	//	}
+	//	else
+	//	{
+	//		// todo: fix for c2
+	//		for (int segmentV = 0; segmentV * 3 < desc.Size.v; segmentV++)
+	//		{
+	//			for (int segmentU = 0; segmentU * 3 < desc.Size.u; segmentU++)
+	//			{
+	//				int baseU = segmentU * 3;
+	//				int baseV = segmentV * 3;
+
+	//				for (int localV = 0; localV < 4; localV++)
+	//				{
+	//					for (int localU = 0; localU < 4; localU++)
+	//					{
+	//						indices.push_back(getIndex(baseU + localU, baseV + localV));
+	//					}
+	//				}
+	//			}
+	//		}
+	//	}
+
+	//	return indices;
+	//}
 
 	ar::SurfaceDesc SurfaceUtils::AdjustSurfaceDescription(SurfaceDesc desc)
 	{

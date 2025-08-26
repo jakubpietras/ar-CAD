@@ -58,6 +58,13 @@ namespace ar
 
 	struct TransformComponent
 	{
+		TransformComponent(mat::Vec3 translation = { 0.0f, 0.0f, 0.0f },
+			mat::Quat rotation = {}, mat::Vec3 scale = { 1.0f, 1.0f, 1.0f })
+			: Translation(translation), Rotation(rotation)
+		{
+			// todo: convert quaternion to RPY
+		}
+
 		PivotType	PivotPoint = PivotType::LOCAL_ORIGIN;
 
 		mat::Quat	Rotation;
@@ -103,7 +110,7 @@ namespace ar
 	{
 		std::shared_ptr<VertexArray>	VertexArray = nullptr;
 		std::shared_ptr<Shader>			Shader = nullptr;
-		UInt2							Size = { 1, 1 };
+		mat::UInt2							Size = { 1, 1 };
 		bool							DirtyFlag = false,
 										IsVisible = true;
 	};

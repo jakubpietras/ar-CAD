@@ -38,9 +38,10 @@
 
 #ifndef AR_GL_CHECK
 #define AR_GL_CHECK() { \
-    std::string error = CheckGLErrors(); \
+    std::string error = CheckGLErrors(__FILE__, __LINE__); \
     if (!error.empty()) { \
-        AR_ASSERT(false, "OpenGL Error: {0}", error); \
+        AR_ERROR("OpenGL Error: {0}", error);\
+        __debugbreak();\
     } \
 }
 #endif
@@ -49,7 +50,8 @@
 #define AR_GL_FBO_CHECK(fbo) { \
     std::string fboError = CheckGLFramebufferErrors(fbo); \
     if (!fboError.empty()) { \
-        AR_ASSERT(false, "Framebuffer error: {0}", fboError); \
+        AR_ERROR("Framebuffer error: {0}", fboError);\
+        __debugbreak();\
     } \
 }
 #endif

@@ -17,11 +17,14 @@ namespace ar
 
 	Scene::~Scene() { }
 
-	Entity Scene::CreateEntity(const std::string& name /*= std::string()*/)
+	Entity Scene::CreateEntity(std::optional<uint32_t> id, const std::string& name)
 	{
 		Entity entity = { m_Registry.create(), this };
 		auto& ic = entity.AddComponent<IDComponent>();
-		ic.ID = UID::AssignNew();
+		if (id.has_value())
+			ic.ID = *id;
+		else
+			ic.ID = UID::AssignNew();
 		auto& tc = entity.AddComponent<TagComponent>();
 		tc.Tag = name.empty() ? "Entity" : name;
 

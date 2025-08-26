@@ -9,7 +9,7 @@ namespace ar
 	{
 		float		SmallRadius = 1.0f,
 					LargeRadius = 2.0f;
-		UInt2		Samples {17, 16};
+		mat::UInt2		Samples {17, 16};
 	};
 
 	class TorusUtils

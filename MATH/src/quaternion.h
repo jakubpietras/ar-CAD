@@ -43,6 +43,7 @@ namespace ar
 		// construction helpers
 		Quat FromAxisAngle(float angle, const Vec3& axis_dir);	// axis angle
 		Quat RPYToQuat(const Vec3& angles_deg);
+		Vec3 QuatToRPY(const Quat& q);
 		//Vec3 ToEulerXYZ(const Quat& q);
 		Mat4 ToMat4(const Quat& q); // ToMat4
 

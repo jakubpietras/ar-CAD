@@ -292,11 +292,11 @@ void EditorUI::OpenImportDialog()
 	auto path = OpenFileDialog();
 	if (!path.empty())
 	{
-		// todo: import
-		AR_TRACE("Path: {0}", path);
+		m_State.Filepath = path;
+		m_State.ShouldImport = true;
 	}
 	else
-		AR_TRACE("No path opened");
+		AR_TRACE("Import canceled");
 }
 
 void EditorUI::OpenExportDialog()
@@ -304,11 +304,11 @@ void EditorUI::OpenExportDialog()
 	auto path = OpenFileDialog();
 	if (!path.empty())
 	{
-		// todo: export
-		AR_TRACE("Path: {0}", path);
+		m_State.Filepath = path;
+		m_State.ShouldExport = true;
 	}
 	else
-		AR_TRACE("No path opened");
+		AR_TRACE("Export canceled");
 }
 
 std::string EditorUI::OpenFileDialog()

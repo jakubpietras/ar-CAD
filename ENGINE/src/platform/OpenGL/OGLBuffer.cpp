@@ -5,7 +5,7 @@ namespace ar
 {
 	OGLVertexBuffer::OGLVertexBuffer(const void* data, unsigned int size, unsigned int vertexCount,
 		BufferLayout layout)
-	{
+	{ 
 		glCreateBuffers(1, &m_ID);
 		AR_GL_CHECK();
 

@@ -113,4 +113,10 @@ struct EditorState
 	bool ShouldApplyGroupTransform = false;
 	bool ShouldEndGroupTransform = false;
 	void ClearGroupTransformState();
+
+	// ============================= Serialization ===========================
+	std::string Filepath;
+	bool ShouldImport = false;
+	bool ShouldExport = false;
+
 };

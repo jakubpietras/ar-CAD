@@ -1,12 +1,25 @@
 #pragma once
 #include <cmath>
 #include <cassert>
+#include <initializer_list>
 
 namespace ar
 {
 	namespace mat
 	{
 		struct Vec4;	// forward declaration
+
+
+		struct UInt2
+		{
+			UInt2(std::initializer_list<unsigned int> l)
+			{
+				u = *(l.begin());
+				v = *(l.begin() + 1);
+			}
+			unsigned int u, v;
+		};
+
 		struct Vec2
 		{
 			float x, y;
@@ -569,10 +582,6 @@ namespace ar
 		constexpr Vec3::Vec3(const Vec4& other)
 			: x(other.x), y(other.y), z(other.z) { }
 
-		struct UInt2
-		{
-			unsigned int u, v;
-		};
 
 		constexpr Vec4 ToVec4(const Vec3& v)
 		{

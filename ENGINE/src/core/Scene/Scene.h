@@ -6,6 +6,7 @@
 #include "core/Renderer/Renderer.h"
 #include "core/Renderer/RenderCommand.h"
 #include "core/Renderer/Framebuffer.h"
+#include <optional>
 
 namespace ar
 {
@@ -21,7 +22,8 @@ namespace ar
 		void OnUpdate(Ref<PerspectiveCamera> camera, ar::mat::Vec3 cursorPos, ar::mat::Vec3 meanPos);
 
 		// Entity management
-		Entity CreateEntity(const std::string& name = std::string());
+		Entity CreateEntity(std::optional<uint32_t> id, const std::string& name = std::string());
+
 		void DestroyEntity(Entity entity);
 		Entity FindEntityByName(const std::string& name);
 		Entity GetEntityByID(uint32_t id);
