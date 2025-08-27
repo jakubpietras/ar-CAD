@@ -3,6 +3,7 @@
 #include "core/Renderer/Shader.h"
 #include "core/Utils/GeneralUtils.h"
 #include "core/Serialization/SceneImporter.h"
+#include "core/Serialization/SceneExporter.h"
 
 EditorSceneController::EditorSceneController(ar::Ref<ar::Scene> scene, ar::SceneRenderer& sceneRender)
 	: m_Scene(scene), m_SceneRenderer(sceneRender),
@@ -119,7 +120,7 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 	}
 	if (state.ShouldExport)
 	{
-		// todo: export
+		ar::SceneExporter::Export(state.Filepath, m_Scene);
 		state.ShouldExport = false;
 		state.Filepath = "";
 	}

@@ -211,6 +211,8 @@ namespace ar
 		// In case of cylinders, some points are repeated, and so desc.Size needs to be updated
 		desc = ar::SurfaceUtils::AdjustSurfaceDescription(desc);
 		cp.Indices = ar::SurfaceUtils::GenerateSurfaceRefIndices(desc);
+		auto& d = tempSurface.GetComponent<SurfaceComponent>();
+		d.Description = desc;
 
 		// Mesh
 		auto& mc = tempSurface.GetComponent<ar::MeshComponent>();
@@ -221,12 +223,12 @@ namespace ar
 		mc.Shader = shader;
 		mc.PickingShader = pickingShader;
 
-		// Bezier net (control mesh)
-		auto& cpm = tempSurface.AddComponent<ar::ControlMeshComponent>();
-		cpm.VertexArray = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
-		cpm.VertexArray->AddVertexBuffer(vb);
-		cpm.VertexArray->AddIndexBuffer(ar::Ref<ar::IndexBuffer>(ar::IndexBuffer::Create(ar::SurfaceUtils::GenerateControlMeshIndices(desc, cp.Indices))));
-		cpm.Shader = ar::ShaderLib::Get("Basic");
+		//// Bezier net (control mesh)
+		//auto& cpm = tempSurface.AddComponent<ar::ControlMeshComponent>();
+		//cpm.VertexArray = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
+		//cpm.VertexArray->AddVertexBuffer(vb);
+		//cpm.VertexArray->AddIndexBuffer(ar::Ref<ar::IndexBuffer>(ar::IndexBuffer::Create(ar::SurfaceUtils::GenerateControlMeshIndices(desc, cp.Indices))));
+		//cpm.Shader = ar::ShaderLib::Get("Basic");
 
 		return tempSurface;
 	}
@@ -261,6 +263,7 @@ namespace ar
 		else
 			desc.Segments = { size.u - 3, size.v - 3 };
 		desc.Samples = samples;
+
 		// todo: ugly
 		if (isC0)
 			desc.Type = SurfaceType::RECTANGLEC0;

@@ -22,7 +22,10 @@ namespace ar
 		Entity entity = { m_Registry.create(), this };
 		auto& ic = entity.AddComponent<IDComponent>();
 		if (id.has_value())
+		{
 			ic.ID = *id;
+			UID::AddUsed(*id);
+		}
 		else
 			ic.ID = UID::AssignNew();
 		auto& tc = entity.AddComponent<TagComponent>();
