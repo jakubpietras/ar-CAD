@@ -4,6 +4,7 @@
 #include "core/Utils/GeneralUtils.h"
 #include "core/Serialization/SceneImporter.h"
 #include "core/Serialization/SceneExporter.h"
+#include <algorithm>
 
 EditorSceneController::EditorSceneController(ar::Ref<ar::Scene> scene, ar::SceneRenderer& sceneRender)
 	: m_Scene(scene), m_SceneRenderer(sceneRender),
@@ -29,6 +30,15 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 	{
 		ProcessAdd(state);
 		state.ClearAddState();
+	}
+	if (state.ShouldCollapsePoints)
+	{
+		if (CollapsePoints(state.SelectedPoints))
+		{
+			state.ObjectsToDelete.insert(state.SelectedPoints.begin(), state.SelectedPoints.end());
+			state.ShouldDeleteObjects = true;
+		}
+		state.ShouldCollapsePoints = false;
 	}
 	if (state.ShouldDeleteObjects)
 	{
@@ -125,6 +135,8 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 		state.Filepath = "";
 	}
 
+	
+
 	// Validation
 	if (geometryValidation)
 		ValidateGeometry(state);
@@ -214,6 +226,59 @@ void EditorSceneController::DetachPoint(ar::Entity child, ar::Entity parent)
 	points.erase(std::remove(points.begin(), points.end(), child), points.end());
 
 	parent.GetComponent<ar::MeshComponent>().DirtyFlag = true;
+}
+
+bool EditorSceneController::CollapsePoints(std::vector<ar::Entity> points)
+{
+	if (points.size() != 2)
+		return false;
+
+	auto position = ComputeAveragePosition(points[0], points[1]);
+	auto collapsedPoint = m_Factory.CreatePoint(position, std::nullopt, "Collapsed Point");
+
+	ReplaceChildRefs(points[0], collapsedPoint);
+	ReplaceChildRefs(points[1], collapsedPoint);
+
+	ReplaceParents(points[0], collapsedPoint);
+	ReplaceParents(points[1], collapsedPoint);
+
+	return true;
+}
+
+ar::mat::Vec3 EditorSceneController::ComputeAveragePosition(ar::Entity p1, ar::Entity p2)
+{
+	auto t1 = p1.GetComponent<ar::TransformComponent>().Translation;
+	auto t2 = p2.GetComponent<ar::TransformComponent>().Translation;
+	return (t1 + t2) / 2;
+}
+
+void EditorSceneController::ReplaceChildRefs(ar::Entity oldRef, ar::Entity newRef)
+{
+	AR_ASSERT(oldRef.HasComponent<ar::PointComponent>(), "Replacing refs works on points only!");
+	AR_ASSERT(newRef.HasComponent<ar::PointComponent>(), "Replacing refs works on points only!");
+
+	auto& parents = oldRef.GetComponent<ar::PointComponent>().Parents;
+	for (auto& parent : parents)
+	{
+		auto& cp = parent.GetComponent<ar::ControlPointsComponent>().Points;
+		std::replace_if(cp.begin(), cp.end(),
+			[&oldRef](ar::Entity e) { return e.GetID() == oldRef.GetID(); },
+			newRef);
+	}
+}
+
+void EditorSceneController::ReplaceParents(ar::Entity oldRef, ar::Entity newRef)
+{
+	AR_ASSERT(oldRef.HasComponent<ar::PointComponent>(), "Replacing refs works on points only!");
+	AR_ASSERT(newRef.HasComponent<ar::PointComponent>(), "Replacing refs works on points only!");
+	auto& parents = oldRef.GetComponent<ar::PointComponent>().Parents;
+	auto& newParents = newRef.GetComponent<ar::PointComponent>().Parents;
+
+	for (auto& parent : parents)
+	{
+		if (std::find(newParents.begin(), newParents.end(), parent) == newParents.end())
+			newParents.push_back(parent);
+	}
 }
 
 void EditorSceneController::ValidateGeometry(EditorState& state)
@@ -433,13 +498,9 @@ void EditorSceneController::ProcessAttach(EditorState& state)
 	for (auto& pair : state.PairsToAttach)
 	{
 		auto& cp = pair.Parent.GetComponent<ar::ControlPointsComponent>().Points;
-		// don't add points if they are already under the parent
-		if (std::find(cp.begin(), cp.end(), pair.Child) == cp.end())
-		{
-			cp.push_back(pair.Child);
-			pair.Child.GetComponent<ar::PointComponent>().Parents.push_back(pair.Parent);
-			pair.Parent.GetComponent<ar::MeshComponent>().DirtyFlag = true;
-		}
+		cp.push_back(pair.Child);
+		pair.Child.GetComponent<ar::PointComponent>().Parents.push_back(pair.Parent);
+		pair.Parent.GetComponent<ar::MeshComponent>().DirtyFlag = true;
 	}
 }
 
@@ -510,7 +571,7 @@ void EditorSceneController::PlaceCursor(ar::mat::Vec2 clickPosition, ViewportSiz
 	cursorPosition = cursorPos;
 }
 
-void EditorSceneController::DeleteEntities(std::vector<ar::Entity>& entities)
+void EditorSceneController::DeleteEntities(std::unordered_set<ar::Entity, ar::Entity::HashFunction>& entities)
 {
 	for (auto& entity : entities)
 	{

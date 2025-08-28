@@ -135,12 +135,12 @@ void SceneHierarchyPanel::DrawEntityContextMenu(ar::Entity& object, bool allowDe
 		ar::ScopedDisable disabled(object.HasComponent<ar::SurfacePointTagComponent>());
 		if (ImGui::MenuItem("Delete"))
 		{
-			m_State.ObjectsToDelete.push_back(object);
+			m_State.ObjectsToDelete.insert(object);
 			if (object.HasComponent<ar::SurfaceComponent>())
 			{
 				// delete all points contained in the surface
 				auto& points = object.GetComponent<ar::ControlPointsComponent>().Points;
-				m_State.ObjectsToDelete.insert(m_State.ObjectsToDelete.end(), points.begin(), points.end());
+				m_State.ObjectsToDelete.insert(points.begin(), points.end());
 			}
 			m_State.ShowDeleteModal = true;
 		}
@@ -156,7 +156,6 @@ void SceneHierarchyPanel::DrawEntityContextMenu(ar::Entity& object, bool allowDe
 		if (ImGui::MenuItem("Delete Selected"))
 		{
 			m_State.ObjectsToDelete.insert(
-				m_State.ObjectsToDelete.end(),
 				m_State.SelectedObjects.begin(),
 				m_State.SelectedObjects.end()
 			);
@@ -171,6 +170,13 @@ void SceneHierarchyPanel::DrawEntityContextMenu(ar::Entity& object, bool allowDe
 			for (auto& curve : m_State.SelectedCurves)
 				m_State.PairsToAttach.push_back({ curve, object });
 			m_State.ShowAttachModal = true;
+		}
+	}
+	if (object.HasComponent<ar::PointComponent>())
+	{
+		if (ImGui::MenuItem("Collapse"))
+		{
+			m_State.ShowCollapseModal = true;
 		}
 	}
 }

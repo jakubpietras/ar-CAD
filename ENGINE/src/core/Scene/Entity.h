@@ -80,10 +80,21 @@ namespace ar
 		{
 			return !(*this == other);
 		}
+
+		struct HashFunction
+		{
+			size_t operator()(const ar::Entity& e) const noexcept
+			{
+				return std::hash<uint32_t>{}(static_cast<uint32_t>(e));
+			}
+		};
+
 	private:
 		entt::entity m_EntityHandle{ entt::null };
 		Scene* m_Scene = nullptr;
 	};
+
+
 
 }
 

@@ -40,7 +40,7 @@ struct EditorState
 	void ClearAddState();
 
 	// =========================== Delete ==========================
-	std::vector<ar::Entity> ObjectsToDelete{};
+	std::unordered_set<ar::Entity, ar::Entity::HashFunction> ObjectsToDelete{};
 	bool ShouldDeleteObjects = false;
 	bool ShowDeleteModal = false;
 	void ClearDeleteState();
@@ -118,5 +118,11 @@ struct EditorState
 	std::string Filepath;
 	bool ShouldImport = false;
 	bool ShouldExport = false;
+
+	// ============================= Collapse ===========================
+	// Collapse two points taken from SelectedPoints
+	bool ShowCollapseModal = false;
+	bool ShouldCollapsePoints = false;
+
 
 };

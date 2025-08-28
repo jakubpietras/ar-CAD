@@ -37,7 +37,7 @@ private:
 	void PlaceCursor(ar::mat::Vec2 clickPosition, ViewportSize viewport, ar::mat::Vec3& cursorPosition);
 
 	// Deletion
-	void DeleteEntities(std::vector<ar::Entity>& entities);
+	void DeleteEntities(std::unordered_set<ar::Entity, ar::Entity::HashFunction>& entities);
 
 	// Addition
 	void CreateTempSurface(ar::SurfaceDesc desc, ar::mat::Vec3 position);
@@ -56,6 +56,12 @@ private:
 
 	// Detach
 	void DetachPoint(ar::Entity child, ar::Entity parent);
+
+	// Collapse
+	bool CollapsePoints(std::vector<ar::Entity> points);
+	ar::mat::Vec3 ComputeAveragePosition(ar::Entity p1, ar::Entity p2);
+	void ReplaceChildRefs(ar::Entity oldRef, ar::Entity newRef);
+	void ReplaceParents(ar::Entity oldRef, ar::Entity newRef);
 
 	// Validate
 	void ValidateGeometry(EditorState& state);

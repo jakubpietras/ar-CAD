@@ -34,6 +34,7 @@ void EditorUI::Render(ar::Ref<ar::Framebuffer> mainFB)
 	RenderErrorModal();
 	RenderDetachModal();
 	RenderAttachModal();
+	RenderCollapseModal();
 	RenderAddSurfaceC0Modal();
 	RenderAddSurfaceC2Modal();
 }
@@ -611,6 +612,50 @@ void EditorUI::RenderAddSurfaceC2Modal()
 	}
 
 	ImGui::PopStyleColor();
+}
+
+void EditorUI::RenderCollapseModal()
+{
+	const char* popupName = "Collapse points";
+
+	if (m_State.ShowCollapseModal)
+	{
+		ImGui::OpenPopup(popupName);
+		m_State.ShowCollapseModal = false;
+	}
+
+	if (ImGui::BeginPopupModal(popupName, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		if (m_State.SelectedPoints.size() != 2)
+		{
+			std::string message = "Exactly two unique points must be selected for collapse!";
+			ImGui::TextWrapped(message.c_str());
+			if (ImGui::Button("OK", ImVec2(120, 0)))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+		}
+		else
+		{
+			auto& p1 = m_State.SelectedPoints[0], & p2 = m_State.SelectedPoints[1];
+			std::string message = "Are you sure you want to collapse "
+				+ p1.GetName() + " (ID: " + std::to_string(p1.GetID()) + ") with "
+				+ p2.GetName() + " (ID: " + std::to_string(p2.GetID()) + ")?";
+			ImGui::TextWrapped(message.c_str());
+			if (ImGui::Button("OK", ImVec2(120, 0)))
+			{
+				m_State.ShouldCollapsePoints = true;
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel", ImVec2(120, 0)))
+			{
+				m_State.ShouldCollapsePoints = false;
+				ImGui::CloseCurrentPopup();
+			}
+		}
+		ImGui::EndPopup();
+	}
 }
 
 void EditorUI::RequestAddObject(ar::ObjectType type)
