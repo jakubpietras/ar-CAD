@@ -132,5 +132,5 @@ struct EditorState
 	std::vector<ar::Hole> FillCandidates{};
 	ar::Hole HoleToFill;
 	bool ShouldScanForHoles = false;
-	
+	void ClearFillState();
 };

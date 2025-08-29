@@ -24,6 +24,17 @@ namespace ar
 	struct Hole
 	{
 		std::array<EdgeInfo, 3> Edges;
+		std::array<uint32_t, 3> Endpoints;
+
+		Hole(const std::array<EdgeInfo, 3>& edges = {}, const std::array<uint32_t, 3>& endpoints = {})
+			: Edges(edges), Endpoints(endpoints) {
+		}
+
+		std::string ToString() const {
+			return std::to_string(Endpoints[0]) + "-"
+				+ std::to_string(Endpoints[1]) + "-"
+				+ std::to_string(Endpoints[2]);
+		}
 	};
 
 	class HoleDetector
@@ -39,9 +50,12 @@ namespace ar
 		static std::unordered_map<EdgeKey, EdgeInfo, EdgeKeyHash> m_EdgeTable;
 	
 		static void BuildGraph(std::vector<Entity> surfaces);
+		static std::vector<std::array<uint32_t, 3>> FindTriples();
+
 		static void ExtractEdges(Entity surface);
 		static EdgeInfo ExtractEdge(Entity surface, EdgeInfo::Placement placement, uint32_t segmentU, uint32_t segmentV);
 		static void ProcessEdge(EdgeInfo edge, Entity surface);
+		static std::vector<ar::Hole> ConvertTriplesToHoles(std::vector<std::array<uint32_t, 3>> triples);
 
 		// Debug
 		static void PrintAdjacency();

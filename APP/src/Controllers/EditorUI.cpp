@@ -648,6 +648,11 @@ void EditorUI::RenderAddGregoryModal()
 		ImGui::TextWrapped("Detected Holes");
 		ImGui::Separator();
 
+		for (auto& hole : m_State.FillCandidates)
+		{
+			ImGui::Selectable(hole.ToString().c_str());
+		}
+
 		ImGui::EndChild();
 
 		float buttonWidth = 100.0f;
@@ -658,9 +663,13 @@ void EditorUI::RenderAddGregoryModal()
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + offset);
 		if (ImGui::Button("Detect Holes", ImVec2(buttonWidth, 0))) { m_State.ShouldScanForHoles = true; }
 		ImGui::SameLine();
-		if (ImGui::Button("Add Fill-in", ImVec2(buttonWidth, 0))) {}
+		if (ImGui::Button("Add Fill-in", ImVec2(buttonWidth, 0))) { /* Request add Gregory patch and clear fill state */ }
 		ImGui::SameLine();
-		if (ImGui::Button("Cancel", ImVec2(buttonWidth, 0))) { m_State.ShouldShowGregoryModal = false; }
+		if (ImGui::Button("Cancel", ImVec2(buttonWidth, 0))) 
+		{
+			m_State.ClearFillState();
+			m_State.ShouldShowGregoryModal = false; 
+		}
 
 		ImGui::End();
 	}

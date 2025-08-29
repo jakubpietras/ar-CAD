@@ -11,13 +11,12 @@ namespace ar
 		m_EdgeTable.clear();
 
 		BuildGraph(surfaces);
-
 #ifdef DEBUG
 		PrintAdjacency();
 		PrintEdgeTable();
 #endif
-
-		return {};
+		// triples of points that (in order) form a triangular hole
+		return ConvertTriplesToHoles(FindTriples());
 	}
 
 	std::unordered_map<uint32_t, std::unordered_set<uint32_t>> HoleDetector::m_Adjacency;
@@ -27,6 +26,30 @@ namespace ar
 	{
 		for (auto& surface : surfaces)
 			ExtractEdges(surface);
+	}
+
+	std::vector<std::array<uint32_t, 3>> HoleDetector::FindTriples()
+	{
+		std::vector<std::array<uint32_t, 3>> triples;
+
+		// starting from every corner point (endpoint)
+		for (auto& [point, neighbors] : m_Adjacency)
+		{
+			// iterate over its neighbors
+			for (auto& neighbor : neighbors)
+			{
+				for (auto& secondNeighbor : m_Adjacency[neighbor])
+				{
+					// if neighbor's neighbor is the starting point's neighbor
+					if (m_Adjacency[secondNeighbor].contains(point))
+					{
+						// add the triple (redundancy pruned elsewhere)
+						triples.push_back({ point, neighbor, secondNeighbor });
+					}
+				}
+			}
+		}
+		return triples;
 	}
 
 	void HoleDetector::ExtractEdges(Entity surface)
@@ -107,6 +130,22 @@ namespace ar
 		EdgeInfo edgeReverse(edge);
 		std::swap(edgeReverse.GridPlacement.first, edgeReverse.GridPlacement.second);
 		m_EdgeTable[EdgeKey(secondEndpointID, firstEndpointID)] = edgeReverse;
+	}
+
+	std::vector<ar::Hole> HoleDetector::ConvertTriplesToHoles(std::vector<std::array<uint32_t, 3>> triples)
+	{
+		std::vector<ar::Hole> holes;
+		for (const auto& triple : triples)
+		{
+			Hole h({
+				m_EdgeTable[EdgeKey(triple[0], triple[1])],
+				m_EdgeTable[EdgeKey(triple[1], triple[2])],
+				m_EdgeTable[EdgeKey(triple[2], triple[0])]
+				}, triple);
+
+			holes.push_back(std::move(h));
+		}
+		return holes;
 	}
 
 	void HoleDetector::PrintAdjacency()

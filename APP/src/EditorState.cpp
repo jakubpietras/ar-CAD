@@ -64,3 +64,10 @@ void EditorState::ClearGroupTransformState()
 	GroupAnglesRPY = { 0.f, 0.f, 0.f };
 	GroupScale = { 1.f, 1.f, 1.f };
 }
+
+void EditorState::ClearFillState()
+{
+	FillCandidates.clear();
+	HoleToFill = {};
+	ShouldScanForHoles = false;
+}
