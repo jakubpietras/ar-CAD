@@ -37,6 +37,7 @@ void EditorUI::Render(ar::Ref<ar::Framebuffer> mainFB)
 	RenderCollapseModal();
 	RenderAddSurfaceC0Modal();
 	RenderAddSurfaceC2Modal();
+	RenderAddGregoryModal();
 }
 
 ar::mat::Vec2 EditorUI::GetClickPosition()
@@ -253,7 +254,12 @@ void EditorUI::RenderAddMenu()
 			m_State.ShouldShowSurfaceC0Modal = true;
 		if (ImGui::MenuItem("Bezier C2"))
 			m_State.ShouldShowSurfaceC2Modal = true;
-
+		{
+			ar::ScopedDisable disable(m_State.ShouldShowGregoryModal);
+			if (ImGui::MenuItem("Gregory patch"))
+				m_State.ShouldShowGregoryModal = true;
+		}
+		
 		ImGui::EndMenu();
 	}
 }
@@ -612,6 +618,53 @@ void EditorUI::RenderAddSurfaceC2Modal()
 	}
 
 	ImGui::PopStyleColor();
+}
+
+void EditorUI::RenderAddGregoryModal()
+{
+	if (m_State.ShouldShowGregoryModal)
+	{
+		ImGui::SetNextWindowSize(ImVec2(200, 120), ImGuiCond_Once);
+		ImGui::Begin("Gregory", &m_State.ShouldShowGregoryModal,
+			ImGuiWindowFlags_NoCollapse);
+
+		float halfWidth = ImGui::GetContentRegionAvail().x * 0.5f;
+		float height = 200.0f;
+
+		ImGui::BeginChild("SelectedPatches", ImVec2(halfWidth, height), true);
+		ImGui::TextWrapped("Selected C0 Patches");
+		ImGui::Separator();
+		for (auto& patch : m_State.SelectedSurfacesC0)
+		{
+			std::string label = patch.GetName() + " (ID: " + std::to_string(patch.GetID()) + ")";
+			ImGui::Text(label.c_str());
+		}
+		ImGui::EndChild();
+
+		ImGui::SameLine();
+
+		ImGui::BeginChild("DetectedHoles", ImVec2(halfWidth, height), true);
+
+		ImGui::TextWrapped("Detected Holes");
+		ImGui::Separator();
+
+		ImGui::EndChild();
+
+		float buttonWidth = 100.0f;
+		float spacing = 20.0f;
+		float totalWidth = 3 * buttonWidth + 2 * spacing;
+		float offset = (ImGui::GetContentRegionAvail().x - totalWidth) * 0.5f;
+
+		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + offset);
+		if (ImGui::Button("Detect Holes", ImVec2(buttonWidth, 0))) { m_State.ShouldScanForHoles = true; }
+		ImGui::SameLine();
+		if (ImGui::Button("Add Fill-in", ImVec2(buttonWidth, 0))) {}
+		ImGui::SameLine();
+		if (ImGui::Button("Cancel", ImVec2(buttonWidth, 0))) { m_State.ShouldShowGregoryModal = false; }
+
+		ImGui::End();
+	}
+	
 }
 
 void EditorUI::RenderCollapseModal()

@@ -39,6 +39,13 @@ namespace ar
 		}
 
 		template<typename T>
+		T& GetComponent() const
+		{
+			AR_ASSERT(HasComponent<T>(), "Entity does not have component!");
+			return m_Scene->m_Registry.get<T>(m_EntityHandle);
+		}
+
+		template<typename T>
 		void RemoveComponent()
 		{
 			AR_ASSERT(HasComponent<T>(), "Entity does not have component!");
@@ -58,12 +65,14 @@ namespace ar
 		}
 
 		inline bool IsValid() const { return m_Scene->m_Registry.valid(m_EntityHandle); }
+		inline const entt::entity GetEnttHandle() const { return m_EntityHandle; }
+
 
 		operator bool() const { return m_EntityHandle != entt::null; }
 		operator entt::entity() const { return m_EntityHandle; }
 		operator uint32_t() const { return (uint32_t)m_EntityHandle; }
 
-		uint32_t GetID();
+		const uint32_t GetID();
 		const std::string& GetName();
 		void SetName(const std::string& newName);
 		void Hide();

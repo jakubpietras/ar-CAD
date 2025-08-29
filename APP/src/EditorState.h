@@ -3,6 +3,7 @@
 #include "core/Scene/Entity.h"
 #include "core/Scene/ObjectTypes.h"
 #include "core/Utils/SurfaceUtils.h"
+#include "core/Geometry/HoleDetector.h"
 
 struct EntityLink
 {
@@ -31,6 +32,7 @@ struct EditorState
 	// -- Add surface
 	bool ShouldShowSurfaceC0Modal = false;
 	bool ShouldShowSurfaceC2Modal = false;
+	bool ShouldShowGregoryModal = false;
 
 	ar::SurfaceDesc NewSurfaceDesc{ {1, 1}, {4, 4} };
 	bool NewSurfaceBegin = false;
@@ -38,6 +40,7 @@ struct EditorState
 	bool NewSurfaceAccepted = false;						// add real points
 	bool NewSurfaceRejected = false;						// destroy temporary object
 	void ClearAddState();
+
 
 	// =========================== Delete ==========================
 	std::unordered_set<ar::Entity, ar::Entity::HashFunction> ObjectsToDelete{};
@@ -69,6 +72,7 @@ struct EditorState
 	std::vector<ar::Entity> SelectedPoints{};
 	std::vector<ar::Entity> SelectedCurves{};
 	std::vector<ar::Entity> SelectedObjectsWithTransforms{};
+	std::vector<ar::Entity> SelectedSurfacesC0{};
 	std::vector<ar::Entity> SelectionCandidates{};
 	ar::mat::Vec3 SelectedMeanPosition {0.f, 0.f, 0.f};
 	SelectionMode SelectionChangeMode = SelectionMode::Replace;
@@ -124,5 +128,9 @@ struct EditorState
 	bool ShowCollapseModal = false;
 	bool ShouldCollapsePoints = false;
 
-
+	// ============================= Fill-in ===========================
+	std::vector<ar::Hole> FillCandidates{};
+	ar::Hole HoleToFill;
+	bool ShouldScanForHoles = false;
+	
 };

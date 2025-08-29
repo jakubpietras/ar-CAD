@@ -15,7 +15,7 @@ namespace ar
 		name.Tag = newName;
 	}
 
-	uint32_t Entity::GetID()
+	const uint32_t Entity::GetID()
 	{
 		return GetComponent<IDComponent>().ID;
 	}

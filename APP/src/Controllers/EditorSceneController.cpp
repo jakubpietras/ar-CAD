@@ -5,6 +5,7 @@
 #include "core/Serialization/SceneImporter.h"
 #include "core/Serialization/SceneExporter.h"
 #include <algorithm>
+#include "core/Geometry/HoleDetector.h"
 
 EditorSceneController::EditorSceneController(ar::Ref<ar::Scene> scene, ar::SceneRenderer& sceneRender)
 	: m_Scene(scene), m_SceneRenderer(sceneRender),
@@ -135,8 +136,12 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 		state.Filepath = "";
 	}
 
+	if (state.ShouldScanForHoles)
+	{
+		state.FillCandidates = ar::HoleDetector::Detect(state.SelectedSurfacesC0);
+		state.ShouldScanForHoles = false;
+	}
 	
-
 	// Validation
 	if (geometryValidation)
 		ValidateGeometry(state);
@@ -362,6 +367,7 @@ void EditorSceneController::ValidateSelection(EditorState& state)
 	state.SelectedPoints.clear();
 	state.SelectedCurves.clear();
 	state.SelectedObjectsWithTransforms.clear();
+	state.SelectedSurfacesC0.clear();
 	for (auto& entity : state.SelectedObjects)
 	{
 		if (entity.HasComponent<ar::PointComponent>() 
@@ -371,6 +377,12 @@ void EditorSceneController::ValidateSelection(EditorState& state)
 			state.SelectedCurves.push_back(entity);
 		if (entity.HasComponent<ar::TransformComponent>())
 			state.SelectedObjectsWithTransforms.push_back(entity);
+		if (entity.HasComponent<ar::SurfaceComponent>())
+		{
+			auto type = entity.GetComponent<ar::SurfaceComponent>().Description.Type;
+			if (type == ar::SurfaceType::RECTANGLEC0 || type == ar::SurfaceType::CYLINDERC0)
+				state.SelectedSurfacesC0.push_back(entity);
+		}
 	}
 
 	// middle point
@@ -437,6 +449,17 @@ void EditorSceneController::ProcessAdd(EditorState& state)
 		}
 		else
 			m_Factory.CreateInterpolatedC2(state.SelectedPoints, std::nullopt, "InterpolatedC2");
+		break;
+	}
+	case ar::ObjectType::GREGORY:
+	{
+		if (state.SelectedSurfacesC0.size() < 1)
+		{
+			state.ShowErrorModal = true;
+			state.ErrorMessages.emplace_back("Select at least one C0 surface to create a fill-in!");
+		}
+		else
+			break; // todo: create Gregory
 		break;
 	}
 	case ar::ObjectType::NONE:

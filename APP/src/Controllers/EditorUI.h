@@ -42,6 +42,7 @@ private:
 	void RenderAttachModal();
 	void RenderAddSurfaceC0Modal();
 	void RenderAddSurfaceC2Modal();
+	void RenderAddGregoryModal();
 	void RenderCollapseModal();
 
 	void RequestAddObject(ar::ObjectType type);

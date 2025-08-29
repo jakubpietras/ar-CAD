@@ -144,6 +144,9 @@
     <ClCompile Include="src\core\Scene\SceneFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\core\Geometry\HoleDetector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\core\Application.h">
@@ -324,6 +327,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\core\Scene\SceneFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\Geometry\HoleDetector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
