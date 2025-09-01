@@ -20,6 +20,12 @@ namespace ar
 		{"a_Color", AttributeType::Float3, 0} 
 	};
 
+	const BufferLayout VertexPositionIDColor::s_Layout{
+		{"a_Position", AttributeType::Float3, 0},
+		{"a_ID", AttributeType::UInt, 0},
+		{"a_Color", AttributeType::Float3, 0}
+	};
+
 	const BufferLayout InstancedFloat3::s_Layout{
 		{"a_Offset", AttributeType::Float3, 1}
 	};

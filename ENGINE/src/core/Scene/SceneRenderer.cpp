@@ -7,6 +7,7 @@ namespace ar
 {
 	const float SceneRenderer::CURSOR_SIZE = 15.0f;
 	const float SceneRenderer::MEAN_POINT_SIZE = 7.0f;
+	const mat::Vec3 SceneRenderer::SELECTION_COLOR = { .702f, .302f, 1.f };
 	const mat::Vec3 SceneRenderer::POLYGON_COLOR = { .702f, .302f, 1.f };
 	const mat::Vec3 SceneRenderer::MIDDLE_POINT_COLOR = { .702f, .302f, 1.f };
 
@@ -282,74 +283,49 @@ namespace ar
 			if (sc.ShowNet)
 				ar::Renderer::Submit(Primitive::Line, cmc.Shader, cmc.VertexArray, true);
 		}
-
-
 	}
 
 	void SceneRenderer::RenderPoints(ar::mat::Mat4 viewProjection, RenderPassType pass)
 	{
-		auto shader = pass == RenderPassType::MAIN ? ShaderLib::Get("Basic") : ShaderLib::Get("Picking");
+		auto shader = pass == RenderPassType::MAIN ? ShaderLib::Get("Point") : ShaderLib::Get("PointPicking");
 		shader->SetMat4("u_VP", viewProjection);
 		shader->SetMat4("u_Model", mat::Identity());
-
-		std::vector<VertexPositionID> unselectedVerts, selectedVerts;
 
 		auto view = m_Scene->m_Registry.view<TransformComponent, PointComponent>();
 		if (!view.size_hint())
 			return;
 
-		for (const auto& [e, transform, pt] : view.each())
-		{
-			auto entity = ar::Entity(e, m_Scene.get());
-			bool selected = m_Scene->m_Registry.any_of<SelectedTagComponent>(e);
-			if (selected)
-				selectedVerts.push_back({ transform.Translation, entity.GetID() });
-			else
-				unselectedVerts.push_back({ transform.Translation, entity.GetID() });
-		}
+		bool regeneratePoints = true;
 
-		switch (pass)
+		/*for (const auto& [e, transform, pt] : view.each())
 		{
-			case RenderPassType::MAIN:
+			if (transform.DirtyFlag)
 			{
-				if (!unselectedVerts.empty())
-				{
-					shader->SetVec3("u_Color", { 1.f, 1.f, 1.f });
-					m_PointsVA->ClearBuffers();
-					m_PointsVA->AddVertexBuffer(Ref<VertexBuffer>(VertexBuffer::Create(unselectedVerts)));
-					ar::Renderer::Submit(Primitive::Point, shader, m_PointsVA);
-				}
-
-				if (!selectedVerts.empty())
-				{
-					shader->SetVec3("u_Color", Renderer::SELECTION_COLOR);
-					m_PointsVA->ClearBuffers();
-					m_PointsVA->AddVertexBuffer(Ref<VertexBuffer>(VertexBuffer::Create(selectedVerts)));
-					ar::Renderer::Submit(Primitive::Point, shader, m_PointsVA);
-				}
+				regeneratePoints = true;
 				break;
 			}
-			case RenderPassType::SELECTION:
+		}*/
+
+		if (regeneratePoints)
+		{
+			std::vector<VertexPositionIDColor> pointVerts;
+			for (const auto& [e, transform, pt] : view.each())
 			{
-				std::vector<VertexPositionID> allVerts;
-				if (unselectedVerts.empty() && selectedVerts.empty())
-					break;
-
-				allVerts.reserve(unselectedVerts.size() + selectedVerts.size());
-				allVerts.insert(allVerts.end(), unselectedVerts.begin(), unselectedVerts.end());
-				allVerts.insert(allVerts.end(), selectedVerts.begin(), selectedVerts.end());
-
-				if (!allVerts.empty())
-				{
-					m_PointsVA->ClearBuffers();
-					m_PointsVA->AddVertexBuffer(Ref<VertexBuffer>(VertexBuffer::Create(allVerts)));
-					ar::Renderer::Submit(Primitive::Point, shader, m_PointsVA);
-				}
-				break;
+				auto entity = ar::Entity(e, m_Scene.get());
+				bool selected = m_Scene->m_Registry.any_of<SelectedTagComponent>(e);
+				if (selected)
+					pointVerts.push_back({ transform.Translation, entity.GetID(), Renderer::SELECTION_COLOR });
+				else
+					pointVerts.push_back({ transform.Translation, entity.GetID(), pt.Color });
 			}
-			default:
-				return;
+			if (!pointVerts.empty())
+			{
+				m_PointsVA->ClearBuffers();
+				m_PointsVA->AddVertexBuffer(Ref<VertexBuffer>(VertexBuffer::Create(pointVerts)));
+			}
 		}
+
+		ar::Renderer::Submit(Primitive::Point, shader, m_PointsVA);
 	}
 
 }

@@ -30,6 +30,7 @@ namespace ar
 
 		static const mat::Vec3 POLYGON_COLOR;
 		static const mat::Vec3 MIDDLE_POINT_COLOR;
+		static const mat::Vec3 SELECTION_COLOR;
 
 		Ref<Scene> m_Scene;
 		

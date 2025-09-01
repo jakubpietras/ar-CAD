@@ -20,6 +20,7 @@ namespace ar
 		static VertexBuffer* Create(std::vector<VertexPosition> vertices);
 		static VertexBuffer* Create(std::vector<VertexPositionID> vertices);
 		static VertexBuffer* Create(std::vector<VertexPositionColor> vertices);
+		static VertexBuffer* Create(std::vector<VertexPositionIDColor> vertices);
 		static VertexBuffer* Create(std::vector<InstancedFloat3> vertices);
 		static VertexBuffer* Create(std::vector<InstancedMat4> vertices);
 		// New overloads for Create() for each defined Vertex type (change in the future)

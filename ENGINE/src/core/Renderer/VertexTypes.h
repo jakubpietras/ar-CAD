@@ -26,6 +26,14 @@ namespace ar
 		static const BufferLayout s_Layout;
 	};
 
+	struct VertexPositionIDColor
+	{
+		mat::Vec3 Position;
+		uint32_t ID;
+		mat::Vec3 Color;
+		static const BufferLayout s_Layout;
+	};
+
 	struct InstancedFloat3
 	{
 		mat::Vec3 Offset;

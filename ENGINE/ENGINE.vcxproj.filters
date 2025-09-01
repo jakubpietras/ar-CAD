@@ -355,6 +355,8 @@
     <None Include="src\resources\shaders\OpenGL\surface.frag" />
     <None Include="src\resources\shaders\OpenGL\surfacePicking.frag" />
     <None Include="src\resources\shaders\OpenGL\surfaceC2.tesc" />
+    <None Include="src\resources\shaders\OpenGL\point.vert" />
+    <None Include="src\resources\shaders\OpenGL\point.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\resources\icons\logo.png">

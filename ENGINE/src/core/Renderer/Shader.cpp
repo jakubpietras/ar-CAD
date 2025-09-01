@@ -31,10 +31,16 @@ namespace ar
 			"resources/shaders/OpenGL/default.vert",
 			"resources/shaders/OpenGL/default.frag"
 		));
-		s_Shaders["Points"] = Ref<Shader>(Shader::Create(
-			"resources/shaders/OpenGL/points.vert",
-			"resources/shaders/OpenGL/points.frag"
+		s_Shaders["Point"] = Ref<Shader>(Shader::Create(
+			"resources/shaders/OpenGL/point.vert",
+			"resources/shaders/OpenGL/point.frag"
 		));
+
+		s_Shaders["PointPicking"] = Ref<Shader>(Shader::Create(
+			"resources/shaders/OpenGL/point.vert",
+			"resources/shaders/OpenGL/picking.frag"
+		));
+
 		s_Shaders["Picking"] = Ref<Shader>(Shader::Create(
 			"resources/shaders/OpenGL/basic.vert",
 			"resources/shaders/OpenGL/picking.frag"
