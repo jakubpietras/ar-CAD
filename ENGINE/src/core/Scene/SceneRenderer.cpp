@@ -314,9 +314,15 @@ namespace ar
 				auto entity = ar::Entity(e, m_Scene.get());
 				bool selected = m_Scene->m_Registry.any_of<SelectedTagComponent>(e);
 				if (selected)
-					pointVerts.push_back({ transform.Translation, entity.GetID(), Renderer::SELECTION_COLOR });
+				{
+					mat::Vec3 color = pt.ShouldUseTempColor ? pt.TempColor : Renderer::SELECTION_COLOR;
+					pointVerts.push_back({ transform.Translation, entity.GetID(), color });
+				}
 				else
-					pointVerts.push_back({ transform.Translation, entity.GetID(), pt.Color });
+				{
+					mat::Vec3 color = pt.ShouldUseTempColor ? pt.TempColor : pt.Color;
+					pointVerts.push_back({ transform.Translation, entity.GetID(), color });
+				}
 			}
 			if (!pointVerts.empty())
 			{

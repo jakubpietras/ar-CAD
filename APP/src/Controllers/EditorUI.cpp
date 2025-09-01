@@ -650,7 +650,11 @@ void EditorUI::RenderAddGregoryModal()
 
 		for (auto& hole : m_State.FillCandidates)
 		{
-			ImGui::Selectable(hole.ToString().c_str());
+			if (ImGui::Selectable(hole.ToString().c_str()))
+			{
+				m_State.HoleToFill = hole;
+				m_State.HoleSelectionChanged = true;
+			}
 		}
 
 		ImGui::EndChild();
@@ -669,6 +673,7 @@ void EditorUI::RenderAddGregoryModal()
 		{
 			m_State.ClearFillState();
 			m_State.ShouldShowGregoryModal = false; 
+			m_State.HoleSelectionChanged = true;
 		}
 
 		ImGui::End();

@@ -66,4 +66,5 @@ private:
 	// Validate
 	void ValidateGeometry(EditorState& state);
 	void ValidateSelection(EditorState& state);
+	void CorrectPointColors(EditorState& state);
 };

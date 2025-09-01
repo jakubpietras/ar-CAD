@@ -68,6 +68,6 @@ void EditorState::ClearGroupTransformState()
 void EditorState::ClearFillState()
 {
 	FillCandidates.clear();
-	HoleToFill = {};
+	HoleToFill.reset();
 	ShouldScanForHoles = false;
 }

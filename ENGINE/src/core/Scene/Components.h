@@ -129,6 +129,8 @@ namespace ar
 	struct PointComponent 
 	{
 		mat::Vec3 Color{ 1.f, 1.f, 1.f };
+		mat::Vec3 TempColor{ 1.f, 1.f, 1.f };
+		bool ShouldUseTempColor = false;
 		std::vector<Entity> Parents{};
 	};
 

@@ -130,7 +130,8 @@ struct EditorState
 
 	// ============================= Fill-in ===========================
 	std::vector<ar::Hole> FillCandidates{};
-	ar::Hole HoleToFill;
+	std::optional<ar::Hole> HoleToFill = std::nullopt;
 	bool ShouldScanForHoles = false;
+	bool HoleSelectionChanged = false;
 	void ClearFillState();
 };

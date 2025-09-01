@@ -27,6 +27,8 @@ namespace ar
 		static void Submit(MeshComponent& mesh, bool indexed = false, uint32_t instanceCount = 1);
 
 		static constexpr ar::mat::Vec3 SELECTION_COLOR{ 1.0f, 0.56f, 0.0f };
+		static constexpr ar::mat::Vec3 HOLE_COLOR{ 0.5f, 0.5f, 1.0f };
+
 
 	private:
 		static std::unique_ptr<VertexArray> s_DummyVAO;

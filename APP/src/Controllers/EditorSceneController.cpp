@@ -141,6 +141,11 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 		state.FillCandidates = ar::HoleDetector::Detect(state.SelectedSurfacesC0);
 		state.ShouldScanForHoles = false;
 	}
+	if (state.HoleSelectionChanged)
+	{
+		CorrectPointColors(state);
+		state.HoleSelectionChanged = false;
+	}
 	
 	// Validation
 	if (geometryValidation)
@@ -387,6 +392,26 @@ void EditorSceneController::ValidateSelection(EditorState& state)
 
 	// middle point
 	UpdateMeanPoint(state);
+}
+
+void EditorSceneController::CorrectPointColors(EditorState& state)
+{
+	auto view = m_Scene->m_Registry.view<ar::PointComponent>();
+	for (const auto& [e, pt] : view.each())
+	{
+		pt.ShouldUseTempColor = false;
+	}
+	
+	if (state.HoleToFill)
+	{
+		auto holePoints = state.HoleToFill->Endpoints;
+		for (const auto& point : holePoints)
+		{
+			auto& pt = m_Scene->GetEntityByID(point).GetComponent<ar::PointComponent>();
+			pt.TempColor = ar::Renderer::HOLE_COLOR;
+			pt.ShouldUseTempColor = true;
+		}
+	}
 }
 
 void EditorSceneController::ProcessAdd(EditorState& state)

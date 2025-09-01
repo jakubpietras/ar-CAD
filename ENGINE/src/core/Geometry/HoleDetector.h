@@ -23,8 +23,8 @@ namespace ar
 
 	struct Hole
 	{
-		std::array<EdgeInfo, 3> Edges;
-		std::array<uint32_t, 3> Endpoints;
+		std::array<EdgeInfo, 3> Edges{};
+		std::array<uint32_t, 3> Endpoints{};
 
 		Hole(const std::array<EdgeInfo, 3>& edges = {}, const std::array<uint32_t, 3>& endpoints = {})
 			: Edges(edges), Endpoints(endpoints) {
