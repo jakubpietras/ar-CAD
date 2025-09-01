@@ -1,6 +1,6 @@
 #include "arpch.h"
 #include "HoleDetector.h"
-#define DEBUG
+// #define DEBUG
 
 namespace ar
 {
@@ -43,12 +43,20 @@ namespace ar
 					// if neighbor's neighbor is the starting point's neighbor
 					if (m_Adjacency[secondNeighbor].contains(point))
 					{
-						// add the triple (redundancy pruned elsewhere)
+						// add the triple
 						triples.push_back({ point, neighbor, secondNeighbor });
 					}
 				}
 			}
 		}
+
+		for (auto& triple : triples)
+			std::ranges::sort(triple);
+
+		std::ranges::sort(triples);
+		auto last = std::unique(triples.begin(), triples.end());
+		triples.erase(last, triples.end());
+
 		return triples;
 	}
 
