@@ -16,7 +16,7 @@ namespace ar
 	{
 		G.clear(); G.resize(3);
 
-		for (int edge = 0; edge < 3; edge++)
+		for (int edge = 0; edge < 1; edge++)
 		{
 			int next = (edge + 1) % 3;
 			G[edge][0] = P[edge][3];
@@ -29,7 +29,7 @@ namespace ar
 			G[edge][7] = G[edge][5] + (G[edge][2] - G[edge][1]);
 			G[edge][9] = P[next][1];
 			G[edge][15] = P[next][2];
-			G[edge][10] = R[edge][2] + (R[edge][2] - R[edge][5]);
+			G[edge][10] = R[edge][2];
 			G[edge][11] = G[edge][10] + (R[edge][2] - R[edge][5]);
 			G[edge][16] = B[edge][3];
 			G[edge][17] = R[next][0];
@@ -67,11 +67,12 @@ namespace ar
 		// R - first lerp based on Bezier points
 		for (int edge = 0; edge < 3; edge++)
 		{
-			for (int start = 0; start < 3; start++)
-				R[edge][start] = mat::Lerp(B[edge][start], B[edge][start + 1], 0.5f);
-
-			for (int start = 0; start < 3; start++)
-				R[edge][start + 3] = mat::Lerp(B[edge][start + 4], B[edge][start + 4 + 1], 0.5f);
+			R[edge][0] = mat::Lerp(B[edge][0], B[edge][1], 0.5f);
+			R[edge][1] = mat::Lerp(B[edge][1], B[edge][2], 0.5f);
+			R[edge][2] = mat::Lerp(B[edge][2], B[edge][3], 0.5f);
+			R[edge][3] = mat::Lerp(B[edge][4], B[edge][5], 0.5f);
+			R[edge][4] = mat::Lerp(B[edge][5], B[edge][6], 0.5f);
+			R[edge][5] = mat::Lerp(B[edge][6], B[edge][7], 0.5f);
 		}
 
 		// S - second lerp based on points in R
@@ -97,10 +98,10 @@ namespace ar
 
 		for (int edge = 0; edge < 3; edge++)
 		{
-			auto points = GeneralUtils::GetPos(edges[edge].Points);
-			P[edge][3] = mat::DeCasteljau(points, 0.5f);
+			P[edge][3] = T[edge][0];
 			P[edge][2] = P[edge][3] + (T[edge][0] - T[edge][1]);
-			Q[edge] = (3 * P[edge][2] - P[edge][3]) / 2;
+			//Q[edge] = (3 * P[edge][2] - P[edge][3]) / 2;
+			Q[edge] = P[edge][2];
 		}
 
 		mat::Vec3 P0 = (Q[0] + Q[1] + Q[2]) / 3;

@@ -3,14 +3,20 @@
 #include "ComponentInspector.h"
 #include "PropertyInspector.h"
 #include "core/ImGui/ScopedDisable.h"
-
+#define DEBUG
 
 void ar::ComponentInspector::ShowInspector(Entity entity)
 {
 	ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
 
 	std::string line = entity.GetName() + " [ID: " + std::to_string(entity.GetID()) + "]";
+
+
 	ImGui::SeparatorText(line.c_str());
+#ifdef DEBUG
+	std::string debugMsg = "[DEBUG] entt ID: " + std::to_string(static_cast<uint32_t>(entity.GetEnttHandle()));
+	ImGui::Text(debugMsg.c_str());
+#endif
 
 	if (ImGui::BeginTabBar("Inspector", tab_bar_flags))
 	{
