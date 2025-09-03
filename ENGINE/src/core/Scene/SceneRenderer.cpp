@@ -171,7 +171,7 @@ namespace ar
 
 	void SceneRenderer::RenderMeshes(ar::mat::Mat4 viewProjection, RenderPassType pass, ar::mat::Vec2 viewport)
 	{
-		auto view = m_Scene->m_Registry.view<MeshComponent>(entt::exclude<PointComponent, HiddenMeshTagComponent, SurfaceComponent>);
+		auto view = m_Scene->m_Registry.view<MeshComponent>(entt::exclude<PointComponent, HiddenMeshTagComponent, SurfaceComponent, GregoryPatchComponent>);
 		for (auto [entity, mc] : view.each())
 		{
 			auto e = ar::Entity(entity, m_Scene.get());
