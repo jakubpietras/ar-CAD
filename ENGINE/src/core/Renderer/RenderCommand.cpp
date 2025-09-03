@@ -12,7 +12,7 @@ namespace ar
 		glViewport(x, y, width, height);
 	}
 
-	void RenderCommand::SetLineThickness(uint32_t width)
+	void RenderCommand::SetLineThickness(float width)
 	{
 		glLineWidth(width);
 	}
@@ -40,7 +40,7 @@ namespace ar
 
 	void RenderCommand::SetTessellationPatchSize(size_t size)
 	{
-		glPatchParameteri(GL_PATCH_VERTICES, size);
+		glPatchParameteri(GL_PATCH_VERTICES, static_cast<GLint>(size));
 	}
 
 	ar::RendererAPI* RenderCommand::s_RendererAPI = new ar::OGLRendererAPI();

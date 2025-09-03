@@ -1,7 +1,9 @@
+#include <glad/glad.h>
 #include "arpch.h"
 #include "Buffer.h"
 #include "platform/OpenGL/OGLBuffer.h"
 #include "core/Renderer/RendererAPI.h"
+
 
 namespace ar
 {

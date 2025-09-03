@@ -3,7 +3,7 @@
 
 namespace ar
 {
-	OGLVertexBuffer::OGLVertexBuffer(const void* data, unsigned int size, unsigned int vertexCount,
+	OGLVertexBuffer::OGLVertexBuffer(const void* data, size_t size, size_t vertexCount,
 		BufferLayout layout)
 	{ 
 		glCreateBuffers(1, &m_ID);
@@ -72,7 +72,7 @@ namespace ar
 		AR_GL_CHECK();
 	}
 
-	OGLIndexBuffer::OGLIndexBuffer(const void* data, unsigned int size, size_t count)
+	OGLIndexBuffer::OGLIndexBuffer(const void* data, size_t size, size_t count)
 	{
 		glCreateBuffers(1, &m_ID);
 		AR_GL_CHECK();

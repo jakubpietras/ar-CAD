@@ -1,6 +1,9 @@
+#ifndef APIENTRY
+#define APIENTRY
+#endif
+#include <glad/glad.h>
 #include "arpch.h"
 #include "OpenGLContext.h"
-#include <glad/glad.h>
 
 namespace ar
 {

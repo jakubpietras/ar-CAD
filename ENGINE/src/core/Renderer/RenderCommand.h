@@ -11,7 +11,7 @@ namespace ar
 		inline static void SetClearColor(const mat::Vec4 color) { s_RendererAPI->SetClearColor(color); }
 		inline static void Clear() { s_RendererAPI->Clear(); }
 		static void SetViewport(int x, int y, uint32_t width, uint32_t height);
-		static void SetLineThickness(uint32_t width = 1);
+		static void SetLineThickness(float width = 1.);
 		static void ToggleDepthTest(bool enabled);
 		static void ToggleBlendColor(bool enabled);
 		static void SetDepthMask(uint32_t flag);

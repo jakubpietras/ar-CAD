@@ -20,8 +20,8 @@ namespace ar
 
 		static VertexArray* Create();
 		inline const bool IsIndexed() { return m_IndexBuffers.size() > 0; }
-		virtual const uint32_t GetIndexCount() = 0;
-		virtual const uint32_t GetVertexCount() = 0;
+		virtual const size_t GetIndexCount() = 0;
+		virtual const size_t GetVertexCount() = 0;
 
 		const uint32_t GetID() { return m_ID; }
 		inline std::vector<Ref<VertexBuffer>>& GetVertexBuffers() { return m_VertexBuffers; }

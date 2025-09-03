@@ -10,20 +10,20 @@ namespace ar
 		}
 		Quat Quat::operator+(const Quat& r) const
 		{
-			return Quat(w + r.w, x + r.x, y + r.y, z + r.z);
+			return {w + r.w, x + r.x, y + r.y, z + r.z};
 		}
 		Quat Quat::operator*(const Quat& r) const
 		{
-			return Quat(
+			return {
 				r.w * w - r.x * x - r.y * y - r.z * z,
 				r.w * x + r.x * w - r.y * z + r.z * y,
 				r.w * y + r.x * z + r.y * w - r.z * x,
 				r.w * z - r.x * y + r.y * x + r.z * w
-			);
+			};
 		}
 		Quat Quat::operator/(float scalar) const
 		{
-			return Quat(w / scalar, x / scalar, y / scalar, z / scalar);
+			return {w / scalar, x / scalar, y / scalar, z / scalar};
 		}
 		float Norm(const Quat& q)
 		{
@@ -35,7 +35,7 @@ namespace ar
 		}
 		Quat Conjugate(const Quat& q)
 		{
-			return Quat(q.w, -q.x, -q.y, -q.z);
+			return {q.w, -q.x, -q.y, -q.z};
 		}
 		Quat Inverse(const Quat& q)
 		{
@@ -80,33 +80,34 @@ namespace ar
 
 		ar::mat::Vec3 QuatToRPY(const Quat& q)
 		{
+			// https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
 			Vec3 angles;
 
 			// roll (x-axis rotation)
 			double sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
 			double cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
-			angles.x = std::atan2(sinr_cosp, cosr_cosp);
+			angles.x = static_cast<float>(std::atan2(sinr_cosp, cosr_cosp));
 
 			// pitch (y-axis rotation)
 			double sinp = std::sqrt(1 + 2 * (q.w * q.y - q.x * q.z));
 			double cosp = std::sqrt(1 - 2 * (q.w * q.y - q.x * q.z));
-			angles.y = 2 * std::atan2(sinp, cosp) - std::atanf(1) * 4 / 2;
+			angles.y = static_cast<float>(2 * std::atan2(sinp, cosp) - std::atanf(1) * 4 / 2);
 
 			// yaw (z-axis rotation)
 			double siny_cosp = 2 * (q.w * q.z + q.x * q.y);
 			double cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
-			angles.z = std::atan2(siny_cosp, cosy_cosp);
+			angles.z = static_cast<float>(std::atan2(siny_cosp, cosy_cosp));
 
 			return angles;
 		}
 
 		Quat Vec3ToQuat(const Vec3& v)
 		{
-			return Quat(0.0f, v.x, v.y, v.z);
+			return {0.0f, v.x, v.y, v.z};
 		}
 		Vec3 QuatToVec3(const Quat& q)
 		{
-			return Vec3(q.x, q.y, q.z);
+			return {q.x, q.y, q.z};
 		}
 		Mat4 ToMat4(const Quat& q)
 		{
@@ -138,7 +139,7 @@ namespace ar
 			Quat vecQuat = Vec3ToQuat(Vec3(v.x, v.y, v.z));
 			Quat result = q * vecQuat * Inverse(q);
 			auto v3 = QuatToVec3(result);
-			return Vec4(v3.x, v3.y, v3.z, 0.0f);
+			return {v3.x, v3.y, v3.z, 0.0f};
 		}
 	}
 }

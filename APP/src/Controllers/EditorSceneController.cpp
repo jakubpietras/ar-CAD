@@ -196,7 +196,7 @@ void EditorSceneController::UpdateMeanPoint(EditorState& state)
 			sum += transform.Translation;
 			count++;
 		}
-		state.SelectedMeanPosition = sum / count;
+		state.SelectedMeanPosition = sum / static_cast<float>(count);
 	}
 	else
 		state.SelectedMeanPosition = { 0.f, 0.f, 0.f };

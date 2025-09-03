@@ -16,8 +16,8 @@ namespace ar
 		void AddIndexBuffer(Ref<IndexBuffer> indexBuffer) override;
 		void ClearBuffers() override;
 		
-		const uint32_t GetIndexCount() override;
-		const uint32_t GetVertexCount() override;
+		const size_t GetIndexCount() override;
+		const size_t GetVertexCount() override;
 	};
 
 }

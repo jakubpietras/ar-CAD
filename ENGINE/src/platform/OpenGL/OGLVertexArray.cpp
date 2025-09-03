@@ -43,17 +43,17 @@ namespace ar
 		//indexBuffer->Bind(m_ID);
 	}
 
-	const uint32_t OGLVertexArray::GetIndexCount()
+	const size_t OGLVertexArray::GetIndexCount()
 	{
-		uint32_t indexCount = 0;
+		size_t indexCount = 0;
 		for (const auto& ib : m_IndexBuffers)
 			indexCount += ib->GetCount();
 		return indexCount;
 	}
 
-	const uint32_t OGLVertexArray::GetVertexCount()
+	const size_t OGLVertexArray::GetVertexCount()
 	{
-		uint32_t vertexCount = 0;
+		size_t vertexCount = 0;
 		for (const auto& vb : m_VertexBuffers)
 			vertexCount += vb->GetVertexCount();
 		return vertexCount;

@@ -18,9 +18,9 @@ namespace ar
 		float posX = .0f, posZ = .0f;
 		const float posY = origin.y;
 
-		for (int z = 0; z < desc.Size.v; z++)
+		for (size_t z = 0; z < desc.Size.v; z++)
 		{
-			for (int x = 0; x < desc.Size.u; x++)
+			for (size_t x = 0; x < desc.Size.u; x++)
 			{
 				posX = origin.x + segmentWidth * x;
 				posZ = origin.z + segmentHeight * z;
@@ -37,10 +37,10 @@ namespace ar
 		float distAlong = desc.Dimensions.y / desc.Size.v;
 		float theta = mat::Radians(360.0f / desc.Size.u);
 
-		for (int j = 0; j < desc.Size.v; j++)
+		for (size_t j = 0; j < desc.Size.v; j++)
 		{
 			float posZ = origin.z + distAlong * j;
-			for (int i = 0; i < desc.Size.u; i++)
+			for (size_t i = 0; i < desc.Size.u; i++)
 			{
 				float posX = origin.x + desc.Dimensions.x * cos(theta * i);
 				float posY = origin.y + desc.Dimensions.x * sin(theta * i);
@@ -80,10 +80,10 @@ namespace ar
 		float theta = mat::Radians(360.0f / desc.Size.u);
 		float R = 3 * desc.Dimensions.x / (cos(theta) + 2);
 
-		for (int j = 0; j < desc.Size.v; j++)
+		for (size_t j = 0; j < desc.Size.v; j++)
 		{
 			float posZ = origin.z + distAlong * j;
-			for (int i = 0; i < desc.Size.u; i++)
+			for (size_t i = 0; i < desc.Size.u; i++)
 			{
 				float posX = origin.x + R * cos(theta * i);
 				float posY = origin.y + R * sin(theta * i);
@@ -134,13 +134,13 @@ namespace ar
 			return points;
 		
 		// for cylinders, the first column is repeated as last
-		auto GetIndex = [&](int u, int v) -> uint32_t {
+		auto GetIndex = [&](uint32_t u, uint32_t v) -> uint32_t {
 			return v * desc.Size.u + u;
 		};
 		std::vector<ar::Entity> refs;
-		for (int v = 0; v < desc.Size.v; v++)
+		for (uint32_t v = 0; v < desc.Size.v; v++)
 		{
-			for (int u = 0; u < desc.Size.u; u++)
+			for (uint32_t u = 0; u < desc.Size.u; u++)
 				refs.push_back(points[GetIndex(u, v)]);
 			if (desc.Type == SurfaceType::CYLINDERC0)
 				refs.push_back(points[GetIndex(0, v)]);
@@ -156,22 +156,22 @@ namespace ar
 	std::vector<uint32_t> SurfaceUtils::GenerateSurfaceRefIndices(SurfaceDesc desc)
 	{
 		auto indices = std::vector<uint32_t>();
-		auto getIndex = [&](int u, int v) -> uint32_t {
+		auto getIndex = [&](uint32_t u, uint32_t v) -> uint32_t {
 			return v * desc.Size.u + u;
 			};
 
 		if (desc.Type == SurfaceType::RECTANGLEC0 || desc.Type == SurfaceType::CYLINDERC0)
 		{
-			for (int segmentV = 0; segmentV < desc.Segments.v; segmentV++)
+			for (uint32_t segmentV = 0; segmentV < desc.Segments.v; segmentV++)
 			{
-				for (int segmentU = 0; segmentU < desc.Segments.u; segmentU++)
+				for (uint32_t segmentU = 0; segmentU < desc.Segments.u; segmentU++)
 				{
-					int baseU = segmentU * 3;
-					int baseV = segmentV * 3;
+					uint32_t baseU = segmentU * 3;
+					uint32_t baseV = segmentV * 3;
 
-					for (int localV = 0; localV < 4; localV++)
+					for (uint32_t localV = 0; localV < 4; localV++)
 					{
-						for (int localU = 0; localU < 4; localU++)
+						for (uint32_t localU = 0; localU < 4; localU++)
 						{
 							indices.push_back(getIndex(baseU + localU, baseV + localV));
 						}
@@ -182,16 +182,16 @@ namespace ar
 		else
 		{
 			// todo: fix for c2
-			for (int segmentV = 0; segmentV < desc.Segments.v; segmentV++)
+			for (uint32_t segmentV = 0; segmentV < desc.Segments.v; segmentV++)
 			{
-				for (int segmentU = 0; segmentU < desc.Segments.u; segmentU++)
+				for (uint32_t segmentU = 0; segmentU < desc.Segments.u; segmentU++)
 				{
-					int baseU = segmentU;
-					int baseV = segmentV;
+					uint32_t baseU = segmentU;
+					uint32_t baseV = segmentV;
 
-					for (int localV = 0; localV < 4; localV++)
+					for (uint32_t localV = 0; localV < 4; localV++)
 					{
-						for (int localU = 0; localU < 4; localU++)
+						for (uint32_t localU = 0; localU < 4; localU++)
 						{
 							indices.push_back(getIndex(baseU + localU, baseV + localV));
 						}
@@ -202,55 +202,6 @@ namespace ar
 
 		return indices;
 	}
-	//std::vector<uint32_t> SurfaceUtils::GenerateSurfaceRefIndices(SurfaceDesc desc)
-	//{
-	//	auto indices = std::vector<uint32_t>();
-	//	auto getIndex = [&](int u, int v) -> uint32_t {
-	//		return v * desc.Size.u + u;
-	//		};
-
-	//	if (desc.Type == SurfaceType::RECTANGLEC0 || desc.Type == SurfaceType::CYLINDERC0)
-	//	{
-	//		for (int segmentV = 0; segmentV * 3 < desc.Size.v; segmentV++)
-	//		{
-	//			for (int segmentU = 0; segmentU * 3 < desc.Size.u; segmentU++)
-	//			{
-	//				int baseU = segmentU * 3;
-	//				int baseV = segmentV * 3;
-
-	//				for (int localV = 0; localV < 4; localV++)
-	//				{
-	//					for (int localU = 0; localU < 4; localU++)
-	//					{
-	//						indices.push_back(getIndex(baseU + localU, baseV + localV));
-	//					}
-	//				}
-	//			}
-	//		}
-	//	}
-	//	else
-	//	{
-	//		// todo: fix for c2
-	//		for (int segmentV = 0; segmentV * 3 < desc.Size.v; segmentV++)
-	//		{
-	//			for (int segmentU = 0; segmentU * 3 < desc.Size.u; segmentU++)
-	//			{
-	//				int baseU = segmentU * 3;
-	//				int baseV = segmentV * 3;
-
-	//				for (int localV = 0; localV < 4; localV++)
-	//				{
-	//					for (int localU = 0; localU < 4; localU++)
-	//					{
-	//						indices.push_back(getIndex(baseU + localU, baseV + localV));
-	//					}
-	//				}
-	//			}
-	//		}
-	//	}
-
-	//	return indices;
-	//}
 
 	ar::SurfaceDesc SurfaceUtils::AdjustSurfaceDescription(SurfaceDesc desc)
 	{
@@ -262,9 +213,8 @@ namespace ar
 		case SurfaceType::CYLINDERC2:
 			desc.Size = { desc.Size.u + 3, desc.Size.v };
 			break;
-		default:
-			return desc;
 		}
+		return desc;
 	}
 
 	std::vector<uint32_t> SurfaceUtils::GenerateControlMeshIndices(SurfaceDesc desc, std::vector<uint32_t> meshIndices)
@@ -279,8 +229,8 @@ namespace ar
 		{
 			for (uint32_t su = 0; su < desc.Segments.u; su++)
 			{
-				int baseU = su * step;
-				int baseV = sv * step;
+				uint32_t baseU = su * step;
+				uint32_t baseV = sv * step;
 				for (uint32_t j = 0; j < 4; j++)
 				{
 					for (uint32_t i = 0; i < 4; i++)
@@ -300,20 +250,20 @@ namespace ar
 	std::vector<uint32_t> SurfaceUtils::GenerateRectangleC0Indices(SurfaceDesc desc)
 	{
 		auto indices = std::vector<uint32_t>();
-		auto getIndex = [&](int u, int v) -> uint32_t {
+		auto getIndex = [&](uint32_t u, uint32_t v) -> uint32_t {
 			return v * desc.Size.u + u;
 		};
 
-		for (int segmentV = 0; segmentV < desc.Segments.v; segmentV++)
+		for (uint32_t segmentV = 0; segmentV < desc.Segments.v; segmentV++)
 		{
-			for (int segmentU = 0; segmentU < desc.Segments.u; segmentU++)
+			for (uint32_t segmentU = 0; segmentU < desc.Segments.u; segmentU++)
 			{
-				int baseU = segmentU * 3;
-				int baseV = segmentV * 3;
+				uint32_t baseU = segmentU * 3;
+				uint32_t baseV = segmentV * 3;
 
-				for (int localV = 0; localV < 4; localV++)
+				for (uint32_t localV = 0; localV < 4; localV++)
 				{
-					for (int localU = 0; localU < 4; localU++)
+					for (uint32_t localU = 0; localU < 4; localU++)
 					{
 						indices.push_back(getIndex(baseU + localU, baseV + localV));
 					}
@@ -327,21 +277,21 @@ namespace ar
 	{
 		auto indices = std::vector<uint32_t>();
 
-		auto getIndex = [&](int u, int v) -> uint32_t {
-			int wrappedU = u % (desc.Size.u);
+		auto getIndex = [&](uint32_t u, uint32_t v) -> uint32_t {
+			uint32_t wrappedU = u % (desc.Size.u);
 			return v * desc.Size.u + wrappedU;
 			};
 
-		for (int segmentV = 0; segmentV < desc.Segments.v; segmentV++)
+		for (uint32_t segmentV = 0; segmentV < desc.Segments.v; segmentV++)
 		{
-			for (int segmentU = 0; segmentU < desc.Segments.u; segmentU++)
+			for (uint32_t segmentU = 0; segmentU < desc.Segments.u; segmentU++)
 			{
-				int baseU = segmentU * 3;
-				int baseV = segmentV * 3;
+				uint32_t baseU = segmentU * 3;
+				uint32_t baseV = segmentV * 3;
 
-				for (int localV = 0; localV < 4; localV++)
+				for (uint32_t localV = 0; localV < 4; localV++)
 				{
-					for (int localU = 0; localU < 4; localU++)
+					for (uint32_t localU = 0; localU < 4; localU++)
 					{
 						indices.push_back(getIndex(baseU + localU, baseV + localV));
 					}
@@ -354,20 +304,20 @@ namespace ar
 	std::vector<uint32_t> SurfaceUtils::GenerateRectangleC2Indices(SurfaceDesc desc)
 	{
 		auto indices = std::vector<uint32_t>();
-		auto getIndex = [&](int u, int v) -> uint32_t {
+		auto getIndex = [&](uint32_t u, uint32_t v) -> uint32_t {
 			return v * desc.Size.u + u;
 			};
 
-		for (int segmentV = 0; segmentV < desc.Segments.v; segmentV++)
+		for (uint32_t segmentV = 0; segmentV < desc.Segments.v; segmentV++)
 		{
-			for (int segmentU = 0; segmentU < desc.Segments.u; segmentU++)
+			for (uint32_t segmentU = 0; segmentU < desc.Segments.u; segmentU++)
 			{
-				int baseU = segmentU;
-				int baseV = segmentV;
+				uint32_t baseU = segmentU;
+				uint32_t baseV = segmentV;
 
-				for (int localV = 0; localV < 4; localV++)
+				for (uint32_t localV = 0; localV < 4; localV++)
 				{
-					for (int localU = 0; localU < 4; localU++)
+					for (uint32_t localU = 0; localU < 4; localU++)
 					{
 						indices.push_back(getIndex(baseU + localU, baseV + localV));
 					}
@@ -381,21 +331,21 @@ namespace ar
 	{
 		auto indices = std::vector<uint32_t>();
 
-		auto getIndex = [&](int u, int v) -> uint32_t {
-			int wrappedU = u % (desc.Size.u);
+		auto getIndex = [&](uint32_t u, uint32_t v) -> uint32_t {
+			uint32_t wrappedU = u % (desc.Size.u);
 			return v * desc.Size.u + wrappedU;
 			};
 
-		for (int segmentV = 0; segmentV < desc.Segments.v; segmentV++)
+		for (uint32_t segmentV = 0; segmentV < desc.Segments.v; segmentV++)
 		{
-			for (int segmentU = 0; segmentU < desc.Segments.u; segmentU++)
+			for (uint32_t segmentU = 0; segmentU < desc.Segments.u; segmentU++)
 			{
-				int baseU = segmentU;
-				int baseV = segmentV;
+				uint32_t baseU = segmentU;
+				uint32_t baseV = segmentV;
 
-				for (int localV = 0; localV < 4; localV++)
+				for (uint32_t localV = 0; localV < 4; localV++)
 				{
-					for (int localU = 0; localU < 4; localU++)
+					for (uint32_t localU = 0; localU < 4; localU++)
 					{
 						indices.push_back(getIndex(baseU + localU, baseV + localV));
 					}

@@ -1,8 +1,8 @@
+#include <glad/glad.h>
 #include "arpch.h"
 #include "OGLRendererAPI.h"
 #include "core/Renderer/Primitive.h"
 
-#include <glad/glad.h>
 
 namespace ar
 {
@@ -19,7 +19,7 @@ namespace ar
 	void OGLRendererAPI::Draw(const Primitive primitive,
 		const std::shared_ptr<VertexArray>& vertexArray, uint32_t instanceCount)
 	{
-		glDrawArraysInstanced(GetOGLPrimitive(primitive), 0, vertexArray->GetVertexCount(),
+		glDrawArraysInstanced(GetOGLPrimitive(primitive), 0, static_cast<GLsizei>(vertexArray->GetVertexCount()),
 			instanceCount);
 	}
 
@@ -29,7 +29,7 @@ namespace ar
 		for (auto& ib : vertexArray->GetIndexBuffers())
 		{
 			ib->Bind(vertexArray->GetID());
-			glDrawElementsInstanced(GetOGLPrimitive(primitive), ib->GetCount(),
+			glDrawElementsInstanced(GetOGLPrimitive(primitive), static_cast<GLsizei>(ib->GetCount()),
 				GL_UNSIGNED_INT, nullptr, instanceCount);
 		}
 		

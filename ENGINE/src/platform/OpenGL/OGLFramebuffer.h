@@ -1,4 +1,5 @@
 #pragma once
+#include <glad/glad.h>
 #include "core/Renderer/Framebuffer.h"
 #include "core/Renderer/Texture.h"
 

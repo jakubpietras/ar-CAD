@@ -65,8 +65,8 @@ namespace ar
 		auto& points = surface.GetComponent<ar::ControlPointsComponent>().Points;
 		uint32_t firstPointID = 0, secondPointID = 0;
 
-		for (size_t sv = 0; sv < s.Description.Segments.v; sv++)
-			for (size_t su = 0; su < s.Description.Segments.u; su++)
+		for (uint32_t sv = 0; sv < s.Description.Segments.v; sv++)
+			for (uint32_t su = 0; su < s.Description.Segments.u; su++)
 			{
 				ProcessEdge(ExtractEdge(surface, EdgeInfo::Placement::BOTTOM, su, sv), surface);
 				ProcessEdge(ExtractEdge(surface, EdgeInfo::Placement::RIGHT, su, sv), surface);
@@ -78,13 +78,13 @@ namespace ar
 	EdgeInfo HoleDetector::ExtractEdge(Entity surface, EdgeInfo::Placement placement, uint32_t segmentU, uint32_t segmentV)
 	{
 		auto& size = surface.GetComponent<ar::SurfaceComponent>().Description.Size;
-		auto getIndex = [&size](int u, int v) -> uint32_t {
+		auto getIndex = [&size](uint32_t u, uint32_t v) -> uint32_t {
 			return v * size.u + u;
 		};
 		auto& patchPoints = surface.GetComponent<ar::ControlPointsComponent>().Points;
 		std::vector<Entity> points, neighbors;
 
-		size_t		baseV = 3 * segmentV,
+		uint32_t	baseV = 3 * segmentV,
 					baseU = 3 * segmentU;
 		uint32_t	firstIndex = 0,
 					secondIndex = 0;

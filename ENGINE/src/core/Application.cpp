@@ -1,7 +1,7 @@
+#include <glad/glad.h>
 #include "arpch.h"
 #include "Application.h"
 
-#include <glad/glad.h>
 #include "core/Renderer/Renderer.h"
 #include "core/Renderer/RenderCommand.h"
 

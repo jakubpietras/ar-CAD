@@ -1,6 +1,5 @@
 #pragma once
 #include <vector>
-#include <glad/glad.h>
 #include "VertexTypes.h"
 
 namespace ar
@@ -15,7 +14,7 @@ namespace ar
 
 		inline const BufferLayout GetLayout() const { return m_Layout; }
 		inline const uint32_t GetAttribCount() const { return m_Layout.GetAttribCount(); }
-		inline const uint32_t GetVertexCount() const { return m_VertexCount; }
+		inline const size_t GetVertexCount() const { return m_VertexCount; }
 
 		static VertexBuffer* Create(std::vector<VertexPosition> vertices);
 		static VertexBuffer* Create(std::vector<VertexPositionID> vertices);
@@ -26,8 +25,8 @@ namespace ar
 		// New overloads for Create() for each defined Vertex type (change in the future)
 
 	protected:
-		uint32_t m_ID, m_VertexCount;
-		uint32_t m_InstanceCount;
+		uint32_t m_ID;
+		size_t m_VertexCount, m_InstanceCount;
 		BufferLayout m_Layout;
 	};
 

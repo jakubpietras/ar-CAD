@@ -168,7 +168,7 @@ namespace ar
 
 	std::vector<mat::Vec3> CurveUtils::FilterKnots(std::vector<mat::Vec3> knots)
 	{
-		const float eps = 1e-3;
+		const float eps = static_cast<float>(1e-3);
 		std::vector<mat::Vec3> uniqueKnots;
 		if (knots.empty())
 			return {};
