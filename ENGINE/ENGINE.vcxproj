@@ -90,6 +90,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\core\Geometry\EdgeInfo.cpp" />
+    <ClCompile Include="src\core\Geometry\Hole.cpp" />
+    <ClCompile Include="src\core\Geometry\GregoryFill.cpp" />
     <ClCompile Include="src\core\Geometry\HoleDetector.cpp" />
     <ClCompile Include="src\core\Scene\SceneFactory.cpp" />
     <ClCompile Include="src\core\Serialization\SceneExporter.cpp" />
@@ -141,6 +144,9 @@
     <ClCompile Include="src\core\UID.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\core\Geometry\EdgeInfo.h" />
+    <ClInclude Include="src\core\Geometry\Hole.h" />
+    <ClInclude Include="src\core\Geometry\GregoryFill.h" />
     <ClInclude Include="src\core\Geometry\HoleDetector.h" />
     <ClInclude Include="src\core\Scene\SceneFactory.h" />
     <ClInclude Include="src\core\Serialization\SceneExporter.h" />
@@ -220,6 +226,8 @@
     <None Include="src\resources\shaders\OpenGL\bezier.vert" />
     <None Include="src\resources\shaders\OpenGL\bezierPicking.frag" />
     <None Include="src\resources\shaders\OpenGL\bspline.tesc" />
+    <None Include="src\resources\shaders\OpenGL\gregory.tesc" />
+    <None Include="src\resources\shaders\OpenGL\gregory.tese" />
     <None Include="src\resources\shaders\OpenGL\grid.frag" />
     <None Include="src\resources\shaders\OpenGL\grid.vert" />
     <None Include="src\resources\shaders\OpenGL\default.frag" />

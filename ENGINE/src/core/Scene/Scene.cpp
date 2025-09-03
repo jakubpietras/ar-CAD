@@ -6,6 +6,7 @@
 #include "core/Renderer/Framebuffer.h"
 #include <core/Utils/CurveUtils.h>
 #include "core/Utils/GeneralUtils.h"
+#include "core/Geometry/GregoryFill.h"
 
 namespace ar
 {
@@ -69,6 +70,7 @@ namespace ar
 		FlagDirtyMeshes();
 		UpdateAllTransforms(cursorPos, meanPos);
 		UpdateMeshes();
+		UpdateGregory();
 		UpdateTori();
 	}
 
@@ -150,7 +152,7 @@ namespace ar
 
 	void Scene::UpdateMeshes()
 	{
-		auto meshView = m_Registry.view<ControlPointsComponent, MeshComponent>();
+		auto meshView = m_Registry.view<ControlPointsComponent, MeshComponent>(entt::exclude<ar::GregoryPatchComponent>);
 		for (auto [entity, cp, mesh] : meshView.each())
 		{
 			if (!mesh.DirtyFlag)
@@ -184,6 +186,23 @@ namespace ar
 
 			mesh.DirtyFlag = false;
 		}
+	}
+
+	void Scene::UpdateGregory()
+	{
+		auto view = m_Registry.view<GregoryPatchComponent, MeshComponent>();
+		
+		for (auto [entity, gp, mc] : view.each())
+		{
+			auto e = ar::Entity(entity, this);
+			
+			if (!mc.DirtyFlag)
+				continue;
+
+			mc.VertexArray->ClearBuffers();
+			mc.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(ar::GregoryFill::GetGregoryVertexData(gp.HoleToFill, e.GetID()))));
+		}
+
 	}
 
 	void Scene::UpdateTori()

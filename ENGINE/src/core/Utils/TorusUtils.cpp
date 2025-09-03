@@ -1,5 +1,6 @@
 #include <arpch.h>
 #include "TorusUtils.h"
+#include "core/Scene/Components.h"
 
 namespace ar
 {

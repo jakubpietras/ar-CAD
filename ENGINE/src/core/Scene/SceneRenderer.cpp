@@ -2,6 +2,7 @@
 #include "SceneRenderer.h"
 #include "core/Renderer/Shader.h"
 #include "core/Scene/Entity.h"
+#include "core/Scene/Components.h"
 
 namespace ar
 {
@@ -61,6 +62,7 @@ namespace ar
 		RenderGrid(vpMat);
 		RenderMeshes(vpMat, RenderPassType::MAIN, viewport);
 		RenderSurfaces(vpMat, RenderPassType::MAIN);
+		RenderGregoryPatches(vpMat, RenderPassType::MAIN);
 		if (renderMeanPoint)
 			RenderMeanPoint(cameraController, meanPointPos);
 		RenderCursor(cameraController, cursorPos);
@@ -82,6 +84,7 @@ namespace ar
 		auto& vpMat = cameraController->GetCamera()->GetVP();
 		RenderMeshes(vpMat, RenderPassType::SELECTION, viewport);
 		RenderSurfaces(vpMat, RenderPassType::SELECTION);
+		RenderGregoryPatches(vpMat, RenderPassType::SELECTION);
 		RenderPoints(vpMat, RenderPassType::SELECTION);
 
 		m_PickingFB->Unbind();
@@ -332,6 +335,54 @@ namespace ar
 		}
 
 		ar::Renderer::Submit(Primitive::Point, shader, m_PointsVA);
+	}
+
+	void SceneRenderer::RenderGregoryPatches(ar::mat::Mat4 viewProjection, RenderPassType pass)
+	{
+		auto view = m_Scene->m_Registry.view<MeshComponent, GregoryPatchComponent>(entt::exclude<HiddenMeshTagComponent>);
+		for (auto [entity, mc, gp] : view.each())
+		{
+			auto model = mat::Identity();
+			switch (pass)
+			{
+				case RenderPassType::MAIN:
+				{
+					mc.ShaderUsed = ShaderType::MAIN;
+					auto shader = mc.GetShader();
+					shader->SetMat4("u_VP", viewProjection);
+					shader->SetMat4("u_Model", model);
+					shader->SetUInt("u_SamplesU", gp.Samples.u);
+					shader->SetUInt("u_SamplesV", gp.Samples.v);
+
+					bool isSelected = m_Scene->m_Registry.any_of<SelectedTagComponent>(entity);
+					auto color = isSelected ? Renderer::SELECTION_COLOR : mc.PrimaryColor;
+					shader->SetVec3("u_Color", color);
+
+					shader->SetBool("u_SwitchCoords", false);
+					ar::Renderer::Submit(mc, mc.VertexArray->IsIndexed());
+					shader->SetBool("u_SwitchCoords", true);
+					ar::Renderer::Submit(mc, mc.VertexArray->IsIndexed());
+
+					break;
+				}
+				case RenderPassType::SELECTION:
+				{
+					mc.ShaderUsed = ShaderType::PICKING;
+					auto pickingShader = mc.GetShader();
+					pickingShader->SetMat4("u_VP", viewProjection);
+					pickingShader->SetMat4("u_Model", model);
+					pickingShader->SetUInt("u_SamplesU", gp.Samples.u);
+					pickingShader->SetUInt("u_SamplesV", gp.Samples.v);
+
+					pickingShader->SetBool("u_SwitchCoords", false);
+					ar::Renderer::Submit(mc, mc.VertexArray->IsIndexed());
+					pickingShader->SetBool("u_SwitchCoords", true);
+					ar::Renderer::Submit(mc, mc.VertexArray->IsIndexed());
+
+					break;
+				}
+			}
+		}
 	}
 
 }

@@ -31,10 +31,14 @@ namespace ar
 		stbi_set_flip_vertically_on_load(true);
 
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_ID);
+		AR_GL_CHECK();
+
 		glTextureParameteri(m_ID, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTextureParameteri(m_ID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTextureParameteri(m_ID, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTextureParameteri(m_ID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		AR_GL_CHECK();
+
 		int width, height, channels;
 		auto data = stbi_load(filepath.c_str(), &width, &height, &channels, 0);
 		AR_ASSERT(data, "Failed to load texture");
@@ -55,8 +59,12 @@ namespace ar
 		}
 
 		glTextureStorage2D(m_ID, 1, internalFormat, width, height);
+		AR_GL_CHECK();
+
 		glTextureSubImage2D(m_ID, 0, 0, 0, width, height, format, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
+		AR_GL_CHECK();
+
+		glGenerateTextureMipmap(m_ID);
 		AR_GL_CHECK();
 		m_Description = { (uint32_t)width, (uint32_t)height, TextureFormat::RGBA8 };
 		stbi_image_free(data);

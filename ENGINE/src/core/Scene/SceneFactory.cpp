@@ -2,6 +2,7 @@
 #include "SceneFactory.h"
 #include "core/Utils/GeneralUtils.h"
 #include "core/Utils/CurveUtils.h"
+#include "core/Scene/Components.h"
 
 namespace ar
 {
@@ -303,6 +304,51 @@ namespace ar
 		//cpm.VertexArray->AddVertexBuffer(vb);
 		//cpm.VertexArray->AddIndexBuffer(ar::Ref<ar::IndexBuffer>(ar::IndexBuffer::Create(ar::SurfaceUtils::GenerateControlMeshIndices(desc, cp.Indices))));
 		//cpm.Shader = ar::ShaderLib::Get("Basic");
+
+		return entity;
+	}
+
+	ar::Entity SceneFactory::CreateGregoryPatch(ar::Hole holeToFill, std::optional<uint32_t> id, const std::string& name)
+	{
+		ar::Ref<ar::Shader> shader, pickingShader;
+		shader = ShaderLib::Get("Gregory");
+		pickingShader = ShaderLib::Get("GregoryPicking");
+
+		Entity entity;
+		if (id.has_value())
+			entity = m_Scene->CreateEntity(*id, name);
+		else
+			entity = m_Scene->CreateEntity(std::nullopt, name);
+		auto& gp = entity.AddComponent<GregoryPatchComponent>();
+		gp.HoleToFill = holeToFill;
+
+		// Point references (edges)
+		std::vector<ar::Entity> points;
+		for (auto& edge : holeToFill.Edges)
+		{
+			for (auto& point : edge.Points)
+				points.push_back(point);
+			for (auto& neighbor : edge.Neighbors)
+				points.push_back(neighbor);
+		}
+		for (auto& point : points)
+		{
+			auto& parents = point.GetComponent<ar::PointComponent>().Parents;
+			if (std::find(parents.begin(), parents.end(), entity) == parents.end())
+				parents.push_back(entity);
+		}
+		auto& cp = entity.AddComponent<ar::ControlPointsComponent>();
+		cp.Points = points;
+
+		// Mesh
+		auto& mc = entity.AddComponent<ar::MeshComponent>();
+		mc.VertexArray = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
+		auto vb = ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(ar::GregoryFill::GetGregoryVertexData(holeToFill, entity.GetID())));
+		mc.VertexArray->AddVertexBuffer(vb);
+		mc.Shader = shader;
+		mc.PickingShader = pickingShader;
+		mc.RenderPrimitive = ar::Primitive::Patch;
+		mc.TessellationPatchSize = 20;
 
 		return entity;
 	}

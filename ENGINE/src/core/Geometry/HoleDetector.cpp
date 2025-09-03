@@ -1,5 +1,6 @@
 #include "arpch.h"
 #include "HoleDetector.h"
+#include "core/Scene/Components.h"
 // #define DEBUG
 
 namespace ar
@@ -82,6 +83,8 @@ namespace ar
 		auto getIndex = [&size](int u, int v) -> uint32_t {
 			return v * size.u + u;
 		};
+		auto& patchPoints = surface.GetComponent<ar::ControlPointsComponent>().Points;
+		std::vector<Entity> points, neighbors;
 
 		size_t		baseV = 3 * segmentV,
 					baseU = 3 * segmentU;
@@ -94,18 +97,39 @@ namespace ar
 			{
 				firstIndex = getIndex(baseU + 0, baseV + 0);
 				secondIndex = getIndex(baseU + 3, baseV + 0);
+
+				for (int offsetU = 0; offsetU < 4; offsetU++)
+				{
+					points.push_back(patchPoints[getIndex(baseU + offsetU, baseV)]);
+					neighbors.push_back(patchPoints[getIndex(baseU + offsetU, baseV + 1)]);
+				}
+
 				break;
 			}
 			case EdgeInfo::Placement::RIGHT:
 			{
 				firstIndex = getIndex(baseU + 3, baseV + 0);
 				secondIndex = getIndex(baseU + 3, baseV + 3);
+
+				for (int offsetV = 0; offsetV < 4; offsetV++)
+				{
+					points.push_back(patchPoints[getIndex(baseU + 3, baseV + offsetV)]);
+					neighbors.push_back(patchPoints[getIndex(baseU + 2, baseV + offsetV)]);
+				}
+
 				break;
 			}
 			case EdgeInfo::Placement::TOP:
 			{
 				firstIndex = getIndex(baseU + 3, baseV + 3);
 				secondIndex = getIndex(baseU + 0, baseV + 3);
+
+				for (int offsetU = 3; offsetU >= 0; offsetU--)
+				{
+					points.push_back(patchPoints[getIndex(baseU + offsetU, baseV + 3)]);
+					neighbors.push_back(patchPoints[getIndex(baseU + offsetU, baseV + 2)]);
+				}
+
 				break;
 			}
 		
@@ -113,10 +137,17 @@ namespace ar
 			{
 				firstIndex = getIndex(baseU + 0, baseV + 3);
 				secondIndex = getIndex(baseU + 0, baseV + 0);
+
+				for (int offsetV = 3; offsetV >= 0; offsetV--)
+				{
+					points.push_back(patchPoints[getIndex(baseU + 0, baseV + offsetV)]);
+					neighbors.push_back(patchPoints[getIndex(baseU + 1, baseV + offsetV)]);
+				}
+
 				break;
 			}
 		}
-		return { placement, EdgeKey(firstIndex, secondIndex), surface };
+		return { placement, EdgeKey(firstIndex, secondIndex), points, neighbors, surface };
 	}
 
 	void HoleDetector::ProcessEdge(EdgeInfo edge, Entity surface)

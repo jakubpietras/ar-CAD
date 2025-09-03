@@ -147,6 +147,15 @@
     <ClCompile Include="src\core\Geometry\HoleDetector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\core\Geometry\GregoryFill.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\Geometry\Hole.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\Geometry\EdgeInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\core\Application.h">
@@ -332,6 +341,15 @@
     <ClInclude Include="src\core\Geometry\HoleDetector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\core\Geometry\GregoryFill.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\Geometry\Hole.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\Geometry\EdgeInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\resources\shaders\OpenGL\default.vert" />
@@ -357,6 +375,8 @@
     <None Include="src\resources\shaders\OpenGL\surfaceC2.tesc" />
     <None Include="src\resources\shaders\OpenGL\point.vert" />
     <None Include="src\resources\shaders\OpenGL\point.frag" />
+    <None Include="src\resources\shaders\OpenGL\gregory.tese" />
+    <None Include="src\resources\shaders\OpenGL\gregory.tesc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\resources\icons\logo.png">

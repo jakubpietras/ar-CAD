@@ -3,40 +3,11 @@
 #include <unordered_set>
 #include <utility>
 #include "core/Scene/Entity.h"
+#include "core/Geometry/EdgeInfo.h"
+#include "core/Geometry/Hole.h"
 
 namespace ar
 {
-	using EdgeKey = std::pair<uint32_t, uint32_t>;
-	struct EdgeKeyHash {
-		size_t operator()(const EdgeKey& p) const noexcept {
-			uint64_t combined = (static_cast<uint64_t>(p.first) << 32) | p.second;
-			return std::hash<uint64_t>{}(combined);
-		}
-	};
-	struct EdgeInfo
-	{
-		enum class Placement { TOP, BOTTOM, LEFT, RIGHT };
-		Placement EdgePlacement;
-		std::pair<uint32_t, uint32_t> GridPlacement;
-		Entity Patch;
-	};
-
-	struct Hole
-	{
-		std::array<EdgeInfo, 3> Edges{};
-		std::array<uint32_t, 3> Endpoints{};
-
-		Hole(const std::array<EdgeInfo, 3>& edges = {}, const std::array<uint32_t, 3>& endpoints = {})
-			: Edges(edges), Endpoints(endpoints) {
-		}
-
-		std::string ToString() const {
-			return std::to_string(Endpoints[0]) + "-"
-				+ std::to_string(Endpoints[1]) + "-"
-				+ std::to_string(Endpoints[2]);
-		}
-	};
-
 	class HoleDetector
 	{
 	public:

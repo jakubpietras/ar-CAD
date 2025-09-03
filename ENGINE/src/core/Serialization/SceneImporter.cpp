@@ -1,5 +1,6 @@
 #include "arpch.h"
 #include "SceneImporter.h"
+#include "core/Scene/Components.h"
 
 namespace ar
 {

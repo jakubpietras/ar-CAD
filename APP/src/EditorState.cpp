@@ -69,5 +69,6 @@ void EditorState::ClearFillState()
 {
 	FillCandidates.clear();
 	HoleToFill.reset();
+	HoleSelectionChanged = true;
 	ShouldScanForHoles = false;
 }

@@ -667,7 +667,11 @@ void EditorUI::RenderAddGregoryModal()
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + offset);
 		if (ImGui::Button("Detect Holes", ImVec2(buttonWidth, 0))) { m_State.ShouldScanForHoles = true; }
 		ImGui::SameLine();
-		if (ImGui::Button("Add Fill-in", ImVec2(buttonWidth, 0))) { /* Request add Gregory patch and clear fill state */ }
+		if (ImGui::Button("Add Fill-in", ImVec2(buttonWidth, 0))) 
+		{ 
+			RequestAddObject(ar::ObjectType::GREGORY);
+			m_State.ShouldShowGregoryModal = false;
+		}
 		ImGui::SameLine();
 		if (ImGui::Button("Cancel", ImVec2(buttonWidth, 0))) 
 		{

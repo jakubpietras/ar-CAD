@@ -2,11 +2,11 @@
 #include "VertexArray.h"
 #include "Shader.h"
 #include "Primitive.h"
-#include "core/Scene/Components.h"
+//#include "core/Scene/Components.h"
 
 namespace ar
 {
-
+	struct MeshComponent;
 	enum class RenderPassType
 	{
 		MAIN,

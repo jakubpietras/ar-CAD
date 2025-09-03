@@ -1,5 +1,7 @@
 #include "arpch.h"
 #include "CurveUtils.h"
+#include "solvers.h"
+#include "core/Scene/Components.h"
 
 namespace ar
 {
@@ -139,6 +141,29 @@ namespace ar
 			}
 		}
 		return ConvertCoeffToBezier(coeffA, coeffB, coeffC, coeffD, chordLengths, id);
+	}
+
+	std::array<std::array<mat::Vec3, 4>, 2> CurveUtils::SubdivideCubicSegment(std::array<mat::Vec3, 4> controlPoints, float t)
+	{
+		std::vector<mat::Vec3> points, buffer, result;
+
+		points.assign(controlPoints.begin(), controlPoints.end());
+		for (int end = 4; end > 1; end--)
+		{
+			for (int start = 0; start < end - 1; start++)
+			{
+				auto point = mat::Lerp(points[start], points[start + 1], t);
+				buffer.push_back(point);
+				result.push_back(point);
+			}
+			points = buffer;
+			buffer.clear();
+		}
+
+		std::array<mat::Vec3, 4> curveA = {controlPoints[0], result[0], result[3], result[5]};
+		std::array<mat::Vec3, 4> curveB = { result[5], result[4], result[2], controlPoints[3] };
+
+		return { curveA, curveB };
 	}
 
 	std::vector<mat::Vec3> CurveUtils::FilterKnots(std::vector<mat::Vec3> knots)

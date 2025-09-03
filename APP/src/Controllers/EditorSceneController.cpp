@@ -6,6 +6,8 @@
 #include "core/Serialization/SceneExporter.h"
 #include <algorithm>
 #include "core/Geometry/HoleDetector.h"
+#include "core/Geometry/GregoryFill.h"
+#include "core/Scene/Components.h"
 
 EditorSceneController::EditorSceneController(ar::Ref<ar::Scene> scene, ar::SceneRenderer& sceneRender)
 	: m_Scene(scene), m_SceneRenderer(sceneRender),
@@ -478,14 +480,14 @@ void EditorSceneController::ProcessAdd(EditorState& state)
 	}
 	case ar::ObjectType::GREGORY:
 	{
-		if (state.SelectedSurfacesC0.size() < 1)
+		if (!state.HoleToFill.has_value())
 		{
 			state.ShowErrorModal = true;
-			state.ErrorMessages.emplace_back("Select at least one C0 surface to create a fill-in!");
+			state.ErrorMessages.emplace_back("Cannot create a Gregory patch without a hole to fill in");
 		}
 		else
-			break; // todo: create Gregory
-		break;
+			m_Factory.CreateGregoryPatch(*state.HoleToFill, std::nullopt, "Gregory Patch");
+		state.ClearFillState();
 	}
 	case ar::ObjectType::NONE:
 	default:

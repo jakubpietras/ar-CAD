@@ -1,5 +1,6 @@
 #include "SceneHierarchyPanel.h"
 #include "core/ImGui/ScopedDisable.h"
+#include "core/Scene/Components.h"
 
 SceneHierarchyPanel::SceneHierarchyPanel(EditorState& state)
 	: m_State(state) { }

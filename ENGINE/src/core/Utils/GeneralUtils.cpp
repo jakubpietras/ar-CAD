@@ -1,6 +1,7 @@
 #pragma once
 #include "arpch.h"
 #include "GeneralUtils.h"
+#include "core/Scene/Components.h"
 
 namespace ar
 {
@@ -24,4 +25,13 @@ namespace ar
 			data.push_back({ position, id });
 		return data;
 	}
+
+	std::vector<ar::mat::Vec3> GeneralUtils::GetPos(std::vector<ar::Entity> objects)
+	{
+		std::vector<ar::mat::Vec3> positions;
+		for (auto& object : objects)
+			positions.push_back(object.GetComponent<ar::TransformComponent>().Translation);
+		return positions;
+	}
+
 }

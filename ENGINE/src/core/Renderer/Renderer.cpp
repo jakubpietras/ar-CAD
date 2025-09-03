@@ -1,6 +1,7 @@
 #include "arpch.h"
 #include "Renderer.h"
 #include "RenderCommand.h"
+#include "core/Scene/Components.h"
 
 namespace ar
 {

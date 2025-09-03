@@ -15,6 +15,8 @@ namespace ar
 
 		static std::vector<VertexPositionID> GetIntC2VertexData(std::vector<ar::Entity> knots, uint32_t id);
 
+		static std::array<std::array<mat::Vec3, 4>, 2> SubdivideCubicSegment(std::array<mat::Vec3, 4> controlPoints, float t);
+
 	private:
 		static std::vector<mat::Vec3> FilterKnots(std::vector<mat::Vec3> knots);
 		static std::vector<float> ComputeChordLengths(std::vector<ar::mat::Vec3> knots);

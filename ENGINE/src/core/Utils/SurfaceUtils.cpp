@@ -1,6 +1,7 @@
 #include "arpch.h"
 #include "SurfaceUtils.h"
 #include "core/Scene/Entity.h"
+#include "core/Scene/Components.h"
 
 namespace ar
 {

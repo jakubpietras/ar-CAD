@@ -93,6 +93,18 @@ namespace ar
 			"resources/shaders/OpenGL/surfaceC2.tesc",
 			"resources/shaders/OpenGL/surface.tese"
 		));
+		s_Shaders["Gregory"] = Ref<Shader>(Shader::Create(
+			"resources/shaders/OpenGL/surface.vert",
+			"resources/shaders/OpenGL/surface.frag",
+			"resources/shaders/OpenGL/gregory.tesc",
+			"resources/shaders/OpenGL/gregory.tese"
+		));
+		s_Shaders["GregoryPicking"] = Ref<Shader>(Shader::Create(
+			"resources/shaders/OpenGL/surface.vert",
+			"resources/shaders/OpenGL/surfacePicking.frag",
+			"resources/shaders/OpenGL/gregory.tesc",
+			"resources/shaders/OpenGL/gregory.tese"
+		));
 	}
 
 	ar::Ref<ar::Shader> ShaderLib::Get(const std::string& name)

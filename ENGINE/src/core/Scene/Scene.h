@@ -2,7 +2,7 @@
 #include "entt/entt.hpp"
 #include "core/Renderer/Camera.h"
 #include "core/Renderer/Shader.h"
-#include "core/Scene/Components.h"
+//#include "core/Scene/Components.h"
 #include "core/Renderer/Renderer.h"
 #include "core/Renderer/RenderCommand.h"
 #include "core/Renderer/Framebuffer.h"
@@ -11,6 +11,7 @@
 namespace ar
 {
 	class Entity;
+	struct TransformComponent;
 	class Scene
 	{
 	public:
@@ -43,9 +44,8 @@ namespace ar
 		void FlagDirtyMeshes();
 		void UpdateAllTransforms(ar::mat::Vec3 cursorPos, ar::mat::Vec3 meanPos);
 		void UpdateMeshes();
+		void UpdateGregory();
 		void UpdateTori();
-
-		
 
 		friend class Entity;
 		friend class SceneHierarchyPanel;

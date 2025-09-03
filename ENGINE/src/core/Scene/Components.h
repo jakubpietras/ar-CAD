@@ -5,7 +5,7 @@
 #include "core/Renderer/Primitive.h"
 #include "core/Utils/TorusUtils.h"
 #include "core/Utils/SurfaceUtils.h"
-
+#include "core/Geometry/Hole.h"
 
 namespace ar
 {
@@ -162,6 +162,12 @@ namespace ar
 		SurfaceDesc			Description;
 		bool				ShowNet = false,
 							DirtyFlag = false;
+	};
+
+	struct GregoryPatchComponent
+	{
+		mat::UInt2 Samples{ 4, 4 };
+		ar::Hole HoleToFill;
 	};
 
 #pragma endregion

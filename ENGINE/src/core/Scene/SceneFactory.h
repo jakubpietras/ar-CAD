@@ -3,6 +3,9 @@
 #include "core/Scene/Scene.h"
 #include "core/Scene/Entity.h"
 #include <optional>
+#include "core/Geometry/GregoryFill.h"
+#include "core/Utils/TorusUtils.h"
+#include "core/Utils/SurfaceUtils.h"
 
 namespace ar
 {
@@ -19,6 +22,7 @@ namespace ar
 		Entity CreateInterpolatedC2(std::vector<Entity> points, std::optional<uint32_t> id, const std::string& name = std::string());
 		Entity CreateSurface(std::vector<Entity>& points, bool isC0, mat::UInt2 size, mat::UInt2 samples, std::optional<uint32_t> id, const std::string& name = std::string());
 		Entity CreateSurface(mat::Vec3 origin, SurfaceDesc desc, ar::Entity tempSurface);
+		Entity CreateGregoryPatch(ar::Hole holeToFill, std::optional<uint32_t> id, const std::string& name = std::string());
 
 	private:
 		Ref<Scene> m_Scene;
