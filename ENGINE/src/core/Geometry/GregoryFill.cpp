@@ -16,7 +16,7 @@ namespace ar
 	{
 		G.clear(); G.resize(3);
 
-		for (int edge = 0; edge < 1; edge++)
+		for (int edge = 0; edge < 3; edge++)
 		{
 			int next = (edge + 1) % 3;
 			G[edge][0] = P[edge][3];

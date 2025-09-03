@@ -13,12 +13,11 @@ namespace ar
 	struct EdgeInfo
 	{
 		enum class Placement { TOP, BOTTOM, LEFT, RIGHT };
-		Placement EdgePlacement;
-		std::pair<uint32_t, uint32_t> GridPlacement;
 
+		Placement EdgePlacement;
+		std::pair<uint32_t, uint32_t> EndpointIDs;
 		std::vector<ar::Entity> Points;
 		std::vector<ar::Entity> Neighbors;
-
 		Entity Patch;
 	};
 }

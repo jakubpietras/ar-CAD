@@ -32,6 +32,7 @@ namespace ar
 	std::vector<std::array<uint32_t, 3>> HoleDetector::FindTriples()
 	{
 		std::vector<std::array<uint32_t, 3>> triples;
+		std::set<std::set<uint32_t>> seenTriangles;
 
 		// starting from every corner point (endpoint)
 		for (auto& [point, neighbors] : m_Adjacency)
@@ -41,22 +42,19 @@ namespace ar
 			{
 				for (auto& secondNeighbor : m_Adjacency[neighbor])
 				{
-					// if neighbor's neighbor is the starting point's neighbor
+					// if neighbor's neighbor connects back to starting point
 					if (m_Adjacency[secondNeighbor].contains(point))
 					{
-						// add the triple
-						triples.push_back({ point, neighbor, secondNeighbor });
+						std::set<uint32_t> triangleSet = { point, neighbor, secondNeighbor };
+						// .second == true if triangleSet is unique in seenTriangles (can be added)
+						if (seenTriangles.insert(triangleSet).second)	
+						{
+							triples.push_back({ point, neighbor, secondNeighbor });
+						}
 					}
 				}
 			}
 		}
-
-		for (auto& triple : triples)
-			std::ranges::sort(triple);
-
-		std::ranges::sort(triples);
-		auto last = std::unique(triples.begin(), triples.end());
-		triples.erase(last, triples.end());
 
 		return triples;
 	}
@@ -90,6 +88,8 @@ namespace ar
 					baseU = 3 * segmentU;
 		uint32_t	firstIndex = 0,
 					secondIndex = 0;
+		uint32_t	firstPointID = 0,
+					secondPointID = 0;
 	
 		switch (placement)
 		{
@@ -97,6 +97,8 @@ namespace ar
 			{
 				firstIndex = getIndex(baseU + 0, baseV + 0);
 				secondIndex = getIndex(baseU + 3, baseV + 0);
+				firstPointID = patchPoints[firstIndex].GetID();
+				secondPointID = patchPoints[secondIndex].GetID();
 
 				for (int offsetU = 0; offsetU < 4; offsetU++)
 				{
@@ -110,6 +112,8 @@ namespace ar
 			{
 				firstIndex = getIndex(baseU + 3, baseV + 0);
 				secondIndex = getIndex(baseU + 3, baseV + 3);
+				firstPointID = patchPoints[firstIndex].GetID();
+				secondPointID = patchPoints[secondIndex].GetID();
 
 				for (int offsetV = 0; offsetV < 4; offsetV++)
 				{
@@ -123,6 +127,8 @@ namespace ar
 			{
 				firstIndex = getIndex(baseU + 3, baseV + 3);
 				secondIndex = getIndex(baseU + 0, baseV + 3);
+				firstPointID = patchPoints[firstIndex].GetID();
+				secondPointID = patchPoints[secondIndex].GetID();
 
 				for (int offsetU = 3; offsetU >= 0; offsetU--)
 				{
@@ -137,6 +143,8 @@ namespace ar
 			{
 				firstIndex = getIndex(baseU + 0, baseV + 3);
 				secondIndex = getIndex(baseU + 0, baseV + 0);
+				firstPointID = patchPoints[firstIndex].GetID();
+				secondPointID = patchPoints[secondIndex].GetID();
 
 				for (int offsetV = 3; offsetV >= 0; offsetV--)
 				{
@@ -147,14 +155,14 @@ namespace ar
 				break;
 			}
 		}
-		return { placement, EdgeKey(firstIndex, secondIndex), points, neighbors, surface };
+		return { placement, {firstPointID, secondPointID}, points, neighbors, surface };
 	}
 
 	void HoleDetector::ProcessEdge(EdgeInfo edge, Entity surface)
 	{
 		auto& points = surface.GetComponent<ar::ControlPointsComponent>().Points;
-		uint32_t firstEndpointID = points[edge.GridPlacement.first].GetID();
-		uint32_t secondEndpointID = points[edge.GridPlacement.second].GetID();
+		uint32_t firstEndpointID = edge.EndpointIDs.first;
+		uint32_t secondEndpointID = edge.EndpointIDs.second;
 		
 		// Both endpoints the same - edge collapsed to a single point
 		if (firstEndpointID == secondEndpointID)
@@ -166,8 +174,11 @@ namespace ar
 		
 		// Edge info (full info for reproduction)
 		m_EdgeTable[EdgeKey(firstEndpointID, secondEndpointID)] = edge;	
+
 		EdgeInfo edgeReverse(edge);
-		std::swap(edgeReverse.GridPlacement.first, edgeReverse.GridPlacement.second);
+		std::swap(edgeReverse.EndpointIDs.first, edgeReverse.EndpointIDs.second);
+		std::reverse(edgeReverse.Points.begin(), edgeReverse.Points.end());
+		std::reverse(edgeReverse.Neighbors.begin(), edgeReverse.Neighbors.end());
 		m_EdgeTable[EdgeKey(secondEndpointID, firstEndpointID)] = edgeReverse;
 	}
 
@@ -207,7 +218,7 @@ namespace ar
 		{
 			logMessage += "[(" + std::to_string(entry.first.first) + ", " + std::to_string(entry.first.second) + ")]: "
 				+ "patch " + std::to_string(entry.second.Patch.GetID()) + ", grid index (a="
-				+ std::to_string(entry.second.GridPlacement.first) + ", b=" + std::to_string(entry.second.GridPlacement.second) + ")\n";
+				+ std::to_string(entry.second.EndpointIDs.first) + ", b=" + std::to_string(entry.second.EndpointIDs.second) + ")\n";
 		}
 		AR_TRACE(logMessage);
 	}

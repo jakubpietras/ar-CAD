@@ -21,11 +21,11 @@ void ar::ComponentInspector::ShowInspector(Entity entity)
 	if (ImGui::BeginTabBar("Inspector", tab_bar_flags))
 	{
 		ShowComponentInspector<ar::TorusComponent>(entity, "Props");
-		//ShowComponentInspector<ar::MeshComponent>(entity, "Mesh");
 		ShowComponentInspector<ar::TransformComponent>(entity, "Transform");
 		ShowComponentInspector<ar::CurveC0Component>(entity, "Props");
 		ShowComponentInspector<ar::CurveC2Component>(entity, "Props");
 		ShowComponentInspector<ar::SurfaceComponent>(entity, "Props");
+		ShowComponentInspector<ar::GregoryPatchComponent>(entity, "Props");
 
 		// rest...
 		ImGui::EndTabBar();
@@ -43,11 +43,16 @@ void ar::ComponentInspector::InspectComponent(TorusComponent& torus)
 
 }
 
+void ar::ComponentInspector::InspectComponent(GregoryPatchComponent& gregory)
+{
+	ImGui::Checkbox("Show net", &gregory.ShowNet);
+	PropertyInspector::InspectProperty("Samples", gregory.Samples, 4u, 64u);
+}
+
 void ar::ComponentInspector::InspectComponent(SurfaceComponent& surface)
 {
 	ImGui::Checkbox("Show net", &surface.ShowNet);
-	if (PropertyInspector::InspectProperty("Samples", surface.Description.Samples, 4u, 64u))
-		surface.DirtyFlag = true;
+	PropertyInspector::InspectProperty("Samples", surface.Description.Samples, 4u, 64u);
 }
 
 void ar::ComponentInspector::InspectComponent(CurveC2Component& curve)

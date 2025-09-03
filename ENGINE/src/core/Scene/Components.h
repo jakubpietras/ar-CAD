@@ -160,14 +160,15 @@ namespace ar
 	struct SurfaceComponent
 	{
 		SurfaceDesc			Description;
-		bool				ShowNet = false,
-							DirtyFlag = false;
+		bool				ShowNet = false;
 	};
 
 	struct GregoryPatchComponent
 	{
-		mat::UInt2 Samples{ 4, 4 };
-		ar::Hole HoleToFill;
+		mat::UInt2	Samples{ 4, 4 };
+		ar::Hole	HoleToFill;
+		bool		ShowNet = false;
+		
 	};
 
 #pragma endregion
