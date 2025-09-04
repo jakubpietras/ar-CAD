@@ -59,6 +59,23 @@ namespace ar
 		return vertexCount;
 	}
 
+	void OGLVertexArray::ClearVertexBuffers()
+	{
+		for (uint32_t i = 0; i < m_AttribStartIndex; ++i)
+		{
+			glDisableVertexArrayAttrib(m_ID, i);
+		}
+		for (uint32_t i = 0; i < m_BindingIndex; ++i)
+		{
+			glVertexArrayVertexBuffer(m_ID, i, 0, 0, 0);
+		}
+		glVertexArrayElementBuffer(m_ID, 0);
+
+		m_VertexBuffers.clear();
+		m_BindingIndex = 0;
+		m_AttribStartIndex = 0;
+	}
+
 	void OGLVertexArray::ClearBuffers()
 	{
 		for (uint32_t i = 0; i < m_AttribStartIndex; ++i)

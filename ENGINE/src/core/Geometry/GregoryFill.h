@@ -7,6 +7,7 @@ namespace ar
 	{
 	public:
 		static std::vector<VertexPositionID> GetGregoryVertexData(ar::Hole& holeToFill, uint32_t id);
+		static std::vector<uint32_t> GetGregoryControlMesh();
 
 	private:
 		static std::vector<std::array<mat::Vec3, 20>> G;

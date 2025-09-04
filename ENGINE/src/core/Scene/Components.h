@@ -110,7 +110,7 @@ namespace ar
 	{
 		std::shared_ptr<VertexArray>	VertexArray = nullptr;
 		std::shared_ptr<Shader>			Shader = nullptr;
-		mat::UInt2							Size = { 1, 1 };
+		mat::UInt2						Size = { 1, 1 };
 		bool							DirtyFlag = false,
 										IsVisible = true;
 	};

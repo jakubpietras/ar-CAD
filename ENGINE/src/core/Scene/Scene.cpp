@@ -160,11 +160,21 @@ namespace ar
 
 			auto e = ar::Entity(entity, this);
 			mesh.VertexArray->ClearBuffers();
-			if (e.HasComponent<ar::InterpolatedC2Component>())
-				mesh.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(ar::CurveUtils::GetIntC2VertexData(cp.Points, e.GetID()))));
-			else
-				mesh.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(ar::GeneralUtils::GetVertexData(cp.Points, e.GetID()))));
 
+			std::vector<VertexPositionID> verts;
+			if (e.HasComponent<ar::InterpolatedC2Component>())
+				verts = ar::CurveUtils::GetIntC2VertexData(cp.Points, e.GetID());
+			else
+				verts = ar::GeneralUtils::GetVertexData(cp.Points, e.GetID());
+
+			auto vb = ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(verts));
+			mesh.VertexArray->AddVertexBuffer(vb);
+			if (e.HasComponent<ControlMeshComponent>())
+			{
+				auto& cm = e.GetComponent<ControlMeshComponent>();
+				cm.VertexArray->ClearVertexBuffers();
+				cm.VertexArray->AddVertexBuffer(vb);
+			}
 
 			if (e.HasComponent<ar::CurveC0Component>())
 			{
@@ -190,17 +200,21 @@ namespace ar
 
 	void Scene::UpdateGregory()
 	{
-		auto view = m_Registry.view<GregoryPatchComponent, MeshComponent>();
+		auto view = m_Registry.view<GregoryPatchComponent, MeshComponent, ControlMeshComponent>();
 		
-		for (auto [entity, gp, mc] : view.each())
+		for (auto [entity, gp, mc, cmc] : view.each())
 		{
 			auto e = ar::Entity(entity, this);
 			
 			if (!mc.DirtyFlag)
 				continue;
 
+			auto newVB = ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(ar::GregoryFill::GetGregoryVertexData(gp.HoleToFill, e.GetID())));
 			mc.VertexArray->ClearBuffers();
-			mc.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(ar::GregoryFill::GetGregoryVertexData(gp.HoleToFill, e.GetID()))));
+			mc.VertexArray->AddVertexBuffer(newVB);
+
+			cmc.VertexArray->ClearVertexBuffers();
+			cmc.VertexArray->AddVertexBuffer(newVB);
 		}
 
 	}

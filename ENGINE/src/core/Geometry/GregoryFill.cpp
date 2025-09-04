@@ -131,4 +131,37 @@ namespace ar
 		}
 		return verts;
 	}
+
+	std::vector<uint32_t> GregoryFill::GetGregoryControlMesh()
+	{
+		std::vector<uint32_t> indices;
+		for (int segment = 0; segment < 4; segment++)
+		{
+			uint32_t offset = segment * 20;
+			indices.insert(indices.begin(), {
+				offset + 0, offset + 1,
+				offset + 1, offset + 5,
+				offset + 1, offset + 2,
+				offset + 2, offset + 7,
+				offset + 2, offset + 3,
+				offset + 3, offset + 9,
+				offset + 9, offset + 8,
+				offset + 9, offset + 15,
+				offset + 15, offset + 13,
+				offset + 15, offset + 19,
+				offset + 19, offset + 18,
+				offset + 18, offset + 13,
+				offset + 18, offset + 17,
+				offset + 17, offset + 12,
+				offset + 17, offset + 16,
+				offset + 16, offset + 10,
+				offset + 10, offset + 11,
+				offset + 10, offset + 4,
+				offset + 4, offset + 5,
+				offset + 4, offset + 0
+			});
+		}
+		return indices;
+	}
+
 }

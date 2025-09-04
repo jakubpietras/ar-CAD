@@ -224,12 +224,12 @@ namespace ar
 		mc.Shader = shader;
 		mc.PickingShader = pickingShader;
 
-		//// Bezier net (control mesh)
-		//auto& cpm = tempSurface.AddComponent<ar::ControlMeshComponent>();
-		//cpm.VertexArray = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
-		//cpm.VertexArray->AddVertexBuffer(vb);
-		//cpm.VertexArray->AddIndexBuffer(ar::Ref<ar::IndexBuffer>(ar::IndexBuffer::Create(ar::SurfaceUtils::GenerateControlMeshIndices(desc, cp.Indices))));
-		//cpm.Shader = ar::ShaderLib::Get("Basic");
+		// Bezier net (control mesh)
+		auto& cpm = tempSurface.AddComponent<ar::ControlMeshComponent>();
+		cpm.VertexArray = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
+		cpm.VertexArray->AddVertexBuffer(vb);
+		cpm.VertexArray->AddIndexBuffer(ar::Ref<ar::IndexBuffer>(ar::IndexBuffer::Create(ar::SurfaceUtils::GenerateControlMeshIndices(desc))));
+		cpm.Shader = ar::ShaderLib::Get("Basic");
 
 		return tempSurface;
 	}
@@ -298,12 +298,12 @@ namespace ar
 		mc.RenderPrimitive = ar::Primitive::Patch;
 		mc.TessellationPatchSize = 16;
 
-		//// Bezier net (control mesh)
-		//auto& cpm = entity.AddComponent<ar::ControlMeshComponent>();
-		//cpm.VertexArray = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
-		//cpm.VertexArray->AddVertexBuffer(vb);
-		//cpm.VertexArray->AddIndexBuffer(ar::Ref<ar::IndexBuffer>(ar::IndexBuffer::Create(ar::SurfaceUtils::GenerateControlMeshIndices(desc, cp.Indices))));
-		//cpm.Shader = ar::ShaderLib::Get("Basic");
+		// Bezier net (control mesh)
+		auto& cpm = entity.AddComponent<ar::ControlMeshComponent>();
+		cpm.VertexArray = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
+		cpm.VertexArray->AddVertexBuffer(vb);
+		cpm.VertexArray->AddIndexBuffer(ar::Ref<ar::IndexBuffer>(ar::IndexBuffer::Create(ar::SurfaceUtils::GenerateControlMeshIndices(desc))));
+		cpm.Shader = ar::ShaderLib::Get("Basic");
 
 		return entity;
 	}
@@ -349,6 +349,13 @@ namespace ar
 		mc.PickingShader = pickingShader;
 		mc.RenderPrimitive = ar::Primitive::Patch;
 		mc.TessellationPatchSize = 20;
+
+		// Control mesh
+		auto& cpm = entity.AddComponent<ar::ControlMeshComponent>();
+		cpm.VertexArray = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
+		cpm.VertexArray->AddVertexBuffer(vb);
+		cpm.VertexArray->AddIndexBuffer(ar::Ref<ar::IndexBuffer>(ar::IndexBuffer::Create(GregoryFill::GetGregoryControlMesh())));
+		cpm.Shader = ar::ShaderLib::Get("Basic");
 
 		return entity;
 	}

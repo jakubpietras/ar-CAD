@@ -18,6 +18,9 @@ namespace ar
 		
 		const size_t GetIndexCount() override;
 		const size_t GetVertexCount() override;
+
+		void ClearVertexBuffers() override;
+
 	};
 
 }

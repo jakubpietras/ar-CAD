@@ -66,7 +66,7 @@ namespace ar
 		if (renderMeanPoint)
 			RenderMeanPoint(cameraController, meanPointPos);
 		RenderCursor(cameraController, cursorPos);
-		//RenderPolygons(vpMat);
+		RenderPolygons(vpMat);
 		RenderPoints(vpMat, RenderPassType::MAIN);
 		m_MainFB->Unbind();
 	}
@@ -286,6 +286,14 @@ namespace ar
 			if (sc.ShowNet)
 				ar::Renderer::Submit(Primitive::Line, cmc.Shader, cmc.VertexArray, true);
 		}
+
+		auto patches = m_Scene->m_Registry.view<GregoryPatchComponent, ControlMeshComponent>();
+		for (const auto& [entity, gp, cmc] : patches.each())
+		{
+			if (gp.ShowNet)
+				ar::Renderer::Submit(Primitive::Line, cmc.Shader, cmc.VertexArray, true);
+		}
+
 	}
 
 	void SceneRenderer::RenderPoints(ar::mat::Mat4 viewProjection, RenderPassType pass)

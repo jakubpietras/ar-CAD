@@ -31,7 +31,7 @@ namespace ar
 		static std::vector<ar::Entity> GeneratePointReferences(SurfaceDesc desc, std::vector<ar::Entity> points);
 		static std::vector<uint32_t> GenerateSurfaceRefIndices(SurfaceDesc desc);
 		static SurfaceDesc AdjustSurfaceDescription(SurfaceDesc desc);
-		static std::vector<uint32_t> GenerateControlMeshIndices(SurfaceDesc desc, std::vector<uint32_t> meshIndices);
+		static std::vector<uint32_t> GenerateControlMeshIndices(SurfaceDesc desc);
 		
 	private:
 		static std::vector<mat::Vec3> GenerateRectangleC0Data(SurfaceDesc desc, mat::Vec3 origin);

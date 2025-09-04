@@ -217,31 +217,26 @@ namespace ar
 		return desc;
 	}
 
-	std::vector<uint32_t> SurfaceUtils::GenerateControlMeshIndices(SurfaceDesc desc, std::vector<uint32_t> meshIndices)
+	std::vector<uint32_t> SurfaceUtils::GenerateControlMeshIndices(SurfaceDesc desc)
 	{
 		std::vector<uint32_t> indices;
-		int step = (desc.Type == SurfaceType::CYLINDERC0 || desc.Type == SurfaceType::RECTANGLEC0) ? 3 : 1;
-		
-		auto getIndex = [&](uint32_t u, uint32_t v) -> uint32_t {
-			return v * desc.Size.u + u;
-		};
-		for (uint32_t sv = 0; sv < desc.Segments.v; sv++)
+		uint32_t sizeU = desc.Size.u, sizeV = desc.Size.v;
+		// Horizontal lines
+		for (int v = 0; v < sizeV; v++)
 		{
-			for (uint32_t su = 0; su < desc.Segments.u; su++)
+			for (int u = 0; u < sizeU - 1; u++)
 			{
-				uint32_t baseU = su * step;
-				uint32_t baseV = sv * step;
-				for (uint32_t j = 0; j < 4; j++)
-				{
-					for (uint32_t i = 0; i < 4; i++)
-					{
-						auto index = meshIndices[getIndex(baseU + i, baseV + j)];
-						if (i == 0 || i == 3)
-							indices.push_back(index);
-						else
-							indices.insert(indices.begin(), { index, index });
-					}
-				}
+				indices.push_back(v * sizeU + u);
+				indices.push_back(v * sizeU + u + 1);
+			}
+		}
+		// Vertical lines
+		for (int u = 0; u < sizeU; u++)
+		{
+			for (int v = 0; v < sizeV - 1; v++)
+			{
+				indices.push_back(v * sizeU + u);
+				indices.push_back((v + 1) * sizeU + u);
 			}
 		}
 		return indices;
