@@ -156,6 +156,9 @@
     <ClCompile Include="src\core\Geometry\EdgeInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\core\Drawing\PaintSurface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\core\Application.h">
@@ -348,6 +351,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\core\Geometry\EdgeInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\Drawing\PaintSurface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

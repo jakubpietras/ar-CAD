@@ -7,9 +7,13 @@ EditorUI::EditorUI(EditorState& state, ar::Ref<ar::Scene> scene)
 	: m_State(state), 
 	m_Scene(scene), 
 	m_SceneHierarchyPanel(state),
-	m_MenuIcon(std::unique_ptr<ar::Texture>(ar::Texture::Create("resources/icons/logo.png")))
+	m_MenuIcon(std::unique_ptr<ar::Texture>(ar::Texture::Create("resources/icons/logo.png"))),
+	m_Paint(200, 200)
 {
-	m_SceneHierarchyPanel.SetContext(scene);
+	/*m_SceneHierarchyPanel.SetContext(scene);
+	for (int x = 100; x < 150; x++)
+		for (int y = 100; y < 105; y++)
+			m_Paint.SetPixel(x, y, 255, 0, 0);*/
 }
 
 void EditorUI::Render(ar::Ref<ar::Framebuffer> mainFB)
@@ -22,6 +26,7 @@ void EditorUI::Render(ar::Ref<ar::Framebuffer> mainFB)
 	RenderCursorControls();
 	RenderInspectorWindow();
 	RenderViewport(mainFB);
+	//RenderPaintWindow(m_Paint);
 	
 	m_SceneHierarchyPanel.Render();
 
@@ -225,6 +230,38 @@ void EditorUI::RenderAddObjectPopup()
 		ImGui::EndPopup();
 	}
 }
+
+void EditorUI::RenderPaintWindow(ar::PaintSurface& paintSurface)
+{
+	auto handle = paintSurface.GetHandle();
+	std::string label = "DrawSurface##" + std::to_string(handle);
+	auto width = static_cast<float>(paintSurface.GetWidth());
+	auto height = static_cast<float>(paintSurface.GetHeight());
+	float titleBarHeight = ImGui::GetFrameHeight();
+
+	ImGuiWindowFlags flags = 
+		ImGuiWindowFlags_NoScrollbar |
+		ImGuiWindowFlags_NoScrollWithMouse |
+		ImGuiWindowFlags_NoResize |
+		ImGuiWindowFlags_NoCollapse;
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	ImGui::SetNextWindowSize(ImVec2(width, height + titleBarHeight), ImGuiCond_Always);
+
+	if (ImGui::Begin(label.c_str(), nullptr, flags))
+	{
+		ImGui::Image(
+			(ImTextureID)(uintptr_t)handle,
+			ImVec2(width, height),
+			ImVec2(0, 1), ImVec2(1, 0)
+		);
+	}
+	ImGui::End();
+
+	ImGui::PopStyleVar(2); // Pop both style vars
+}
+
 
 void EditorUI::RenderAddMenu()
 {

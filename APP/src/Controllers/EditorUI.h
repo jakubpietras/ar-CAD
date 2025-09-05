@@ -1,6 +1,7 @@
 #pragma once
 #include <imgui.h>
 #include "Panels/SceneHierarchyPanel.h"
+#include "core/Drawing/PaintSurface.h"
 
 class EditorUI
 {
@@ -14,7 +15,8 @@ private:
 	ar::Ref<ar::Scene> m_Scene;
 	SceneHierarchyPanel m_SceneHierarchyPanel;
 	ar::Scope<ar::Texture> m_MenuIcon;
-	
+	ar::PaintSurface m_Paint;
+
 	ar::mat::Vec2 GetClickPosition();
 
 	void RenderGroupTransformControls();
@@ -25,6 +27,7 @@ private:
 	void RenderCursorControls();
 	void RenderViewport(ar::Ref<ar::Framebuffer> mainFB);
 	void RenderAddObjectPopup();
+	void RenderPaintWindow(ar::PaintSurface& paintSurface);
 
 	void RenderAddMenu();
 	bool RenderRectangleControls();

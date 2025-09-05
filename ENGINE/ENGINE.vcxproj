@@ -90,6 +90,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\core\Drawing\PaintSurface.cpp" />
     <ClCompile Include="src\core\Geometry\EdgeInfo.cpp" />
     <ClCompile Include="src\core\Geometry\Hole.cpp" />
     <ClCompile Include="src\core\Geometry\GregoryFill.cpp" />
@@ -144,6 +145,7 @@
     <ClCompile Include="src\core\UID.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\core\Drawing\PaintSurface.h" />
     <ClInclude Include="src\core\Geometry\EdgeInfo.h" />
     <ClInclude Include="src\core\Geometry\Hole.h" />
     <ClInclude Include="src\core\Geometry\GregoryFill.h" />

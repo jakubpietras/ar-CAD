@@ -88,12 +88,9 @@ namespace ar
 		}
 		else
 		{
-			glTextureStorage2D(m_ID, 1, GetGLInternalFormat(m_Description.Format),
-				m_Description.Width, m_Description.Height);
-
 			GLenum format = GetDataFormat(m_Description.Format);
 			GLenum type = GL_UNSIGNED_BYTE;
-
+				
 			if (m_Description.Format == TextureFormat::R32)
 				type = GL_UNSIGNED_INT;
 
