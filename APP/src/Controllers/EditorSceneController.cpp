@@ -8,6 +8,7 @@
 #include "core/Geometry/HoleDetector.h"
 #include "core/Geometry/GregoryFill.h"
 #include "core/Scene/Components.h"
+#include "core/Intersections/Intersection.h"
 
 EditorSceneController::EditorSceneController(ar::Ref<ar::Scene> scene, ar::SceneRenderer& sceneRender)
 	: m_Scene(scene), m_SceneRenderer(sceneRender),
@@ -147,6 +148,13 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 	{
 		CorrectPointColors(state);
 		state.HoleSelectionChanged = false;
+	}
+	if (state.ShouldComputeIntersection)
+	{
+		auto& objs = state.SelectedIntersectableSurfaces;
+		auto point = ar::Intersection::FindStartingPointDebug(objs[0], objs[1]);
+		AR_TRACE("Intersection: ({0}, {1}, {2}", point.x, point.y, point.z);
+		state.ShouldComputeIntersection = false;
 	}
 	
 	// Validation
@@ -375,6 +383,8 @@ void EditorSceneController::ValidateSelection(EditorState& state)
 	state.SelectedCurves.clear();
 	state.SelectedObjectsWithTransforms.clear();
 	state.SelectedSurfacesC0.clear();
+	state.SelectedIntersectableSurfaces.clear();
+
 	for (auto& entity : state.SelectedObjects)
 	{
 		if (entity.HasComponent<ar::PointComponent>() 
@@ -390,6 +400,8 @@ void EditorSceneController::ValidateSelection(EditorState& state)
 			if (type == ar::SurfaceType::RECTANGLEC0 || type == ar::SurfaceType::CYLINDERC0)
 				state.SelectedSurfacesC0.push_back(entity);
 		}
+		if (entity.HasAnyComponent<ar::SurfaceComponent, ar::TorusComponent>())
+			state.SelectedIntersectableSurfaces.push_back(entity);
 	}
 
 	// middle point

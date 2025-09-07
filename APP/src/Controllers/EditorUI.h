@@ -47,6 +47,7 @@ private:
 	void RenderAddSurfaceC2Modal();
 	void RenderAddGregoryModal();
 	void RenderCollapseModal();
+	void RenderIntersectModal();
 
 	void RequestAddObject(ar::ObjectType type);
 };

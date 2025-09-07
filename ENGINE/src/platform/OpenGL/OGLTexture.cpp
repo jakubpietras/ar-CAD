@@ -40,9 +40,14 @@ namespace ar
 		glTextureParameteri(m_ID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		AR_GL_CHECK();
 
-		int width, height, channels;
-		auto data = stbi_load(filepath.c_str(), &width, &height, &channels, 0);
-		AR_ASSERT(data, "Failed to load texture");
+		int width = 0, height = 0, channels = 0;
+		unsigned char* data = stbi_load(filepath.c_str(), &width, &height, &channels, 0);
+		if (!data) {
+			std::cerr << "STBI load failed for " << filepath
+				<< " reason: " << stbi_failure_reason() << std::endl;
+
+			throw std::runtime_error("Failed to load texture: " + filepath);
+		}
 		GLenum format = GL_RGBA;
 		GLenum internalFormat = GL_RGBA8; // or GL_RGB8, GL_R8 depending on channels
 

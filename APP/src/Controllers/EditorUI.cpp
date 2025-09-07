@@ -10,8 +10,8 @@ EditorUI::EditorUI(EditorState& state, ar::Ref<ar::Scene> scene)
 	m_MenuIcon(std::unique_ptr<ar::Texture>(ar::Texture::Create("resources/icons/logo.png"))),
 	m_Paint(200, 200)
 {
-	/*m_SceneHierarchyPanel.SetContext(scene);
-	for (int x = 100; x < 150; x++)
+	m_SceneHierarchyPanel.SetContext(scene);
+	/*for (int x = 100; x < 150; x++)
 		for (int y = 100; y < 105; y++)
 			m_Paint.SetPixel(x, y, 255, 0, 0);*/
 }
@@ -43,6 +43,7 @@ void EditorUI::Render(ar::Ref<ar::Framebuffer> mainFB)
 	RenderAddSurfaceC0Modal();
 	RenderAddSurfaceC2Modal();
 	RenderAddGregoryModal();
+	RenderIntersectModal();
 }
 
 ar::mat::Vec2 EditorUI::GetClickPosition()
@@ -273,31 +274,36 @@ void EditorUI::RenderAddMenu()
 			RequestAddObject(ar::ObjectType::TORUS);
 		ImGui::EndMenu();
 	}
-	if (ImGui::BeginMenu("Curve"))
+	if (ImGui::BeginMenu("Curves"))
 	{
 		if (ImGui::MenuItem("Chain"))
 			RequestAddObject(ar::ObjectType::CHAIN);
-		if (ImGui::MenuItem("Bezier C0"))
+		if (ImGui::MenuItem("C0 Bezier Curve"))
 			RequestAddObject(ar::ObjectType::BEZIERC0);
-		if (ImGui::MenuItem("Bezier C2"))
+		if (ImGui::MenuItem("C2 Bezier Curve"))
 			RequestAddObject(ar::ObjectType::BEZIERC2);
 		if (ImGui::MenuItem("Interpolated C2"))
 			RequestAddObject(ar::ObjectType::INTERPOLATEDC2);
 		ImGui::EndMenu();
 	}
-	if (ImGui::BeginMenu("Surface"))
+	if (ImGui::BeginMenu("Surfaces"))
 	{
-		if (ImGui::MenuItem("Bezier C0"))
+		if (ImGui::MenuItem("C0 Bezier Surface"))
 			m_State.ShouldShowSurfaceC0Modal = true;
-		if (ImGui::MenuItem("Bezier C2"))
+		if (ImGui::MenuItem("C2 Bezier Surface"))
 			m_State.ShouldShowSurfaceC2Modal = true;
-		{
-			ar::ScopedDisable disable(m_State.ShouldShowGregoryModal);
-			if (ImGui::MenuItem("Gregory patch"))
-				m_State.ShouldShowGregoryModal = true;
-		}
-		
 		ImGui::EndMenu();
+	}
+	{
+		ar::ScopedDisable disable(m_State.ShouldShowGregoryModal);
+		if (ImGui::MenuItem("Gregory patch"))
+			m_State.ShouldShowGregoryModal = true;
+	}
+	{
+		ar::ScopedDisable disable(m_State.ShouldShowIntersectModal || m_State.SelectedIntersectableSurfaces.size() == 0 ||
+			m_State.SelectedIntersectableSurfaces.size() > 2);
+		if (ImGui::MenuItem("Intersection"))
+			m_State.ShouldShowIntersectModal = true;
 	}
 }
 
@@ -763,6 +769,41 @@ void EditorUI::RenderCollapseModal()
 			}
 		}
 		ImGui::EndPopup();
+	}
+}
+
+void EditorUI::RenderIntersectModal()
+{
+	if (m_State.ShouldShowIntersectModal)
+	{
+		ImGui::SetNextWindowSize(ImVec2(200, 120), ImGuiCond_Once);
+		ImGui::Begin("Intersection", &m_State.ShouldShowIntersectModal,
+			ImGuiWindowFlags_NoCollapse);
+
+		float halfWidth = ImGui::GetContentRegionAvail().x * 0.5f;
+		float height = 200.0f;
+
+		std::string label = "Intersecting: ";
+		auto& objects = m_State.SelectedIntersectableSurfaces;
+
+		if (objects.size() == 1)
+			label += objects[0].GetName() + " (ID: " + std::to_string(objects[0].GetID()) + ") [Self-intersection]";
+		else
+			label += objects[0].GetName() + " (ID: " + std::to_string(objects[0].GetID()) + ") with " + objects[1].GetName() + " (ID: " + std::to_string(objects[1].GetID()) + ")";
+
+		ImGui::TextWrapped(label.c_str());
+
+		if (ImGui::Button("Compute intersection")) 
+		{ 
+			m_State.ShouldComputeIntersection = true;
+			m_State.ShouldShowIntersectModal = false;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Cancel"))
+		{
+			m_State.ShouldShowIntersectModal = false;
+		}
+		ImGui::End();
 	}
 }
 

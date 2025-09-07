@@ -83,8 +83,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)ENGINE\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)MATH\src;$(SolutionDir)ENGINE\src;$(SolutionDir)thirdparty\imgui;$(SolutionDir)thirdparty\imgui\backends;$(ProjectDir)src;$(SolutionDir)thirdparty\ImGuizmo</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -94,8 +95,7 @@
       </AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>robocopy "C:\CC\ar-CAD\ENGINE\src\resources" "C:\CC\ar-CAD\bin\Release-x64\APP\resources" /E || exit 0</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

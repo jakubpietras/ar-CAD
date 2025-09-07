@@ -73,6 +73,7 @@ struct EditorState
 	std::vector<ar::Entity> SelectedCurves{};
 	std::vector<ar::Entity> SelectedObjectsWithTransforms{};
 	std::vector<ar::Entity> SelectedSurfacesC0{};
+	std::vector<ar::Entity> SelectedIntersectableSurfaces{};
 	std::vector<ar::Entity> SelectionCandidates{};
 	ar::mat::Vec3 SelectedMeanPosition {0.f, 0.f, 0.f};
 	SelectionMode SelectionChangeMode = SelectionMode::Replace;
@@ -134,4 +135,8 @@ struct EditorState
 	bool ShouldScanForHoles = false;
 	bool HoleSelectionChanged = false;
 	void ClearFillState();
+
+	// ============================= Intersection =============================
+	bool ShouldShowIntersectModal = false;
+	bool ShouldComputeIntersection = false;
 };

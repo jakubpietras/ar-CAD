@@ -41,6 +41,9 @@ void EditorState::ClearSelectionState()
 	SelectedObjects.clear();
 	SelectedPoints.clear();
 	SelectionCandidates.clear();
+	SelectedIntersectableSurfaces.clear();
+	SelectedSurfacesC0.clear();
+	SelectedObjectsWithTransforms.clear();
 	ShouldUpdateSelection = false;
 	SelectionChangeMode = SelectionMode::Replace;
 }

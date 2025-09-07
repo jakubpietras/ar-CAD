@@ -75,14 +75,14 @@ namespace ar
 		::DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &useDark, sizeof(useDark));
 
 		// Icon
-		int width, height, channels;
+		/*int width, height, channels;
 		auto pixels = stbi_load("resources/icons/icon.png", &width, &height, &channels, 0);
 		GLFWimage images[1];
 		images[0].width = 16;
 		images[0].height = 16;
 		images[0].pixels = pixels;
 		glfwSetWindowIcon(m_Window, 1, images);
-		stbi_image_free(pixels);
+		stbi_image_free(pixels);*/
 
 		// Set GLFW callbacks
 		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)

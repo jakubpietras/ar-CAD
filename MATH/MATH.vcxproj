@@ -46,7 +46,7 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -126,6 +126,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)src</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -133,6 +135,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\geometry.cpp" />
+    <ClCompile Include="src\gradient.cpp" />
     <ClCompile Include="src\matrix_types.cpp" />
     <ClCompile Include="src\quaternion.cpp" />
     <ClCompile Include="src\solvers.cpp" />
@@ -142,6 +146,8 @@
   <ItemGroup>
     <ClInclude Include="src\ARMAT.h" />
     <ClInclude Include="src\Constants.h" />
+    <ClInclude Include="src\geometry.h" />
+    <ClInclude Include="src\gradient.h" />
     <ClInclude Include="src\matrix_types.h" />
     <ClInclude Include="src\quaternion.h" />
     <ClInclude Include="src\solvers.h" />

@@ -80,9 +80,10 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(ProjectDir)src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(SolutionDir)thirdparty\imgui;$(SolutionDir)thirdparty\imgui\backends;$(SolutionDir)MATH\src</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>arpch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -90,6 +91,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\core\Intersections\Intersection.cpp" />
     <ClCompile Include="src\core\Drawing\PaintSurface.cpp" />
     <ClCompile Include="src\core\Geometry\EdgeInfo.cpp" />
     <ClCompile Include="src\core\Geometry\Hole.cpp" />
@@ -145,6 +147,7 @@
     <ClCompile Include="src\core\UID.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\core\Intersections\Intersection.h" />
     <ClInclude Include="src\core\Drawing\PaintSurface.h" />
     <ClInclude Include="src\core\Geometry\EdgeInfo.h" />
     <ClInclude Include="src\core\Geometry\Hole.h" />

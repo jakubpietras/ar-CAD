@@ -27,7 +27,7 @@ namespace ar
 		}
 
 		template <typename T, typename U>
-		T DeCasteljau(const std::vector<T>& controlPoints, U t)
+		T DeCasteljau(std::vector<T> controlPoints, U t)
 		{
 			if (controlPoints.empty())
 				throw std::runtime_error("Control points cannot be empty");
@@ -43,6 +43,27 @@ namespace ar
 			}
 
 			return points[0];
+		}
+
+		template <typename T, typename U>
+		T BernsteinDerivative(std::vector<T> controlPoints, U t)
+		{
+			if (controlPoints.empty())
+				throw std::runtime_error("Control points cannot be empty");
+
+			if (controlPoints.size() == 1)
+				return T{};
+
+			std::vector<T> derivativeControlPoints;
+			derivativeControlPoints.reserve(controlPoints.size() - 1);
+
+			int n = static_cast<int>(controlPoints.size()) - 1;
+
+			for (size_t i = 0; i < controlPoints.size() - 1; ++i) 
+			{
+				derivativeControlPoints.push_back(n * (controlPoints[i + 1] - controlPoints[i]));
+			}
+			return DeCasteljau(derivativeControlPoints, t);
 		}
 
     }
