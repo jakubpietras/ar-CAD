@@ -3,6 +3,12 @@
 
 namespace ar
 {
+	struct SegmentInfo {
+		ar::mat::Vec2 segment;      // Which segment (integer indices)
+		ar::mat::Vec2 localParams;  // Local parameters within that segment [0,1]
+		ar::mat::Vec2 scaling;      // Scaling factors for derivatives (chain rule)
+	};
+
 	class Intersection
 	{
 	public:
@@ -20,8 +26,7 @@ namespace ar
 		static void ClampWrapUV(ar::Entity obj, float& u, float& v);
 		static void ClampWrapObjects(ar::Entity o1, ar::Entity o2, ar::mat::Vec4& p);
 		static float PolakRibiere(mat::Vec4 prevGrad, mat::Vec4 currGrad);
-		static mat::Vec2 MapMultipatchSegments(ar::Entity patch, float u, float v);
-		static mat::Vec2 MapMultipatchParameters(ar::Entity patch, float u, float v);
+		static SegmentInfo MapMultipatch(ar::Entity patch, float u, float v);
 
 		// Tracing the intersection curve:
 		static mat::Vec4 NewtonMinimization(ar::Entity firstObject, ar::Entity secondObject, mat::Vec4 initial);

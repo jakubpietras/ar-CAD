@@ -191,33 +191,62 @@ namespace ar
 		return beta;
 	}
 
-	ar::mat::Vec2 Intersection::MapMultipatchSegments(ar::Entity patch, float u, float v)
+	ar::SegmentInfo Intersection::MapMultipatch(ar::Entity patch, float u, float v)
 	{
-		// Which part of the multipatch this given (u,v) point belongs to
 		auto& desc = patch.GetComponent<ar::SurfaceComponent>().Description;
-		if (desc.Segments.u == 1 && desc.Segments.v == 1)
-			return { 0, 0 };
 
-		float segmentWidth = 1.f / desc.Segments.u, segmentHeight = 1.f / desc.Segments.v;
-		auto segmentU = (u == 1) ? std::floor(u / segmentWidth) - 1 : std::floor(u / segmentWidth);
-		auto segmentV = (v == 1) ? std::floor(v / segmentHeight) - 1 : std::floor(v / segmentHeight);
+		SegmentInfo info;
+		info.scaling = { static_cast<float>(desc.Segments.u), static_cast<float>(desc.Segments.v) };
 
-		return { segmentU, segmentV };
-	}
+		if (desc.Segments.u == 1 && desc.Segments.v == 1) 
+		{
+			info.segment = { 0, 0 };
+			info.localParams = { std::clamp(u, 0.0f, 1.0f), std::clamp(v, 0.0f, 1.0f) };
+			info.scaling = { 1.0f, 1.0f };
+			return info;
+		}
 
-	ar::mat::Vec2 Intersection::MapMultipatchParameters(ar::Entity patch, float u, float v)
-	{
-		// How (u,v) maps to parameters within a single patch that it belongs to
-		auto& desc = patch.GetComponent<ar::SurfaceComponent>().Description;
-		if (desc.Segments.u == 1 && desc.Segments.v == 1)
-			return { u, v };
+		u = std::clamp(u, 0.0f, 1.0f);
+		v = std::clamp(v, 0.0f, 1.0f);
 
-		float segmentWidth = 1.f / desc.Segments.u, segmentHeight = 1.f / desc.Segments.v;
-		auto segmentU = std::floor(u / segmentWidth);
-		auto segmentV = std::floor(v / segmentHeight);
+		const float segmentWidth = 1.0f / desc.Segments.u;
+		const float segmentHeight = 1.0f / desc.Segments.v;
 
-		mat::Vec2 bottomLeftCorner = { segmentU * segmentWidth, segmentV * segmentHeight };
-		return { u - bottomLeftCorner.x, v - bottomLeftCorner.y };
+		// Which segment
+		int segmentU = (u >= 1.0f) ? desc.Segments.u - 1 :
+			static_cast<int>(std::floor(u / segmentWidth));
+		int segmentV = (v >= 1.0f) ? desc.Segments.v - 1 :
+			static_cast<int>(std::floor(v / segmentHeight));
+
+		segmentU = std::clamp(segmentU, 0, static_cast<int>(desc.Segments.u - 1));
+		segmentV = std::clamp(segmentV, 0, static_cast<int>(desc.Segments.v - 1));
+
+		info.segment = { static_cast<float>(segmentU), static_cast<float>(segmentV) };
+
+		// Local parameters
+		const float segmentStartU = segmentU * segmentWidth;
+		const float segmentStartV = segmentV * segmentHeight;
+
+		// Boundary
+		float localU, localV;
+
+		if (u >= 1.0f || (segmentU == desc.Segments.u - 1 && u >= segmentStartU + segmentWidth)) {
+			localU = 1.0f;
+		}
+		else {
+			localU = (u - segmentStartU) / segmentWidth;
+		}
+
+		if (v >= 1.0f || (segmentV == desc.Segments.v - 1 && v >= segmentStartV + segmentHeight)) {
+			localV = 1.0f;
+		}
+		else {
+			localV = (v - segmentStartV) / segmentHeight;
+		}
+
+		info.localParams = { std::clamp(localU, 0.0f, 1.0f), std::clamp(localV, 0.0f, 1.0f) };
+
+		return info;
 	}
 
 	ar::mat::Vec4 Intersection::NewtonMinimization(ar::Entity firstObject, ar::Entity secondObject, mat::Vec4 initial)
@@ -234,10 +263,13 @@ namespace ar
 		}
 		if (object.HasComponent<ar::SurfaceComponent>())
 		{
-			auto segment = MapMultipatchSegments(object, u, v);						// determine which segment
-			auto scaledParams = MapMultipatchParameters(object, u, v);				// map to [0,1] within that segment
-			auto points = ar::SurfaceUtils::GetSegmentPoints(object, segment);		// get points of that specific segment
-			return ar::mat::DerivativeUBezierPatch(GeneralUtils::GetPos(points), scaledParams.x, scaledParams.y);
+			//auto segment = MapMultipatchSegments(object, u, v);						// determine which segment
+			//auto scaledParams = MapMultipatchParameters(object, u, v);				// map to [0,1] within that segment
+			auto info = MapMultipatch(object, u, v);
+			auto points = ar::SurfaceUtils::GetSegmentPoints(object, info.segment);		// get points of that specific segment
+			return 
+				info.scaling.x *
+				ar::mat::DerivativeUBezierPatch(GeneralUtils::GetPos(points), info.localParams.x, info.localParams.y);
 		}
 		return { 0.f, 0.f, 0.f };
 	}
@@ -251,10 +283,13 @@ namespace ar
 		}
 		if (object.HasComponent<ar::SurfaceComponent>())
 		{
-			auto segment = MapMultipatchSegments(object, u, v);						// determine which segment
-			auto scaledParams = MapMultipatchParameters(object, u, v);				// map to [0,1] within that segment
-			auto points = ar::SurfaceUtils::GetSegmentPoints(object, segment);		// get points of that specific segment
-			return ar::mat::DerivativeUBezierPatch(GeneralUtils::GetPos(points), scaledParams.x, scaledParams.y);
+			//auto segment = MapMultipatchSegments(object, u, v);						// determine which segment
+			//auto scaledParams = MapMultipatchParameters(object, u, v);				// map to [0,1] within that segment
+			auto info = MapMultipatch(object, u, v);
+			auto points = ar::SurfaceUtils::GetSegmentPoints(object, info.segment);		// get points of that specific segment
+			return
+				info.scaling.x *
+				ar::mat::DerivativeVBezierPatch(GeneralUtils::GetPos(points), info.localParams.x, info.localParams.y);
 		}
 		return { 0.f, 0.f, 0.f };
 	}
