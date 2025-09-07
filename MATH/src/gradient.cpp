@@ -2,6 +2,7 @@
 #include <stdexcept>
 #include "solvers.h"
 #include <numbers>
+#include <array>
 
 namespace ar
 {
@@ -25,12 +26,12 @@ namespace ar
 		float vv = v * 2 * std::numbers::pi;
 
 		// x = (R + r * cos(u)) * cos(v)
-		auto dxdu = -(smallRadius * cos(uu) + largeRadius) * sin(vv);
+		auto dxdv = -(smallRadius * cos(uu) + largeRadius) * sin(vv);
 		// y = (R + r * cos(u)) * sin(v)
-		auto dydu = (smallRadius * cos(uu) + largeRadius) * cos(vv);
+		auto dydv = (smallRadius * cos(uu) + largeRadius) * cos(vv);
 		// z = r * sin(u)
-		auto dzdu = 0.f;
-		return { dxdu, dydu, dzdu };
+		auto dzdv = 0.f;
+		return { dxdv, dydv, dzdv };
 	}
 
 	ar::mat::Vec3 mat::DerivativeUBezierPatch(const std::vector<Vec3>& controlPoints, float u, float v)
@@ -42,13 +43,17 @@ namespace ar
 		if (controlPoints.size() != 16)
 			throw std::runtime_error("Incorrect number of control points in a single patch");
 
-		std::vector<Vec3> pointsV(4);
+		std::array<mat::Vec3, 4> points, tmp;
 		for (size_t row = 0; row < 4; row++)
 		{
 			size_t base = row * 4;
-			pointsV[row] = BernsteinDerivative(std::vector{ controlPoints[base], controlPoints[base + 1], controlPoints[base + 2], controlPoints[base + 3] }, u);
+			tmp[0] = controlPoints[base];
+			tmp[1] = controlPoints[base + 1];
+			tmp[2] = controlPoints[base + 2];
+			tmp[3] = controlPoints[base + 3];
+			points[row] = CubicBernsteinDerivative(tmp, u);
 		}
-		return DeCasteljau(pointsV, v);
+		return CubicDeCasteljau(points, v);
 	}
 
 	ar::mat::Vec3 mat::DerivativeVBezierPatch(const std::vector<Vec3>& controlPoints, float u, float v)
@@ -59,13 +64,17 @@ namespace ar
 
 		if (controlPoints.size() != 16)
 			throw std::runtime_error("Incorrect number of control points in a single patch");
-
-		std::vector<Vec3> pointsU(4);
+		
+		std::array<mat::Vec3, 4> points, tmp;
 		for (size_t col = 0; col < 4; col++)
 		{
-			pointsU[col] = BernsteinDerivative(std::vector{ controlPoints[col], controlPoints[col + 4], controlPoints[col + 8], controlPoints[col + 12] }, v);
+			tmp[0] = controlPoints[col];
+			tmp[1] = controlPoints[col + 1 * 4];
+			tmp[2] = controlPoints[col + 2 * 4];
+			tmp[3] = controlPoints[col + 3 * 4];
+			points[col] = CubicBernsteinDerivative(tmp, v);
 		}
-		return DeCasteljau(pointsU, u);
+		return CubicDeCasteljau(points, u);
 	}
 
 }

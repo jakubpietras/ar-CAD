@@ -66,5 +66,35 @@ namespace ar
 			return DeCasteljau(derivativeControlPoints, t);
 		}
 
+		template <typename T, typename U>
+		T CubicDeCasteljau(const std::array<T, 4>& controlPoints, U t)
+		{
+			std::array<T, 3> level1 = {
+				Lerp(controlPoints[0], controlPoints[1], t),
+				Lerp(controlPoints[1], controlPoints[2], t),
+				Lerp(controlPoints[2], controlPoints[3], t)
+			};
+			std::array<T, 2> level2 = {
+				Lerp(level1[0], level1[1], t),
+				Lerp(level1[1], level1[2], t)
+			};
+			return Lerp(level2[0], level2[1], t);
+		}
+
+		template <typename T, typename U>
+		T CubicBernsteinDerivative(const std::array<T, 4>& controlPoints, U t)
+		{
+			std::array<T, 3> derivativeControlPoints = {
+				3 * (controlPoints[1] - controlPoints[0]),
+				3 * (controlPoints[2] - controlPoints[1]),
+				3 * (controlPoints[3] - controlPoints[2])
+			};
+			std::array<T, 2> level1 = {
+				Lerp(derivativeControlPoints[0], derivativeControlPoints[1], t),
+				Lerp(derivativeControlPoints[1], derivativeControlPoints[2], t)
+			};
+			return Lerp(level1[0], level1[1], t);
+		}
+
     }
 }
