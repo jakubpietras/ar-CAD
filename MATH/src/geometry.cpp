@@ -12,6 +12,7 @@ namespace ar::mat
 		float uu = u * 2 * std::numbers::pi;
 		float vv = v * 2 * std::numbers::pi;
 
+		// todo: * 2pi??
 		// x = (R + r * cos(u)) * cos(v)
 		auto x = (largeRadius + smallRadius * cos(uu)) * cos(vv);
 		// y = (R + r * cos(u)) * sin(v)

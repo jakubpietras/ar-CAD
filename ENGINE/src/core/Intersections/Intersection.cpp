@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <ranges>
 #include <limits>
+#include "core/Utils/SurfaceUtils.h"
 
 namespace ar
 {
@@ -92,7 +93,7 @@ namespace ar
 				if (alpha < 1e-10f) break; // Give up
 			}
 			currParams = prevParams + alpha * prevDir;	
-			//ClampWrapObjects(firstObject, secondObject, currParams);
+			ClampWrapObjects(firstObject, secondObject, currParams);
 			
 			currGradient = SquaredDistanceGradient(firstObject, secondObject, currParams);
 			float gNewNormSq = mat::LengthSquared(currGradient);
@@ -190,6 +191,35 @@ namespace ar
 		return beta;
 	}
 
+	ar::mat::Vec2 Intersection::MapMultipatchSegments(ar::Entity patch, float u, float v)
+	{
+		// Which part of the multipatch this given (u,v) point belongs to
+		auto& desc = patch.GetComponent<ar::SurfaceComponent>().Description;
+		if (desc.Segments.u == 1 && desc.Segments.v == 1)
+			return { 0, 0 };
+
+		float segmentWidth = 1.f / desc.Segments.u, segmentHeight = 1.f / desc.Segments.v;
+		auto segmentU = (u == 1) ? std::floor(u / segmentWidth) - 1 : std::floor(u / segmentWidth);
+		auto segmentV = (v == 1) ? std::floor(v / segmentHeight) - 1 : std::floor(v / segmentHeight);
+
+		return { segmentU, segmentV };
+	}
+
+	ar::mat::Vec2 Intersection::MapMultipatchParameters(ar::Entity patch, float u, float v)
+	{
+		// How (u,v) maps to parameters within a single patch that it belongs to
+		auto& desc = patch.GetComponent<ar::SurfaceComponent>().Description;
+		if (desc.Segments.u == 1 && desc.Segments.v == 1)
+			return { u, v };
+
+		float segmentWidth = 1.f / desc.Segments.u, segmentHeight = 1.f / desc.Segments.v;
+		auto segmentU = std::floor(u / segmentWidth);
+		auto segmentV = std::floor(v / segmentHeight);
+
+		mat::Vec2 bottomLeftCorner = { segmentU * segmentWidth, segmentV * segmentHeight };
+		return { u - bottomLeftCorner.x, v - bottomLeftCorner.y };
+	}
+
 	ar::mat::Vec4 Intersection::NewtonMinimization(ar::Entity firstObject, ar::Entity secondObject, mat::Vec4 initial)
 	{
 		throw new std::runtime_error("Not implemented");
@@ -204,9 +234,10 @@ namespace ar
 		}
 		if (object.HasComponent<ar::SurfaceComponent>())
 		{
-			// todo: generalize to joined patches, for now it will only work for singles
-			auto& points = object.GetComponent<ar::ControlPointsComponent>().Points;
-			return ar::mat::DerivativeUBezierPatch(GeneralUtils::GetPos(points), u, v);
+			auto segment = MapMultipatchSegments(object, u, v);						// determine which segment
+			auto scaledParams = MapMultipatchParameters(object, u, v);				// map to [0,1] within that segment
+			auto points = ar::SurfaceUtils::GetSegmentPoints(object, segment);		// get points of that specific segment
+			return ar::mat::DerivativeUBezierPatch(GeneralUtils::GetPos(points), scaledParams.x, scaledParams.y);
 		}
 		return { 0.f, 0.f, 0.f };
 	}
@@ -220,9 +251,10 @@ namespace ar
 		}
 		if (object.HasComponent<ar::SurfaceComponent>())
 		{
-			// todo: generalize to joined patches, for now it will only work for singles
-			auto& points = object.GetComponent<ar::ControlPointsComponent>().Points;
-			return ar::mat::DerivativeVBezierPatch(GeneralUtils::GetPos(points), u, v);
+			auto segment = MapMultipatchSegments(object, u, v);						// determine which segment
+			auto scaledParams = MapMultipatchParameters(object, u, v);				// map to [0,1] within that segment
+			auto points = ar::SurfaceUtils::GetSegmentPoints(object, segment);		// get points of that specific segment
+			return ar::mat::DerivativeUBezierPatch(GeneralUtils::GetPos(points), scaledParams.x, scaledParams.y);
 		}
 		return { 0.f, 0.f, 0.f };
 	}

@@ -20,6 +20,8 @@ namespace ar
 		static void ClampWrapUV(ar::Entity obj, float& u, float& v);
 		static void ClampWrapObjects(ar::Entity o1, ar::Entity o2, ar::mat::Vec4& p);
 		static float PolakRibiere(mat::Vec4 prevGrad, mat::Vec4 currGrad);
+		static mat::Vec2 MapMultipatchSegments(ar::Entity patch, float u, float v);
+		static mat::Vec2 MapMultipatchParameters(ar::Entity patch, float u, float v);
 
 		// Tracing the intersection curve:
 		static mat::Vec4 NewtonMinimization(ar::Entity firstObject, ar::Entity secondObject, mat::Vec4 initial);

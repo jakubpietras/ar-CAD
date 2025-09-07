@@ -26,7 +26,7 @@ namespace ar
 		return data;
 	}
 
-	std::vector<ar::mat::Vec3> GeneralUtils::GetPos(std::vector<ar::Entity> objects)
+	std::vector<ar::mat::Vec3> GeneralUtils::GetPos(std::vector<ar::Entity>& objects)
 	{
 		std::vector<ar::mat::Vec3> positions;
 		for (auto& object : objects)

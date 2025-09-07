@@ -242,6 +242,34 @@ namespace ar
 		return indices;
 	}
 
+	std::vector<ar::Entity> SurfaceUtils::GetSegmentPoints(ar::Entity surface, mat::Vec2 segment)
+	{
+		auto& desc = surface.GetComponent<ar::SurfaceComponent>().Description;
+		auto& ctrlPoints = surface.GetComponent<ar::ControlPointsComponent>().Points;
+		std::vector<ar::Entity> points;
+		points.reserve(16);
+		size_t startU, startV;
+		if (desc.Type == SurfaceType::RECTANGLEC0 || desc.Type == SurfaceType::CYLINDERC0)
+		{
+			startU = 3 * segment.x;
+			startV = 3 * segment.y;
+		} else
+		{
+			startU = segment.x;
+			startV = segment.y;
+		}
+
+		for (int j = 0; j < 4; j++)
+		{
+			for (int i = 0; i < 4; i++)
+			{
+				size_t index = (startV + j) * desc.Size.u + (startU + i);
+				points.push_back(ctrlPoints[index]);
+			}
+		}
+		return points;
+	}
+
 	std::vector<uint32_t> SurfaceUtils::GenerateRectangleC0Indices(SurfaceDesc desc)
 	{
 		auto indices = std::vector<uint32_t>();
