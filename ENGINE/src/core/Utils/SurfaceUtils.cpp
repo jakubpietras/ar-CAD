@@ -2,6 +2,7 @@
 #include "SurfaceUtils.h"
 #include "core/Scene/Entity.h"
 #include "core/Scene/Components.h"
+#include "core/Utils/GeneralUtils.h"
 
 namespace ar
 {
@@ -268,6 +269,88 @@ namespace ar
 			}
 		}
 		return points;
+	}
+
+	std::vector<ar::mat::Vec3> SurfaceUtils::GetSegmentPointsBezier(std::vector<ar::mat::Vec3>& points, SurfaceDesc desc, mat::Vec2 segment)
+	{
+		std::vector<ar::mat::Vec3> segmentPoints;
+		segmentPoints.reserve(16);
+		size_t startU = 3 * segment.x, startV = 3 * segment.y;
+		
+		for (int j = 0; j < 4; j++)
+		{
+			for (int i = 0; i < 4; i++)
+			{
+				size_t index = (startV + j) * desc.Size.u + (startU + i);
+				segmentPoints.push_back(points[index]);
+			}
+		}
+		return segmentPoints;
+	}
+
+	std::vector<ar::mat::Vec3> SurfaceUtils::GetBezierFromDeBoor(ar::Entity surface)
+	{
+		auto& surfComp = surface.GetComponent<ar::SurfaceComponent>();
+		auto desc = surfComp.Description;
+		auto segU = desc.Segments.u, segV = desc.Segments.v;
+		auto points = ar::GeneralUtils::GetPos(surface.GetComponent<ar::ControlPointsComponent>().Points);
+		std::vector<ar::mat::Vec3> bezier;
+
+		std::vector<std::array<ar::mat::Vec3, 16>> convertedPatches;
+		for (size_t v = 0; v < segV; v++)
+		{
+			for (size_t u = 0; u < segU; u++)
+			{
+				std::array<ar::mat::Vec3, 16> patch;
+				for (size_t j = 0; j < 4; j++)
+					for (size_t i = 0; i < 4; i++)
+					{
+						int index = (v + j) * desc.Size.u + (u + i);
+						patch[j * 4 + i] = points[index];
+					}
+				std::array<ar::mat::Vec3, 16> p, B;
+				for (int y = 0; y < 4; y++)
+				{
+					p[y * 4 + 0] = (patch[y * 4 + 0] + 4.0 * patch[y * 4 + 1] + patch[y * 4 + 2]) / 6.0f;
+					p[y * 4 + 1] = (4.0 * patch[y * 4 + 1] + 2.0 * patch[y * 4 + 2]) / 6.0f;
+					p[y * 4 + 2] = (2.0 * patch[y * 4 + 1] + 4.0 * patch[y * 4 + 2]) / 6.0f;
+					p[y * 4 + 3] = (patch[y * 4 + 1] + 4.0 * patch[y * 4 + 2] + patch[y * 4 + 3]) / 6.0f;
+				}
+				for (int x = 0; x < 4; x++)
+				{
+					B[0 * 4 + x] = (p[0 * 4 + x] + 4.0 * p[1 * 4 + x] + p[2 * 4 + x]) / 6.0f;
+					B[1 * 4 + x] = (4.0 * p[1 * 4 + x] + 2.0 * p[2 * 4 + x]) / 6.0f;
+					B[2 * 4 + x] = (2.0 * p[1 * 4 + x] + 4.0 * p[2 * 4 + x]) / 6.0f;
+					B[3 * 4 + x] = (p[1 * 4 + x] + 4.0 * p[2 * 4 + x] + p[3 * 4 + x]) / 6.0f;
+				}
+
+				convertedPatches.push_back(B);
+			}
+		}
+
+		// todo: stitch a surface
+		for (size_t v = 0; v < segV; v++)
+		{
+			for (size_t j = 0; j < 4; j++)
+			{
+				// Skip first row of interior patches
+				if (v > 0 && j == 0) continue;
+
+				for (size_t u = 0; u < segU; u++)
+				{
+					auto& patch = convertedPatches[v * segU + u];
+
+					for (size_t i = 0; i < 4; i++)
+					{
+						// Skip first column of interior patches
+						if (u > 0 && i == 0) continue;
+
+						bezier.push_back(patch[j * 4 + i]);
+					}
+				}
+			}
+		}
+		return bezier;
 	}
 
 	std::vector<uint32_t> SurfaceUtils::GenerateRectangleC0Indices(SurfaceDesc desc)

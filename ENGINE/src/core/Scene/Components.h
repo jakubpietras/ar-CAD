@@ -159,8 +159,9 @@ namespace ar
 
 	struct SurfaceComponent
 	{
-		SurfaceDesc			Description;
-		bool				ShowNet = false;
+		SurfaceDesc										Description;
+		std::optional<std::vector<ar::mat::Vec3>>		AuxPoints = std::nullopt;	// for Bezier points in C2 surfaces
+		bool											ShowNet = false;
 	};
 
 	struct GregoryPatchComponent

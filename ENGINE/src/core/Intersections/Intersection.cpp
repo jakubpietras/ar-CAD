@@ -9,7 +9,7 @@
 
 namespace ar
 {
-	ar::mat::Vec3 Intersection::FindStartingPointDebug(ar::Entity firstObject, ar::Entity secondObject)
+	ar::mat::Vec3 Intersection::FindStartingPoint(ar::Entity firstObject, ar::Entity secondObject)
 	{
 		const size_t samples = 10;
 		auto params = CalculateStartingParams(firstObject, secondObject, samples);
@@ -299,22 +299,23 @@ namespace ar
 		}
 		if (object.HasComponent<ar::SurfaceComponent>())
 		{
-			auto desc = object.GetComponent<ar::SurfaceComponent>().Description;
+			auto& surf = object.GetComponent<ar::SurfaceComponent>();
+			auto desc = surf.Description;
 			auto info = MapMultipatch(object, u, v);
-			auto points = ar::SurfaceUtils::GetSegmentPoints(object, info.segment);
 
 			if (desc.Type == SurfaceType::RECTANGLEC2 || desc.Type == SurfaceType::CYLINDERC2)
 			{
-				info.localParams.x = 1. / 3 + (2. / 3 - 1. / 3) * info.localParams.x;
-				info.localParams.y = 1. / 3 + (2. / 3 - 1. / 3) * info.localParams.y;
-				return
-					1./3 *
-					info.scaling.x *
-					ar::mat::DerivativeUBezierPatch(GeneralUtils::GetPos(points), info.localParams.x, info.localParams.y);
+				auto bezier = ar::SurfaceUtils::GetSegmentPointsBezier(*surf.AuxPoints, desc, info.segment);
+				return info.scaling.x *
+					ar::mat::DerivativeUBezierPatch(bezier, info.localParams.x, info.localParams.y);
 			}
-			return 
-				info.scaling.x *
-				ar::mat::DerivativeUBezierPatch(GeneralUtils::GetPos(points), info.localParams.x, info.localParams.y);
+			else
+			{
+				auto points = ar::SurfaceUtils::GetSegmentPoints(object, info.segment);
+				return info.scaling.x *
+					ar::mat::DerivativeUBezierPatch(GeneralUtils::GetPos(points),
+						info.localParams.x, info.localParams.y);
+			}
 		}
 		return { 0.f, 0.f, 0.f };
 	}
@@ -331,22 +332,23 @@ namespace ar
 		}
 		if (object.HasComponent<ar::SurfaceComponent>())
 		{
-			auto desc = object.GetComponent<ar::SurfaceComponent>().Description;
+			auto& surf = object.GetComponent<ar::SurfaceComponent>();
+			auto desc = surf.Description;
 			auto info = MapMultipatch(object, u, v);
-			auto points = ar::SurfaceUtils::GetSegmentPoints(object, info.segment);
-
+			
 			if (desc.Type == SurfaceType::RECTANGLEC2 || desc.Type == SurfaceType::CYLINDERC2)
 			{
-				info.localParams.x = 1. / 3 + (2. / 3 - 1. / 3) * info.localParams.x;
-				info.localParams.y = 1. / 3 + (2. / 3 - 1. / 3) * info.localParams.y;
-				return
-					1. / 3 *
-					info.scaling.y *
-					ar::mat::DerivativeVBezierPatch(GeneralUtils::GetPos(points), info.localParams.x, info.localParams.y);
+				auto bezier = ar::SurfaceUtils::GetSegmentPointsBezier(*surf.AuxPoints, desc, info.segment);
+				return info.scaling.y *
+					ar::mat::DerivativeVBezierPatch(bezier, info.localParams.x, info.localParams.y);
 			}
-			return
-				info.scaling.y *
-				ar::mat::DerivativeVBezierPatch(GeneralUtils::GetPos(points), info.localParams.x, info.localParams.y);
+			else
+			{
+				auto points = ar::SurfaceUtils::GetSegmentPoints(object, info.segment);
+				return info.scaling.y *
+					ar::mat::DerivativeVBezierPatch(GeneralUtils::GetPos(points),
+						info.localParams.x, info.localParams.y);
+			}
 		}
 		return { 0.f, 0.f, 0.f };
 	}
@@ -379,15 +381,18 @@ namespace ar
 		}
 		if (object.HasComponent<ar::SurfaceComponent>())
 		{
-			auto desc = object.GetComponent<ar::SurfaceComponent>().Description;
+			auto& surf = object.GetComponent<ar::SurfaceComponent>();
+			auto desc = surf.Description;
 			auto info = MapMultipatch(object, u, v);
-			auto segmentPoints = ar::SurfaceUtils::GetSegmentPoints(object, info.segment);
+
 			if (desc.Type == SurfaceType::RECTANGLEC2 || desc.Type == SurfaceType::CYLINDERC2)
 			{
-				info.localParams.x = 1. / 3 + (2. / 3 - 1. / 3) * info.localParams.x;
-				info.localParams.y = 1. / 3 + (2. / 3 - 1. / 3) * info.localParams.y;
+				auto bezier = ar::SurfaceUtils::GetSegmentPointsBezier(*surf.AuxPoints, desc, info.segment);
+				return ar::mat::EvaluateBezierPatch(bezier, info.localParams.x, info.localParams.y);
 			}
-			return ar::mat::EvaluateBezierPatch(GeneralUtils::GetPos(segmentPoints), info.localParams.x, info.localParams.y);
+			
+			auto points = ar::SurfaceUtils::GetSegmentPoints(object, info.segment);
+			return ar::mat::EvaluateBezierPatch(GeneralUtils::GetPos(points), info.localParams.x, info.localParams.y);
 		}
 		return { 0.f, 0.f, 0.f };
 	}

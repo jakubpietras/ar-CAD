@@ -214,6 +214,8 @@ namespace ar
 		cp.Indices = ar::SurfaceUtils::GenerateSurfaceRefIndices(desc);
 		auto& d = tempSurface.GetComponent<SurfaceComponent>();
 		d.Description = desc;
+		if (desc.Type == SurfaceType::RECTANGLEC2 || desc.Type == SurfaceType::CYLINDERC2)
+			d.AuxPoints = ar::SurfaceUtils::GetBezierFromDeBoor(tempSurface);
 
 		// Mesh
 		auto& mc = tempSurface.GetComponent<ar::MeshComponent>();
@@ -265,7 +267,7 @@ namespace ar
 			desc.Segments = { size.u - 3, size.v - 3 };
 		desc.Samples = samples;
 
-		// todo: ugly
+		// todo: THIS POTENTIALLY WILL BE REALLY BAD FOR INTERSECTIONS
 		if (isC0)
 			desc.Type = SurfaceType::RECTANGLEC0;
 		else
@@ -286,6 +288,8 @@ namespace ar
 		// In case of cylinders, some points are repeated, and so desc.Size needs to be updated
 		desc = ar::SurfaceUtils::AdjustSurfaceDescription(desc);
 		cp.Indices = ar::SurfaceUtils::GenerateSurfaceRefIndices(desc);
+		if (desc.Type == SurfaceType::RECTANGLEC2 || desc.Type == SurfaceType::CYLINDERC2)
+			sc.AuxPoints = ar::SurfaceUtils::GetBezierFromDeBoor(entity);
 
 		// Mesh
 		auto& mc = entity.AddComponent<ar::MeshComponent>();

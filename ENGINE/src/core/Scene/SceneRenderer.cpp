@@ -3,6 +3,7 @@
 #include "core/Renderer/Shader.h"
 #include "core/Scene/Entity.h"
 #include "core/Scene/Components.h"
+//#define DEBUG_AUX_POINTS
 
 namespace ar
 {
@@ -335,6 +336,13 @@ namespace ar
 					pointVerts.push_back({ transform.Translation, entity.GetID(), color });
 				}
 			}
+#ifdef DEBUG_AUX_POINTS
+			auto surfaces = m_Scene->m_Registry.view<SurfaceComponent>();
+			for (const auto& [e, sc] : surfaces.each())
+				if (sc.AuxPoints.has_value())
+					for (auto& point : *sc.AuxPoints)
+						pointVerts.push_back({ point, 0, {0.f, 1.f, 0.f} });
+#endif
 			if (!pointVerts.empty())
 			{
 				m_PointsVA->ClearBuffers();

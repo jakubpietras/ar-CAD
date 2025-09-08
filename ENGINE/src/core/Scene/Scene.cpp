@@ -174,6 +174,13 @@ namespace ar
 				auto& cm = e.GetComponent<ControlMeshComponent>();
 				cm.VertexArray->ClearVertexBuffers();
 				cm.VertexArray->AddVertexBuffer(vb);
+				if (e.HasComponent<SurfaceComponent>())
+				{
+					auto& surf = e.GetComponent<ar::SurfaceComponent>();
+					if (surf.Description.Type == SurfaceType::RECTANGLEC2 
+						|| surf.Description.Type == SurfaceType::CYLINDERC2)
+						surf.AuxPoints = ar::SurfaceUtils::GetBezierFromDeBoor(e);
+				}
 			}
 
 			if (e.HasComponent<ar::CurveC0Component>())

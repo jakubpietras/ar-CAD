@@ -13,7 +13,7 @@ namespace ar
 	{
 	public:
 		// 'main' function will return data for the intersection curve
-		static mat::Vec3 FindStartingPointDebug(ar::Entity firstObject, ar::Entity secondObject);
+		static mat::Vec3 FindStartingPoint(ar::Entity firstObject, ar::Entity secondObject);
 
 	private:
 		// Preliminary search for best first guess:
