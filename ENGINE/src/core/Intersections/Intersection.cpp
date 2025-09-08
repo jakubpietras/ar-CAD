@@ -12,9 +12,6 @@ namespace ar
 	ar::mat::Vec3 Intersection::FindStartingPointDebug(ar::Entity firstObject, ar::Entity secondObject)
 	{
 		const size_t samples = 10;
-		
-		//return Evaluate(firstObject, 1. / 3, 1. / 3);
-
 		auto params = CalculateStartingParams(firstObject, secondObject, samples);
 		return Evaluate(firstObject, params.x, params.y);
 	}
@@ -87,6 +84,13 @@ namespace ar
 			if (gradNormSq < eps) 
 				break;
 
+			currGradient = SquaredDistanceGradient(firstObject, secondObject, currParams);
+			// beta
+			auto beta = PolakRibiere(prevGradient, currGradient);
+			
+			// conjugate direction
+			currDir = -currGradient + beta * prevDir;
+
 			float alpha = LineSearchSquaredDistance(firstObject, secondObject, prevParams, prevDir);
 			if (alpha < 1e-10f) 
 			{
@@ -98,13 +102,9 @@ namespace ar
 			currParams = prevParams + alpha * prevDir;	
 			ClampWrapObjects(firstObject, secondObject, currParams);
 			
-			currGradient = SquaredDistanceGradient(firstObject, secondObject, currParams);
 			float gNewNormSq = mat::LengthSquared(currGradient);
 			if (!std::isfinite(gNewNormSq)) 
 				break;
-
-			auto beta = PolakRibiere(prevGradient, currGradient);
-			currDir = -currGradient + beta * prevDir;
 
 			prevDir = currDir;
 			prevGradient = currGradient;
@@ -136,7 +136,7 @@ namespace ar
 		}
 
 		float f0 = SquaredDistanceValue(firstObject, secondObject, params);
-		for (int iter = 0; iter < 50; ++iter) 
+		for (int iter = 0; iter < 20; ++iter) 
 		{
 			ar::mat::Vec4 candidate = params + alpha * direction;
 			ClampWrapObjects(firstObject, secondObject, candidate);
@@ -147,7 +147,7 @@ namespace ar
 				return alpha;
 			}
 			alpha *= tau;
-			if (alpha < 1e-12f) 
+			if (alpha < 1e-8f) 
 				break;
 		}
 		
@@ -161,21 +161,51 @@ namespace ar
 		return mat::LengthSquared(s1 - s2);
 	}
 
-	void Intersection::ClampWrapUV(ar::Entity obj, float& u, float& v)
+	bool Intersection::ClampWrapUV(ar::Entity obj, float& u, float& v)
 	{
-		if (obj.HasComponent<ar::TorusComponent>())
-		{
-			if (u > 1.0f) u = u - std::floor(u);
-			else if (u < 0.0f) u = u - std::floor(u);
+		bool success = true;
 
-			if (v > 1.0f) v = v - std::floor(v);
-			else if (v < 0.0f) v = v - std::floor(v);
-		}
-		else
+		auto wrapValue = [](float& val, bool isWrapped) -> bool 
+			{
+			if (val > 1.0f && isWrapped) 
+			{
+				int n = (int)val;
+				val -= n;
+			}
+			else if (val < 0.0f && isWrapped) 
+			{
+				int n = (int)val;
+				val = val - n;  // Makes positive
+			}
+			else if (val < 0.0f || val > 1.0f) 
+			{
+				val = std::clamp(val, 0.0f, 1.0f);
+				return false;  // Clamping occurred
+			}
+			return true;
+			};
+
+		// Determine wrapping behavior per surface type
+		bool uWrapped = false, vWrapped = false;
+
+		if (obj.HasComponent<ar::TorusComponent>()) 
 		{
-			u = std::clamp(u, 0.0f, 1.0f);
-			v = std::clamp(v, 0.0f, 1.0f);
+			uWrapped = vWrapped = true;
 		}
+		else if (obj.HasComponent<ar::SurfaceComponent>()) 
+		{
+			auto& desc = obj.GetComponent<ar::SurfaceComponent>().Description;
+			if (desc.Type == SurfaceType::CYLINDERC2 || desc.Type == SurfaceType::CYLINDERC0) 
+			{
+				uWrapped = true;  // Only U wrapped for cylinders
+				vWrapped = false;
+			}
+		}
+
+		success &= wrapValue(u, uWrapped);
+		success &= wrapValue(v, vWrapped);
+
+		return success;
 	}
 
 	void Intersection::ClampWrapObjects(ar::Entity o1, ar::Entity o2, ar::mat::Vec4& p)
@@ -207,13 +237,10 @@ namespace ar
 		if (desc.Segments.u == 1 && desc.Segments.v == 1) 
 		{
 			info.segment = { 0, 0 };
-			info.localParams = { std::clamp(u, 0.0f, 1.0f), std::clamp(v, 0.0f, 1.0f) };
+			info.localParams = { u, v };
 			info.scaling = { 1.0f, 1.0f };
 			return info;
 		}
-
-		u = std::clamp(u, 0.0f, 1.0f);
-		v = std::clamp(v, 0.0f, 1.0f);
 
 		const float segmentWidth = 1.0f / desc.Segments.u;
 		const float segmentHeight = 1.0f / desc.Segments.v;
@@ -250,7 +277,7 @@ namespace ar
 			localV = (v - segmentStartV) / segmentHeight;
 		}
 
-		info.localParams = { std::clamp(localU, 0.0f, 1.0f), std::clamp(localV, 0.0f, 1.0f) };
+		info.localParams = { localU, localV };
 
 		return info;
 	}
@@ -285,10 +312,9 @@ namespace ar
 					info.scaling.x *
 					ar::mat::DerivativeUBezierPatch(GeneralUtils::GetPos(points), info.localParams.x, info.localParams.y);
 			}
-			else
-				return 
-					info.scaling.x *
-					ar::mat::DerivativeUBezierPatch(GeneralUtils::GetPos(points), info.localParams.x, info.localParams.y);
+			return 
+				info.scaling.x *
+				ar::mat::DerivativeUBezierPatch(GeneralUtils::GetPos(points), info.localParams.x, info.localParams.y);
 		}
 		return { 0.f, 0.f, 0.f };
 	}
@@ -318,8 +344,7 @@ namespace ar
 					info.scaling.y *
 					ar::mat::DerivativeVBezierPatch(GeneralUtils::GetPos(points), info.localParams.x, info.localParams.y);
 			}
-			else
-				return
+			return
 				info.scaling.y *
 				ar::mat::DerivativeVBezierPatch(GeneralUtils::GetPos(points), info.localParams.x, info.localParams.y);
 		}
@@ -331,6 +356,7 @@ namespace ar
 		auto u = params.x, v = params.y, s = params.z, t = params.w;
 		auto difference = Evaluate(firstObject, u, v) - Evaluate(secondObject, s, t);
 		
+		//ClampWrapObjects(firstObject, secondObject, params);
 		auto dS1du = DerivativeU(firstObject, u, v), dS1dv = DerivativeV(firstObject, u, v);
 		auto dS2ds = DerivativeU(secondObject, s, t), dS2dt = DerivativeV(secondObject, s, t);
 
@@ -365,9 +391,4 @@ namespace ar
 		}
 		return { 0.f, 0.f, 0.f };
 	}
-
-	void Intersection::TestGradient(ar::Entity obj1, ar::Entity obj2)
-	{
-	}
-
 }

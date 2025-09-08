@@ -13,12 +13,9 @@ namespace ar::mat
 		float theta = u * twoPi;
 		float phi = v * twoPi;
 
-		// x = (R + r * cos(u)) * cos(v)
-		auto x = (largeRadius + smallRadius * cos(theta)) * cos(phi);
-		// y = (R + r * cos(u)) * sin(v)
-		auto y = (largeRadius + smallRadius * cos(theta)) * sin(phi);
-		// z = r * sin(u)
-		auto z = smallRadius * sin(theta);
+		auto x = (largeRadius + smallRadius * cos(phi)) * cos(theta);
+		auto y = smallRadius * sin(phi);
+		auto z = (largeRadius + smallRadius * cos(phi)) * sin(theta);
 		return { x, y, z };
 	}
 

@@ -9,15 +9,12 @@ namespace ar
 	ar::mat::Vec3 mat::DerivativeUTorus(float smallRadius, float largeRadius, float u, float v)
 	{
 		float twoPi = 2 * std::numbers::pi;
-		float theta = u * twoPi;
 		float phi = v * twoPi;
+		float theta = u * twoPi;
 
-		// x = (R + r * cos(u)) * cos(v)
-		auto dxdu = -smallRadius * cos(phi) * sin(theta) * twoPi;
-		// y = (R + r * cos(u)) * sin(v)
-		auto dydu = -smallRadius * sin(phi) * sin(theta) * twoPi;
-		// z = r * sin(u)
-		auto dzdu = smallRadius * cos(theta) * twoPi;
+		auto dxdu = -sin(theta) * (largeRadius + smallRadius * cos(phi)) * twoPi;
+		auto dydu = 0.f;
+		auto dzdu = cos(theta) * (largeRadius + smallRadius * cos(phi)) * twoPi;
 		return { dxdu, dydu, dzdu };
 	}
 
@@ -27,12 +24,9 @@ namespace ar
 		float theta = u * twoPi;
 		float phi = v * twoPi;
 
-		// x = (R + r * cos(u)) * cos(v)
-		auto dxdv = -(smallRadius * cos(theta) + largeRadius) * sin(phi) * twoPi;
-		// y = (R + r * cos(u)) * sin(v)
-		auto dydv = (smallRadius * cos(theta) + largeRadius) * cos(phi) * twoPi;
-		// z = r * sin(u)
-		auto dzdv = 0.f;
+		auto dxdv = -smallRadius * cos(theta) * sin(phi) * twoPi;
+		auto dydv = smallRadius * cos(phi) * twoPi;
+		auto dzdv = -smallRadius * sin(phi) * sin(theta);
 		return { dxdv, dydv, dzdv };
 	}
 

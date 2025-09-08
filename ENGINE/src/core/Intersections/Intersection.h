@@ -23,7 +23,7 @@ namespace ar
 		static mat::Vec4 CGSquaredDistance(ar::Entity firstObject, ar::Entity secondObject, mat::Vec4 initial);
 		static float LineSearchSquaredDistance(ar::Entity firstObject, ar::Entity secondObject, ar::mat::Vec4 params, ar::mat::Vec4 direction);
 		static float SquaredDistanceValue(ar::Entity firstObject, ar::Entity secondObject, ar::mat::Vec4 params);
-		static void ClampWrapUV(ar::Entity obj, float& u, float& v);
+		static bool ClampWrapUV(ar::Entity obj, float& u, float& v);
 		static void ClampWrapObjects(ar::Entity o1, ar::Entity o2, ar::mat::Vec4& p);
 		static float PolakRibiere(mat::Vec4 prevGrad, mat::Vec4 currGrad);
 		static SegmentInfo MapMultipatch(ar::Entity patch, float u, float v);
@@ -37,7 +37,6 @@ namespace ar
 		static mat::Vec3 DerivativeV(ar::Entity object, float u, float v);
 		static mat::Vec4 SquaredDistanceGradient(ar::Entity firstObject, ar::Entity secondObject, mat::Vec4 params);
 		static mat::Vec3 Evaluate(ar::Entity object, float u, float v);
-		static void TestGradient(ar::Entity obj1, ar::Entity obj2);
 
 	};
 }
