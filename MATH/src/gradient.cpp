@@ -8,27 +8,29 @@ namespace ar
 {
 	ar::mat::Vec3 mat::DerivativeUTorus(float smallRadius, float largeRadius, float u, float v)
 	{
-		float uu = u * 2 * std::numbers::pi;
-		float vv = v * 2 * std::numbers::pi;
+		float twoPi = 2 * std::numbers::pi;
+		float theta = u * twoPi;
+		float phi = v * twoPi;
 
 		// x = (R + r * cos(u)) * cos(v)
-		auto dxdu = -smallRadius * cos(vv) * sin(uu);
+		auto dxdu = -smallRadius * cos(phi) * sin(theta) * twoPi;
 		// y = (R + r * cos(u)) * sin(v)
-		auto dydu = -smallRadius * sin(vv) * sin(uu);
+		auto dydu = -smallRadius * sin(phi) * sin(theta) * twoPi;
 		// z = r * sin(u)
-		auto dzdu = smallRadius * cos(uu);
+		auto dzdu = smallRadius * cos(theta) * twoPi;
 		return { dxdu, dydu, dzdu };
 	}
 
 	ar::mat::Vec3 mat::DerivativeVTorus(float smallRadius, float largeRadius, float u, float v)
 	{
-		float uu = u * 2 * std::numbers::pi;
-		float vv = v * 2 * std::numbers::pi;
+		float twoPi = 2 * std::numbers::pi;
+		float theta = u * twoPi;
+		float phi = v * twoPi;
 
 		// x = (R + r * cos(u)) * cos(v)
-		auto dxdv = -(smallRadius * cos(uu) + largeRadius) * sin(vv);
+		auto dxdv = -(smallRadius * cos(theta) + largeRadius) * sin(phi) * twoPi;
 		// y = (R + r * cos(u)) * sin(v)
-		auto dydv = (smallRadius * cos(uu) + largeRadius) * cos(vv);
+		auto dydv = (smallRadius * cos(theta) + largeRadius) * cos(phi) * twoPi;
 		// z = r * sin(u)
 		auto dzdv = 0.f;
 		return { dxdv, dydv, dzdv };

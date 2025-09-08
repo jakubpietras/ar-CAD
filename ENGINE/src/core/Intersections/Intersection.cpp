@@ -12,6 +12,9 @@ namespace ar
 	ar::mat::Vec3 Intersection::FindStartingPointDebug(ar::Entity firstObject, ar::Entity secondObject)
 	{
 		const size_t samples = 10;
+		
+		//return Evaluate(firstObject, 1. / 3, 1. / 3);
+
 		auto params = CalculateStartingParams(firstObject, secondObject, samples);
 		return Evaluate(firstObject, params.x, params.y);
 	}
@@ -41,15 +44,15 @@ namespace ar
 		auto max = static_cast<int>(samples);
 		std::vector<mat::Vec4> paramPairs;
 
-		for (int u : std::views::iota(0, max))
-			for (auto v : std::views::iota(0, max))
-				for (auto s : std::views::iota(0, max))
-					for (auto t : std::views::iota(0, max))
+		for (int u = 0; u <= max; u++)
+			for (int v = 0; v <= max; v++)
+				for (int s = 0; s <= max; s++)
+					for (int t = 0; t <= max; t++)
 						paramPairs.emplace_back(
-							static_cast<float>(u) / (samples),
-							static_cast<float>(v) / (samples),
-							static_cast<float>(s) / (samples),
-							static_cast<float>(t) / (samples)
+							static_cast<float>(u) / (max),
+							static_cast<float>(v) / (max),
+							static_cast<float>(s) / (max),
+							static_cast<float>(t) / (max)
 						);
 		return paramPairs;
 	}
@@ -162,8 +165,11 @@ namespace ar
 	{
 		if (obj.HasComponent<ar::TorusComponent>())
 		{
-			u = u - std::floor(u);
-			v = v - std::floor(v);
+			if (u > 1.0f) u = u - std::floor(u);
+			else if (u < 0.0f) u = u - std::floor(u);
+
+			if (v > 1.0f) v = v - std::floor(v);
+			else if (v < 0.0f) v = v - std::floor(v);
 		}
 		else
 		{
@@ -259,17 +265,30 @@ namespace ar
 		if (object.HasComponent<ar::TorusComponent>())
 		{
 			auto desc = object.GetComponent<ar::TorusComponent>().Description;
-			return ar::mat::DerivativeUTorus(desc.SmallRadius, desc.LargeRadius, u, v);
+			auto model = object.GetComponent<ar::TransformComponent>().ModelMatrix;
+			auto derivative = model * mat::Vec4(ar::mat::DerivativeUTorus(desc.SmallRadius, desc.LargeRadius, u, v), 0.f);
+
+			return mat::Vec3(derivative);
 		}
 		if (object.HasComponent<ar::SurfaceComponent>())
 		{
-			//auto segment = MapMultipatchSegments(object, u, v);						// determine which segment
-			//auto scaledParams = MapMultipatchParameters(object, u, v);				// map to [0,1] within that segment
+			auto desc = object.GetComponent<ar::SurfaceComponent>().Description;
 			auto info = MapMultipatch(object, u, v);
-			auto points = ar::SurfaceUtils::GetSegmentPoints(object, info.segment);		// get points of that specific segment
-			return 
-				info.scaling.x *
-				ar::mat::DerivativeUBezierPatch(GeneralUtils::GetPos(points), info.localParams.x, info.localParams.y);
+			auto points = ar::SurfaceUtils::GetSegmentPoints(object, info.segment);
+
+			if (desc.Type == SurfaceType::RECTANGLEC2 || desc.Type == SurfaceType::CYLINDERC2)
+			{
+				info.localParams.x = 1. / 3 + (2. / 3 - 1. / 3) * info.localParams.x;
+				info.localParams.y = 1. / 3 + (2. / 3 - 1. / 3) * info.localParams.y;
+				return
+					1./3 *
+					info.scaling.x *
+					ar::mat::DerivativeUBezierPatch(GeneralUtils::GetPos(points), info.localParams.x, info.localParams.y);
+			}
+			else
+				return 
+					info.scaling.x *
+					ar::mat::DerivativeUBezierPatch(GeneralUtils::GetPos(points), info.localParams.x, info.localParams.y);
 		}
 		return { 0.f, 0.f, 0.f };
 	}
@@ -279,16 +298,29 @@ namespace ar
 		if (object.HasComponent<ar::TorusComponent>())
 		{
 			auto desc = object.GetComponent<ar::TorusComponent>().Description;
-			return ar::mat::DerivativeVTorus(desc.SmallRadius, desc.LargeRadius, u, v);
+			auto model = object.GetComponent<ar::TransformComponent>().ModelMatrix;
+			auto derivative = model * mat::Vec4(ar::mat::DerivativeVTorus(desc.SmallRadius, desc.LargeRadius, u, v), 0.f);
+
+			return mat::Vec3(derivative);
 		}
 		if (object.HasComponent<ar::SurfaceComponent>())
 		{
-			//auto segment = MapMultipatchSegments(object, u, v);						// determine which segment
-			//auto scaledParams = MapMultipatchParameters(object, u, v);				// map to [0,1] within that segment
+			auto desc = object.GetComponent<ar::SurfaceComponent>().Description;
 			auto info = MapMultipatch(object, u, v);
-			auto points = ar::SurfaceUtils::GetSegmentPoints(object, info.segment);		// get points of that specific segment
-			return
-				info.scaling.x *
+			auto points = ar::SurfaceUtils::GetSegmentPoints(object, info.segment);
+
+			if (desc.Type == SurfaceType::RECTANGLEC2 || desc.Type == SurfaceType::CYLINDERC2)
+			{
+				info.localParams.x = 1. / 3 + (2. / 3 - 1. / 3) * info.localParams.x;
+				info.localParams.y = 1. / 3 + (2. / 3 - 1. / 3) * info.localParams.y;
+				return
+					1. / 3 *
+					info.scaling.y *
+					ar::mat::DerivativeVBezierPatch(GeneralUtils::GetPos(points), info.localParams.x, info.localParams.y);
+			}
+			else
+				return
+				info.scaling.y *
 				ar::mat::DerivativeVBezierPatch(GeneralUtils::GetPos(points), info.localParams.x, info.localParams.y);
 		}
 		return { 0.f, 0.f, 0.f };
@@ -315,14 +347,21 @@ namespace ar
 		if (object.HasComponent<ar::TorusComponent>())
 		{
 			auto desc = object.GetComponent<ar::TorusComponent>().Description;
-			auto pos = object.GetComponent<ar::TransformComponent>().Translation;
-			return pos + ar::mat::EvaluateTorus(desc.SmallRadius, desc.LargeRadius, u, v);
+			auto model = object.GetComponent<ar::TransformComponent>().ModelMatrix;
+			auto point = model * mat::Vec4(ar::mat::EvaluateTorus(desc.SmallRadius, desc.LargeRadius, u, v), 1.f);
+			return mat::Vec3(point);
 		}
 		if (object.HasComponent<ar::SurfaceComponent>())
 		{
-			// todo: generalize to joined patches, for now it will only work for singles
-			auto& points = object.GetComponent<ar::ControlPointsComponent>().Points;
-			return ar::mat::EvaluateBezierPatch(GeneralUtils::GetPos(points), u, v);
+			auto desc = object.GetComponent<ar::SurfaceComponent>().Description;
+			auto info = MapMultipatch(object, u, v);
+			auto segmentPoints = ar::SurfaceUtils::GetSegmentPoints(object, info.segment);
+			if (desc.Type == SurfaceType::RECTANGLEC2 || desc.Type == SurfaceType::CYLINDERC2)
+			{
+				info.localParams.x = 1. / 3 + (2. / 3 - 1. / 3) * info.localParams.x;
+				info.localParams.y = 1. / 3 + (2. / 3 - 1. / 3) * info.localParams.y;
+			}
+			return ar::mat::EvaluateBezierPatch(GeneralUtils::GetPos(segmentPoints), info.localParams.x, info.localParams.y);
 		}
 		return { 0.f, 0.f, 0.f };
 	}
