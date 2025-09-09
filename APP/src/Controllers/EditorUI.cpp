@@ -2,6 +2,7 @@
 #include "core/ImGui/ComponentInspector.h"
 #include "core/ImGui/ScopedDisable.h"
 #include <nfd.h>
+#include "core/Scene/DebugRenderer.h"
 
 EditorUI::EditorUI(EditorState& state, ar::Ref<ar::Scene> scene)
 	: m_State(state), 
@@ -163,6 +164,11 @@ void EditorUI::RenderMainMenu()
 		{
 			RenderAddMenu();
 			ImGui::EndMenu();
+		}
+
+		if (ImGui::MenuItem("ClearDR"))
+		{
+			ar::DebugRenderer::Clear();
 		}
 
 		ImGui::EndMainMenuBar();

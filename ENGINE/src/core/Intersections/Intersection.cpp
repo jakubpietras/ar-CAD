@@ -6,6 +6,7 @@
 #include <ranges>
 #include <limits>
 #include "core/Utils/SurfaceUtils.h"
+#include "core/Scene/DebugRenderer.h"
 
 namespace ar
 {
@@ -145,6 +146,30 @@ namespace ar
 		curveParams.insert(curveParams.begin(), reverseCurveParams.rbegin(), reverseCurveParams.rend());
 
 		return { curvePoints, curveParams };
+	}
+
+	void Intersection::DrawDerivatives(ar::Entity object, size_t samples)
+	{
+		auto params = GenerateUVPairs(samples);
+		ar::DebugRenderer::Clear();
+		for (auto& pair : params)
+		{
+			auto start = Evaluate(object, pair.x, pair.y);
+			auto derivativeU = DerivativeU(object, pair.x, pair.y);
+			auto derivativeV = DerivativeV(object, pair.x, pair.y);
+			ar::DebugRenderer::AddLine(start, start + 0.2f * mat::Cross(derivativeV, derivativeU));
+		}
+	}
+
+	void Intersection::DrawEvaluations(ar::Entity object, size_t samples)
+	{
+		auto params = GenerateUVPairs(samples);
+		ar::DebugRenderer::Clear();
+		for (auto& pair : params)
+		{
+			auto start = Evaluate(object, pair.x, pair.y);
+			ar::DebugRenderer::AddPoint(start, { 0.5, 0.5, 1.f });
+		}
 	}
 
 	ar::mat::Vec4 Intersection::CalculateStartingParams(ar::Entity firstObject, ar::Entity secondObject, size_t samples)

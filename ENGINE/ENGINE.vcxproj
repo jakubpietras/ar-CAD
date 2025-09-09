@@ -91,6 +91,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\core\Scene\DebugRenderer.cpp" />
     <ClCompile Include="src\core\Intersections\Intersection.cpp" />
     <ClCompile Include="src\core\Drawing\PaintSurface.cpp" />
     <ClCompile Include="src\core\Geometry\EdgeInfo.cpp" />
@@ -147,6 +148,7 @@
     <ClCompile Include="src\core\UID.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\core\Scene\DebugRenderer.h" />
     <ClInclude Include="src\core\Intersections\Intersection.h" />
     <ClInclude Include="src\core\Drawing\PaintSurface.h" />
     <ClInclude Include="src\core\Geometry\EdgeInfo.h" />

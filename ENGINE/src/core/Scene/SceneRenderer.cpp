@@ -3,6 +3,8 @@
 #include "core/Renderer/Shader.h"
 #include "core/Scene/Entity.h"
 #include "core/Scene/Components.h"
+#include "core/Scene/DebugRenderer.h"
+
 //#define DEBUG_AUX_POINTS
 
 namespace ar
@@ -66,6 +68,7 @@ namespace ar
 		RenderGregoryPatches(vpMat, RenderPassType::MAIN);
 		if (renderMeanPoint)
 			RenderMeanPoint(cameraController, meanPointPos);
+		ar::DebugRenderer::Render(vpMat);
 		RenderCursor(cameraController, cursorPos);
 		RenderPolygons(vpMat);
 		RenderPoints(vpMat, RenderPassType::MAIN);
@@ -157,7 +160,7 @@ namespace ar
 		ar::RenderCommand::SetLineThickness(3);
 		ar::RenderCommand::ToggleDepthTest(false);
 		ar::Renderer::Submit(ar::Primitive::Line, shader, m_CursorMesh, false, 1);
-		ar::RenderCommand::ToggleDepthTest(false);
+		ar::RenderCommand::ToggleDepthTest(true);
 		ar::RenderCommand::SetLineThickness();
 	}
 

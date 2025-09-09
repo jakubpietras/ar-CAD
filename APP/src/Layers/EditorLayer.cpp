@@ -1,6 +1,7 @@
 #include "EditorLayer.h"
 #include "core/ImGui/ScopedDisable.h"
 #include "EditorConstants.h"
+#include "core/Scene/DebugRenderer.h"
 
 EditorLayer::EditorLayer()
 	: 
@@ -16,6 +17,7 @@ EditorLayer::EditorLayer()
 void EditorLayer::OnAttach() 
 {
 	ar::ShaderLib::Init();
+	ar::DebugRenderer::Init();
 }
 
 void EditorLayer::OnDetach() { }
@@ -30,6 +32,7 @@ void EditorLayer::OnUpdate()
 	m_SceneRenderer.RenderMain(m_SceneController.GetCameraController(), viewport, m_State.CursorPosition, m_State.SelectedMeanPosition, 
 		m_State.SelectedObjectsWithTransforms.size() > 1);
 	m_SceneRenderer.RenderPicking(m_SceneController.GetCameraController(), viewport);
+	
 }
 
 void EditorLayer::OnEvent(ar::Event& event)

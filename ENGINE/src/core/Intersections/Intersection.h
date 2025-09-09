@@ -15,8 +15,12 @@ namespace ar
 		// 'main' function will return data for the intersection curve
 		static mat::Vec3 FindStartingPoint(ar::Entity firstObject, ar::Entity secondObject);
 		static std::pair<std::vector<mat::Vec3>, std::vector<mat::Vec4>> TraceIntersectionCurve(ar::Entity firstObject, ar::Entity secondObject);
+		static void DrawDerivatives(ar::Entity object, size_t samples);
+		static void DrawEvaluations(ar::Entity object, size_t samples);
 
 	private:
+		// DEBUG
+
 		// Preliminary search for best first guess:
 		static mat::Vec4 CalculateStartingParams(ar::Entity firstObject, ar::Entity secondObject, size_t samples);
 		static std::vector<mat::Vec4> GenerateUVPairs(size_t samples);
