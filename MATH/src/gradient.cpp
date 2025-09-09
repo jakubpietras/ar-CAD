@@ -26,7 +26,7 @@ namespace ar
 
 		auto dxdv = -smallRadius * cos(theta) * sin(phi) * twoPi;
 		auto dydv = smallRadius * cos(phi) * twoPi;
-		auto dzdv = -smallRadius * sin(phi) * sin(theta);
+		auto dzdv = -smallRadius * sin(phi) * sin(theta) * twoPi;
 		return { dxdv, dydv, dzdv };
 	}
 

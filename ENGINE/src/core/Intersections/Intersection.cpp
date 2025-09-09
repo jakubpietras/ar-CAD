@@ -157,7 +157,7 @@ namespace ar
 			auto start = Evaluate(object, pair.x, pair.y);
 			auto derivativeU = DerivativeU(object, pair.x, pair.y);
 			auto derivativeV = DerivativeV(object, pair.x, pair.y);
-			ar::DebugRenderer::AddLine(start, start + 0.2f * mat::Cross(derivativeV, derivativeU));
+			ar::DebugRenderer::AddLine(start, start + 0.01f * mat::Cross(derivativeV, derivativeU));
 		}
 	}
 

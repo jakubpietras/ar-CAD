@@ -9,7 +9,7 @@ namespace ar::mat
 	
 	ar::mat::Vec3 EvaluateTorus(float smallRadius, float largeRadius, float u, float v)
 	{
-		float twoPi = std::numbers::pi;
+		float twoPi = 2.f * std::numbers::pi;
 		float theta = u * twoPi;
 		float phi = v * twoPi;
 
