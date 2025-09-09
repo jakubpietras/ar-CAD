@@ -14,9 +14,137 @@ namespace ar
 		const size_t samples = 10;
 		auto params = CalculateStartingParams(firstObject, secondObject, samples);
 		ar::mat::Vec4 newtonized;
-		auto result = NewtonMinimization(newtonized, firstObject, secondObject, params, 0.03);
-		AR_TRACE("Newton: {0}", result);
-		return Evaluate(firstObject, newtonized.x, newtonized.y);
+		auto result = NewtonMinimization(newtonized, firstObject, secondObject, params, 0.02);
+
+		auto midpointUnoptimized = 0.5f * (Evaluate(firstObject, params.x, params.y) + Evaluate(secondObject, params.z, params.w));
+		auto midpointNewtonized = 0.5f * (Evaluate(firstObject, newtonized.x, newtonized.y) + Evaluate(secondObject, newtonized.z, newtonized.w));
+
+		return midpointUnoptimized;
+	}
+
+	std::pair<std::vector<ar::mat::Vec3>, std::vector<ar::mat::Vec4>> Intersection::TraceIntersectionCurve(ar::Entity firstObject, ar::Entity secondObject)
+	{
+		const float precision = 1e-8;
+		const size_t iterations = 20;
+		const float loopEps = 0.001f;
+		const float d = 0.02;
+
+		std::vector<mat::Vec3> curvePoints;
+		std::vector<mat::Vec4> curveParams;
+		ar::mat::Vec4 startParams, params, prevParams;
+		ar::mat::Vec3 startPoint, midpoint, prevMidpoint;
+
+		auto start = CalculateStartingParams(firstObject, secondObject, 10);
+		startParams = start;
+		auto p1 = Evaluate(firstObject, start.x, start.y);
+		auto p2 = Evaluate(secondObject, start.z, start.w);
+
+		//// Validate if there's an intersection at the starting point
+		//if (mat::LengthSquared(p1 - p2) > precision)
+		//	return { curvePoints, curveParams };
+		
+		startPoint = midpoint = prevMidpoint = 0.5 * (p1 + p2);
+		params = prevParams = start;
+		for (size_t i = 0; i < iterations; i++)
+		{
+			p1 = Evaluate(firstObject, params.x, params.y);
+			p2 = Evaluate(secondObject, params.z, params.w);
+			startPoint = 0.5 * (p1 + p2);
+
+			// Optimize the parameters with Newton method
+			bool success = NewtonMinimization(params, firstObject, secondObject, params, d);
+			p1 = Evaluate(firstObject, params.x, params.y);
+			p2 = Evaluate(secondObject, params.z, params.w);
+			midpoint = 0.5 * (p1 + p2);
+			auto midpointDiff = midpoint - prevMidpoint;
+
+			for (size_t k = 0; k < 5 && (!success || mat::Dot(midpointDiff, midpointDiff) > precision); k++)
+			{
+				NewtonMinimization(params, firstObject, secondObject, start, d * powf(0.5, k + 1));
+			}
+			p1 = Evaluate(firstObject, params.x, params.y);
+			p2 = Evaluate(secondObject, params.z, params.w);
+
+			// Validate
+			if (!ClampWrapObjects(firstObject, secondObject, params))
+				break;
+
+			// Check if loop
+			if (!curveParams.empty() && (mat::Length(params - curveParams[0]) < loopEps) && i > 5)
+			{
+				curvePoints.push_back(curvePoints[0]);
+				curveParams.push_back(curveParams[0]);
+				return { curvePoints, curveParams };
+			}
+
+			// Check if Newton successful
+			if (!success || mat::Dot(midpointDiff, midpointDiff) > precision)
+			{
+				prevParams = params;
+				startPoint = midpoint;
+				continue;
+			}
+			if (!curvePoints.empty() && (mat::Length(curvePoints.back() - midpoint) < 1e-8))
+			{
+				prevParams = params;
+				startPoint = midpoint;
+				continue;
+			}
+
+			// No edge cases detected:
+			curvePoints.push_back(midpoint);
+			curveParams.push_back(params);
+			
+			prevParams = params;
+			startPoint = midpoint;
+			prevMidpoint = midpoint;
+		}
+
+		std::vector<mat::Vec3> reverseCurvePoints;
+		std::vector<mat::Vec4> reverseCurveParams;
+
+		startPoint = 0.5f * (Evaluate(firstObject, start.x, start.y) + Evaluate(secondObject, start.z, start.w));
+		params = start;
+
+		for (size_t i = 0; i < iterations; i++)
+		{
+			p1 = Evaluate(firstObject, params.x, params.y);
+			p2 = Evaluate(secondObject, params.z, params.w);
+			startPoint = 0.5 * (p1 + p2);
+			start = params;
+
+			// Negative step to go in the other direction
+			auto success = NewtonMinimization(params, firstObject, secondObject, start, -d);
+			p1 = Evaluate(firstObject, params.x, params.y);
+			p2 = Evaluate(secondObject, params.z, params.w);
+			
+			midpoint = 0.5f * (p1 + p2);
+			auto midpointDiff = midpoint - prevMidpoint;
+
+			for (size_t k = 0; k < 5 && (!success || mat::Dot(midpointDiff, midpointDiff) > precision); k++)
+			{
+				NewtonMinimization(params, firstObject, secondObject, start, d * powf(0.5, k + 1));
+			}
+
+			if (!success || mat::Dot(p1 - p2, p1 - p2) > precision)
+			{
+				prevParams = params;
+				startPoint = midpoint;
+				continue;
+			}
+
+			reverseCurvePoints.push_back(midpoint);
+			reverseCurveParams.push_back(params);
+
+			prevParams = params;
+			startPoint = midpoint;
+		}
+
+		// Stitch forward and reverse curve
+		curvePoints.insert(curvePoints.begin(), reverseCurvePoints.rbegin(), reverseCurvePoints.rend());
+		curveParams.insert(curveParams.begin(), reverseCurveParams.rbegin(), reverseCurveParams.rend());
+
+		return { curvePoints, curveParams };
 	}
 
 	ar::mat::Vec4 Intersection::CalculateStartingParams(ar::Entity firstObject, ar::Entity secondObject, size_t samples)
@@ -289,11 +417,11 @@ namespace ar
 	bool Intersection::NewtonMinimization(ar::mat::Vec4& result, ar::Entity firstObject, ar::Entity secondObject, mat::Vec4 initial, double distance)
 	{
 		const size_t iterations = 20;
-		const float dampingFactor = 0.1f;
+		const float dampingFactor = 0.05f;
 		const float precision = 1e-8;
 		bool repeat = false;
 
-		auto startPoint = Evaluate(firstObject, initial.x, initial.y);
+		auto startPoint = 0.5f * (Evaluate(firstObject, initial.x, initial.y) + Evaluate(secondObject, initial.z, initial.w));
 		auto dS1du = DerivativeU(firstObject, initial.x, initial.y), dS1dv = DerivativeV(firstObject, initial.x, initial.y);
 		auto dS2du = DerivativeU(secondObject, initial.z, initial.w), dS2dv = DerivativeV(secondObject, initial.z, initial.w);
 		
@@ -351,8 +479,8 @@ namespace ar
 		auto p = Evaluate(firstObject, params.x, params.y);
 		auto q = Evaluate(secondObject, params.z, params.w);
 
-		auto dPdu = DerivativeU(firstObject, params.x, params.y), dPdv = DerivativeV(firstObject, params.x, params.y);
-		auto dQdu = DerivativeU(firstObject, params.z, params.w), dQdv = DerivativeV(firstObject, params.z, params.w);
+		auto dPdu = DerivativeU(firstObject, params.x, params.y), dPdv = DerivativeV(secondObject, params.x, params.y);
+		auto dQdu = DerivativeU(firstObject, params.z, params.w), dQdv = DerivativeV(secondObject, params.z, params.w);
 
 		mat::Mat4 j;
 		j(0, 0) = dPdu.x;

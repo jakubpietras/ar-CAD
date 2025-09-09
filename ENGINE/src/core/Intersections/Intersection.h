@@ -14,6 +14,7 @@ namespace ar
 	public:
 		// 'main' function will return data for the intersection curve
 		static mat::Vec3 FindStartingPoint(ar::Entity firstObject, ar::Entity secondObject);
+		static std::pair<std::vector<mat::Vec3>, std::vector<mat::Vec4>> TraceIntersectionCurve(ar::Entity firstObject, ar::Entity secondObject);
 
 	private:
 		// Preliminary search for best first guess:
@@ -33,6 +34,7 @@ namespace ar
 		static mat::Mat4 IntersectionFuncJacobian(ar::Entity firstObject, ar::Entity secondObject, mat::Vec4 params, ar::mat::Vec3 tangent);
 		static mat::Vec4 IntersectionFuncValue(ar::Entity firstObject, ar::Entity secondObject, 
 			mat::Vec4 params, ar::mat::Vec3 tangent, ar::mat::Vec3 startPoint, float stepLength);
+
 
 		// --------- 
 		static mat::Vec3 DerivativeU(ar::Entity object, float u, float v);

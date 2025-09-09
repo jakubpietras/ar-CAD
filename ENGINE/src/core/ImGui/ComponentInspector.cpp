@@ -38,7 +38,7 @@ void ar::ComponentInspector::InspectComponent(TorusComponent& torus)
 		torus.DirtyFlag = true;
 	if (PropertyInspector::InspectProperty("Large Radius", torus.Description.LargeRadius, 0.1f, 10.f))
 		torus.DirtyFlag = true;
-	if (PropertyInspector::InspectProperty("Samples", torus.Description.Samples, 3u, 64u))
+	if (PropertyInspector::InspectProperty("Samples", torus.Description.Samples, 3u, 128u))
 		torus.DirtyFlag = true;
 
 }
