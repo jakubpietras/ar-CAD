@@ -153,15 +153,15 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 	{
 
 		auto& objs = state.SelectedIntersectableSurfaces;
-		ar::Intersection::DrawDerivatives(objs[0], 10);
+		//ar::Intersection::DrawDerivatives(objs[0], 10);
 		//ar::Intersection::DrawEvaluations(objs[0], 10);
 
 
-		//auto point = ar::Intersection::FindStartingPoint(objs[0], objs[1]);
+		auto point = ar::Intersection::FindStartingPoint(objs[0], objs[1]);
 		//AR_TRACE("Intersection: ({0}, {1}, {2}", point.x, point.y, point.z);
 		
 		// -------- todo: DEBUG BELOW
-		//state.CursorPosition = point;
+		state.CursorPosition = point;
 		// 
 		//auto curve = ar::Intersection::TraceIntersectionCurve(objs[0], objs[1]);
 		// --------

@@ -276,12 +276,13 @@ namespace ar
 		std::vector<ar::mat::Vec3> segmentPoints;
 		segmentPoints.reserve(16);
 		size_t startU = 3 * segment.x, startV = 3 * segment.y;
-		
+		size_t bezierGridWidth = 3 * desc.Segments.u + 1;
+
 		for (int j = 0; j < 4; j++)
 		{
 			for (int i = 0; i < 4; i++)
 			{
-				size_t index = (startV + j) * desc.Size.u + (startU + i);
+				size_t index = (startV + j) * bezierGridWidth + (startU + i);
 				segmentPoints.push_back(points[index]);
 			}
 		}
