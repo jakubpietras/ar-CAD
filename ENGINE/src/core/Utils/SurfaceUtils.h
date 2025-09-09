@@ -36,7 +36,8 @@ namespace ar
 		static std::vector<ar::Entity> GetSegmentPoints(ar::Entity surface, mat::Vec2 segment);
 		static std::vector<ar::mat::Vec3> GetSegmentPointsBezier(std::vector<ar::mat::Vec3>& points, SurfaceDesc desc, mat::Vec2 segment);
 		static std::vector<ar::mat::Vec3> GetBezierFromDeBoor(ar::Entity surface);
-
+		static bool IsSurfaceC0Cylinder(std::vector<ar::Entity>& points, mat::UInt2 size);
+		static bool IsSurfaceC2Cylinder(std::vector<ar::Entity>& points, mat::UInt2 size);
 		
 	private:
 		static std::vector<mat::Vec3> GenerateRectangleC0Data(SurfaceDesc desc, mat::Vec3 origin);

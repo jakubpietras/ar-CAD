@@ -353,6 +353,61 @@ namespace ar
 		return bezier;
 	}
 
+
+	bool SurfaceUtils::IsSurfaceC0Cylinder(std::vector<ar::Entity>& points, mat::UInt2 size)
+	{
+		// Check if first and last column are the same (same internal ID)
+		bool wrappedU = true, wrappedV = true;
+		for (size_t v = 0; v < size.v; v++)
+		{
+			size_t base = v * size.u;
+			if (points[base].GetID() != points[base + (size.u - 1)].GetID())
+			{
+				wrappedU = false;
+				break;
+			}
+		}
+		for (size_t u = 0; u < size.u; u++)
+		{
+			size_t base = u * size.v;
+			if (points[base].GetID() != points[base + (size.v - 1)].GetID())
+			{
+				wrappedV = false;
+				break;
+			}
+		}
+		return wrappedU || wrappedV;
+	}
+
+	bool SurfaceUtils::IsSurfaceC2Cylinder(std::vector<ar::Entity>& points, mat::UInt2 size)
+	{
+		// Check if three first and three last columns are the same (same internal ID)
+		bool wrappedU = true, wrappedV = true;
+		for (size_t v = 0; v < size.v; v++)
+		{
+			size_t base = v * size.u;
+			if (points[base + 2].GetID() != points[base + (size.u - 1)].GetID()
+				|| points[base + 1].GetID() != points[base + (size.u - 2)].GetID()
+				|| points[base].GetID() != points[base + (size.u - 3)].GetID())
+			{
+				wrappedU = false;
+				break;
+			}
+		}
+		for (size_t u = 0; u < size.u; u++)
+		{
+			size_t base = u * size.v;
+			if (points[base + 2].GetID() != points[base + (size.v - 1)].GetID()
+				|| points[base + 1].GetID() != points[base + (size.v - 2)].GetID()
+				|| points[base].GetID() != points[base + (size.v - 3)].GetID())
+			{
+				wrappedV = false;
+				break;
+			}
+		}
+		return wrappedU || wrappedV;
+	}
+
 	std::vector<uint32_t> SurfaceUtils::GenerateRectangleC0Indices(SurfaceDesc desc)
 	{
 		auto indices = std::vector<uint32_t>();

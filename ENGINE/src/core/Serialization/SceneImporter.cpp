@@ -128,7 +128,11 @@ namespace ar
 		mat::UInt2 samples = LoadUInt2(surface["samples"]);
 		auto points = LoadControlPoints(surface["controlPoints"]);
 	
-		return factory.CreateSurface(points, true, size, samples, id, name);
+		// todo: detect if cylinder
+		SurfaceType type = ar::SurfaceUtils::IsSurfaceC0Cylinder(points, size) ? SurfaceType::CYLINDERC0 : SurfaceType::RECTANGLEC0;
+
+
+		return factory.CreateSurface(points, type, size, samples, id, name);
 	}
 
 	ar::Entity SceneImporter::ImportSurfaceC2(json surface, SceneFactory& factory)
@@ -139,7 +143,11 @@ namespace ar
 		mat::UInt2 samples = LoadUInt2(surface["samples"]);
 		auto points = LoadControlPoints(surface["controlPoints"]);
 
-		return factory.CreateSurface(points, false, size, samples, id, name);
+		// todo: detect if cylinder
+		SurfaceType type = ar::SurfaceUtils::IsSurfaceC2Cylinder(points, size) ? SurfaceType::CYLINDERC2 : SurfaceType::RECTANGLEC2;
+
+
+		return factory.CreateSurface(points, type, size, samples, id, name);
 	}
 
 	ar::mat::Vec3 SceneImporter::LoadVec3(json data)

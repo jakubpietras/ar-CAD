@@ -20,7 +20,7 @@ namespace ar
 		Entity CreateCurveC0(std::vector<Entity> points, std::optional<uint32_t> id, const std::string& name = std::string());
 		Entity CreateCurveC2(std::vector<Entity> points, std::optional<uint32_t> id, const std::string& name = std::string());
 		Entity CreateInterpolatedC2(std::vector<Entity> points, std::optional<uint32_t> id, const std::string& name = std::string());
-		Entity CreateSurface(std::vector<Entity>& points, bool isC0, mat::UInt2 size, mat::UInt2 samples, std::optional<uint32_t> id, const std::string& name = std::string());
+		Entity CreateSurface(std::vector<Entity>& points, SurfaceType type, mat::UInt2 size, mat::UInt2 samples, std::optional<uint32_t> id, const std::string& name = std::string());
 		Entity CreateSurface(mat::Vec3 origin, SurfaceDesc desc, ar::Entity tempSurface);
 		Entity CreateGregoryPatch(ar::Hole holeToFill, std::optional<uint32_t> id, const std::string& name = std::string());
 

@@ -236,7 +236,7 @@ namespace ar
 		return tempSurface;
 	}
 
-	ar::Entity SceneFactory::CreateSurface(std::vector<Entity>& points, bool isC0, 
+	ar::Entity SceneFactory::CreateSurface(std::vector<Entity>& points, SurfaceType type, 
 		mat::UInt2 size, mat::UInt2 samples, std::optional<uint32_t> id, const std::string& name)
 	{
 		ar::Ref<ar::Shader> shader, pickingShader;
@@ -248,7 +248,7 @@ namespace ar
 			entity = m_Scene->CreateEntity(std::nullopt, name);
 		auto& sc = entity.AddComponent<SurfaceComponent>();
 
-		if (isC0)
+		if (type == SurfaceType::RECTANGLEC0 || type == SurfaceType::CYLINDERC0)
 		{
 			shader = ar::ShaderLib::Get("SurfaceC0");
 			pickingShader = ar::ShaderLib::Get("SurfaceC0Picking");
@@ -261,17 +261,12 @@ namespace ar
 
 		SurfaceDesc desc;
 		desc.Size = size;
-		if (isC0)
+		if (type == SurfaceType::RECTANGLEC0 || type == SurfaceType::CYLINDERC0)
 			desc.Segments = { (size.u - 1) / 3, (size.v - 1) / 3 };
 		else
 			desc.Segments = { size.u - 3, size.v - 3 };
 		desc.Samples = samples;
-
-		// todo: THIS POTENTIALLY WILL BE REALLY BAD FOR INTERSECTIONS
-		if (isC0)
-			desc.Type = SurfaceType::RECTANGLEC0;
-		else
-			desc.Type = SurfaceType::RECTANGLEC2;
+		desc.Type = type;
 		sc.Description = desc;
 
 		// Assign generated points to a surface
@@ -285,8 +280,6 @@ namespace ar
 		}
 		auto& cp = entity.AddComponent<ar::ControlPointsComponent>();
 		cp.Points = points;
-		// In case of cylinders, some points are repeated, and so desc.Size needs to be updated
-		desc = ar::SurfaceUtils::AdjustSurfaceDescription(desc);
 		cp.Indices = ar::SurfaceUtils::GenerateSurfaceRefIndices(desc);
 		if (desc.Type == SurfaceType::RECTANGLEC2 || desc.Type == SurfaceType::CYLINDERC2)
 			sc.AuxPoints = ar::SurfaceUtils::GetBezierFromDeBoor(entity);
