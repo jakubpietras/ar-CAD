@@ -2,6 +2,7 @@
 #include <cmath>
 #include <cassert>
 #include <initializer_list>
+#include <stdexcept>
 
 namespace ar
 {
@@ -396,6 +397,7 @@ namespace ar
 		{
 			float x, y, z, w;
 			const float* Data() const;
+			float* Data();
 			constexpr Vec4(float x = 0.0f, float y = 0.0f, float z = 0.0f, float w = 0.0f)
 				: x(x), y(y), z(z), w(w) { }
 			constexpr Vec4(const Vec3& v3, float w)
@@ -577,6 +579,39 @@ namespace ar
 			{
 				return !(*this == other);
 			}
+
+			constexpr float operator[](const size_t index) const {
+				switch (index)
+				{
+				case 0:
+					return x;
+				case 1:
+					return y;
+				case 2:
+					return z;
+				case 3: 
+					return w;
+				default:
+					throw new std::runtime_error("Incorrect indexing");
+				}
+			}
+
+			float& operator[](const size_t index) {
+				switch (index)
+				{
+				case 0:
+					return x;
+				case 1:
+					return y;
+				case 2:
+					return z;
+				case 3:
+					return w;
+				default:
+					throw new std::runtime_error("Incorrect indexing");
+				}
+			}
+
 		};
 
 		constexpr Vec3::Vec3(const Vec4& other)

@@ -24,13 +24,15 @@ namespace ar
 		static float LineSearchSquaredDistance(ar::Entity firstObject, ar::Entity secondObject, ar::mat::Vec4 params, ar::mat::Vec4 direction);
 		static float SquaredDistanceValue(ar::Entity firstObject, ar::Entity secondObject, ar::mat::Vec4 params);
 		static bool ClampWrapUV(ar::Entity obj, float& u, float& v);
-		static void ClampWrapObjects(ar::Entity o1, ar::Entity o2, ar::mat::Vec4& p);
+		static bool ClampWrapObjects(ar::Entity o1, ar::Entity o2, ar::mat::Vec4& p);
 		static float PolakRibiere(mat::Vec4 prevGrad, mat::Vec4 currGrad);
 		static SegmentInfo MapMultipatch(ar::Entity patch, float u, float v);
 
 		// Tracing the intersection curve:
-		static mat::Vec4 NewtonMinimization(ar::Entity firstObject, ar::Entity secondObject, mat::Vec4 initial);
-		
+		static bool NewtonMinimization(ar::mat::Vec4& result, ar::Entity firstObject, ar::Entity secondObject, mat::Vec4 initial, double distance);
+		static mat::Mat4 IntersectionFuncJacobian(ar::Entity firstObject, ar::Entity secondObject, mat::Vec4 params, ar::mat::Vec3 tangent);
+		static mat::Vec4 IntersectionFuncValue(ar::Entity firstObject, ar::Entity secondObject, 
+			mat::Vec4 params, ar::mat::Vec3 tangent, ar::mat::Vec3 startPoint, float stepLength);
 
 		// --------- 
 		static mat::Vec3 DerivativeU(ar::Entity object, float u, float v);

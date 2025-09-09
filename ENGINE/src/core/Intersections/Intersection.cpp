@@ -13,7 +13,10 @@ namespace ar
 	{
 		const size_t samples = 10;
 		auto params = CalculateStartingParams(firstObject, secondObject, samples);
-		return Evaluate(firstObject, params.x, params.y);
+		ar::mat::Vec4 newtonized;
+		auto result = NewtonMinimization(newtonized, firstObject, secondObject, params, 0.03);
+		AR_TRACE("Newton: {0}", result);
+		return Evaluate(firstObject, newtonized.x, newtonized.y);
 	}
 
 	ar::mat::Vec4 Intersection::CalculateStartingParams(ar::Entity firstObject, ar::Entity secondObject, size_t samples)
@@ -208,10 +211,11 @@ namespace ar
 		return success;
 	}
 
-	void Intersection::ClampWrapObjects(ar::Entity o1, ar::Entity o2, ar::mat::Vec4& p)
+	bool Intersection::ClampWrapObjects(ar::Entity o1, ar::Entity o2, ar::mat::Vec4& p)
 	{
-		ClampWrapUV(o1, p.x, p.y);
-		ClampWrapUV(o2, p.z, p.w);
+		auto cw1 = ClampWrapUV(o1, p.x, p.y);
+		auto cw2 = ClampWrapUV(o2, p.z, p.w);
+		return cw1 && cw2;
 	}
 
 	float Intersection::PolakRibiere(mat::Vec4 prevGrad, mat::Vec4 currGrad)
@@ -282,9 +286,106 @@ namespace ar
 		return info;
 	}
 
-	ar::mat::Vec4 Intersection::NewtonMinimization(ar::Entity firstObject, ar::Entity secondObject, mat::Vec4 initial)
+	bool Intersection::NewtonMinimization(ar::mat::Vec4& result, ar::Entity firstObject, ar::Entity secondObject, mat::Vec4 initial, double distance)
 	{
-		throw new std::runtime_error("Not implemented");
+		const size_t iterations = 20;
+		const float dampingFactor = 0.1f;
+		const float precision = 1e-8;
+		bool repeat = false;
+
+		auto startPoint = Evaluate(firstObject, initial.x, initial.y);
+		auto dS1du = DerivativeU(firstObject, initial.x, initial.y), dS1dv = DerivativeV(firstObject, initial.x, initial.y);
+		auto dS2du = DerivativeU(secondObject, initial.z, initial.w), dS2dv = DerivativeV(secondObject, initial.z, initial.w);
+		
+		auto normalS1 = mat::Normalize(mat::Cross(dS1du, dS1dv));
+		auto normalS2 = mat::Normalize(mat::Cross(dS2du, dS2dv));
+		auto tangent = mat::Normalize(mat::Cross(normalS1, normalS2));
+		if (!isfinite(tangent.x) || !isfinite(tangent.y) || !isfinite(tangent.z) || mat::Length(tangent) < 1e-6) 
+		{
+			tangent = mat::Normalize(dS1du);
+			repeat = true;
+		}
+
+		ar::mat::Vec4 params = initial, prevParams = initial;
+
+		for (size_t i = 0; i < iterations; i++)
+		{
+			auto functionValue = IntersectionFuncValue(firstObject, secondObject, params, tangent, startPoint, distance);
+			auto jacobian = IntersectionFuncJacobian(firstObject, secondObject, params, tangent);
+			auto delta = mat::SolveLinear(jacobian, functionValue);
+			
+			prevParams = params;
+			params -= delta * dampingFactor;
+
+			if (!ClampWrapObjects(firstObject, secondObject, params))
+			{
+				result = prevParams;
+				return false;
+			}
+			if (mat::Dot(delta, delta) < precision)
+			{
+				result = params;
+				return true;
+			}
+			if (!isfinite(params.x) || !isfinite(params.y) || !isfinite(params.z) || !isfinite(params.w)) {
+				result = prevParams;
+				return false;
+			}
+
+			prevParams = params;
+			if (repeat && i == iterations - 1) 
+			{
+				dS1dv = DerivativeV(firstObject, initial.x, initial.y);
+				tangent = mat::Normalize(dS1dv);
+				repeat = false;
+				i = 0;
+			}
+		}
+
+		result = params;
+		return true;
+	}
+
+	ar::mat::Mat4 Intersection::IntersectionFuncJacobian(ar::Entity firstObject, ar::Entity secondObject, mat::Vec4 params, ar::mat::Vec3 tangent)
+	{
+		auto p = Evaluate(firstObject, params.x, params.y);
+		auto q = Evaluate(secondObject, params.z, params.w);
+
+		auto dPdu = DerivativeU(firstObject, params.x, params.y), dPdv = DerivativeV(firstObject, params.x, params.y);
+		auto dQdu = DerivativeU(firstObject, params.z, params.w), dQdv = DerivativeV(firstObject, params.z, params.w);
+
+		mat::Mat4 j;
+		j(0, 0) = dPdu.x;
+		j(1, 0) = dPdu.y;
+		j(2, 0) = dPdu.z;
+		j(3, 0) = 0.5f * mat::Dot(dPdu, tangent);
+
+		j(0, 1) = dPdv.x;
+		j(1, 1) = dPdv.y;
+		j(2, 1) = dPdv.z;
+		j(3, 1) = 0.5f * mat::Dot(dPdv, tangent);
+
+		j(0, 2) = -dQdu.x;
+		j(1, 2) = -dQdu.y;
+		j(2, 2) = -dQdu.z;
+		j(3, 2) = 0.5f * mat::Dot(dQdu, tangent);
+
+		j(0, 3) = -dQdv.x;
+		j(1, 3) = -dQdv.y;
+		j(2, 3) = -dQdv.z;
+		j(3, 3) = 0.5f * mat::Dot(dQdv, tangent);
+
+		return j;
+	}
+
+	ar::mat::Vec4 Intersection::IntersectionFuncValue(ar::Entity firstObject, ar::Entity secondObject, mat::Vec4 params, ar::mat::Vec3 tangent, ar::mat::Vec3 startPoint, float stepLength)
+	{
+		auto p = Evaluate(firstObject, params.x, params.y);
+		auto q = Evaluate(secondObject, params.z, params.w);
+		auto diff = p - q;
+		auto midpoint = (p + q) * 0.5;
+
+		return {diff.x, diff.y, diff.z, mat::Dot(midpoint - startPoint, tangent) - stepLength};
 	}
 
 	ar::mat::Vec3 Intersection::DerivativeU(ar::Entity object, float u, float v)

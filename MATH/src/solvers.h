@@ -3,6 +3,7 @@
 #include "vector_types.h"
 #include <type_traits>
 #include <stdexcept>
+#include "matrix_types.h"
 
 namespace ar
 {
@@ -19,6 +20,9 @@ namespace ar
 			const std::vector<float>& upper,
 			const std::vector<Vec3>& rhs);
 		
+		Vec4 SolveLinear(Mat4 A, Vec4 b);
+
+
 		template <typename T, typename U>
 		auto Lerp(const T& a, const T& b, const U& t)
 			-> decltype(a + (b - a) * t)
