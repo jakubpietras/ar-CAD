@@ -9,6 +9,7 @@
 #include "core/Geometry/GregoryFill.h"
 #include "core/Scene/Components.h"
 #include "core/Intersections/Intersection.h"
+#include "core/Scene/DebugRenderer.h"
 
 EditorSceneController::EditorSceneController(ar::Ref<ar::Scene> scene, ar::SceneRenderer& sceneRender)
 	: m_Scene(scene), m_SceneRenderer(sceneRender),
@@ -163,7 +164,10 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 		// -------- todo: DEBUG BELOW
 		state.CursorPosition = point;
 		// 
-		//auto curve = ar::Intersection::TraceIntersectionCurve(objs[0], objs[1]);
+		/*auto curve = ar::Intersection::TraceIntersectionCurve(objs[0], objs[1]);
+		for (size_t i = 0; i < curve.first.size() - 1; i++)
+			ar::DebugRenderer::AddLine(curve.first[i], curve.first[i + 1]);*/
+		
 		// --------
 		state.ShouldComputeIntersection = false;
 	}
