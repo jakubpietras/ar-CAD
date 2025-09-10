@@ -30,7 +30,7 @@ namespace ar
 		return { dxdv, dydv, dzdv };
 	}
 
-	ar::mat::Vec3 mat::DerivativeUBezierPatch(const std::vector<Vec3>& controlPoints, float u, float v)
+	ar::mat::Vec3 mat::DerivativeUBezierPatch(const std::array<ar::mat::Vec3, 16>& controlPoints, float u, float v)
 	{
 		// P(u,v) = Bi(u) * Bj(v) * Pij (sum)
 		// dPdu = Bi'(u) * Bj(v) * Pij
@@ -52,7 +52,7 @@ namespace ar
 		return CubicDeCasteljau(points, v);
 	}
 
-	ar::mat::Vec3 mat::DerivativeVBezierPatch(const std::vector<Vec3>& controlPoints, float u, float v)
+	ar::mat::Vec3 mat::DerivativeVBezierPatch(const std::array<ar::mat::Vec3, 16>& controlPoints, float u, float v)
 	{
 		// P(u,v) = Bi(u) * Bj(v) * Pij (sum)
 		// dPdu = Bi(u) * Bj'(v) * Pij
@@ -60,7 +60,7 @@ namespace ar
 
 		if (controlPoints.size() != 16)
 			throw std::runtime_error("Incorrect number of control points in a single patch");
-		
+
 		std::array<mat::Vec3, 4> points, tmp;
 		for (size_t col = 0; col < 4; col++)
 		{

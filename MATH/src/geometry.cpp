@@ -19,7 +19,7 @@ namespace ar::mat
 		return { x, y, z };
 	}
 
-	ar::mat::Vec3 EvaluateBezierPatch(const std::vector<Vec3>& controlPoints, float u, float v)
+	ar::mat::Vec3 EvaluateBezierPatch(const std::array<ar::mat::Vec3, 16>& controlPoints, float u, float v)
 	{
 		std::array<Vec3, 4> points, tmp;
 		for (size_t row = 0; row < 4; row++)

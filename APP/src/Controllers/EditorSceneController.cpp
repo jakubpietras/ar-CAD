@@ -157,8 +157,13 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 		//ar::Intersection::DrawDerivatives(objs[0], 10);
 		//ar::Intersection::DrawEvaluations(objs[0], 10);
 
+		ar::mat::Vec3 point;
+		if (objs.size() == 1)
+			point = ar::Intersection::FindStartingPoint(objs[0], objs[0]);
+		else if (objs.size() == 2)
+			point = ar::Intersection::FindStartingPoint(objs[0], objs[1]);
+		ar::Intersection::Invalidate();
 
-		auto point = ar::Intersection::FindStartingPoint(objs[0], objs[1]);
 		//AR_TRACE("Intersection: ({0}, {1}, {2}", point.x, point.y, point.z);
 		
 		// -------- todo: DEBUG BELOW

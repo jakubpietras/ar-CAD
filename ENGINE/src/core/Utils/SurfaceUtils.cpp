@@ -243,22 +243,16 @@ namespace ar
 		return indices;
 	}
 
-	std::vector<ar::Entity> SurfaceUtils::GetSegmentPoints(ar::Entity surface, mat::Vec2 segment)
+	std::array<ar::mat::Vec3, 16> SurfaceUtils::GetSegmentPointsPosC0(ar::Entity surface, mat::Vec2 segment)
 	{
 		auto& desc = surface.GetComponent<ar::SurfaceComponent>().Description;
 		auto& ctrlPoints = surface.GetComponent<ar::ControlPointsComponent>().Points;
 		std::vector<ar::Entity> points;
 		points.reserve(16);
+
 		size_t startU, startV;
-		if (desc.Type == SurfaceType::RECTANGLEC0 || desc.Type == SurfaceType::CYLINDERC0)
-		{
-			startU = 3 * segment.x;
-			startV = 3 * segment.y;
-		} else
-		{
-			startU = segment.x;
-			startV = segment.y;
-		}
+		startU = 3 * segment.x;
+		startV = 3 * segment.y;
 
 		for (int j = 0; j < 4; j++)
 		{
@@ -268,11 +262,17 @@ namespace ar
 				points.push_back(ctrlPoints[index]);
 			}
 		}
-		return points;
+		auto positions = ar::GeneralUtils::GetPos(points);
+		std::array<ar::mat::Vec3, 16> result;
+		std::copy_n(positions.begin(), 16, result.begin());
+		return result;
 	}
 
-	std::vector<ar::mat::Vec3> SurfaceUtils::GetSegmentPointsBezier(std::vector<ar::mat::Vec3>& points, SurfaceDesc desc, mat::Vec2 segment)
+	std::array<ar::mat::Vec3, 16> SurfaceUtils::GetSegmentPointsPosC2(ar::Entity surface, mat::Vec2 segment)
 	{
+		auto& surf = surface.GetComponent<ar::SurfaceComponent>();
+		auto desc = surf.Description;
+		auto& points = *surf.AuxPoints;
 		std::vector<ar::mat::Vec3> segmentPoints;
 		segmentPoints.reserve(16);
 		size_t startU = 3 * segment.x, startV = 3 * segment.y;
@@ -286,7 +286,9 @@ namespace ar
 				segmentPoints.push_back(points[index]);
 			}
 		}
-		return segmentPoints;
+		std::array<ar::mat::Vec3, 16> result;
+		std::copy_n(segmentPoints.begin(), 16, result.begin());
+		return result;
 	}
 
 	std::vector<ar::mat::Vec3> SurfaceUtils::GetBezierFromDeBoor(ar::Entity surface)

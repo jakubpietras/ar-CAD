@@ -1,5 +1,8 @@
 #pragma once
 #include "core/Scene/Entity.h"
+#include <variant>
+#include "core/Utils/TorusUtils.h"
+#include "core/Utils/SurfaceUtils.h"
 
 namespace ar
 {
@@ -9,17 +12,43 @@ namespace ar
 		ar::mat::Vec2 scaling;      // Scaling factors for derivatives (chain rule)
 	};
 
+	struct TorusIntersectData
+	{
+		TorusDesc Description;
+		ar::mat::Mat4 ModelMatrix;
+	};
+
+	struct SurfaceIntersectData
+	{
+		SurfaceDesc Description;
+		std::vector<std::array<ar::mat::Vec3, 16>> SegmentPoints;
+	};
+
+	struct ObjectInfo
+	{
+		enum class ObjectType
+		{
+			TORUS,
+			SURFACEC0,
+			SURFACEC2
+		};
+		ObjectType Type;
+		std::variant<TorusIntersectData, SurfaceIntersectData> Data;
+	};
+
 	class Intersection
 	{
 	public:
 		// 'main' function will return data for the intersection curve
 		static mat::Vec3 FindStartingPoint(ar::Entity firstObject, ar::Entity secondObject);
 		static std::pair<std::vector<mat::Vec3>, std::vector<mat::Vec4>> TraceIntersectionCurve(ar::Entity firstObject, ar::Entity secondObject);
+		static void Invalidate();
 		static void DrawDerivatives(ar::Entity object, size_t samples);
 		static void DrawEvaluations(ar::Entity object, size_t samples);
 
 	private:
-		// DEBUG
+		static std::unordered_map<uint32_t, ObjectInfo> m_ObjectData;
+		static void PreprocessObject(ar::Entity object);
 
 		// Preliminary search for best first guess:
 		static mat::Vec4 CalculateStartingParams(ar::Entity firstObject, ar::Entity secondObject, size_t samples);

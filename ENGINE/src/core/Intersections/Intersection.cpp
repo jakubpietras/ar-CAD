@@ -10,9 +10,58 @@
 
 namespace ar
 {
+	std::unordered_map<uint32_t, ObjectInfo> Intersection::m_ObjectData;
+
+	void Intersection::PreprocessObject(ar::Entity object)
+	{
+		ObjectInfo info;
+		if (object.HasComponent<TorusComponent>())
+		{
+			info.Type = ObjectInfo::ObjectType::TORUS;
+			auto description = object.GetComponent<ar::TorusComponent>().Description;
+			auto modelMatrix = object.GetComponent<ar::TransformComponent>().ModelMatrix;
+			info.Data = TorusIntersectData(description, modelMatrix);
+		}
+		if (object.HasComponent<SurfaceComponent>())
+		{
+			auto& surf = object.GetComponent<SurfaceComponent>();
+			auto desc = surf.Description;
+			std::vector<std::array<ar::mat::Vec3, 16>> segments(desc.Segments.u * desc.Segments.v);
+			auto& controlPoints = object.GetComponent<ar::ControlPointsComponent>().Points;
+
+			if (desc.Type == SurfaceType::RECTANGLEC2 || desc.Type == SurfaceType::CYLINDERC2)
+			{
+				info.Type = ObjectInfo::ObjectType::SURFACEC2;
+				for (size_t segV = 0; segV < desc.Segments.v; segV++)
+					for (size_t segU = 0; segU < desc.Segments.u; segU++)
+					{
+						size_t segmentIndex = segV * desc.Segments.u + segU;
+						segments[segmentIndex] = ar::SurfaceUtils::GetSegmentPointsPosC2(object, { (float)segU, (float)segV });
+					}
+			}
+			else
+			{
+				info.Type = ObjectInfo::ObjectType::SURFACEC0;
+				for (size_t segV = 0; segV < desc.Segments.v; segV++)
+					for (size_t segU = 0; segU < desc.Segments.u; segU++)
+					{
+						size_t segmentIndex = segV * desc.Segments.u + segU;
+						segments[segmentIndex] = ar::SurfaceUtils::GetSegmentPointsPosC0(object, { (float)segU, (float)segV });
+					}
+			}
+
+			info.Data = SurfaceIntersectData(desc, segments);
+		}
+
+		m_ObjectData[object.GetID()] = info;
+	}
+
 	ar::mat::Vec3 Intersection::FindStartingPoint(ar::Entity firstObject, ar::Entity secondObject)
 	{
 		const size_t samples = 10;
+		PreprocessObject(firstObject);
+		PreprocessObject(secondObject);
+
 		auto params = CalculateStartingParams(firstObject, secondObject, samples);
 		ar::mat::Vec4 newtonized;
 		auto result = NewtonMinimization(newtonized, firstObject, secondObject, params, 0.02);
@@ -165,6 +214,11 @@ namespace ar
 		curveParams.insert(curveParams.begin(), reverseCurveParams.rbegin(), reverseCurveParams.rend());
 
 		return { curvePoints, curveParams };
+	}
+
+	void Intersection::Invalidate()
+	{
+		m_ObjectData.clear();
 	}
 
 	void Intersection::DrawDerivatives(ar::Entity object, size_t samples)
@@ -564,66 +618,66 @@ namespace ar
 
 	ar::mat::Vec3 Intersection::DerivativeU(ar::Entity object, float u, float v)
 	{
-		if (object.HasComponent<ar::TorusComponent>())
-		{
-			auto desc = object.GetComponent<ar::TorusComponent>().Description;
-			auto model = object.GetComponent<ar::TransformComponent>().ModelMatrix;
-			auto derivative = model * mat::Vec4(ar::mat::DerivativeUTorus(desc.SmallRadius, desc.LargeRadius, u, v), 0.f);
+		auto& info = m_ObjectData[object.GetID()];
 
-			return mat::Vec3(derivative);
+		switch (info.Type)
+		{
+		case ObjectInfo::ObjectType::TORUS:
+		{
+			if (auto torus = std::get_if<TorusIntersectData>(&info.Data))
+			{
+				auto desc = torus->Description;
+				auto derivative = torus->ModelMatrix * mat::Vec4(ar::mat::DerivativeUTorus(desc.SmallRadius, desc.LargeRadius, u, v), 0.f);
+				return mat::Vec3(derivative);
+			}
+			break;
 		}
-		if (object.HasComponent<ar::SurfaceComponent>())
+		case ObjectInfo::ObjectType::SURFACEC0:
+		case ObjectInfo::ObjectType::SURFACEC2:
 		{
-			auto& surf = object.GetComponent<ar::SurfaceComponent>();
-			auto desc = surf.Description;
-			auto info = MapMultipatch(object, u, v);
-
-			if (desc.Type == SurfaceType::RECTANGLEC2 || desc.Type == SurfaceType::CYLINDERC2)
+			if (auto surface = std::get_if<SurfaceIntersectData>(&info.Data))
 			{
-				auto bezier = ar::SurfaceUtils::GetSegmentPointsBezier(*surf.AuxPoints, desc, info.segment);
-				return info.scaling.x *
-					ar::mat::DerivativeUBezierPatch(bezier, info.localParams.x, info.localParams.y);
+				auto multipatchInfo = MapMultipatch(object, u, v);
+				int segmentIndex = multipatchInfo.segment.y * surface->Description.Segments.u + multipatchInfo.segment.x;
+				return multipatchInfo.scaling.x *
+					ar::mat::DerivativeUBezierPatch(surface->SegmentPoints[segmentIndex],
+						multipatchInfo.localParams.x, multipatchInfo.localParams.y);
 			}
-			else
-			{
-				auto points = ar::SurfaceUtils::GetSegmentPoints(object, info.segment);
-				return info.scaling.x *
-					ar::mat::DerivativeUBezierPatch(GeneralUtils::GetPos(points),
-						info.localParams.x, info.localParams.y);
-			}
+			break;
+		}
 		}
 		return { 0.f, 0.f, 0.f };
 	}
 
 	ar::mat::Vec3 Intersection::DerivativeV(ar::Entity object, float u, float v)
 	{
-		if (object.HasComponent<ar::TorusComponent>())
-		{
-			auto desc = object.GetComponent<ar::TorusComponent>().Description;
-			auto model = object.GetComponent<ar::TransformComponent>().ModelMatrix;
-			auto derivative = model * mat::Vec4(ar::mat::DerivativeVTorus(desc.SmallRadius, desc.LargeRadius, u, v), 0.f);
+		auto& info = m_ObjectData[object.GetID()];
 
-			return mat::Vec3(derivative);
-		}
-		if (object.HasComponent<ar::SurfaceComponent>())
+		switch (info.Type)
 		{
-			auto& surf = object.GetComponent<ar::SurfaceComponent>();
-			auto desc = surf.Description;
-			auto info = MapMultipatch(object, u, v);
-			
-			if (desc.Type == SurfaceType::RECTANGLEC2 || desc.Type == SurfaceType::CYLINDERC2)
+		case ObjectInfo::ObjectType::TORUS:
+		{
+			if (auto torus = std::get_if<TorusIntersectData>(&info.Data))
 			{
-				auto bezier = ar::SurfaceUtils::GetSegmentPointsBezier(*surf.AuxPoints, desc, info.segment);
-				return info.scaling.y *
-					ar::mat::DerivativeVBezierPatch(bezier, info.localParams.x, info.localParams.y);
+				auto desc = torus->Description;
+				auto derivative = torus->ModelMatrix * mat::Vec4(ar::mat::DerivativeVTorus(desc.SmallRadius, desc.LargeRadius, u, v), 0.f);
+				return mat::Vec3(derivative);
 			}
-			else
+			break;
+		}
+		case ObjectInfo::ObjectType::SURFACEC0:
+		case ObjectInfo::ObjectType::SURFACEC2:
+		{
+			if (auto surface = std::get_if<SurfaceIntersectData>(&info.Data))
 			{
-				auto points = ar::SurfaceUtils::GetSegmentPoints(object, info.segment);
-				return info.scaling.y *
-					ar::mat::DerivativeVBezierPatch(GeneralUtils::GetPos(points),
-						info.localParams.x, info.localParams.y);
+				auto multipatchInfo = MapMultipatch(object, u, v);
+				int segmentIndex = multipatchInfo.segment.y * surface->Description.Segments.u + multipatchInfo.segment.x;
+				return multipatchInfo.scaling.y *
+					ar::mat::DerivativeVBezierPatch(surface->SegmentPoints[segmentIndex],
+						multipatchInfo.localParams.x, multipatchInfo.localParams.y);
 			}
+			break;
+		}
 		}
 		return { 0.f, 0.f, 0.f };
 	}
@@ -647,27 +701,31 @@ namespace ar
 
 	ar::mat::Vec3 Intersection::Evaluate(ar::Entity object, float u, float v)
 	{
-		if (object.HasComponent<ar::TorusComponent>())
+		auto& info = m_ObjectData[object.GetID()];
+		switch (info.Type)
 		{
-			auto desc = object.GetComponent<ar::TorusComponent>().Description;
-			auto model = object.GetComponent<ar::TransformComponent>().ModelMatrix;
-			auto point = model * mat::Vec4(ar::mat::EvaluateTorus(desc.SmallRadius, desc.LargeRadius, u, v), 1.f);
-			return mat::Vec3(point);
-		}
-		if (object.HasComponent<ar::SurfaceComponent>())
+		case ObjectInfo::ObjectType::TORUS:
 		{
-			auto& surf = object.GetComponent<ar::SurfaceComponent>();
-			auto desc = surf.Description;
-			auto info = MapMultipatch(object, u, v);
-
-			if (desc.Type == SurfaceType::RECTANGLEC2 || desc.Type == SurfaceType::CYLINDERC2)
+			if (auto torus = std::get_if<TorusIntersectData>(&info.Data))
 			{
-				auto bezier = ar::SurfaceUtils::GetSegmentPointsBezier(*surf.AuxPoints, desc, info.segment);
-				return ar::mat::EvaluateBezierPatch(bezier, info.localParams.x, info.localParams.y);
+				auto desc = torus->Description;
+				auto point = torus->ModelMatrix * mat::Vec4(ar::mat::EvaluateTorus(desc.SmallRadius, desc.LargeRadius, u, v), 1.f);
+				return mat::Vec3(point);
 			}
-			
-			auto points = ar::SurfaceUtils::GetSegmentPoints(object, info.segment);
-			return ar::mat::EvaluateBezierPatch(GeneralUtils::GetPos(points), info.localParams.x, info.localParams.y);
+			break;
+		}
+		case ObjectInfo::ObjectType::SURFACEC0:
+		case ObjectInfo::ObjectType::SURFACEC2:
+		{
+			if (auto surface = std::get_if<SurfaceIntersectData>(&info.Data))
+			{
+				auto multipatchInfo = MapMultipatch(object, u, v);
+				int segmentIndex = multipatchInfo.segment.y * surface->Description.Segments.u + multipatchInfo.segment.x;
+				return ar::mat::EvaluateBezierPatch(surface->SegmentPoints[segmentIndex],
+					multipatchInfo.localParams.x, multipatchInfo.localParams.y);
+			}
+			break;
+		}
 		}
 		return { 0.f, 0.f, 0.f };
 	}

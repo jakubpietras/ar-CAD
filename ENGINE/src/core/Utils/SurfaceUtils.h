@@ -33,8 +33,8 @@ namespace ar
 		static SurfaceDesc AdjustSurfaceDescription(SurfaceDesc desc);
 		static std::vector<uint32_t> GenerateControlMeshIndices(SurfaceDesc desc);
 
-		static std::vector<ar::Entity> GetSegmentPoints(ar::Entity surface, mat::Vec2 segment);
-		static std::vector<ar::mat::Vec3> GetSegmentPointsBezier(std::vector<ar::mat::Vec3>& points, SurfaceDesc desc, mat::Vec2 segment);
+		static std::array<ar::mat::Vec3, 16> GetSegmentPointsPosC0(ar::Entity surface, mat::Vec2 segment);
+		static std::array<ar::mat::Vec3, 16> GetSegmentPointsPosC2(ar::Entity surface, mat::Vec2 segment);
 		static std::vector<ar::mat::Vec3> GetBezierFromDeBoor(ar::Entity surface);
 		static bool IsSurfaceC0Cylinder(std::vector<ar::Entity>& points, mat::UInt2 size);
 		static bool IsSurfaceC2Cylinder(std::vector<ar::Entity>& points, mat::UInt2 size);
