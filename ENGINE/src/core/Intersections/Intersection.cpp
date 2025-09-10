@@ -23,141 +23,127 @@ namespace ar
 		return midpointNewtonized;
 	}
 
-	std::pair<std::vector<ar::mat::Vec3>, std::vector<ar::mat::Vec4>> Intersection::TraceIntersectionCurve(ar::Entity firstObject, ar::Entity secondObject)
+	std::pair<std::vector<ar::mat::Vec3>, std::vector<ar::mat::Vec4>> Intersection::TraceIntersectionCurve(ar::Entity firstObject, ar::Entity secondObject, float step)
 	{
 		const float precision = 1e-4;
 		const size_t iterations = 100;
 		const float loopEps = 0.001f;
-		const float d = 0.5;
+		float d = step;
 
 		std::vector<mat::Vec3> curvePoints;
 		std::vector<mat::Vec4> curveParams;
-		ar::mat::Vec4 startParams, params, prevParams;
-		ar::mat::Vec3 startPoint, midpoint, prevMidpoint;
-		AR_TRACE("Before calculating starting param");
+		ar::mat::Vec4 params, prevParams, optimizedParams;
+		ar::mat::Vec3 point, prevPoint;
 
+		// STARTING PARAMETERS
 		auto start = CalculateStartingParams(firstObject, secondObject, 10);
-		startParams = start;
 		auto p1 = Evaluate(firstObject, start.x, start.y);
 		auto p2 = Evaluate(secondObject, start.z, start.w);
-
-		// Validate if there's an intersection at the starting point
-		if (mat::LengthSquared(p1 - p2) > 1e-2)
+		mat::Vec4 startParams = start;
+		mat::Vec3 startPoint = 0.5f * (p1 + p2);
+		
+		// P1 should be nearly the same as P2
+		/*if (mat::LengthSquared(p1 - p2) > 1e-2)
 		{
-			AR_TRACE("Sorry, length squared precision checkkk!!! -_-'");
 			return { curvePoints, curveParams };
-		}
+		}*/
 
-		startPoint = midpoint = prevMidpoint = 0.5 * (p1 + p2);
-		params = prevParams = start;
+		startPoint = point = prevPoint = 0.5 * (p1 + p2);
+		params = prevParams = startParams;
 		for (size_t i = 0; i < iterations; i++)
 		{
-			AR_TRACE("Akshually I entered here");
 			p1 = Evaluate(firstObject, params.x, params.y);
 			p2 = Evaluate(secondObject, params.z, params.w);
-			startPoint = 0.5 * (p1 + p2);
 
 			// Optimize the parameters with Newton method
-			bool success = NewtonMinimization(params, firstObject, secondObject, start, d);
-			if (!success) AR_ERROR("Newton failed on iteration {0}", i);
+			bool success = NewtonMinimization(optimizedParams, firstObject, secondObject, params, d);
 
-			p1 = Evaluate(firstObject, params.x, params.y);
-			p2 = Evaluate(secondObject, params.z, params.w);
-			midpoint = 0.5 * (p1 + p2);
+			// After moving d units along the curve, compute a new point
+			p1 = Evaluate(firstObject, optimizedParams.x, optimizedParams.y);
+			p2 = Evaluate(secondObject, optimizedParams.z, optimizedParams.w);
+			point = 0.5 * (p1 + p2); 
+			auto midpointDiff = point - prevPoint;
 
-			// NOW calculate the difference after Newton step
-			auto midpointDiff = midpoint - prevMidpoint;
-			AR_WARN("midpointDiff^2 = {0}", mat::Dot(midpointDiff, midpointDiff));
-
+			// Retry Newton 5 times if attempt was unsuccessful or it overshot
+			params = optimizedParams;
 			for (size_t k = 0; k < 5 && (!success || mat::Dot(midpointDiff, midpointDiff) > precision); k++)
 			{
-				success = NewtonMinimization(params, firstObject, secondObject, start, d * powf(0.5, k + 1));
-				if (!success) AR_ERROR("Newton failed on iteration {0}", i);
-
-				// Recalculate midpoint and difference after each refinement step
+				auto newDistance = d / (powf(2, k + 1));
+				success = NewtonMinimization(params, firstObject, secondObject, optimizedParams, newDistance);
 				p1 = Evaluate(firstObject, params.x, params.y);
 				p2 = Evaluate(secondObject, params.z, params.w);
-				midpoint = 0.5 * (p1 + p2);
-				midpointDiff = midpoint - prevMidpoint;
+				point = 0.5 * (p1 + p2);
+				midpointDiff = point - prevPoint;
 			}
 
-			// Validate
+			// -----  At this stage, 'params' is the established (u1, v1, s1, t1)  -------
+
+			// HANDLE STEPPING OUTSIDE THE DOMAIN
 			if (!ClampWrapObjects(firstObject, secondObject, params))
 			{
-				AR_ERROR("ClampWrap failed on iteration {0}", i);
 				break;
 			}
-
-			// Check if loop
+			// HANDLE LOOPING
 			if (!curveParams.empty() && (mat::Length(params - curveParams[0]) < loopEps) && i > 5)
 			{
 				curvePoints.push_back(curvePoints[0]);
 				curveParams.push_back(curveParams[0]);
 				return { curvePoints, curveParams };
 			}
-
-			// Check if Newton successful
-			if (!success || mat::Dot(midpointDiff, midpointDiff) > precision)
+			// HANDLE DUPLICATE POINTS
+			if (!curvePoints.empty() && (mat::Length(curvePoints.back() - point) < 1e-8))
 			{
 				prevParams = params;
-				// Don't update prevMidpoint here - we want to try again from current position
 				continue;
 			}
 
-			if (!curvePoints.empty() && (mat::Length(curvePoints.back() - midpoint) < 1e-8))
-			{
-				prevParams = params;
-				// Don't update prevMidpoint here either
-				continue;
-			}
-
-			// No edge cases detected - accept this point:
-			curvePoints.push_back(midpoint);
+			// No edge cases detected - accept this point
+			curvePoints.push_back(point);
 			curveParams.push_back(params);
 
 			prevParams = params;
-			startPoint = midpoint;
-			prevMidpoint = midpoint;  // Update prevMidpoint only when we accept a point
+			prevPoint = point;
 		}
 
 		std::vector<mat::Vec3> reverseCurvePoints;
 		std::vector<mat::Vec4> reverseCurveParams;
 
-		startPoint = 0.5f * (Evaluate(firstObject, start.x, start.y) + Evaluate(secondObject, start.z, start.w));
-		params = start;
-
+		point = prevPoint = startPoint;
+		params = optimizedParams = start;
 		for (size_t i = 0; i < iterations; i++)
 		{
 			p1 = Evaluate(firstObject, params.x, params.y);
 			p2 = Evaluate(secondObject, params.z, params.w);
-			startPoint = 0.5 * (p1 + p2);
-			start = params;
 
 			// Negative step to go in the other direction
-			auto success = NewtonMinimization(params, firstObject, secondObject, start, -d);
-			p1 = Evaluate(firstObject, params.x, params.y);
-			p2 = Evaluate(secondObject, params.z, params.w);
-			
-			midpoint = 0.5f * (p1 + p2);
-			auto midpointDiff = midpoint - prevMidpoint;
+			auto success = NewtonMinimization(optimizedParams, firstObject, secondObject, params, -d);
+			p1 = Evaluate(firstObject, optimizedParams.x, optimizedParams.y);
+			p2 = Evaluate(secondObject, optimizedParams.z, optimizedParams.w);
+			point = 0.5 * (p1 + p2);
+			auto midpointDiff = point - prevPoint;
 
+			params = optimizedParams;
 			for (size_t k = 0; k < 5 && (!success || mat::Dot(midpointDiff, midpointDiff) > precision); k++)
 			{
-				NewtonMinimization(params, firstObject, secondObject, start, d * powf(0.5, k + 1));
+				auto newDistance = -d / (powf(2, k + 1));
+				success = NewtonMinimization(params, firstObject, secondObject, optimizedParams, newDistance);
+				p1 = Evaluate(firstObject, params.x, params.y);
+				p2 = Evaluate(secondObject, params.z, params.w);
+				point = 0.5 * (p1 + p2);
+				midpointDiff = point - prevPoint;
 			}
 
 			if (!success || mat::Dot(p1 - p2, p1 - p2) > precision)
 			{
 				prevParams = params;
-				startPoint = midpoint;
 				continue;
 			}
 
-			reverseCurvePoints.push_back(midpoint);
+			reverseCurvePoints.push_back(point);
 			reverseCurveParams.push_back(params);
 
 			prevParams = params;
-			startPoint = midpoint;
+			prevPoint = point;
 		}
 
 		// Stitch forward and reverse curve
@@ -169,7 +155,7 @@ namespace ar
 
 	void Intersection::DrawDerivatives(ar::Entity object, size_t samples)
 	{
-		auto params = GenerateUVPairs(samples);
+		auto params = GenerateUVPairs(samples, true);
 		ar::DebugRenderer::Clear();
 		for (auto& pair : params)
 		{
@@ -182,7 +168,7 @@ namespace ar
 
 	void Intersection::DrawEvaluations(ar::Entity object, size_t samples)
 	{
-		auto params = GenerateUVPairs(samples);
+		auto params = GenerateUVPairs(samples, true);
 		ar::DebugRenderer::Clear();
 		for (auto& pair : params)
 		{
@@ -193,7 +179,8 @@ namespace ar
 
 	ar::mat::Vec4 Intersection::CalculateStartingParams(ar::Entity firstObject, ar::Entity secondObject, size_t samples)
 	{
-		auto params = GenerateUVPairs(samples);
+		bool selfIntersection = IsSelfIntersection(firstObject, secondObject);
+		auto params = GenerateUVPairs(samples, selfIntersection);
 		
 		float distance = std::numeric_limits<float>::max();
 		mat::Vec4 bestGuess;
@@ -202,8 +189,16 @@ namespace ar
 		{
 			auto optimizedParams = CGSquaredDistance(firstObject, secondObject, pair);
 			auto optimizedDistance = ComputeRealDistance(firstObject, secondObject, optimizedParams);
+			
 			if (optimizedDistance < distance)
 			{
+				if (selfIntersection)
+				{
+					float distX = optimizedParams.x - optimizedParams.z;
+					float distY = optimizedParams.y - optimizedParams.w;
+					if ((distX * distX) + (distY * distY) < 0.01)
+						continue;
+				}
 				bestGuess = optimizedParams;
 				distance = optimizedDistance;
 			}
@@ -211,7 +206,7 @@ namespace ar
 		return bestGuess;
 	}
 
-	std::vector<ar::mat::Vec4> Intersection::GenerateUVPairs(size_t samples)
+	std::vector<ar::mat::Vec4> Intersection::GenerateUVPairs(size_t samples, bool selfIntersect)
 	{
 		auto max = static_cast<int>(samples);
 		std::vector<mat::Vec4> paramPairs;
@@ -220,12 +215,20 @@ namespace ar
 			for (int v = 0; v <= max; v++)
 				for (int s = 0; s <= max; s++)
 					for (int t = 0; t <= max; t++)
-						paramPairs.emplace_back(
-							static_cast<float>(u) / (max),
-							static_cast<float>(v) / (max),
-							static_cast<float>(s) / (max),
-							static_cast<float>(t) / (max)
-						);
+					{
+						auto normU = static_cast<float>(u) / (max),
+							normV = static_cast<float>(v) / (max),
+							normS = static_cast<float>(s) / (max),
+							normT = static_cast<float>(t) / (max);
+						if (selfIntersect)
+						{
+							float distX = normU - normS, distY = normV - normT;
+							if ((distX * distX) + (distY * distY) < 0.01)
+								continue;
+						}
+						paramPairs.emplace_back(normU, normV, normS, normT);
+					}
+						
 		return paramPairs;
 	}
 
@@ -458,27 +461,38 @@ namespace ar
 		return info;
 	}
 
+	bool Intersection::IsSelfIntersection(ar::Entity first, ar::Entity second)
+	{
+		return first.GetID() == second.GetID();
+	}
+
 	bool Intersection::NewtonMinimization(ar::mat::Vec4& result, ar::Entity firstObject, ar::Entity secondObject, mat::Vec4 initial, double distance)
 	{
-		const size_t iterations = 20;
-		const float dampingFactor = 0.05f;
+		const size_t iterations = 20;	// How many times the method can refine current step
+		const float dampingFactor = 0.1f;
 		const float precision = 1e-8;
 		bool repeat = false;
-
+		
+		// Evaluate point at first guess (u0, v0, s0, t0)
 		auto startPoint = 0.5f * (Evaluate(firstObject, initial.x, initial.y) + Evaluate(secondObject, initial.z, initial.w));
+		
+		// Compute versors of both surfaces at the start point (u0, v0, s0, t0)
 		auto dS1du = DerivativeU(firstObject, initial.x, initial.y), dS1dv = DerivativeV(firstObject, initial.x, initial.y);
 		auto dS2du = DerivativeU(secondObject, initial.z, initial.w), dS2dv = DerivativeV(secondObject, initial.z, initial.w);
-		
 		auto normalS1 = mat::Normalize(mat::Cross(dS1du, dS1dv));
 		auto normalS2 = mat::Normalize(mat::Cross(dS2du, dS2dv));
+
+		// Compute tangent (HANDLE PARALLEL NORMALS)
 		auto tangent = mat::Normalize(mat::Cross(normalS1, normalS2));
 		if (!isfinite(tangent.x) || !isfinite(tangent.y) || !isfinite(tangent.z) || mat::Length(tangent) < 1e-6) 
 		{
+			// (Nearly) parallel normals produce a (nearly) zero cross product
 			tangent = mat::Normalize(dS1du);
-			repeat = true;
+			repeat = true; // if no convergence, try again with dS1dv later
 		}
 
-		ar::mat::Vec4 params = initial, prevParams = initial;
+		ar::mat::Vec4	params = initial,			// x_{k+1}
+						prevParams = initial;		// x_k
 
 		for (size_t i = 0; i < iterations; i++)
 		{
@@ -487,35 +501,41 @@ namespace ar
 			auto delta = mat::SolveLinear(jacobian, functionValue);
 			
 			prevParams = params;
-			params -= delta * dampingFactor;
+			params -= delta;
 
+			// HANDLE WALKING OUTSIDE THE DOMAIN:
 			if (!ClampWrapObjects(firstObject, secondObject, params))
 			{
 				result = prevParams;
 				return false;
 			}
-			if (mat::Dot(delta, delta) < precision)
-			{
-				result = params;
-				return true;
-			}
+			// HANDLE NUMERICAL ERRORS
 			if (!isfinite(params.x) || !isfinite(params.y) || !isfinite(params.z) || !isfinite(params.w)) {
 				result = prevParams;
 				return false;
 			}
 
+			// CONVERGENCE TEST (the change needed to apply to x_k is so small that we don't need to
+			// keep going anymore. This is THE ONLY SUCCESS ROUTE, all other are fails
+			if (mat::Dot(delta, delta) < precision)
+			{
+				result = params;
+				return true;
+			}
+
 			prevParams = params;
+			// Repeat with different tangent if normal calculation failed before the loop
 			if (repeat && i == iterations - 1) 
 			{
-				dS1dv = DerivativeV(firstObject, initial.x, initial.y);
 				tangent = mat::Normalize(dS1dv);
 				repeat = false;
 				i = 0;
 			}
 		}
 
+		// NO CONVERGENCE happened, returning current result and reporting failure
 		result = params;
-		return true;
+		return false;
 	}
 
 	ar::mat::Mat4 Intersection::IntersectionFuncJacobian(ar::Entity firstObject, ar::Entity secondObject, mat::Vec4 params, ar::mat::Vec3 tangent)

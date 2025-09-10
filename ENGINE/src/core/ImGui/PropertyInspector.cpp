@@ -63,4 +63,9 @@ namespace ar
 		return changed;
 	}
 
+	bool PropertyInspector::InspectProperty(const std::string& label, size_t& value, size_t minValue, size_t maxValue)
+	{
+		return ImGui::DragScalar(label.c_str(), ImGuiDataType_U64, &value, 1.0f, &minValue, &maxValue);
+	}
+
 }

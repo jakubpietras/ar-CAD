@@ -186,6 +186,7 @@ namespace ar
 			{
 				case RenderPassType::MAIN:
 				{
+					ar::RenderCommand::SetLineThickness(mc.PrimitiveSize);
 					mc.ShaderUsed = ShaderType::MAIN;
 					auto shader = mc.GetShader();
 					shader->SetMat4("u_VP", viewProjection);
@@ -197,6 +198,7 @@ namespace ar
 					auto color = isSelected ? Renderer::SELECTION_COLOR : mc.PrimaryColor;
 					shader->SetVec3("u_Color", color);
 					ar::Renderer::Submit(mc, mc.VertexArray->IsIndexed());
+					ar::RenderCommand::SetLineThickness(1.f);
 					break;
 				}
 				case RenderPassType::SELECTION:

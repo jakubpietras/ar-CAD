@@ -4,6 +4,7 @@
 #include "core/Scene/ObjectTypes.h"
 #include "core/Utils/SurfaceUtils.h"
 #include "core/Geometry/HoleDetector.h"
+#include "core/Drawing/PaintSurface.h"
 
 struct EntityLink
 {
@@ -75,6 +76,7 @@ struct EditorState
 	std::vector<ar::Entity> SelectedSurfacesC0{};
 	std::vector<ar::Entity> SelectedIntersectableSurfaces{};
 	std::vector<ar::Entity> SelectionCandidates{};
+	std::optional<ar::Entity> SelectedIntersectionCurve = std::nullopt;
 	ar::mat::Vec3 SelectedMeanPosition {0.f, 0.f, 0.f};
 	SelectionMode SelectionChangeMode = SelectionMode::Replace;
 	bool ShouldUpdateSelection = false;
@@ -139,4 +141,8 @@ struct EditorState
 	// ============================= Intersection =============================
 	bool ShouldShowIntersectModal = false;
 	bool ShouldComputeIntersection = false;
+	bool ShouldDisplayParameterImage = false;
+	ar::Ref<ar::PaintSurface> ImageToDisplay = nullptr;
+	float StepDistance = 0.5f;
+
 };

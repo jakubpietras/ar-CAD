@@ -31,5 +31,6 @@ namespace ar
 		static void InspectComponent(CurveC2Component& curve);
 		static void InspectComponent(SurfaceComponent& surface);
 		static void InspectComponent(GregoryPatchComponent& gregory);
+		static void InspectComponent(IntersectCurveComponent& intcurve);
 	};
 }

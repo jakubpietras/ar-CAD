@@ -27,8 +27,9 @@ void EditorUI::Render(ar::Ref<ar::Framebuffer> mainFB)
 	RenderCursorControls();
 	RenderInspectorWindow();
 	RenderViewport(mainFB);
-	//RenderPaintWindow(m_Paint);
+	RenderParameterImage();
 	
+
 	m_SceneHierarchyPanel.Render();
 
 	RenderPickingBox();
@@ -238,7 +239,7 @@ void EditorUI::RenderAddObjectPopup()
 	}
 }
 
-void EditorUI::RenderPaintWindow(ar::PaintSurface& paintSurface)
+bool EditorUI::RenderPaintWindow(ar::PaintSurface& paintSurface)
 {
 	auto handle = paintSurface.GetHandle();
 	std::string label = "DrawSurface##" + std::to_string(handle);
@@ -256,7 +257,8 @@ void EditorUI::RenderPaintWindow(ar::PaintSurface& paintSurface)
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 	ImGui::SetNextWindowSize(ImVec2(width, height + titleBarHeight), ImGuiCond_Always);
 
-	if (ImGui::Begin(label.c_str(), nullptr, flags))
+	bool windowOpen = true;
+	if (ImGui::Begin(label.c_str(), &windowOpen, flags))
 	{
 		ImGui::Image(
 			(ImTextureID)(uintptr_t)handle,
@@ -267,8 +269,24 @@ void EditorUI::RenderPaintWindow(ar::PaintSurface& paintSurface)
 	ImGui::End();
 
 	ImGui::PopStyleVar(2); // Pop both style vars
+	return windowOpen;
 }
 
+
+void EditorUI::RenderParameterImage()
+{
+	if (m_State.ShouldDisplayParameterImage)
+	{
+		m_State.ShouldDisplayParameterImage = RenderPaintWindow(*m_State.ImageToDisplay);
+		if (!m_State.ShouldDisplayParameterImage)
+		{
+			if (m_State.SelectedIntersectionCurve)
+			{
+				(*m_State.SelectedIntersectionCurve).GetComponent<ar::IntersectCurveComponent>().ShowImage = false;
+			}
+		}
+	}
+}
 
 void EditorUI::RenderAddMenu()
 {
@@ -280,6 +298,7 @@ void EditorUI::RenderAddMenu()
 			RequestAddObject(ar::ObjectType::TORUS);
 		ImGui::EndMenu();
 	}
+	ImGui::Separator();
 	if (ImGui::BeginMenu("Curves"))
 	{
 		if (ImGui::MenuItem("Chain"))
@@ -292,6 +311,13 @@ void EditorUI::RenderAddMenu()
 			RequestAddObject(ar::ObjectType::INTERPOLATEDC2);
 		ImGui::EndMenu();
 	}
+	{
+		ar::ScopedDisable disable(m_State.ShouldShowIntersectModal || m_State.SelectedIntersectableSurfaces.size() == 0 ||
+			m_State.SelectedIntersectableSurfaces.size() > 2);
+		if (ImGui::MenuItem("Intersection Curve"))
+			m_State.ShouldShowIntersectModal = true;
+	}
+	ImGui::Separator();
 	if (ImGui::BeginMenu("Surfaces"))
 	{
 		if (ImGui::MenuItem("C0 Bezier Surface"))
@@ -304,12 +330,6 @@ void EditorUI::RenderAddMenu()
 		ar::ScopedDisable disable(m_State.ShouldShowGregoryModal);
 		if (ImGui::MenuItem("Gregory patch"))
 			m_State.ShouldShowGregoryModal = true;
-	}
-	{
-		ar::ScopedDisable disable(m_State.ShouldShowIntersectModal || m_State.SelectedIntersectableSurfaces.size() == 0 ||
-			m_State.SelectedIntersectableSurfaces.size() > 2);
-		if (ImGui::MenuItem("Intersection"))
-			m_State.ShouldShowIntersectModal = true;
 	}
 }
 
@@ -789,6 +809,8 @@ void EditorUI::RenderIntersectModal()
 		float halfWidth = ImGui::GetContentRegionAvail().x * 0.5f;
 		float height = 200.0f;
 
+		ImGui::TextWrapped("Adding Intersection Curve");
+
 		std::string label = "Intersecting: ";
 		auto& objects = m_State.SelectedIntersectableSurfaces;
 
@@ -799,7 +821,10 @@ void EditorUI::RenderIntersectModal()
 
 		ImGui::TextWrapped(label.c_str());
 
-		if (ImGui::Button("Compute intersection")) 
+		ImGui::SeparatorText("Precision controls");
+		ImGui::DragFloat("Step size", &m_State.StepDistance, 0.01f, 0.05, 1.f);
+
+		if (ImGui::Button("Add")) 
 		{ 
 			m_State.ShouldComputeIntersection = true;
 			m_State.ShouldShowIntersectModal = false;

@@ -6,6 +6,7 @@
 #include "core/Utils/TorusUtils.h"
 #include "core/Utils/SurfaceUtils.h"
 #include "core/Geometry/Hole.h"
+#include "core/Drawing/PaintSurface.h"
 
 namespace ar
 {
@@ -93,6 +94,7 @@ namespace ar
 		size_t							TessellationPatchSize = 4;
 		bool							DirtyFlag = false,
 										AdaptiveDrawing = false;
+		float							PrimitiveSize = 1.f;
 
 		inline std::shared_ptr<ar::Shader> GetShader() const
 		{
@@ -170,6 +172,18 @@ namespace ar
 		ar::Hole	HoleToFill;
 		bool		ShowNet = false;
 		
+	};
+
+	struct IntersectCurveComponent
+	{
+		std::vector<ar::mat::Vec3> Points;
+		std::vector<ar::mat::Vec4> Params;
+		ar::Ref<PaintSurface> ImageP, ImageQ;
+		ar::Entity SurfaceP;
+		std::optional<ar::Entity> SurfaceQ;
+		bool ShowImageP = false, ShowImageQ = false;
+		bool ShowImage = false, ConvertToSpline = false;
+		size_t ConversionPointsCount = 0;
 	};
 
 #pragma endregion

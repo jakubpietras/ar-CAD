@@ -152,23 +152,8 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 	}
 	if (state.ShouldComputeIntersection)
 	{
-
-		auto& objs = state.SelectedIntersectableSurfaces;
-		//ar::Intersection::DrawDerivatives(objs[0], 10);
-		//ar::Intersection::DrawEvaluations(objs[0], 10);
-
-
-		auto point = ar::Intersection::FindStartingPoint(objs[0], objs[1]);
-		//AR_TRACE("Intersection: ({0}, {1}, {2}", point.x, point.y, point.z);
-		
-		// -------- todo: DEBUG BELOW
-		state.CursorPosition = point;
-		// 
-		/*auto curve = ar::Intersection::TraceIntersectionCurve(objs[0], objs[1]);
-		for (size_t i = 0; i < curve.first.size() - 1; i++)
-			ar::DebugRenderer::AddLine(curve.first[i], curve.first[i + 1]);*/
-		
-		// --------
+		ProcessAddIntersection(state);
+		state.StepDistance = 0.5f;
 		state.ShouldComputeIntersection = false;
 	}
 	
@@ -177,6 +162,7 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 		ValidateGeometry(state);
 	if (selectionValidation)
 		ValidateSelection(state);
+	ProcessIntCurveSelection(state);
 }
 
 void EditorSceneController::AttachPointToCurves(ar::Entity point, std::vector<ar::Entity> curves)
@@ -419,6 +405,11 @@ void EditorSceneController::ValidateSelection(EditorState& state)
 			state.SelectedIntersectableSurfaces.push_back(entity);
 	}
 
+	if (state.SelectedObjects.back().HasComponent<ar::IntersectCurveComponent>())
+		state.SelectedIntersectionCurve = state.SelectedObjects.back();
+	else
+		state.SelectedIntersectionCurve = std::nullopt;
+
 	// middle point
 	UpdateMeanPoint(state);
 }
@@ -439,6 +430,26 @@ void EditorSceneController::CorrectPointColors(EditorState& state)
 			auto& pt = m_Scene->GetEntityByID(point).GetComponent<ar::PointComponent>();
 			pt.TempColor = ar::Renderer::HOLE_COLOR;
 			pt.ShouldUseTempColor = true;
+		}
+	}
+}
+
+void EditorSceneController::ProcessIntCurveSelection(EditorState& state)
+{
+	if (state.SelectedIntersectionCurve)
+	{
+		auto& intcurve = (*state.SelectedIntersectionCurve).GetComponent<ar::IntersectCurveComponent>();
+		if (intcurve.ShowImageP)
+		{
+			state.ImageToDisplay = intcurve.ImageP;
+			if (intcurve.ShowImage)
+				state.ShouldDisplayParameterImage = true;
+		}
+		else if (intcurve.ShowImageQ)
+		{
+			state.ImageToDisplay = intcurve.ImageQ;
+			if (intcurve.ShowImage)
+				state.ShouldDisplayParameterImage = true;
 		}
 	}
 }
@@ -620,6 +631,38 @@ void EditorSceneController::ProcessGroupTransform(EditorState& state)
 
 		transform.GroupTransformation = true;
 		transform.DirtyFlag = true;
+	}
+}
+
+void EditorSceneController::ProcessAddIntersection(EditorState& state)
+{
+	auto& objs = state.SelectedIntersectableSurfaces;
+	std::pair<std::vector<ar::mat::Vec3>, std::vector<ar::mat::Vec4>> curve;
+	
+	if (objs.size() == 1)
+	{
+		curve = ar::Intersection::TraceIntersectionCurve(objs[0], objs[0], state.StepDistance);
+		if (!curve.first.empty() && !curve.first.empty())
+			m_Factory.CreateIntersectionCurve(curve.first, curve.second, objs[0], std::nullopt,
+				std::nullopt, "Self-intersection Curve");
+		else
+		{
+			state.ShowErrorModal = true;
+			state.ErrorMessages.emplace_back("No self-intersection detected.");
+		}
+
+	}
+	else if (objs.size() == 2)
+	{
+		curve = ar::Intersection::TraceIntersectionCurve(objs[0], objs[1], state.StepDistance);
+		if (!curve.first.empty() && !curve.first.empty())
+			m_Factory.CreateIntersectionCurve(curve.first, curve.second, objs[0], objs[1],
+				std::nullopt, "Intersection Curve");
+		else
+		{
+			state.ShowErrorModal = true;
+			state.ErrorMessages.emplace_back("No intersection detected.");
+		}
 	}
 }
 

@@ -32,6 +32,7 @@ private:
 	void ProcessAttach(EditorState& state);
 	void ProcessPicking(EditorState& state);
 	void ProcessGroupTransform(EditorState& state);
+	void ProcessAddIntersection(EditorState& state);
 
 	// Cursor
 	void PlaceCursor(ar::mat::Vec2 clickPosition, ViewportSize viewport, ar::mat::Vec3& cursorPosition);
@@ -67,4 +68,5 @@ private:
 	void ValidateGeometry(EditorState& state);
 	void ValidateSelection(EditorState& state);
 	void CorrectPointColors(EditorState& state);
+	void ProcessIntCurveSelection(EditorState& state);
 };

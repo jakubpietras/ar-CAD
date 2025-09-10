@@ -4,7 +4,7 @@ layout (location = 1) in uint a_ID;
 layout (location = 2) in vec3 a_Color;
 
 flat out uint id;
-out vec3 ColorFrag;
+flat out vec3 ColorFrag;
 
 uniform mat4 u_Model;
 uniform mat4 u_VP;

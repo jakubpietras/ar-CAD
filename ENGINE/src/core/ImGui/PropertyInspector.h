@@ -13,6 +13,7 @@ namespace ar
 		static bool InspectProperty(const std::string& label, mat::UInt2& value, unsigned int minValue, unsigned int maxValue);
 
 		static bool InspectProperty(const std::string& label, float& value, float minValue, float maxValue);
+		static bool InspectProperty(const std::string& label, size_t& value, size_t minValue, size_t maxValue);
 
 		static bool InspectProperty(const std::string& label, PivotType& type);
 

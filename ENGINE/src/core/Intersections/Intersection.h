@@ -14,7 +14,7 @@ namespace ar
 	public:
 		// 'main' function will return data for the intersection curve
 		static mat::Vec3 FindStartingPoint(ar::Entity firstObject, ar::Entity secondObject);
-		static std::pair<std::vector<mat::Vec3>, std::vector<mat::Vec4>> TraceIntersectionCurve(ar::Entity firstObject, ar::Entity secondObject);
+		static std::pair<std::vector<mat::Vec3>, std::vector<mat::Vec4>> TraceIntersectionCurve(ar::Entity firstObject, ar::Entity secondObject, float step);
 		static void DrawDerivatives(ar::Entity object, size_t samples);
 		static void DrawEvaluations(ar::Entity object, size_t samples);
 
@@ -23,7 +23,7 @@ namespace ar
 
 		// Preliminary search for best first guess:
 		static mat::Vec4 CalculateStartingParams(ar::Entity firstObject, ar::Entity secondObject, size_t samples);
-		static std::vector<mat::Vec4> GenerateUVPairs(size_t samples);
+		static std::vector<mat::Vec4> GenerateUVPairs(size_t samples, bool selfIntersect);
 		static float ComputeRealDistance(ar::Entity firstObject, ar::Entity secondObject, mat::Vec4 params);
 		static mat::Vec4 CGSquaredDistance(ar::Entity firstObject, ar::Entity secondObject, mat::Vec4 initial);
 		static float LineSearchSquaredDistance(ar::Entity firstObject, ar::Entity secondObject, ar::mat::Vec4 params, ar::mat::Vec4 direction);
@@ -34,6 +34,7 @@ namespace ar
 		static SegmentInfo MapMultipatch(ar::Entity patch, float u, float v);
 
 		// Tracing the intersection curve:
+		static bool IsSelfIntersection(ar::Entity first, ar::Entity second);
 		static bool NewtonMinimization(ar::mat::Vec4& result, ar::Entity firstObject, ar::Entity secondObject, mat::Vec4 initial, double distance);
 		static mat::Mat4 IntersectionFuncJacobian(ar::Entity firstObject, ar::Entity secondObject, mat::Vec4 params, ar::mat::Vec3 tangent);
 		static mat::Vec4 IntersectionFuncValue(ar::Entity firstObject, ar::Entity secondObject, 

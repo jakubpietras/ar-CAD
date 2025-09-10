@@ -3,6 +3,7 @@
 #include "core/Utils/GeneralUtils.h"
 #include "core/Utils/CurveUtils.h"
 #include "core/Scene/Components.h"
+#include "core/Utils/IntersectUtils.h"
 
 namespace ar
 {
@@ -355,6 +356,48 @@ namespace ar
 		cpm.Shader = ar::ShaderLib::Get("Basic");
 
 		return entity;
+	}
+
+	ar::Entity SceneFactory::CreateIntersectionCurve(std::vector<ar::mat::Vec3> points,
+		std::vector<ar::mat::Vec4> params, ar::Entity firstSurface, std::optional<ar::Entity> secondSurface,
+		std::optional<uint32_t> id, const std::string& name)
+	{
+		constexpr mat::Vec3 intersectLineColor = { 0.5f, 0.5f, 1.f };
+
+		ar::Ref<ar::Shader> shader, pickingShader;
+		shader = ShaderLib::Get("Point");
+		pickingShader = ShaderLib::Get("PointPicking");
+
+		Entity entity;
+		if (id.has_value())
+			entity = m_Scene->CreateEntity(*id, name);
+		else
+			entity = m_Scene->CreateEntity(std::nullopt, name);
+		auto& ic = entity.AddComponent<IntersectCurveComponent>();
+		ic.Points = points;
+		ic.Params = params;
+		ic.SurfaceP = firstSurface;
+		ic.ImageP = ar::IntersectUtils::CreateParameterImage(ic.Params, true, 512, 512);
+		if (secondSurface)
+		{
+			ic.SurfaceQ = secondSurface;
+			ic.ImageQ = ar::IntersectUtils::CreateParameterImage(ic.Params, false, 512, 512);
+		}
+		else
+			ic.ImageQ = ic.ImageP;
+
+		// Mesh
+		std::vector<VertexPositionIDColor> pointVerts;
+		for (auto& point : ic.Points)
+			pointVerts.push_back({ point, entity.GetID(), intersectLineColor });
+
+		auto& mesh = entity.AddComponent<ar::MeshComponent>();
+		mesh.VertexArray = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
+		mesh.VertexArray->AddVertexBuffer(Ref<VertexBuffer>(VertexBuffer::Create(pointVerts)));
+		mesh.Shader = shader;
+		mesh.PickingShader = pickingShader;
+		mesh.RenderPrimitive = ar::Primitive::LineStrip;
+		mesh.PrimitiveSize = 5.f;
 	}
 
 }

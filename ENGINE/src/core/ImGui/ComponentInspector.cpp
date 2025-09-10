@@ -26,6 +26,7 @@ void ar::ComponentInspector::ShowInspector(Entity entity)
 		ShowComponentInspector<ar::CurveC2Component>(entity, "Props");
 		ShowComponentInspector<ar::SurfaceComponent>(entity, "Props");
 		ShowComponentInspector<ar::GregoryPatchComponent>(entity, "Props");
+		ShowComponentInspector<ar::IntersectCurveComponent>(entity, "Props");
 
 		// rest...
 		ImGui::EndTabBar();
@@ -41,6 +42,43 @@ void ar::ComponentInspector::InspectComponent(TorusComponent& torus)
 	if (PropertyInspector::InspectProperty("Samples", torus.Description.Samples, 3u, 128u))
 		torus.DirtyFlag = true;
 
+}
+
+void ar::ComponentInspector::InspectComponent(IntersectCurveComponent& intcurve)
+{
+	std::string message;
+	if (!intcurve.SurfaceQ)
+		message = "Self-intersecting " + intcurve.SurfaceP.GetName() + "(ID: " + std::to_string(intcurve.SurfaceP.GetID()) + ")";
+	else
+		message = "Intersecting " + intcurve.SurfaceP.GetName() + "(ID: " + std::to_string(intcurve.SurfaceP.GetID()) + ") "
+		+ "with " + (*intcurve.SurfaceQ).GetName() + "(ID: " + std::to_string((*intcurve.SurfaceQ).GetID()) + ")";
+
+	ImGui::TextWrapped(message.c_str());
+	ImGui::SeparatorText("Curve conversion");
+	ImGui::TextWrapped("To convert this intersection curve into an interpolatory C2 spline, enter the desired number of control points.");
+	PropertyInspector::InspectProperty("points count", intcurve.ConversionPointsCount, 3u, intcurve.Points.size());
+	if (ImGui::Button("Convert"))
+	{
+		intcurve.ConvertToSpline = true;
+	}
+
+	ImGui::SeparatorText("Images");
+	if (ImGui::Button("Surface P"))
+	{
+		intcurve.ShowImageP = true;
+		intcurve.ShowImageQ = false;
+		intcurve.ShowImage = true;
+	}
+	if (intcurve.SurfaceQ)
+	{
+		ImGui::SameLine();
+		if (ImGui::Button("Surface Q"))
+		{
+			intcurve.ShowImageP = false;
+			intcurve.ShowImageQ = true;
+			intcurve.ShowImage = true;
+		}
+	}
 }
 
 void ar::ComponentInspector::InspectComponent(GregoryPatchComponent& gregory)

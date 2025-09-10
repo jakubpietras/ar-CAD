@@ -27,7 +27,8 @@ private:
 	void RenderCursorControls();
 	void RenderViewport(ar::Ref<ar::Framebuffer> mainFB);
 	void RenderAddObjectPopup();
-	void RenderPaintWindow(ar::PaintSurface& paintSurface);
+	bool RenderPaintWindow(ar::PaintSurface& paintSurface);
+	void RenderParameterImage();
 
 	void RenderAddMenu();
 	bool RenderRectangleControls();
