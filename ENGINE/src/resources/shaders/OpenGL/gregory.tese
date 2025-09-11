@@ -6,6 +6,7 @@ in vec3 PosEval[];
 patch in uint IDEval;
 
 flat out uint IDFrag;
+out vec2 UVFrag;
 
 uniform mat4 u_Model, u_VP;
 uniform uint u_SamplesU, u_SamplesV;
@@ -60,4 +61,5 @@ void main()
 	vec4 pointPos = u_VP * u_Model * vec4(point, 1.0f);
 	gl_Position = pointPos;
 	IDFrag = IDEval;
+	UVFrag = vec2(u, v);
 }

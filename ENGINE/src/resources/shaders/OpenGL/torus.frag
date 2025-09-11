@@ -10,7 +10,6 @@ uniform bool u_RenderSideA; // A - filled, B - unfilled
 uniform bool u_ShouldTrim;
 
 const vec3 FilledColor = vec3(1.0, 0.0, 0.0);
-const vec3 VoidColor = vec3(1.0, 1.0, 1.0);
 
 void main()
 {
