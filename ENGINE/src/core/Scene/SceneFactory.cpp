@@ -65,6 +65,9 @@ namespace ar
 		mc.Shader = ar::ShaderLib::Get("Torus");
 		mc.PickingShader = ar::ShaderLib::Get("TorusPicking");
 
+		// Trim 
+		auto& trim = entity.AddComponent<ar::TrimmingComponent>();
+	
 		return entity;
 	}
 
@@ -234,6 +237,9 @@ namespace ar
 		cpm.VertexArray->AddIndexBuffer(ar::Ref<ar::IndexBuffer>(ar::IndexBuffer::Create(ar::SurfaceUtils::GenerateControlMeshIndices(desc))));
 		cpm.Shader = ar::ShaderLib::Get("Basic");
 
+		// Trim 
+		auto& trim = tempSurface.AddComponent<ar::TrimmingComponent>();
+
 		return tempSurface;
 	}
 
@@ -302,6 +308,9 @@ namespace ar
 		cpm.VertexArray->AddVertexBuffer(vb);
 		cpm.VertexArray->AddIndexBuffer(ar::Ref<ar::IndexBuffer>(ar::IndexBuffer::Create(ar::SurfaceUtils::GenerateControlMeshIndices(desc))));
 		cpm.Shader = ar::ShaderLib::Get("Basic");
+
+		// Trim 
+		auto& trim = entity.AddComponent<ar::TrimmingComponent>();
 
 		return entity;
 	}
@@ -377,6 +386,9 @@ namespace ar
 		ic.Points = points;
 		ic.Params = params;
 		ic.SurfaceP = firstSurface;
+		auto& trimP = firstSurface.GetComponent<ar::TrimmingComponent>();
+		trimP.IntersectionCurves.push_back(entity);
+
 		ic.ImageP = ar::IntersectUtils::CreateParameterImage(ic.Params, true, 512, 512,
 			ar::GeneralUtils::IsWrappedU(firstSurface), ar::GeneralUtils::IsWrappedV(firstSurface));
 		ic.TrimTexP = ar::IntersectUtils::CreateTrimTex(ic.Params, true, 512, 512,
@@ -384,6 +396,8 @@ namespace ar
 		if (secondSurface)
 		{
 			ic.SurfaceQ = secondSurface;
+			auto& trimQ = (*secondSurface).GetComponent<ar::TrimmingComponent>();
+			trimQ.IntersectionCurves.push_back(entity);
 			ic.ImageQ = ar::IntersectUtils::CreateParameterImage(ic.Params, false, 512, 512,
 				ar::GeneralUtils::IsWrappedU(*secondSurface), ar::GeneralUtils::IsWrappedV(*secondSurface));
 			ic.TrimTexQ = ar::IntersectUtils::CreateTrimTex(ic.Params, false, 512, 512,

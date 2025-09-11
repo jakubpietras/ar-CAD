@@ -125,6 +125,20 @@ namespace ar
 		std::vector<uint32_t> Indices{};
 	};
 
+	struct TrimmingComponent
+	{
+		enum class TrimSide
+		{
+			SIDE_A,
+			SIDE_B
+		};
+
+		bool ShouldTrimSurface = false;
+		TrimSide Side = TrimSide::SIDE_A;
+		ar::Ref<PaintSurface> TrimTexture = nullptr;
+		std::vector<ar::Entity> IntersectionCurves{};
+	};
+
 #pragma endregion
 #pragma region Geometry
 

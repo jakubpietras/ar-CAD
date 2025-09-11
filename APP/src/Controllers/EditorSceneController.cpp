@@ -656,9 +656,11 @@ void EditorSceneController::ProcessAddIntersection(EditorState& state)
 	if (objs.size() == 1)
 	{
 		curve = ar::Intersection::TraceIntersectionCurve(objs[0], objs[0], state.StepDistance);
-		if (!curve.first.empty() && !curve.first.empty())
+		if (!curve.first.empty() && !curve.second.empty())
+		{
 			m_Factory.CreateIntersectionCurve(curve.first, curve.second, objs[0], std::nullopt,
 				std::nullopt, "Self-intersection Curve");
+		}
 		else
 		{
 			state.ShowErrorModal = true;
@@ -669,9 +671,11 @@ void EditorSceneController::ProcessAddIntersection(EditorState& state)
 	else if (objs.size() == 2)
 	{
 		curve = ar::Intersection::TraceIntersectionCurve(objs[0], objs[1], state.StepDistance);
-		if (!curve.first.empty() && !curve.first.empty())
-			m_Factory.CreateIntersectionCurve(curve.first, curve.second, objs[0], objs[1],
+		if (!curve.first.empty() && !curve.second.empty())
+		{
+			auto ic = m_Factory.CreateIntersectionCurve(curve.first, curve.second, objs[0], objs[1],
 				std::nullopt, "Intersection Curve");
+		}
 		else
 		{
 			state.ShowErrorModal = true;

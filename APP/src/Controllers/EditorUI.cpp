@@ -28,6 +28,7 @@ void EditorUI::Render(ar::Ref<ar::Framebuffer> mainFB)
 	RenderInspectorWindow();
 	RenderViewport(mainFB);
 	RenderParameterImage();
+	RenderTrimmingWindow();
 	
 
 	m_SceneHierarchyPanel.Render();
@@ -286,6 +287,73 @@ void EditorUI::RenderParameterImage()
 			}
 		}
 	}
+}
+
+void EditorUI::RenderTrimmingWindow()
+{
+	ImGui::Begin("Trimming");
+	if (m_State.SelectedObjects.empty())
+	{
+		ImGui::TextWrapped("You must choose an intersected surface (Bezier patch or torus) to trim!");
+		ImGui::End();
+		return;
+	}
+
+	auto& surface = m_State.SelectedObjects.back();
+	if (surface.HasComponent<ar::TrimmingComponent>())
+	{
+		auto& t = surface.GetComponent<ar::TrimmingComponent>();
+
+		ImGui::Checkbox("Trim surface", &t.ShouldTrimSurface);
+		
+		// Trimming side
+		ImGui::TextWrapped("Trimmed side");
+		ImGui::SameLine();
+		int side = static_cast<int>(t.Side);
+		if (ImGui::RadioButton("Side A", side == 0)) side = 0;
+		ImGui::SameLine();
+		if (ImGui::RadioButton("Side B", side == 1)) side = 1;
+
+		// Intersection curves list
+		t.Side = static_cast<ar::TrimmingComponent::TrimSide>(side);
+		// Track which curve is currently bound to TrimTexture
+		int selectedCurve = -1;
+		for (size_t i = 0; i < t.IntersectionCurves.size(); i++)
+		{
+			auto& curve = t.IntersectionCurves[i];
+			auto& tc = curve.GetComponent<ar::IntersectCurveComponent>();
+
+			// Check if this curve's texture is currently active
+			if ((tc.SurfaceP == surface && t.TrimTexture == tc.TrimTexP) ||
+				(tc.SurfaceQ == surface && t.TrimTexture == tc.TrimTexQ))
+			{
+				selectedCurve = static_cast<int>(i);
+			}
+		}
+
+		for (size_t i = 0; i < t.IntersectionCurves.size(); i++)
+		{
+			auto& curve = t.IntersectionCurves[i];
+			std::string label = curve.GetName() + "##" + std::to_string(i);
+
+			bool isSelected = (selectedCurve == static_cast<int>(i));
+
+			if (ImGui::Selectable(label.c_str(), isSelected))
+			{
+				auto& tc = curve.GetComponent<ar::IntersectCurveComponent>();
+				if (tc.SurfaceP == surface)
+					t.TrimTexture = tc.TrimTexP;
+				else if (tc.SurfaceQ == surface)
+					t.TrimTexture = tc.TrimTexQ;
+			}
+		}
+	}
+	else
+	{
+		ImGui::TextWrapped("You must choose an intersected surface (Bezier patch or torus) to trim!");
+	}
+
+	ImGui::End();
 }
 
 void EditorUI::RenderAddMenu()

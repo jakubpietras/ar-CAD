@@ -194,6 +194,9 @@ namespace ar
 		mesh.AdaptiveDrawing = true;
 		mesh.PrimitiveSize = 1.f;
 		mesh.DirtyFlag = true;
+
+		// remove intersectCurve from its parents' trim component
+
 	}
 
 	std::vector<mat::Vec3> CurveUtils::FilterKnots(std::vector<mat::Vec3> knots)

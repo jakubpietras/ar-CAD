@@ -29,6 +29,7 @@ private:
 	void RenderAddObjectPopup();
 	bool RenderPaintWindow(ar::PaintSurface& paintSurface);
 	void RenderParameterImage();
+	void RenderTrimmingWindow();
 
 	void RenderAddMenu();
 	bool RenderRectangleControls();
