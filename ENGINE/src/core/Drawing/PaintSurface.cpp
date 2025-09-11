@@ -23,8 +23,30 @@ namespace ar
 		m_Tex->SetData(m_Buffer.data(), m_BufferSize);
 	}
 
-	void PaintSurface::DrawLine(int x0, int y0, int x1, int y1, unsigned char red, unsigned char green, unsigned char blue)
+	void PaintSurface::DrawLine(int x0, int y0, int x1, int y1, unsigned char red, unsigned char green, unsigned char blue, bool wrapU, bool wrapV)
 	{
+		bool wrapX = false;
+		bool wrapY = false;
+
+		// Check if we should wrap in X direction (U parameter)
+		if (wrapU && abs(x1 - x0) > (int)m_Width / 2) {
+			wrapX = true;
+			if (x1 > x0)
+				x0 += m_Width;  // Shift start point
+			else
+				x1 += m_Width;  // Shift end point
+		}
+
+		// Check if we should wrap in Y direction (V parameter)  
+		if (wrapV && abs(y1 - y0) > (int)m_Height / 2) {
+			wrapY = true;
+			if (y1 > y0)
+				y0 += m_Height;
+			else
+				y1 += m_Height;
+		}
+
+		// Bresenham's algorithm with wrapping
 		int dx = abs(x1 - x0);
 		int dy = abs(y1 - y0);
 		int sx = x0 < x1 ? 1 : -1;
@@ -35,9 +57,16 @@ namespace ar
 
 		while (true)
 		{
-			if (x >= 0 && x < (int)m_Width && y >= 0 && y < (int)m_Height)
+			// Wrap coordinates back to valid texture range
+			int xi = x % (int)m_Width;
+			int yi = y % (int)m_Height;
+			if (xi < 0) xi += m_Width;
+			if (yi < 0) yi += m_Height;
+
+			// Draw pixel if in bounds
+			if (xi >= 0 && xi < (int)m_Width && yi >= 0 && yi < (int)m_Height)
 			{
-				size_t index = (y * m_Width + x) * 4;
+				size_t index = (yi * m_Width + xi) * 4;
 				m_Buffer[index] = red;
 				m_Buffer[index + 1] = green;
 				m_Buffer[index + 2] = blue;
@@ -58,10 +87,11 @@ namespace ar
 				y += sy;
 			}
 		}
+
 		m_Tex->SetData(m_Buffer.data(), m_BufferSize);
 	}
 
-	void PaintSurface::FloodFill(int x, int y, unsigned char red, unsigned char green, unsigned char blue)
+	void PaintSurface::FloodFill(int x, int y, unsigned char red, unsigned char green, unsigned char blue, bool wrapU, bool wrapV)
 	{
 		if (!IsValidPixel(x, y)) return;
 
@@ -72,8 +102,10 @@ namespace ar
 
 		if (origR == red && origG == green && origB == blue) return;
 
+		std::vector<bool> visited(m_Width * m_Height, false);
 		std::stack<std::pair<int, int>> stack;
 		stack.push({ x, y });
+		visited[y * m_Width + x] = true;
 
 		while (!stack.empty())
 		{
@@ -84,11 +116,40 @@ namespace ar
 				continue;
 
 			SetPixelUnchecked(px, py, red, green, blue);
-			stack.push({ px + 1, py });
-			stack.push({ px - 1, py });
-			stack.push({ px, py + 1 });
-			stack.push({ px, py - 1 });
+
+			// Add 4-connected neighbors with wrapping support
+			int neighbors[4][2] = { {1, 0}, {-1, 0}, {0, 1}, {0, -1} };
+
+			for (int i = 0; i < 4; i++)
+			{
+				int nx = px + neighbors[i][0];
+				int ny = py + neighbors[i][1];
+
+				// Handle wrapping in U direction
+				if (wrapU && (nx < 0 || nx >= (int)m_Width)) {
+					nx = (nx + m_Width) % m_Width;
+					if (nx < 0) nx += m_Width;
+				}
+
+				// Handle wrapping in V direction
+				if (wrapV && (ny < 0 || ny >= (int)m_Height)) {
+					ny = (ny + m_Height) % m_Height;
+					if (ny < 0) ny += m_Height;
+				}
+
+				// Check bounds and visited status
+				if (nx >= 0 && nx < (int)m_Width && ny >= 0 && ny < (int)m_Height)
+				{
+					int nidx = ny * m_Width + nx;
+					if (!visited[nidx] && IsSameColor(nx, ny, origR, origG, origB))
+					{
+						visited[nidx] = true;
+						stack.push({ nx, ny });
+					}
+				}
+			}
 		}
+
 		m_Tex->SetData(m_Buffer.data(), m_BufferSize);
 	}
 

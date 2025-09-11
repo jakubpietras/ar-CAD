@@ -377,11 +377,13 @@ namespace ar
 		ic.Points = points;
 		ic.Params = params;
 		ic.SurfaceP = firstSurface;
-		ic.ImageP = ar::IntersectUtils::CreateParameterImage(ic.Params, true, 512, 512);
+		ic.ImageP = ar::IntersectUtils::CreateParameterImage(ic.Params, true, 512, 512,
+			ar::GeneralUtils::IsWrappedU(firstSurface), ar::GeneralUtils::IsWrappedV(firstSurface));
 		if (secondSurface)
 		{
 			ic.SurfaceQ = secondSurface;
-			ic.ImageQ = ar::IntersectUtils::CreateParameterImage(ic.Params, false, 512, 512);
+			ic.ImageQ = ar::IntersectUtils::CreateParameterImage(ic.Params, false, 512, 512,
+				ar::GeneralUtils::IsWrappedU(*secondSurface), ar::GeneralUtils::IsWrappedV(*secondSurface));
 		}
 		else
 			ic.ImageQ = ic.ImageP;

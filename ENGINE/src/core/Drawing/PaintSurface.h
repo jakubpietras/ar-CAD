@@ -9,8 +9,9 @@ namespace ar
 	public:
 		PaintSurface(size_t width, size_t height);
 		void SetPixel(size_t x, size_t y, unsigned char red, unsigned char green, unsigned char blue);
-		void DrawLine(int x0, int y0, int x1, int y1, unsigned char red, unsigned char green, unsigned char blue);
-		void FloodFill(int x, int y, unsigned char red, unsigned char green, unsigned char blue);
+		void DrawLine(int x0, int y0, int x1, int y1, unsigned char red, unsigned char green, unsigned char blue, bool wrapU, bool wrapV);
+		void FloodFill(int x, int y, unsigned char red, unsigned char green, unsigned char blue, bool wrapU, bool wrapV);
+		bool IsSameColor(int x, int y, unsigned char r, unsigned char g, unsigned char b) const;
 		
 		inline uint32_t GetHandle() const { return m_Tex->GetID(); }
 		inline size_t GetWidth() const { return m_Width; }
@@ -26,7 +27,6 @@ namespace ar
 		void InitializeBuffer(size_t width, size_t height);
 
 		bool IsValidPixel(int x, int y) const;
-		bool IsSameColor(int x, int y, unsigned char r, unsigned char g, unsigned char b) const;
 		void SetPixelUnchecked(int x, int y, unsigned char red, unsigned char green, unsigned char blue);
 	};
 }

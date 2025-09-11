@@ -34,4 +34,18 @@ namespace ar
 		return positions;
 	}
 
+	bool GeneralUtils::IsWrappedU(ar::Entity e)
+	{
+		if (e.HasAnyComponent<ar::TorusComponent, ar::SurfaceComponent>())
+			return true;
+		return false;
+	}
+
+	bool GeneralUtils::IsWrappedV(ar::Entity e)
+	{
+		if (e.HasComponent<ar::TorusComponent>())
+			return true;
+		return false;
+	}
+
 }

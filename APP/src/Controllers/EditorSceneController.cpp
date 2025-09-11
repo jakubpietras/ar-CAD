@@ -405,11 +405,13 @@ void EditorSceneController::ValidateSelection(EditorState& state)
 			state.SelectedIntersectableSurfaces.push_back(entity);
 	}
 
-	if (state.SelectedObjects.back().HasComponent<ar::IntersectCurveComponent>())
-		state.SelectedIntersectionCurve = state.SelectedObjects.back();
-	else
-		state.SelectedIntersectionCurve = std::nullopt;
-
+	if (!state.SelectedObjects.empty())
+	{
+		if (state.SelectedObjects.back().HasComponent<ar::IntersectCurveComponent>())
+			state.SelectedIntersectionCurve = state.SelectedObjects.back();
+		else
+			state.SelectedIntersectionCurve = std::nullopt;
+	}
 	// middle point
 	UpdateMeanPoint(state);
 }
@@ -438,6 +440,11 @@ void EditorSceneController::ProcessIntCurveSelection(EditorState& state)
 {
 	if (state.SelectedIntersectionCurve)
 	{
+		if (!state.SelectedIntersectionCurve->IsValid())
+		{
+			state.SelectedIntersectionCurve = std::nullopt;
+			return;
+		}
 		auto& intcurve = (*state.SelectedIntersectionCurve).GetComponent<ar::IntersectCurveComponent>();
 		if (intcurve.ShowImageP)
 		{
