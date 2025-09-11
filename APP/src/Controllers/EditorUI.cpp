@@ -300,11 +300,14 @@ void EditorUI::RenderTrimmingWindow()
 	}
 
 	auto& surface = m_State.SelectedObjects.back();
-	if (surface.HasComponent<ar::TrimmingComponent>())
+	if (surface.HasComponent<ar::TrimmingComponent>() && !surface.GetComponent<ar::TrimmingComponent>().IntersectionCurves.empty())
 	{
 		auto& t = surface.GetComponent<ar::TrimmingComponent>();
 
-		ImGui::Checkbox("Trim surface", &t.ShouldTrimSurface);
+		{
+			ar::ScopedDisable disable(t.TrimTexture == nullptr);
+			ImGui::Checkbox("Trim surface", &t.ShouldTrimSurface);
+		}
 		
 		// Trimming side
 		ImGui::TextWrapped("Trimmed side");

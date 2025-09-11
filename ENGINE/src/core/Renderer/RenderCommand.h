@@ -16,6 +16,7 @@ namespace ar
 		static void ToggleBlendColor(bool enabled);
 		static void SetDepthMask(uint32_t flag);
 		static void SetTessellationPatchSize(size_t size);
+		static void BindTexture(ar::Ref<ar::Texture> texture, size_t slot);
 
 		inline static void Draw(const Primitive primitive,
 			const std::shared_ptr<VertexArray>& vertexArray, uint32_t instanceCount = 1)

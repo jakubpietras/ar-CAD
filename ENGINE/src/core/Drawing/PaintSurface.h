@@ -16,6 +16,7 @@ namespace ar
 		inline uint32_t GetHandle() const { return m_Tex->GetID(); }
 		inline size_t GetWidth() const { return m_Width; }
 		inline size_t GetHeight() const { return m_Height; }
+		inline Ref<Texture> GetTextureRef() { return m_Tex; }
 
 
 	private:

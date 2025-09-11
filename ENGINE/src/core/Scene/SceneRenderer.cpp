@@ -194,6 +194,24 @@ namespace ar
 					if (mc.AdaptiveDrawing)
 						shader->SetVec2("u_Viewport", viewport.Data());
 
+					if (e.HasComponent<ar::TrimmingComponent>())
+					{
+						auto& t = e.GetComponent<ar::TrimmingComponent>();
+						if (t.ShouldTrimSurface)
+						{
+							RenderCommand::BindTexture(t.TrimTexture->GetTextureRef(), 0);
+							shader->SetInt("u_TrimTex", 0);
+							shader->SetBool("u_ShouldTrim", true);
+							bool renderSideA = (t.Side == TrimmingComponent::TrimSide::SIDE_A);
+							shader->SetBool("u_RenderSideA", renderSideA);
+						}
+						else
+						{
+							shader->SetBool("u_ShouldTrim", false);
+						}
+					}
+
+
 					bool isSelected = m_Scene->m_Registry.any_of<SelectedTagComponent>(entity);
 					auto color = isSelected ? Renderer::SELECTION_COLOR : mc.PrimaryColor;
 					shader->SetVec3("u_Color", color);
@@ -209,6 +227,24 @@ namespace ar
 					pickingShader->SetMat4("u_Model", model);
 					if (mc.AdaptiveDrawing)
 						pickingShader->SetVec2("u_Viewport", viewport.Data());
+
+					if (e.HasComponent<ar::TrimmingComponent>())
+					{
+						auto& t = e.GetComponent<ar::TrimmingComponent>();
+						if (t.ShouldTrimSurface)
+						{
+							RenderCommand::BindTexture(t.TrimTexture->GetTextureRef(), 0);
+							pickingShader->SetInt("u_TrimTex", 0);
+							pickingShader->SetBool("u_ShouldTrim", true);
+							bool renderSideA = (t.Side == TrimmingComponent::TrimSide::SIDE_A);
+							pickingShader->SetBool("u_RenderSideA", renderSideA);
+						}
+						else
+						{
+							pickingShader->SetBool("u_ShouldTrim", false);
+						}
+					}
+
 					ar::Renderer::Submit(mc, mc.VertexArray->IsIndexed());
 					break;
 				}
@@ -221,6 +257,7 @@ namespace ar
 		auto view = m_Scene->m_Registry.view<MeshComponent, SurfaceComponent>(entt::exclude<HiddenMeshTagComponent>);
 		for (auto [entity, mc, bs] : view.each())
 		{
+			auto e = ar::Entity(entity, m_Scene.get());
 			auto model = mat::Identity();
 			switch (pass)
 			{
@@ -237,6 +274,23 @@ namespace ar
 					auto color = isSelected ? Renderer::SELECTION_COLOR : mc.PrimaryColor;
 					shader->SetVec3("u_Color", color);
 
+					if (e.HasComponent<ar::TrimmingComponent>())
+					{
+						auto& t = e.GetComponent<ar::TrimmingComponent>();
+						if (t.ShouldTrimSurface)
+						{
+							RenderCommand::BindTexture(t.TrimTexture->GetTextureRef(), 0);
+							shader->SetInt("u_TrimTex", 0);
+							shader->SetBool("u_ShouldTrim", true);
+							bool renderSideA = (t.Side == TrimmingComponent::TrimSide::SIDE_A);
+							shader->SetBool("u_RenderSideA", renderSideA);
+						}
+						else
+						{
+							shader->SetBool("u_ShouldTrim", false);
+						}
+					}
+
 					shader->SetBool("u_SwitchCoords", false);
 					ar::Renderer::Submit(mc, mc.VertexArray->IsIndexed());
 					shader->SetBool("u_SwitchCoords", true);
@@ -252,6 +306,23 @@ namespace ar
 					pickingShader->SetMat4("u_Model", model);
 					pickingShader->SetUInt("u_SamplesU", bs.Description.Samples.u);
 					pickingShader->SetUInt("u_SamplesV", bs.Description.Samples.v);
+
+					if (e.HasComponent<ar::TrimmingComponent>())
+					{
+						auto& t = e.GetComponent<ar::TrimmingComponent>();
+						if (t.ShouldTrimSurface)
+						{
+							RenderCommand::BindTexture(t.TrimTexture->GetTextureRef(), 0);
+							pickingShader->SetInt("u_TrimTex", 0);
+							pickingShader->SetBool("u_ShouldTrim", true);
+							bool renderSideA = (t.Side == TrimmingComponent::TrimSide::SIDE_A);
+							pickingShader->SetBool("u_RenderSideA", renderSideA);
+						}
+						else
+						{
+							pickingShader->SetBool("u_ShouldTrim", false);
+						}
+					}
 
 					pickingShader->SetBool("u_SwitchCoords", false);
 					ar::Renderer::Submit(mc, mc.VertexArray->IsIndexed());

@@ -43,5 +43,10 @@ namespace ar
 		glPatchParameteri(GL_PATCH_VERTICES, static_cast<GLint>(size));
 	}
 
+	void RenderCommand::BindTexture(ar::Ref<ar::Texture> texture, size_t slot)
+	{
+		texture->BindSlot(slot);
+	}
+
 	ar::RendererAPI* RenderCommand::s_RendererAPI = new ar::OGLRendererAPI();
 }

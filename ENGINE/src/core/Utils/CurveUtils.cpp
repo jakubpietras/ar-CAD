@@ -177,7 +177,31 @@ namespace ar
 
 		// Create interpolatory curve
 		auto points = ar::GeneralUtils::CreateScenePoints(splinePoints, factory);
+		
+		// Remove from parents
+		auto& icc = intersectCurve.GetComponent<ar::IntersectCurveComponent>();
+		auto& trimP = icc.SurfaceP.GetComponent<ar::TrimmingComponent>();
+		auto& pcurves = trimP.IntersectionCurves;
+		pcurves.erase(std::remove(pcurves.begin(), pcurves.end(), intersectCurve), pcurves.end());
+		if (trimP.TrimTexture == icc.TrimTexP)
+		{
+			trimP.TrimTexture = nullptr;
+			trimP.ShouldTrimSurface = false;
+		}
+		if (icc.SurfaceQ)
+		{
+			auto& trimQ = (*icc.SurfaceQ).GetComponent<ar::TrimmingComponent>();
+			auto& qcurves = trimQ.IntersectionCurves;
+			qcurves.erase(std::remove(qcurves.begin(), qcurves.end(), intersectCurve), qcurves.end());
+			if (trimQ.TrimTexture == icc.TrimTexQ)
+			{
+				trimQ.TrimTexture = nullptr;
+				trimQ.ShouldTrimSurface = false;
+			}
+		}
 		intersectCurve.RemoveComponent<ar::IntersectCurveComponent>();
+		
+		// Make an interpolatory C2 spline
 		intersectCurve.AddComponent<ar::InterpolatedC2Component>();
 
 		auto& cp = intersectCurve.AddComponent<ar::ControlPointsComponent>(points);
@@ -194,9 +218,6 @@ namespace ar
 		mesh.AdaptiveDrawing = true;
 		mesh.PrimitiveSize = 1.f;
 		mesh.DirtyFlag = true;
-
-		// remove intersectCurve from its parents' trim component
-
 	}
 
 	std::vector<mat::Vec3> CurveUtils::FilterKnots(std::vector<mat::Vec3> knots)
