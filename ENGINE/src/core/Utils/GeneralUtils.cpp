@@ -48,4 +48,15 @@ namespace ar
 		return false;
 	}
 
+	std::vector<ar::Entity> GeneralUtils::CreateScenePoints(std::vector<ar::mat::Vec3> positions, ar::SceneFactory& factory)
+	{
+		std::vector<ar::Entity> points;
+		for (auto& pos : positions)
+		{
+			auto point = factory.CreatePoint(pos, std::nullopt, "Point");
+			points.push_back(point);
+		}
+		return points;
+	}
+
 }

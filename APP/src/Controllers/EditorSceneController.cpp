@@ -10,6 +10,7 @@
 #include "core/Scene/Components.h"
 #include "core/Intersections/Intersection.h"
 #include "core/Scene/DebugRenderer.h"
+#include "core/Utils/CurveUtils.h"
 
 EditorSceneController::EditorSceneController(ar::Ref<ar::Scene> scene, ar::SceneRenderer& sceneRender)
 	: m_Scene(scene), m_SceneRenderer(sceneRender),
@@ -162,7 +163,7 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 		ValidateGeometry(state);
 	if (selectionValidation)
 		ValidateSelection(state);
-	ProcessIntCurveSelection(state);
+	ProcessIntCurveState(state);
 }
 
 void EditorSceneController::AttachPointToCurves(ar::Entity point, std::vector<ar::Entity> curves)
@@ -436,7 +437,7 @@ void EditorSceneController::CorrectPointColors(EditorState& state)
 	}
 }
 
-void EditorSceneController::ProcessIntCurveSelection(EditorState& state)
+void EditorSceneController::ProcessIntCurveState(EditorState& state)
 {
 	if (state.SelectedIntersectionCurve)
 	{
@@ -457,6 +458,12 @@ void EditorSceneController::ProcessIntCurveSelection(EditorState& state)
 			state.ImageToDisplay = intcurve.ImageQ;
 			if (intcurve.ShowImage)
 				state.ShouldDisplayParameterImage = true;
+		}
+
+		if (intcurve.ConvertToSpline)
+		{
+			ar::CurveUtils::ConvertIntersectCurve(*state.SelectedIntersectionCurve, m_Factory);
+			state.SelectedIntersectionCurve = std::nullopt;
 		}
 	}
 }

@@ -76,6 +76,13 @@ namespace ar
 		m_AttribStartIndex = 0;
 	}
 
+	void OGLVertexArray::AddTexture(Ref<Texture> texture)
+	{
+		if (m_TextureSlot >= 15)
+			return;
+		m_Textures.push_back(texture);
+	}
+
 	void OGLVertexArray::ClearBuffers()
 	{
 		for (uint32_t i = 0; i < m_AttribStartIndex; ++i)
@@ -92,6 +99,12 @@ namespace ar
 		m_IndexBuffers.clear();
 		m_BindingIndex = 0;
 		m_AttribStartIndex = 0;
+	}
+
+	void OGLVertexArray::ClearTextures()
+	{
+		m_TextureSlot = 0;
+		m_Textures.clear();
 	}
 
 }

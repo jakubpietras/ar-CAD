@@ -407,6 +407,9 @@
     <None Include="src\resources\shaders\OpenGL\point.frag" />
     <None Include="src\resources\shaders\OpenGL\gregory.tese" />
     <None Include="src\resources\shaders\OpenGL\gregory.tesc" />
+    <None Include="src\resources\shaders\OpenGL\torus.vert" />
+    <None Include="src\resources\shaders\OpenGL\torus.frag" />
+    <None Include="src\resources\shaders\OpenGL\torusPicking.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\resources\icons\logo.png">

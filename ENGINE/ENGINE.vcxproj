@@ -254,6 +254,9 @@
     <None Include="src\resources\shaders\OpenGL\surface.vert" />
     <None Include="src\resources\shaders\OpenGL\surfaceC2.tesc" />
     <None Include="src\resources\shaders\OpenGL\surfacePicking.frag" />
+    <None Include="src\resources\shaders\OpenGL\torus.frag" />
+    <None Include="src\resources\shaders\OpenGL\torus.vert" />
+    <None Include="src\resources\shaders\OpenGL\torusPicking.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\resources\icons\icon.png" />

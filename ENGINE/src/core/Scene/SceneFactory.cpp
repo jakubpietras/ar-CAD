@@ -62,8 +62,8 @@ namespace ar
 			mc.VertexArray->AddIndexBuffer(ib);
 
 		// Shader
-		mc.Shader = ar::ShaderLib::Get("Basic");
-		mc.PickingShader = ar::ShaderLib::Get("Picking");
+		mc.Shader = ar::ShaderLib::Get("Torus");
+		mc.PickingShader = ar::ShaderLib::Get("TorusPicking");
 
 		return entity;
 	}
@@ -379,14 +379,21 @@ namespace ar
 		ic.SurfaceP = firstSurface;
 		ic.ImageP = ar::IntersectUtils::CreateParameterImage(ic.Params, true, 512, 512,
 			ar::GeneralUtils::IsWrappedU(firstSurface), ar::GeneralUtils::IsWrappedV(firstSurface));
+		ic.TrimTexP = ar::IntersectUtils::CreateTrimTex(ic.Params, true, 512, 512,
+			ar::GeneralUtils::IsWrappedU(firstSurface), ar::GeneralUtils::IsWrappedV(firstSurface));
 		if (secondSurface)
 		{
 			ic.SurfaceQ = secondSurface;
 			ic.ImageQ = ar::IntersectUtils::CreateParameterImage(ic.Params, false, 512, 512,
 				ar::GeneralUtils::IsWrappedU(*secondSurface), ar::GeneralUtils::IsWrappedV(*secondSurface));
+			ic.TrimTexQ = ar::IntersectUtils::CreateTrimTex(ic.Params, false, 512, 512,
+				ar::GeneralUtils::IsWrappedU(*secondSurface), ar::GeneralUtils::IsWrappedV(*secondSurface));
 		}
 		else
+		{
 			ic.ImageQ = ic.ImageP;
+			ic.TrimTexQ = ic.TrimTexP;
+		}
 
 		// Mesh
 		std::vector<VertexPositionIDColor> pointVerts;
@@ -400,6 +407,8 @@ namespace ar
 		mesh.PickingShader = pickingShader;
 		mesh.RenderPrimitive = ar::Primitive::LineStrip;
 		mesh.PrimitiveSize = 5.f;
+
+		return entity;
 	}
 
 }

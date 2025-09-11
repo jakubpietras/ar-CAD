@@ -68,5 +68,5 @@ private:
 	void ValidateGeometry(EditorState& state);
 	void ValidateSelection(EditorState& state);
 	void CorrectPointColors(EditorState& state);
-	void ProcessIntCurveSelection(EditorState& state);
+	void ProcessIntCurveState(EditorState& state);
 };

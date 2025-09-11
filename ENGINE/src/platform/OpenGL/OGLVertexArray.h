@@ -14,13 +14,14 @@ namespace ar
 		void Unbind() override;
 		void AddVertexBuffer(Ref<VertexBuffer> vertexBuffer) override;
 		void AddIndexBuffer(Ref<IndexBuffer> indexBuffer) override;
+		void AddTexture(Ref<Texture> texture) override;
 		void ClearBuffers() override;
+		void ClearTextures() override;
 		
 		const size_t GetIndexCount() override;
 		const size_t GetVertexCount() override;
 
 		void ClearVertexBuffers() override;
-
 	};
 
 }

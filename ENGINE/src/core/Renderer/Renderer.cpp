@@ -24,6 +24,7 @@ namespace ar
 	{
 		shader->Use();
 		vertexArray->Bind();
+		vertexArray->BindTextures();
 		if (indexed)
 		{
 			RenderCommand::DrawIndexed(primitive, vertexArray, instanceCount);

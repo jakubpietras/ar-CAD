@@ -4,6 +4,7 @@ namespace ar
 {
 	enum class AttributeType
 	{
+		Float2,
 		Float3,
 		Float4,
 		Int,
@@ -27,6 +28,7 @@ namespace ar
 			{
 			case AttributeType::Int: return 1;
 			case AttributeType::UInt: return 1;
+			case AttributeType::Float2: return 2;
 			case AttributeType::Float3: return 3;
 			case AttributeType::Float4: return 4;
 			default:
@@ -40,6 +42,7 @@ namespace ar
 			{
 			case AttributeType::Int: return 1 * sizeof(int);
 			case AttributeType::UInt: return 1 * sizeof(unsigned int);
+			case AttributeType::Float2: return 2 * sizeof(float);
 			case AttributeType::Float3: return 3 * sizeof(float);
 			case AttributeType::Float4: return 4 * sizeof(float);
 			default:
@@ -53,6 +56,7 @@ namespace ar
 			{
 			case AttributeType::Int: return GL_INT;
 			case AttributeType::UInt: return GL_UNSIGNED_INT;
+			case AttributeType::Float2: return GL_FLOAT;
 			case AttributeType::Float3: return GL_FLOAT;
 			case AttributeType::Float4: return GL_FLOAT;
 			default:

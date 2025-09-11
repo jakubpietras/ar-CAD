@@ -14,6 +14,12 @@ namespace ar
 		{"a_Position", AttributeType::Float3, 0},
 		{"a_ID", AttributeType::UInt, 0}
 	};
+
+	const BufferLayout VertexPositionUVID::s_Layout{
+		{"a_Position", AttributeType::Float3, 0},
+		{"a_UV", AttributeType::Float2, 0},
+		{"a_ID", AttributeType::UInt, 0}
+	};
 	
 	const BufferLayout VertexPositionColor::s_Layout{ 
 		{"a_Position", AttributeType::Float3, 0},

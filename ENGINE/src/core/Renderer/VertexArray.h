@@ -5,6 +5,7 @@
 
 #include "Buffer.h"
 #include <memory>
+#include "core/Renderer/Texture.h"
 
 namespace ar
 {
@@ -14,9 +15,13 @@ namespace ar
 		virtual ~VertexArray() { }
 		virtual void Bind() = 0;
 		virtual void Unbind() = 0;
+		virtual void BindTextures();
+
 		virtual void AddVertexBuffer(Ref<VertexBuffer> vertexBuffer) = 0;
 		virtual void AddIndexBuffer(Ref<IndexBuffer> indexBuffer) = 0;
+		virtual void AddTexture(Ref<Texture> texture) = 0;
 		virtual void ClearBuffers() = 0;
+		virtual void ClearTextures() = 0;
 		virtual void ClearVertexBuffers() = 0;
 
 		static VertexArray* Create();
@@ -32,13 +37,15 @@ namespace ar
 	protected:
 		std::vector<Ref<VertexBuffer>> m_VertexBuffers;
 		std::vector<Ref<IndexBuffer>> m_IndexBuffers;
+		std::vector<Ref<Texture>> m_Textures;
 		uint32_t m_ID;
 		uint32_t m_BindingIndex;
 		uint32_t m_AttribStartIndex;
+		uint32_t m_TextureSlot;
 		/*
 			BindingIndex is the next available index for a VBO to bind. It needs to be incremented
 			every time a new vertex buffer is added. It's not an optimal solution, but for now it
-			will do.
+			will do. Texture slot is the same.
 		*/
 	};
 }

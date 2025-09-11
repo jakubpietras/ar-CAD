@@ -5,6 +5,16 @@
 
 namespace ar
 {
+
+	void VertexArray::BindTextures()
+	{
+		if (m_Textures.empty())
+			return;
+		size_t i = 0;
+		for (auto& texture : m_Textures)
+			texture->BindSlot(i);
+	}
+
 	VertexArray* VertexArray::Create()
 	{
 		switch (RendererAPI::GetAPI())

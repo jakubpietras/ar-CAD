@@ -139,7 +139,7 @@ namespace ar
 	struct TorusComponent
 	{
 		TorusDesc							Description;
-		std::vector<VertexPositionID>		Vertices {};
+		std::vector<VertexPositionUVID>		Vertices {};
 		std::vector<std::vector<uint32_t>>	Edges {};
 		bool								DirtyFlag = true;
 	};
@@ -179,6 +179,7 @@ namespace ar
 		std::vector<ar::mat::Vec3> Points;
 		std::vector<ar::mat::Vec4> Params;
 		ar::Ref<PaintSurface> ImageP, ImageQ;
+		ar::Ref<PaintSurface> TrimTexP, TrimTexQ;
 		ar::Entity SurfaceP;
 		std::optional<ar::Entity> SurfaceQ;
 		bool ShowImageP = false, ShowImageQ = false;

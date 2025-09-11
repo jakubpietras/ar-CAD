@@ -20,6 +20,14 @@ namespace ar
 
 	void ShaderLib::Init()
 	{
+		s_Shaders["Torus"] = Ref<Shader>(Shader::Create(
+			"resources/shaders/OpenGL/torus.vert",
+			"resources/shaders/OpenGL/torus.frag"
+		));
+		s_Shaders["TorusPicking"] = Ref<Shader>(Shader::Create(
+			"resources/shaders/OpenGL/torus.vert",
+			"resources/shaders/OpenGL/torusPicking.frag"
+		));
 		s_Shaders["Basic"] = Ref<Shader>(Shader::Create(
 			"resources/shaders/OpenGL/basic.vert",
 			"resources/shaders/OpenGL/basic.frag"));

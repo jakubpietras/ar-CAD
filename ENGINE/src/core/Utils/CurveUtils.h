@@ -1,5 +1,6 @@
 #pragma once
 #include "core/Scene/Entity.h"
+#include "core/Scene/SceneFactory.h"
 
 namespace ar
 {
@@ -16,6 +17,8 @@ namespace ar
 		static std::vector<VertexPositionID> GetIntC2VertexData(std::vector<ar::Entity> knots, uint32_t id);
 
 		static std::array<std::array<mat::Vec3, 4>, 2> SubdivideCubicSegment(std::array<mat::Vec3, 4> controlPoints, float t);
+
+		static void ConvertIntersectCurve(ar::Entity intersectCurve, ar::SceneFactory& factory);
 
 	private:
 		static std::vector<mat::Vec3> FilterKnots(std::vector<mat::Vec3> knots);

@@ -2,6 +2,7 @@
 #include "CurveUtils.h"
 #include "solvers.h"
 #include "core/Scene/Components.h"
+#include "GeneralUtils.h"
 
 namespace ar
 {
@@ -164,6 +165,35 @@ namespace ar
 		std::array<mat::Vec3, 4> curveB = { result[5], result[4], result[2], controlPoints[3] };
 
 		return { curveA, curveB };
+	}
+
+	void CurveUtils::ConvertIntersectCurve(ar::Entity intersectCurve, ar::SceneFactory& factory)
+	{
+		auto& intcurve = intersectCurve.GetComponent<ar::IntersectCurveComponent>();
+		
+		// Sample points
+		auto pointsCount = intcurve.ConversionPointsCount;
+		auto splinePoints = ar::GeneralUtils::SampleElementsN<ar::mat::Vec3>(intcurve.Points, pointsCount);
+
+		// Create interpolatory curve
+		auto points = ar::GeneralUtils::CreateScenePoints(splinePoints, factory);
+		intersectCurve.RemoveComponent<ar::IntersectCurveComponent>();
+		intersectCurve.AddComponent<ar::InterpolatedC2Component>();
+
+		auto& cp = intersectCurve.AddComponent<ar::ControlPointsComponent>(points);
+		for (auto& point : points)
+			point.GetComponent<ar::PointComponent>().Parents.push_back(intersectCurve);
+
+		auto& mesh = intersectCurve.GetComponent<ar::MeshComponent>();
+		mesh.VertexArray = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
+		mesh.VertexArray->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(ar::CurveUtils::GetIntC2VertexData(cp.Points, intersectCurve.GetID()))));
+		mesh.Shader = ar::ShaderLib::Get("CurveC0");
+		mesh.PickingShader = ar::ShaderLib::Get("CurveC0Picking");
+		mesh.RenderPrimitive = ar::Primitive::Patch;
+		mesh.TessellationPatchSize = 4;
+		mesh.AdaptiveDrawing = true;
+		mesh.PrimitiveSize = 1.f;
+		mesh.DirtyFlag = true;
 	}
 
 	std::vector<mat::Vec3> CurveUtils::FilterKnots(std::vector<mat::Vec3> knots)

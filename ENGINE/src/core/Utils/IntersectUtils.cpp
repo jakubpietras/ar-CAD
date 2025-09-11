@@ -10,6 +10,35 @@ namespace ar
 		bool useFirst, size_t width, size_t height, bool isWrappedU, bool isWrappedV)
 	{
 		auto image = std::make_shared<PaintSurface>(width, height);
+		image->FloodFill(0, 0, 18, 18, 23, isWrappedU, isWrappedV);
+
+		// Draw lines
+		float p1x, p1y, p2x, p2y;
+		for (size_t i = 0; i < params.size() - 1; i++)
+		{
+			if (useFirst)
+			{
+				p1x = params[i].x * width;
+				p1y = params[i].y * height;
+				p2x = params[i + 1].x * width;
+				p2y = params[i + 1].y * height;
+			}
+			else
+			{
+				p1x = params[i].z * width;
+				p1y = params[i].w * height;
+				p2x = params[i + 1].z * width;
+				p2y = params[i + 1].w * height;
+			}
+			image->DrawLine(p1x, p1y, p2x, p2y, CURVE_RED, CURVE_GREEN, CURVE_BLUE, isWrappedU, isWrappedV);
+		}
+
+		return image;
+	}
+
+	ar::Ref<ar::PaintSurface> IntersectUtils::CreateTrimTex(std::vector<ar::mat::Vec4> params, bool useFirst, size_t width, size_t height, bool isWrappedU, bool isWrappedV)
+	{
+		auto image = std::make_shared<PaintSurface>(width, height);
 
 		// Draw lines
 		float p1x, p1y, p2x, p2y;

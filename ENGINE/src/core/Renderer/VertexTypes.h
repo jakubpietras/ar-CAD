@@ -19,6 +19,14 @@ namespace ar
 		static const BufferLayout s_Layout;
 	};
 
+	struct VertexPositionUVID
+	{
+		mat::Vec3 Position;
+		mat::Vec2 UV;
+		uint32_t ID;
+		static const BufferLayout s_Layout;
+	};
+
 	struct VertexPositionColor
 	{
 		mat::Vec3 Position;

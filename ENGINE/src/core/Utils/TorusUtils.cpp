@@ -1,26 +1,28 @@
 #include <arpch.h>
 #include "TorusUtils.h"
 #include "core/Scene/Components.h"
+#include <numbers>
 
 namespace ar
 {
 
-	std::vector<ar::VertexPositionID> TorusUtils::GenerateTorusVertices(const TorusDesc& desc, uint32_t id)
+	std::vector<ar::VertexPositionUVID> TorusUtils::GenerateTorusVertices(const TorusDesc& desc, uint32_t id)
 	{
-		std::vector<VertexPositionID> vertices;
+		std::vector<VertexPositionUVID> vertices;
 		auto pi = static_cast<float>(acos(-1));
 		float x, y, z, u, v;
 		for (uint32_t i = 0; i < desc.Samples.v; i++)
 		{
 			for (uint32_t j = 0; j < desc.Samples.u; j++)
 			{
-				v = i * (2 * pi / desc.Samples.v);
-				u = j * (2 * pi / desc.Samples.u);
+				auto twoPi = 2 * std::numbers::pi;
+				v = static_cast<float>(i) / desc.Samples.v;
+				u = static_cast<float>(j) / desc.Samples.u;
 
-				x = (desc.LargeRadius + desc.SmallRadius * cos(v)) * cos(u);
-				y = desc.SmallRadius * sin(v);
-				z = (desc.LargeRadius + desc.SmallRadius * cos(v)) * sin(u);
-				vertices.push_back({ { x, y, z }, id });
+				x = (desc.LargeRadius + desc.SmallRadius * cos(v * twoPi)) * cos(u * twoPi);
+				y = desc.SmallRadius * sin(v * twoPi);
+				z = (desc.LargeRadius + desc.SmallRadius * cos(v * twoPi)) * sin(u * twoPi);
+				vertices.push_back({ { x, y, z }, {u, v}, id});
 			}
 		}
 		return vertices;

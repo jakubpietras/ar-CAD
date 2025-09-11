@@ -18,6 +18,7 @@ namespace ar
 
 		static VertexBuffer* Create(std::vector<VertexPosition> vertices);
 		static VertexBuffer* Create(std::vector<VertexPositionID> vertices);
+		static VertexBuffer* Create(std::vector<VertexPositionUVID> vertices);
 		static VertexBuffer* Create(std::vector<VertexPositionColor> vertices);
 		static VertexBuffer* Create(std::vector<VertexPositionIDColor> vertices);
 		static VertexBuffer* Create(std::vector<InstancedFloat3> vertices);
