@@ -11,8 +11,7 @@ out vec2 UVFrag;
 uniform mat4 u_Model, u_VP;
 uniform uint u_SamplesU, u_SamplesV;
 uniform bool u_SwitchCoords;
-uniform uint u_TotalSegmentsU, u_TotalSegmentsV; // Total segments in the surface
-uniform uint u_CurrentSegmentU, u_CurrentSegmentV; // Current patch position
+uniform uint u_TotalSegmentsU, u_TotalSegmentsV;
 
 float CubicBernstein(int i, float t)
 {
@@ -29,25 +28,25 @@ float CubicBernstein(int i, float t)
 
 void main()
 {
-	float u = gl_TessCoord.x;
-	float v = gl_TessCoord.y;
+	float u = u_SwitchCoords ? gl_TessCoord.x : gl_TessCoord.y;
+	float v = u_SwitchCoords ? gl_TessCoord.y : gl_TessCoord.x;
 
-	if (u_SwitchCoords) {
-		float temp = u;
-		u = v;
-		v = temp;
-	}
+	// global UVs
+	int patchIndex = int(gl_PrimitiveID);
+	int patchU = patchIndex % int(u_TotalSegmentsU);
+	int patchV = patchIndex / int(u_TotalSegmentsU);
 
-	float segmentWidth = 1.0f / float(u_TotalSegmentsU);
-    float segmentHeight = 1.0f / float(u_TotalSegmentsV);
-    
-    float globalU = (float(u_CurrentSegmentU) + u) * segmentWidth;
-    float globalV = (float(u_CurrentSegmentV) + v) * segmentHeight;
-    
-    UVFrag = vec2(globalU, globalV);
+	float segmentWidth = 1.0 / float(u_TotalSegmentsU);
+	float segmentHeight = 1.0 / float(u_TotalSegmentsV);
 
-	float bezier_u = clamp(u * u_SamplesU / (u_SamplesU - 1), 0.0, 1.0);
-	float bezier_v = clamp(v * u_SamplesV / (u_SamplesV - 1), 0.0, 1.0);
+	float globalU = (float(patchU) + u) * segmentWidth;
+	float globalV = (float(patchV) + v) * segmentHeight;
+
+	UVFrag = vec2(globalU, globalV);
+
+	// Point calculations
+	u = clamp(u * u_SamplesU / (u_SamplesU - 1), 0.0, 1.0);
+	v = clamp(v * u_SamplesV / (u_SamplesV - 1), 0.0, 1.0);
 
 	vec3 point = vec3(0.0f, 0.0f, 0.0f);
 	for (int i = 0; i < 4; i++)
@@ -55,11 +54,10 @@ void main()
 		for (int j = 0; j < 4; j++)
 		{
 			int pointIdx = i * 4 + j;
-			point += PosEval[pointIdx] * CubicBernstein(i, bezier_u) * CubicBernstein(j, bezier_v);
+			point += PosEval[pointIdx] * CubicBernstein(i, u) * CubicBernstein(j, v);
 		}
 	}
 	vec4 pointPos = u_VP * u_Model * vec4(point, 1.0f);
 	gl_Position = pointPos;
 	IDFrag = IDEval;
-	UVFrag = vec2(u, v);
 }
