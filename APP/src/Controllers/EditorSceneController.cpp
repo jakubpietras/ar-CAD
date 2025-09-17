@@ -157,7 +157,12 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 		state.StepDistance = 0.5f;
 		state.ShouldComputeIntersection = false;
 	}
-	
+	if (state.ShouldUpdateVisibility)
+	{
+		ProcessUpdateVisibility(state);
+		state.ShouldUpdateVisibility = false;
+	}
+
 	// Validation
 	if (geometryValidation)
 		ValidateGeometry(state);
@@ -682,6 +687,27 @@ void EditorSceneController::ProcessAddIntersection(EditorState& state)
 			state.ErrorMessages.emplace_back("No intersection detected.");
 		}
 	}
+}
+
+void EditorSceneController::ProcessUpdateVisibility(EditorState& state)
+{
+	// hide
+	for (const ar::Entity& obj : state.ObjectsToHide) 
+	{
+		ar::Entity mutableObj = obj;
+		if (!mutableObj.HasComponent<ar::HiddenTagComponent>())
+			mutableObj.AddComponent<ar::HiddenTagComponent>();
+	}
+	// show
+	for (const ar::Entity& obj : state.ObjectsToShow)
+	{
+		ar::Entity mutableObj = obj;
+		if (mutableObj.HasComponent<ar::HiddenTagComponent>())
+			mutableObj.RemoveComponent<ar::HiddenTagComponent>();
+	}
+
+	state.ObjectsToHide.clear();
+	state.ObjectsToShow.clear();
 }
 
 void EditorSceneController::PlaceCursor(ar::mat::Vec2 clickPosition, ViewportSize viewport, ar::mat::Vec3& cursorPosition)

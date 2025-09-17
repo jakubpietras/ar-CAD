@@ -145,4 +145,9 @@ struct EditorState
 	ar::Ref<ar::PaintSurface> ImageToDisplay = nullptr;
 	float StepDistance = 0.5f;
 
+	// ============================= Hide/Show =============================
+	std::unordered_set<ar::Entity, ar::Entity::HashFunction> ObjectsToHide{};
+	std::unordered_set<ar::Entity, ar::Entity::HashFunction> ObjectsToShow{};
+	bool ShouldUpdateVisibility = false;
+
 };

@@ -18,6 +18,8 @@ private:
 
 	void RequestObjectSelect(ar::Entity object, bool add = false);
 	void RequestObjectDeselect(ar::Entity object);
+	void RequestHideObject(ar::Entity object);
+	void RequestShowObject(ar::Entity object);
 
 	EditorState& m_State;
 	ar::Ref<ar::Scene> m_Scene;

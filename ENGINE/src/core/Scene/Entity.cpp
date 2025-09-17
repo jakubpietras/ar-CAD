@@ -36,14 +36,14 @@ namespace ar
 
 	void Entity::Hide()
 	{
-		if (!HasComponent<HiddenMeshTagComponent>())
-			AddComponent<HiddenMeshTagComponent>();
+		if (!HasComponent<HiddenTagComponent>())
+			AddComponent<HiddenTagComponent>();
 	}
 
 	void Entity::Show()
 	{
-		if (HasComponent<HiddenMeshTagComponent>())
-			RemoveComponent<HiddenMeshTagComponent>();
+		if (HasComponent<HiddenTagComponent>())
+			RemoveComponent<HiddenTagComponent>();
 	}
 
 }

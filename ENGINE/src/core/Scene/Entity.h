@@ -58,6 +58,12 @@ namespace ar
 			return m_Scene->m_Registry.any_of<T>(m_EntityHandle);
 		}
 
+		template<typename T>
+		const bool HasComponent() const
+		{
+			return m_Scene->m_Registry.any_of<T>(m_EntityHandle);
+		}
+
 		template<typename... Components>
 		bool HasAnyComponent()
 		{

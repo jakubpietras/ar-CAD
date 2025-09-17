@@ -35,6 +35,7 @@ void EditorUI::Render(ar::Ref<ar::Framebuffer> mainFB)
 
 	RenderPickingBox();
 	RenderAddObjectPopup();
+	RenderObjectContextPopup();
 
 	// Modals
 	RenderDeleteModal();
@@ -240,6 +241,18 @@ void EditorUI::RenderAddObjectPopup()
 	}
 }
 
+void EditorUI::RenderObjectContextPopup()
+{
+	if (ar::Input::IsKeyPressed(AR_KEY_LEFT_SHIFT) && ar::Input::IsKeyPressed(AR_KEY_C))
+		ImGui::OpenPopup("objectContextPopup");
+	if (ImGui::BeginPopup("objectContextPopup"))
+	{
+		auto& lastSelected = m_State.SelectedObjects.back();
+		RenderContextMenu(lastSelected);
+		ImGui::EndPopup();
+	}
+}
+
 bool EditorUI::RenderPaintWindow(ar::PaintSurface& paintSurface)
 {
 	auto handle = paintSurface.GetHandle();
@@ -401,6 +414,32 @@ void EditorUI::RenderAddMenu()
 		ar::ScopedDisable disable(m_State.ShouldShowGregoryModal);
 		if (ImGui::MenuItem("Gregory patch"))
 			m_State.ShouldShowGregoryModal = true;
+	}
+}
+
+void EditorUI::RenderContextMenu(ar::Entity object)
+{
+	if (object.HasComponent<ar::PointComponent>())
+	{
+		if (ImGui::MenuItem("Collapse"))
+		{
+			m_State.ShowCollapseModal = true;
+		}
+	}
+	if (object.HasComponent<ar::SurfaceComponent>())
+	{
+		if (ImGui::MenuItem("Select all points"))
+		{
+			m_State.SelectionChangeMode = SelectionMode::Replace;
+			m_State.SelectionCandidates.clear();
+			auto& children = object.GetComponent<ar::ControlPointsComponent>().Points;
+			m_State.SelectionCandidates.insert(
+				m_State.SelectionCandidates.begin(),
+				children.begin(),
+				children.end()
+			);
+			m_State.ShouldUpdateSelection = true;
+		}
 	}
 }
 
@@ -831,12 +870,18 @@ void EditorUI::RenderCollapseModal()
 
 	if (m_State.ShowCollapseModal)
 	{
+		// Set popup position near mouse cursor
+		ImVec2 mousePos = ImGui::GetMousePos();
+		ImVec2 popupPos = ImVec2(mousePos.x + 10, mousePos.y + 10); // Small offset
+		ImGui::SetNextWindowPos(popupPos, ImGuiCond_Appearing);
+
 		ImGui::OpenPopup(popupName);
 		m_State.ShowCollapseModal = false;
 	}
 
 	if (ImGui::BeginPopupModal(popupName, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 	{
+		// Rest of your code remains the same...
 		if (m_State.SelectedPoints.size() != 2)
 		{
 			std::string message = "Exactly two unique points must be selected for collapse!";

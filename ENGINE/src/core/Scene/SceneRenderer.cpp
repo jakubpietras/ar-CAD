@@ -175,7 +175,7 @@ namespace ar
 
 	void SceneRenderer::RenderMeshes(ar::mat::Mat4 viewProjection, RenderPassType pass, ar::mat::Vec2 viewport)
 	{
-		auto view = m_Scene->m_Registry.view<MeshComponent>(entt::exclude<PointComponent, HiddenMeshTagComponent, SurfaceComponent, GregoryPatchComponent>);
+		auto view = m_Scene->m_Registry.view<MeshComponent>(entt::exclude<PointComponent, HiddenTagComponent, SurfaceComponent, GregoryPatchComponent>);
 		for (auto [entity, mc] : view.each())
 		{
 			auto e = ar::Entity(entity, m_Scene.get());
@@ -254,7 +254,7 @@ namespace ar
 
 	void SceneRenderer::RenderSurfaces(ar::mat::Mat4 viewProjection, RenderPassType pass)
 	{
-		auto view = m_Scene->m_Registry.view<MeshComponent, SurfaceComponent>(entt::exclude<HiddenMeshTagComponent>);
+		auto view = m_Scene->m_Registry.view<MeshComponent, SurfaceComponent>(entt::exclude<HiddenTagComponent>);
 		for (auto [entity, mc, bs] : view.each())
 		{
 			auto e = ar::Entity(entity, m_Scene.get());
@@ -342,8 +342,8 @@ namespace ar
 	void SceneRenderer::RenderPolygons(ar::mat::Mat4 viewProjection)
 	{
 		// Render Bezier polygons
-		auto c0curves = m_Scene->m_Registry.view<CurveC0Component, MeshComponent>();
-		auto c2curves = m_Scene->m_Registry.view<CurveC2Component, MeshComponent>();
+		auto c0curves = m_Scene->m_Registry.view<CurveC0Component, MeshComponent>(entt::exclude<ar::HiddenTagComponent>);
+		auto c2curves = m_Scene->m_Registry.view<CurveC2Component, MeshComponent>(entt::exclude<ar::HiddenTagComponent>);
 
 		auto shader = ShaderLib::Get("Basic");
 		shader->SetMat4("u_VP", viewProjection);
@@ -383,7 +383,7 @@ namespace ar
 		shader->SetMat4("u_VP", viewProjection);
 		shader->SetMat4("u_Model", mat::Identity());
 
-		auto view = m_Scene->m_Registry.view<TransformComponent, PointComponent>();
+		auto view = m_Scene->m_Registry.view<TransformComponent, PointComponent>(entt::exclude<ar::HiddenTagComponent>);
 		if (!view.size_hint())
 			return;
 
@@ -428,6 +428,8 @@ namespace ar
 				m_PointsVA->ClearBuffers();
 				m_PointsVA->AddVertexBuffer(Ref<VertexBuffer>(VertexBuffer::Create(pointVerts)));
 			}
+			else
+				return;
 		}
 
 		ar::Renderer::Submit(Primitive::Point, shader, m_PointsVA);
@@ -435,7 +437,7 @@ namespace ar
 
 	void SceneRenderer::RenderGregoryPatches(ar::mat::Mat4 viewProjection, RenderPassType pass)
 	{
-		auto view = m_Scene->m_Registry.view<MeshComponent, GregoryPatchComponent>(entt::exclude<HiddenMeshTagComponent>);
+		auto view = m_Scene->m_Registry.view<MeshComponent, GregoryPatchComponent>(entt::exclude<HiddenTagComponent>);
 		for (auto [entity, mc, gp] : view.each())
 		{
 			auto model = mat::Identity();

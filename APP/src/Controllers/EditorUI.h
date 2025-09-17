@@ -27,11 +27,13 @@ private:
 	void RenderCursorControls();
 	void RenderViewport(ar::Ref<ar::Framebuffer> mainFB);
 	void RenderAddObjectPopup();
+	void RenderObjectContextPopup();
 	bool RenderPaintWindow(ar::PaintSurface& paintSurface);
 	void RenderParameterImage();
 	void RenderTrimmingWindow();
 
 	void RenderAddMenu();
+	void RenderContextMenu(ar::Entity object);
 	bool RenderRectangleControls();
 	bool RenderCylinderControls();
 

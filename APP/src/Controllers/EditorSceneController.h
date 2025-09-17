@@ -33,6 +33,8 @@ private:
 	void ProcessPicking(EditorState& state);
 	void ProcessGroupTransform(EditorState& state);
 	void ProcessAddIntersection(EditorState& state);
+	void ProcessUpdateVisibility(EditorState& state);
+
 
 	// Cursor
 	void PlaceCursor(ar::mat::Vec2 clickPosition, ViewportSize viewport, ar::mat::Vec3& cursorPosition);
