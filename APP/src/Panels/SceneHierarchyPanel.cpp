@@ -241,11 +241,12 @@ void SceneHierarchyPanel::DrawEntityContextMenu(ar::Entity& object, bool allowDe
 			m_State.SelectionChangeMode = SelectionMode::Replace;
 			m_State.SelectionCandidates.clear();
 			auto& children = object.GetComponent<ar::ControlPointsComponent>().Points;
-			m_State.SelectionCandidates.insert(
-				m_State.SelectionCandidates.begin(),
-				children.begin(),
-				children.end()
-			);
+			auto& sel = m_State.SelectionCandidates;
+			for (auto& point : children)
+			{
+				if (std::find(sel.begin(), sel.end(), point) == sel.end())
+					sel.push_back(point);
+			}
 			m_State.ShouldUpdateSelection = true;
 		}
 	ImGui::SeparatorText("Point Controls");
