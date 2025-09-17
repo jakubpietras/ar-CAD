@@ -58,12 +58,12 @@ namespace ar
 		uint32_t id = point["id"];
 		std::string name = (point.contains("name")) ? point["name"] : "Point";
 		mat::Vec3 position = LoadVec3(point["position"]);
-		return factory.CreatePoint(position, id, name);
+		return factory.CreatePoint(position, std::nullopt, name);
 	}
 
 	ar::Entity SceneImporter::ImportTorus(json torus, SceneFactory& factory)
 	{
-		uint32_t id = torus["id"];
+		//uint32_t id = torus["id"];
 		std::string name = (torus.contains("name")) ? torus["name"] : "Torus";
 		mat::Vec3 position = LoadVec3(torus["position"]);
 		mat::Quat rotation = LoadQuat(torus["rotation"]);
@@ -77,7 +77,7 @@ namespace ar
 		desc.SmallRadius = smallRadius;
 		desc.LargeRadius = largeRadius;
 
-		auto entity = factory.CreateTorus(position, desc, id, name);
+		auto entity = factory.CreateTorus(position, desc, std::nullopt, name);
 
 		auto& transform = entity.GetComponent<TransformComponent>();
 		transform.Rotation = rotation;
@@ -90,39 +90,39 @@ namespace ar
 
 	ar::Entity SceneImporter::ImportChain(json chain, SceneFactory& factory)
 	{
-		uint32_t id = chain["id"];
+		//uint32_t id = chain["id"];
 		std::string name = (chain.contains("name")) ? chain["name"] : "Chain";
 		auto points = LoadControlPoints(chain["controlPoints"]);
-		return factory.CreateChain(points, id, name);
+		return factory.CreateChain(points, std::nullopt, name);
 	}
 
 	ar::Entity SceneImporter::ImportBezierC0(json bezierC0, SceneFactory& factory)
 	{
-		uint32_t id = bezierC0["id"];
+		//uint32_t id = bezierC0["id"];
 		std::string name = (bezierC0.contains("name")) ? bezierC0["name"] : "BezierC0";
 		auto points = LoadControlPoints(bezierC0["controlPoints"]);
-		return factory.CreateCurveC0(points, id, name);
+		return factory.CreateCurveC0(points, std::nullopt, name);
 	}
 
 	ar::Entity SceneImporter::ImportBezierC2(json bezierC2, SceneFactory& factory)
 	{
-		uint32_t id = bezierC2["id"];
+		//uint32_t id = bezierC2["id"];
 		std::string name = (bezierC2.contains("name")) ? bezierC2["name"] : "BezierC2";
 		auto points = LoadControlPoints(bezierC2["controlPoints"]);
-		return factory.CreateCurveC2(points, id, name);
+		return factory.CreateCurveC2(points, std::nullopt, name);
 	}
 
 	ar::Entity SceneImporter::ImportInterpolatedC2(json intC2, SceneFactory& factory)
 	{
-		uint32_t id = intC2["id"];
+		//uint32_t id = intC2["id"];
 		std::string name = (intC2.contains("name")) ? intC2["name"] : "InterpolatedC2";
 		auto points = LoadControlPoints(intC2["controlPoints"]);
-		return factory.CreateInterpolatedC2(points, id, name);
+		return factory.CreateInterpolatedC2(points, std::nullopt, name);
 	}
 
 	ar::Entity SceneImporter::ImportSurfaceC0(json surface, SceneFactory& factory)
 	{
-		uint32_t id = surface["id"];
+		//uint32_t id = surface["id"];
 		std::string name = (surface.contains("name")) ? surface["name"] : "SurfaceC0";
 		mat::UInt2 size = LoadUInt2(surface["size"]);
 		mat::UInt2 samples = LoadUInt2(surface["samples"]);
@@ -132,13 +132,13 @@ namespace ar
 		SurfaceType type = ar::SurfaceUtils::IsSurfaceC0Cylinder(points, size) ? SurfaceType::CYLINDERC0 : SurfaceType::RECTANGLEC0;
 
 
-		return factory.CreateSurface(points, type, size, samples, id, name);
+		return factory.CreateSurface(points, type, size, samples, std::nullopt, name);
 	}
 
 	ar::Entity SceneImporter::ImportSurfaceC2(json surface, SceneFactory& factory)
 	{
-		uint32_t id = surface["id"];
-		std::string name = (surface.contains("name")) ? surface["name"] : "SurfaceC0";
+		//uint32_t id = surface["id"];
+		std::string name = (surface.contains("name")) ? surface["name"] : "SurfaceC2";
 		mat::UInt2 size = LoadUInt2(surface["size"]);
 		mat::UInt2 samples = LoadUInt2(surface["samples"]);
 		auto points = LoadControlPoints(surface["controlPoints"]);
@@ -147,7 +147,7 @@ namespace ar
 		SurfaceType type = ar::SurfaceUtils::IsSurfaceC2Cylinder(points, size) ? SurfaceType::CYLINDERC2 : SurfaceType::RECTANGLEC2;
 
 
-		return factory.CreateSurface(points, type, size, samples, id, name);
+		return factory.CreateSurface(points, type, size, samples, std::nullopt, name);
 	}
 
 	ar::mat::Vec3 SceneImporter::LoadVec3(json data)
@@ -199,7 +199,6 @@ namespace ar
 	std::vector<Entity> SceneImporter::LoadControlPoints(json data)
 	{
 		std::vector<Entity> points;
-		auto pointIds = std::vector<int>();
 		for (auto& ref : data)
 		{
 			const auto pid = ref["id"].get<uint32_t>();

@@ -13,25 +13,48 @@ void SceneHierarchyPanel::Render()
 	ImGui::Begin("Scene");
 	ImGui::SeparatorText("Mesh visibility");
 
-	if (ImGui::Button("Show all"))
+	if (ImGui::Button("Show All"))
 	{
 		for (auto entity : view)
 		{
 			ar::Entity e{ entity, m_Scene.get() };
-			m_State.ObjectsToShow.insert(e);
+			RequestShowObject(e);
 		}
 		m_State.ShouldUpdateVisibility = true;
 	}
 	ImGui::SameLine();
-	if (ImGui::Button("Hide all"))
+	if (ImGui::Button("Hide All"))
 	{
 		for (auto entity : view)
 		{
 			ar::Entity e{ entity, m_Scene.get() };
-			m_State.ObjectsToHide.insert(e);
+			RequestHideObject(e);
 		}
 		m_State.ShouldUpdateVisibility = true;
 	}
+	if (ImGui::Button("Hide Selected"))
+	{
+		for (auto e : m_State.SelectedObjects)
+		{
+			RequestHideObject(e);
+		}
+		m_State.ShouldUpdateVisibility = true;
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Exclusive Show Selected"))
+	{
+		for (auto entity : view)
+		{
+			ar::Entity e{ entity, m_Scene.get() };
+			RequestHideObject(e);
+		}
+		for (auto e : m_State.SelectedObjects)
+		{
+			RequestShowObject(e);
+		}
+		m_State.ShouldUpdateVisibility = true;
+	}
+
 
 	ImGui::TextWrapped("Objects that are hidden in the scene will appear teal in the hierarchy.");
 
@@ -201,11 +224,11 @@ void SceneHierarchyPanel::DrawEntityContextMenu(ar::Entity& object, bool allowDe
 			m_State.ShowDeleteModal = true;
 		}
 	}
-	ImGui::SeparatorText("Curve/surface controls");
+	ImGui::SeparatorText("Curve/Surface Controls");
 	if (allowAttachment)
 	{
 		ar::ScopedDisable disable(m_State.SelectedCurves.empty() || !object.HasComponent<ar::PointComponent>());
-		if (ImGui::MenuItem("Attach to selected curves"))
+		if (ImGui::MenuItem("Attach to Selected Curves"))
 		{
 			for (auto& curve : m_State.SelectedCurves)
 				m_State.PairsToAttach.push_back({ curve, object });
@@ -213,7 +236,7 @@ void SceneHierarchyPanel::DrawEntityContextMenu(ar::Entity& object, bool allowDe
 		}
 	}
 	if (object.HasComponent<ar::SurfaceComponent>())
-		if (ImGui::MenuItem("Select all points"))
+		if (ImGui::MenuItem("Select All Points"))
 		{
 			m_State.SelectionChangeMode = SelectionMode::Replace;
 			m_State.SelectionCandidates.clear();
@@ -225,7 +248,7 @@ void SceneHierarchyPanel::DrawEntityContextMenu(ar::Entity& object, bool allowDe
 			);
 			m_State.ShouldUpdateSelection = true;
 		}
-	ImGui::SeparatorText("Point controls");
+	ImGui::SeparatorText("Point Controls");
 	if (object.HasComponent<ar::PointComponent>())
 	{
 		if (ImGui::MenuItem("Collapse"))
@@ -233,8 +256,8 @@ void SceneHierarchyPanel::DrawEntityContextMenu(ar::Entity& object, bool allowDe
 			m_State.ShowCollapseModal = true;
 		}
 	}
-	ImGui::SeparatorText("Visibility controls");
-	if (ImGui::MenuItem("Show exclusive"))
+	ImGui::SeparatorText("Visibility Controls");
+	if (ImGui::MenuItem("Exclusive Show"))
 	{
 		auto view = m_Scene->m_Registry.view<entt::entity>(entt::exclude<ar::VirtualTagComponent>);
 		for (auto entity : view)
@@ -242,6 +265,14 @@ void SceneHierarchyPanel::DrawEntityContextMenu(ar::Entity& object, bool allowDe
 			ar::Entity e(entity, m_Scene.get());
 			RequestHideObject(e);
 		}
+		RequestShowObject(object);
+	}
+	if (ImGui::MenuItem("Hide"))
+	{
+		RequestHideObject(object);
+	}
+	if (ImGui::MenuItem("Show"))
+	{
 		RequestShowObject(object);
 	}
 }
