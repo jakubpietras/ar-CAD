@@ -73,7 +73,7 @@ void EditorUI::RenderGroupTransformControls()
 	ImGui::Begin("Group Transform");
 
 	// Translate
-	if (ImGui::DragFloat3("dTranslate", m_State.GroupTranslation.Data(), 0.1f, -10.0f, 10.0f))
+	if (ImGui::DragFloat3("dTranslate", m_State.GroupTranslation.Data(), 0.01f, -10.0f, 10.0f))
 		m_State.ShouldApplyGroupTransform = true;
 
 	if (ImGui::IsItemActivated())
@@ -82,7 +82,7 @@ void EditorUI::RenderGroupTransformControls()
 		m_State.ShouldEndGroupTransform = true;
 
 	// Rotate
-	if (ImGui::DragFloat3("dRotate", m_State.GroupAnglesRPY.Data(), 0.1f, -180.0f, 180.0f))
+	if (ImGui::DragFloat3("dRotate", m_State.GroupAnglesRPY.Data(), 0.01f, -180.0f, 180.0f))
 		m_State.ShouldApplyGroupTransform = true;
 	if (ImGui::IsItemActivated())
 		m_State.ShouldBeginGroupTransform = true;
