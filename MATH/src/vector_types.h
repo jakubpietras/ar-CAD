@@ -8,8 +8,8 @@ namespace ar
 {
 	namespace mat
 	{
-		struct Vec4;	// forward declaration
-
+		// forward declarations
+		template <typename T> struct Vec4T;
 
 		struct UInt2
 		{
@@ -21,19 +21,20 @@ namespace ar
 			unsigned int u, v;
 		};
 
-		struct Vec2
+		template <typename T>
+		struct Vec2T
 		{
-			float x, y;
-			inline const float* Data() const { return &x; };
-			inline float* Data() { return &x; };
-			constexpr Vec2(float x = 0.0f, float y = 0.0f, float z = 0.0f) : x(x), y(y) {}
+			T x, y;
+			inline const T* Data() const { return &x; };
+			inline T* Data() { return &x; };
+			constexpr Vec2T(T x = 0.0f, T y = 0.0f) : x(x), y(y) {}
 
 			/// <summary>
 			/// Component-wise sum of two vectors.
 			/// </summary>
 			/// <param name="other">The vector to add.</param>
 			/// <returns></returns>
-			constexpr Vec2 operator+(const Vec2& other) const
+			constexpr Vec2T operator+(const Vec2T& other) const
 			{
 				return { x + other.x, y + other.y };
 			}
@@ -43,7 +44,7 @@ namespace ar
 			/// </summary>
 			/// <param name="other">The vector to add.</param>
 			/// <returns></returns>
-			constexpr Vec2& operator+=(const Vec2& other)
+			constexpr Vec2T& operator+=(const Vec2T& other)
 			{
 				x += other.x;
 				y += other.y;
@@ -55,7 +56,7 @@ namespace ar
 			/// </summary>
 			/// <param name="other">The vector to subtract.</param>
 			/// <returns></returns>
-			constexpr Vec2 operator-(const Vec2& other) const
+			constexpr Vec2T operator-(const Vec2T& other) const
 			{
 				return { x - other.x, y - other.y };
 			}
@@ -65,7 +66,7 @@ namespace ar
 			/// </summary>
 			/// <param name="other">The vector to subtract.</param>
 			/// <returns></returns>
-			constexpr Vec2& operator-=(const Vec2& other)
+			constexpr Vec2T& operator-=(const Vec2T& other)
 			{
 				x -= other.x;
 				y -= other.y;
@@ -77,7 +78,7 @@ namespace ar
 			/// </summary>
 			/// <param name="scalar"></param>
 			/// <returns></returns>
-			constexpr Vec2 operator*(const float scalar) const
+			constexpr Vec2T operator*(const T scalar) const
 			{
 				return { x * scalar, y * scalar };
 			}
@@ -88,14 +89,14 @@ namespace ar
 			/// <param name="scalar">The scalar multiplier.</param>
 			/// <param name="v">The vector being multiplied.</param>
 			/// <returns>A scaled vector.</returns>
-			constexpr friend Vec2 operator*(float scalar, const Vec2& v);
+			constexpr friend Vec2T operator*(T scalar, const Vec2T& v);
 
 			/// <summary>
 			/// Component-wise multiplication by a scalar.
 			/// </summary>
 			/// <param name="scalar"></param>
 			/// <returns></returns>
-			constexpr Vec2& operator*=(const float scalar)
+			constexpr Vec2T& operator*=(const T scalar)
 			{
 				x *= scalar;
 				y *= scalar;
@@ -107,7 +108,7 @@ namespace ar
 			/// </summary>
 			/// <param name="other"></param>
 			/// <returns></returns>
-			constexpr Vec2 operator*(const Vec2& other) const
+			constexpr Vec2T operator*(const Vec2T& other) const
 			{
 				return { x * other.x, y * other.y };
 			}
@@ -117,7 +118,7 @@ namespace ar
 			/// </summary>
 			/// <param name="other"></param>
 			/// <returns></returns>
-			constexpr Vec2& operator*=(const Vec2& other)
+			constexpr Vec2T& operator*=(const Vec2T& other)
 			{
 				x *= other.x;
 				y *= other.y;
@@ -129,7 +130,7 @@ namespace ar
 			/// </summary>
 			/// <param name="scalar"></param>
 			/// <returns></returns>
-			constexpr Vec2 operator/(const float scalar) const
+			constexpr Vec2T operator/(const T scalar) const
 			{
 				assert(scalar != 0.0f && "Vec2 division by zero");
 				return { x / scalar, y / scalar };
@@ -140,7 +141,7 @@ namespace ar
 			/// </summary>
 			/// <param name="scalar"></param>
 			/// <returns></returns>
-			constexpr Vec2& operator/=(const float scalar)
+			constexpr Vec2T& operator/=(const T scalar)
 			{
 				assert(scalar != 0.0f && "Vec2 division by zero");
 				x /= scalar;
@@ -153,7 +154,7 @@ namespace ar
 			/// </summary>
 			/// <param name="other"></param>
 			/// <returns></returns>
-			constexpr Vec2 operator/(const Vec2& other) const
+			constexpr Vec2T operator/(const Vec2T& other) const
 			{
 				assert(other.x != 0.0f && other.y != 0.0f && "Vec2 component-wise division by zero");
 				return { x / other.x, y / other.y};
@@ -164,7 +165,7 @@ namespace ar
 			/// </summary>
 			/// <param name="scalar"></param>
 			/// <returns></returns>
-			constexpr Vec2& operator/=(const Vec2& other)
+			constexpr Vec2T& operator/=(const Vec2T& other)
 			{
 				assert(other.x != 0.0f && other.y != 0.0f && "Vec2 component-wise division by zero");
 				x /= other.x;
@@ -177,7 +178,7 @@ namespace ar
 			/// </summary>
 			/// <param name="other">The vector to compare.</param>
 			/// <returns>True if vectors differ on any component, false otherwise.</returns>
-			constexpr bool operator!=(const Vec2& other) const
+			constexpr bool operator!=(const Vec2T& other) const
 			{
 				return x != other.x || y != other.y;
 			}
@@ -187,7 +188,7 @@ namespace ar
 			/// </summary>
 			/// <param name="other">The vector to compare.</param>
 			/// <returns>True if vectors are identical, false otherwise.</returns>
-			constexpr bool operator==(const Vec2& other) const
+			constexpr bool operator==(const Vec2T& other) const
 			{
 				return x == other.x && y == other.y;
 			}
@@ -196,25 +197,31 @@ namespace ar
 			/// Unary negation.
 			/// </summary>
 			/// <returns>Vector with negated components.</returns>
-			constexpr Vec2 operator-() const
+			constexpr Vec2T operator-() const
 			{
 				return { -x, -y };
 			}
 		};
-		struct Vec3
+		using Vec2f = Vec2T<float>;
+		using Vec2d = Vec2T<double>;
+		using Vec2 = Vec2f;
+
+		template <typename T>
+		struct Vec3T
 		{
-			float x, y, z;
-			inline const float* Data() const { return &x; };
-			inline float* Data() { return &x; };
-			constexpr Vec3(float x = 0.0f, float y = 0.0f, float z = 0.0f) : x(x), y(y), z(z) {}
-			constexpr Vec3(const Vec4& other);
+			T x, y, z;
+			inline const T* Data() const { return &x; };
+			inline T* Data() { return &x; };
+			constexpr Vec3T(T x = 0.0f, T y = 0.0f, T z = 0.0f) : x(x), y(y), z(z) {}
+			constexpr Vec3T(const Vec4T<T>& other) 
+				: x(other.x), y(other.y), z(other.z) {}
 
 			/// <summary>
 			/// Component-wise sum of two vectors.
 			/// </summary>
 			/// <param name="other">The vector to add.</param>
 			/// <returns></returns>
-			constexpr Vec3 operator+(const Vec3& other) const
+			constexpr Vec3T operator+(const Vec3T& other) const
 			{
 				return {x + other.x, y + other.y, z + other.z};
 			}
@@ -224,7 +231,7 @@ namespace ar
 			/// </summary>
 			/// <param name="other">The vector to add.</param>
 			/// <returns></returns>
-			constexpr Vec3& operator+=(const Vec3& other)
+			constexpr Vec3T& operator+=(const Vec3T& other)
 			{
 				x += other.x;
 				y += other.y;
@@ -237,7 +244,7 @@ namespace ar
 			/// </summary>
 			/// <param name="other">The vector to subtract.</param>
 			/// <returns></returns>
-			constexpr Vec3 operator-(const Vec3& other) const
+			constexpr Vec3T operator-(const Vec3T& other) const
 			{
 				return { x - other.x, y - other.y, z - other.z };
 			}
@@ -247,7 +254,7 @@ namespace ar
 			/// </summary>
 			/// <param name="other">The vector to subtract.</param>
 			/// <returns></returns>
-			constexpr Vec3& operator-=(const Vec3& other)
+			constexpr Vec3T& operator-=(const Vec3T& other)
 			{
 				x -= other.x;
 				y -= other.y;
@@ -260,7 +267,7 @@ namespace ar
 			/// </summary>
 			/// <param name="scalar"></param>
 			/// <returns></returns>
-			constexpr Vec3 operator*(const float scalar) const
+			constexpr Vec3T operator*(const T scalar) const
 			{
 				return { x * scalar, y * scalar, z * scalar };
 			}
@@ -271,7 +278,7 @@ namespace ar
 			/// <param name="scalar">The scalar multiplier.</param>
 			/// <param name="v">The vector being multiplied.</param>
 			/// <returns>A scaled vector.</returns>
-			constexpr friend Vec3 operator*(float scalar, const Vec3& v)
+			constexpr friend Vec3T operator*(T scalar, const Vec3T& v)
 			{
 				return { v.x * scalar, v.y * scalar, v.z * scalar };
 			}
@@ -281,7 +288,7 @@ namespace ar
 			/// </summary>
 			/// <param name="scalar"></param>
 			/// <returns></returns>
-			constexpr Vec3& operator*=(const float scalar)
+			constexpr Vec3T& operator*=(const T scalar)
 			{
 				x *= scalar;
 				y *= scalar;
@@ -294,7 +301,7 @@ namespace ar
 			/// </summary>
 			/// <param name="other"></param>
 			/// <returns></returns>
-			constexpr Vec3 operator*(const Vec3& other) const
+			constexpr Vec3T operator*(const Vec3T& other) const
 			{
 				return { x * other.x, y * other.y, z * other.z };
 			}
@@ -304,7 +311,7 @@ namespace ar
 			/// </summary>
 			/// <param name="other"></param>
 			/// <returns></returns>
-			constexpr Vec3& operator*=(const Vec3& other)
+			constexpr Vec3T& operator*=(const Vec3T& other)
 			{
 				x *= other.x;
 				y *= other.y;
@@ -317,7 +324,7 @@ namespace ar
 			/// </summary>
 			/// <param name="scalar"></param>
 			/// <returns></returns>
-			constexpr Vec3 operator/(const float scalar) const
+			constexpr Vec3T operator/(const T scalar) const
 			{
 				assert(scalar != 0.0f && "Vec3 division by zero");
 				return { x / scalar, y / scalar, z / scalar };
@@ -328,7 +335,7 @@ namespace ar
 			/// </summary>
 			/// <param name="scalar"></param>
 			/// <returns></returns>
-			constexpr Vec3& operator/=(const float scalar)
+			constexpr Vec3T& operator/=(const T scalar)
 			{
 				assert(scalar != 0.0f && "Vec3 division by zero");
 				x /= scalar;
@@ -342,7 +349,7 @@ namespace ar
 			/// </summary>
 			/// <param name="other"></param>
 			/// <returns></returns>
-			constexpr Vec3 operator/(const Vec3& other) const
+			constexpr Vec3T operator/(const Vec3T& other) const
 			{
 				assert(other.x != 0.0f && other.y != 0.0f && other.z != 0.0f && "Vec3 component-wise division by zero");
 				return { x / other.x, y / other.y, z / other.z };
@@ -353,7 +360,7 @@ namespace ar
 			/// </summary>
 			/// <param name="scalar"></param>
 			/// <returns></returns>
-			constexpr Vec3& operator/=(const Vec3& other)
+			constexpr Vec3T& operator/=(const Vec3T& other)
 			{
 				assert(other.x != 0.0f && other.y != 0.0f && other.z != 0.0f && "Vec3 component-wise division by zero");
 				x /= other.x;
@@ -367,7 +374,7 @@ namespace ar
 			/// </summary>
 			/// <param name="other">The vector to compare.</param>
 			/// <returns>True if vectors differ on any component, false otherwise.</returns>
-			constexpr bool operator!=(const Vec3& other) const
+			constexpr bool operator!=(const Vec3T& other) const
 			{
 				return x != other.x || y != other.y || z != other.z;
 			}
@@ -377,7 +384,7 @@ namespace ar
 			/// </summary>
 			/// <param name="other">The vector to compare.</param>
 			/// <returns>True if vectors are identical, false otherwise.</returns>
-			constexpr bool operator==(const Vec3& other) const
+			constexpr bool operator==(const Vec3T& other) const
 			{
 				return x == other.x && y == other.y && z == other.z;
 			}
@@ -386,21 +393,24 @@ namespace ar
 			/// Unary negation.
 			/// </summary>
 			/// <returns>Vector with negated components.</returns>
-			constexpr Vec3 operator-() const
+			constexpr Vec3T operator-() const
 			{
 				return {-x, -y, -z};
 			}
 		};
+		using Vec3f = Vec3T<float>;
+		using Vec3d = Vec3T<double>;
+		using Vec3 = Vec3f;
 
-
-		struct Vec4
+		template <typename T>
+		struct Vec4T
 		{
-			float x, y, z, w;
-			const float* Data() const;
-			float* Data();
-			constexpr Vec4(float x = 0.0f, float y = 0.0f, float z = 0.0f, float w = 0.0f)
+			T x, y, z, w;
+			const T* Data() const;
+			T* Data();
+			constexpr Vec4T(T x = 0.0f, T y = 0.0f, T z = 0.0f, T w = 0.0f)
 				: x(x), y(y), z(z), w(w) { }
-			constexpr Vec4(const Vec3& v3, float w)
+			constexpr Vec4T(const Vec3T<T>& v3, T w)
 				: x(v3.x), y(v3.y), z(v3.z), w(w) {}
 
 			/// <summary>
@@ -408,7 +418,7 @@ namespace ar
 			/// </summary>
 			/// <param name="other">The vector to add.</param>
 			/// <returns>A new vector representing the sum.</returns>
-			constexpr Vec4 operator+(const Vec4& other) const
+			constexpr Vec4T operator+(const Vec4T& other) const
 			{
 				return { x + other.x, y + other.y, z + other.z, w + other.w };
 			}
@@ -418,7 +428,7 @@ namespace ar
 			/// </summary>
 			/// <param name="other">The vector to add.</param>
 			/// <returns>A reference to this vector after addition.</returns>
-			constexpr Vec4& operator+=(const Vec4& other)
+			constexpr Vec4T& operator+=(const Vec4T& other)
 			{
 				x += other.x;
 				y += other.y;
@@ -432,7 +442,7 @@ namespace ar
 			/// </summary>
 			/// <param name="other">The vector to subtract.</param>
 			/// <returns>A new vector representing the difference.</returns>
-			constexpr Vec4 operator-(const Vec4& other) const
+			constexpr Vec4T operator-(const Vec4T& other) const
 			{
 				return { x - other.x, y - other.y, z - other.z, w - other.w };
 			}
@@ -442,7 +452,7 @@ namespace ar
 			/// </summary>
 			/// <param name="other">The vector to subtract.</param>
 			/// <returns>A reference to this vector after subtraction.</returns>
-			constexpr Vec4& operator-=(const Vec4& other)
+			constexpr Vec4T& operator-=(const Vec4T& other)
 			{
 				x -= other.x;
 				y -= other.y;
@@ -456,7 +466,7 @@ namespace ar
 			/// </summary>
 			/// <param name="scalar">The scalar value to multiply with.</param>
 			/// <returns>A new scaled vector.</returns>
-			constexpr Vec4 operator*(float scalar) const
+			constexpr Vec4T operator*(T scalar) const
 			{
 				return { x * scalar, y * scalar, z * scalar, w * scalar };
 			}
@@ -466,7 +476,7 @@ namespace ar
 			/// </summary>
 			/// <param name="scalar">The scalar value to multiply with.</param>
 			/// <returns>A reference to this vector after scaling.</returns>
-			constexpr Vec4& operator*=(float scalar)
+			constexpr Vec4T& operator*=(T scalar)
 			{
 				x *= scalar;
 				y *= scalar;
@@ -480,7 +490,7 @@ namespace ar
 			/// </summary>
 			/// <param name="other">The vector to multiply with.</param>
 			/// <returns>A new vector representing the product.</returns>
-			constexpr Vec4 operator*(const Vec4& other) const
+			constexpr Vec4T operator*(const Vec4T& other) const
 			{
 				return { x * other.x, y * other.y, z * other.z, w * other.w };
 			}
@@ -490,7 +500,7 @@ namespace ar
 			/// </summary>
 			/// <param name="other">The vector to multiply with.</param>
 			/// <returns>A reference to this vector after multiplication.</returns>
-			constexpr Vec4& operator*=(const Vec4& other)
+			constexpr Vec4T& operator*=(const Vec4T& other)
 			{
 				x *= other.x;
 				y *= other.y;
@@ -504,7 +514,7 @@ namespace ar
 			/// </summary>
 			/// <param name="scalar">The scalar divisor.</param>
 			/// <returns>A new vector representing the quotient.</returns>
-			constexpr Vec4 operator/(float scalar) const
+			constexpr Vec4T operator/(T scalar) const
 			{
 				assert(scalar != 0.0f && "Vec4 division by zero");
 				return { x / scalar, y / scalar, z / scalar, w / scalar };
@@ -515,7 +525,7 @@ namespace ar
 			/// </summary>
 			/// <param name="scalar">The scalar divisor.</param>
 			/// <returns>A reference to this vector after division.</returns>
-			constexpr Vec4& operator/=(float scalar)
+			constexpr Vec4T& operator/=(T scalar)
 			{
 				assert(scalar != 0.0f && "Vec4 division by zero");
 				x /= scalar;
@@ -530,7 +540,7 @@ namespace ar
 			/// </summary>
 			/// <param name="other">The vector to divide by.</param>
 			/// <returns>A new vector representing the result.</returns>
-			constexpr Vec4 operator/(const Vec4& other) const
+			constexpr Vec4T operator/(const Vec4T& other) const
 			{
 				assert(other.x != 0.0f && other.y != 0.0f && other.z != 0.0f && other.w != 0.0f && "Vec4 component-wise division by zero");
 				return { x / other.x, y / other.y, z / other.z, w / other.w };
@@ -541,7 +551,7 @@ namespace ar
 			/// </summary>
 			/// <param name="other">The vector to divide by.</param>
 			/// <returns>A reference to this vector after division.</returns>
-			constexpr Vec4& operator/=(const Vec4& other)
+			constexpr Vec4T& operator/=(const Vec4T& other)
 			{
 				assert(other.x != 0.0f && other.y != 0.0f && other.z != 0.0f && other.w != 0.0f && "Vec4 component-wise division by zero");
 				x /= other.x;
@@ -555,7 +565,7 @@ namespace ar
 			/// Returns the negation of this vector (flips the sign of all components).
 			/// </summary>
 			/// <returns>A new vector pointing in the opposite direction.</returns>
-			constexpr Vec4 operator-() const
+			constexpr Vec4T operator-() const
 			{
 				return {-x, -y, -z, -w};
 			}
@@ -565,7 +575,7 @@ namespace ar
 			/// </summary>
 			/// <param name="other">The vector to compare with.</param>
 			/// <returns>True if all components are equal, false otherwise.</returns>
-			constexpr bool operator==(const Vec4& other) const
+			constexpr bool operator==(const Vec4T& other) const
 			{
 				return x == other.x && y == other.y && z == other.z && w == other.w;
 			}
@@ -575,12 +585,12 @@ namespace ar
 			/// </summary>
 			/// <param name="other">The vector to compare with.</param>
 			/// <returns>True if any component differs, false otherwise.</returns>
-			constexpr bool operator!=(const Vec4& other) const
+			constexpr bool operator!=(const Vec4T& other) const
 			{
 				return !(*this == other);
 			}
 
-			constexpr float operator[](const size_t index) const {
+			constexpr T operator[](const size_t index) const {
 				switch (index)
 				{
 				case 0:
@@ -592,11 +602,11 @@ namespace ar
 				case 3: 
 					return w;
 				default:
-					throw new std::runtime_error("Incorrect indexing");
+					throw std::runtime_error("Incorrect indexing");
 				}
 			}
 
-			float& operator[](const size_t index) {
+			T& operator[](const size_t index) {
 				switch (index)
 				{
 				case 0:
@@ -608,21 +618,22 @@ namespace ar
 				case 3:
 					return w;
 				default:
-					throw new std::runtime_error("Incorrect indexing");
+					throw std::runtime_error("Incorrect indexing");
 				}
 			}
 
 		};
+		using Vec4f = Vec4T<float>;
+		using Vec4d = Vec4T<double>;
+		using Vec4 = Vec4f;
 
-		constexpr Vec3::Vec3(const Vec4& other)
-			: x(other.x), y(other.y), z(other.z) { }
-
-
-		constexpr Vec4 ToVec4(const Vec3& v)
+		template <typename T>
+		constexpr Vec4T<T> ToVec4(const Vec3T<T>& v)
 		{
-			return { v.x, v.y, v.z, 0.0f };
+			return { v.x, v.y, v.z, T(0)};
 		}
-		constexpr Vec3 ToVec3(const Vec4& v)
+		template <typename T>
+		constexpr Vec3T<T> ToVec3(const Vec4T<T>& v)
 		{
 			return { v.x, v.y, v.z };
 		}
@@ -633,13 +644,12 @@ namespace ar
 		/// <param name="u">The first vector.</param>
 		/// <param name="v">The second vector.</param>
 		/// <returns>A new vector orthogonal to both input vectors.</returns>
-		constexpr Vec3 Cross(const Vec3& u, const Vec3& v)
+		template <typename T>
+		constexpr Vec3T<T> Cross(const Vec3T<T>& u, const Vec3T<T>& v)
 		{
-			Vec3 result;
-			result.x = u.y * v.z - u.z * v.y;
-			result.y = u.z * v.x - u.x * v.z;
-			result.z = u.x * v.y - u.y * v.x;
-			return result;
+			return { u.y * v.z - u.z * v.y,
+			 u.z * v.x - u.x * v.z,
+			 u.x * v.y - u.y * v.x };
 		}
 
 		/// <summary>
@@ -648,12 +658,15 @@ namespace ar
 		/// <param name="u">The first vector.</param>
 		/// <param name="v">The second vector.</param>
 		/// <returns>The scalar dot product.</returns>
-		constexpr float Dot(const Vec4& u, const Vec4& v)
+		
+		template <typename T>
+		constexpr T Dot(const Vec4T<T>& u, const Vec4T<T>& v)
 		{
 			return u.x * v.x + u.y * v.y + u.z * v.z + u.w * v.w;
 		}
 
-		constexpr float Dot(const Vec3& u, const Vec3& v)
+		template <typename T>
+		constexpr T Dot(const Vec3T<T>& u, const Vec3T<T>& v)
 		{
 			return u.x * v.x + u.y * v.y + u.z * v.z;
 		}
@@ -663,24 +676,29 @@ namespace ar
 		/// </summary>
 		/// <param name="v">The vector to evaluate.</param>
 		/// <returns>The length of the vector.</returns>
-		inline float Length(const Vec4& v)
-		{
-			return std::sqrt(v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w);
-		}
 		
-		inline float Length(const Vec3& v)
+		template <typename T>
+		inline T Length(const Vec4T<T>& v) 
 		{
-			return std::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+			return std::sqrt(Dot(v, v));
 		}
 
-		inline float LengthSquared(const Vec4& v)
+		template <typename T>
+		inline T Length(const Vec3T<T>& v) 
 		{
-			return v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w;
+			return std::sqrt(Dot(v, v));
 		}
 
-		inline float LengthSquared(const Vec3& v)
+		template <typename T>
+		inline T LengthSquared(const Vec4T<T>& v) 
 		{
-			return v.x * v.x + v.y * v.y + v.z * v.z;
+			return Dot(v, v);
+		}
+
+		template <typename T>
+		inline T LengthSquared(const Vec3T<T>& v) 
+		{
+			return Dot(v, v);
 		}
 
 		/// <summary>
@@ -689,17 +707,21 @@ namespace ar
 		/// <param name="v">The vector to normalize.</param>
 		/// <returns>A new vector with the same direction and length 1.</returns>
 		/// <remarks>Behavior is undefined if the input vector has zero length.</remarks>
-		inline Vec4 Normalize(const Vec4& v)
+		template <typename T>
+		inline Vec4T<T> Normalize(const Vec4T<T>& v) 
 		{
-			float len = Length(v);
+			T len = Length(v);
 			return { v.x / len, v.y / len, v.z / len, v.w / len };
 		}
 
-		inline Vec3 Normalize(const Vec3& v)
+		template <typename T>
+		inline Vec3T<T> Normalize(const Vec3T<T>& v) 
 		{
-			float len = Length(v);
+			T len = Length(v);
 			return { v.x / len, v.y / len, v.z / len };
 		}
 	}
+
+
 
 }
