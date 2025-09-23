@@ -112,6 +112,7 @@
     <ClCompile Include="src\core\stb_image.cpp" />
     <ClCompile Include="src\core\Utils\CurveUtils.cpp" />
     <ClCompile Include="src\core\Utils\GeneralUtils.cpp" />
+    <ClCompile Include="src\core\Utils\Parametric.cpp" />
     <ClCompile Include="src\core\Utils\SurfaceUtils.cpp" />
     <ClCompile Include="src\core\Utils\TorusUtils.cpp" />
     <ClCompile Include="src\platform\OpenGL\OGLTexture.cpp" />
@@ -163,6 +164,7 @@
     <ClInclude Include="src\core\Serialization\SceneExporter.h" />
     <ClInclude Include="src\core\Serialization\SceneImporter.h" />
     <ClInclude Include="src\core\Scene\SceneRenderer.h" />
+    <ClInclude Include="src\core\Utils\Parametric.h" />
     <ClInclude Include="src\LogUtils.h" />
     <ClInclude Include="src\core\ImGui\PropertyInspector.h" />
     <ClInclude Include="src\core\ImGui\ComponentInspector.h" />

@@ -138,6 +138,7 @@
     <ClCompile Include="src\geometry.cpp" />
     <ClCompile Include="src\gradient.cpp" />
     <ClCompile Include="src\matrix_types.cpp" />
+    <ClCompile Include="src\parametric\torusSurface.cpp" />
     <ClCompile Include="src\quaternion.cpp" />
     <ClCompile Include="src\solvers.cpp" />
     <ClCompile Include="src\transformations.cpp" />
@@ -149,6 +150,9 @@
     <ClInclude Include="src\geometry.h" />
     <ClInclude Include="src\gradient.h" />
     <ClInclude Include="src\matrix_types.h" />
+    <ClInclude Include="src\parametric\bezierSurface.h" />
+    <ClInclude Include="src\parametric\parametricSurface.h" />
+    <ClInclude Include="src\parametric\torusSurface.h" />
     <ClInclude Include="src\quaternion.h" />
     <ClInclude Include="src\solvers.h" />
     <ClInclude Include="src\transformations.h" />
