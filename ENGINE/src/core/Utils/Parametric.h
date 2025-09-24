@@ -11,5 +11,8 @@ namespace ar
 	{
 	public:
 		static Ref<mat::IParametricSurface> Create(Entity entity);
+
+	private:
+		static std::vector<mat::Vec3d> GetBezierPoints(Entity entity);
 	};
 }

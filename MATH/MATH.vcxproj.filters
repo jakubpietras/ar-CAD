@@ -39,6 +39,9 @@
     <ClCompile Include="src\parametric\torusSurface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\parametric\bezierSurface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\matrix_types.h">

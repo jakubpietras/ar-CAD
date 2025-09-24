@@ -7,6 +7,7 @@
 #include <limits>
 #include "core/Utils/SurfaceUtils.h"
 #include "core/Scene/DebugRenderer.h"
+#include "core/Utils/Parametric.h"
 
 namespace ar
 {
@@ -37,6 +38,9 @@ namespace ar
 		ar::mat::Vec3 point, prevPoint;
 
 		// STARTING PARAMETERS
+		//auto first = Parametric::Create(firstObject);
+		//auto second = Parametric::Create(secondObject);
+
 		auto startParams = CalculateStartingParams(firstObject, secondObject, 10);
 		
 		// Self-intersection

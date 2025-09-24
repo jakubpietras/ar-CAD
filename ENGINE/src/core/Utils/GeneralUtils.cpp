@@ -34,6 +34,17 @@ namespace ar
 		return positions;
 	}
 
+	std::vector<mat::Vec3d> GeneralUtils::GetPosD(std::vector<ar::Entity>& objects)
+	{
+		std::vector<mat::Vec3d> positions;
+		for (auto& object : objects)
+		{
+			auto t = object.GetComponent<ar::TransformComponent>().Translation;
+			positions.push_back({ t.x, t.y, t.z });
+		}
+		return positions;
+	}
+
 	bool GeneralUtils::IsWrappedU(ar::Entity e)
 	{
 		if (e.HasAnyComponent<ar::TorusComponent, ar::SurfaceComponent>())
