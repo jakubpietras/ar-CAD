@@ -11,6 +11,7 @@
 #include "core/Intersections/Intersection.h"
 #include "core/Scene/DebugRenderer.h"
 #include "core/Utils/CurveUtils.h"
+#include "core/Tests/tests.h"
 
 EditorSceneController::EditorSceneController(ar::Ref<ar::Scene> scene, ar::SceneRenderer& sceneRender)
 	: m_Scene(scene), m_SceneRenderer(sceneRender),
@@ -164,6 +165,7 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 	}
 	if (state.ShouldRunDebug)
 	{
+		ar::Tests::TestLineSearchSuite();
 		state.ShouldRunDebug = false;
 	}
 

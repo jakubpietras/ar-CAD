@@ -15,7 +15,11 @@ namespace ar::mat
         auto x = (m_LargeRadius + m_SmallRadius * cos(phi)) * cos(theta);
         auto y = m_SmallRadius * sin(phi);
         auto z = (m_LargeRadius + m_SmallRadius * cos(phi)) * sin(theta);
-        return { x, y, z };
+
+        auto pt = mat::Vec4(x, y, z, 1.);
+        auto res = m_Model * pt;
+
+        return { res.x, res.y, res.z };
     }
 
     Vec3d TorusSurface::DerivativeU(double u, double v)
@@ -26,7 +30,11 @@ namespace ar::mat
         auto dxdu = -sin(theta) * (m_LargeRadius + m_SmallRadius * cos(phi)) * twoPi;
         auto dydu = 0.f;
         auto dzdu = cos(theta) * (m_LargeRadius + m_SmallRadius * cos(phi)) * twoPi;
-        return { dxdu, dydu, dzdu };
+
+        auto pt = mat::Vec4(dxdu, dydu, dzdu, 0.);
+        auto res = m_Model * pt;
+
+        return { res.x, res.y, res.z };
     }
 
     Vec3d TorusSurface::DerivativeV(double u, double v)
@@ -37,12 +45,16 @@ namespace ar::mat
         auto dxdv = -m_SmallRadius * cos(theta) * sin(phi) * twoPi;
         auto dydv = m_SmallRadius * cos(phi) * twoPi;
         auto dzdv = -m_SmallRadius * sin(phi) * sin(theta) * twoPi;
-        return { dxdv, dydv, dzdv };
+        
+        auto pt = mat::Vec4(dxdv, dydv, dzdv, 0.);
+        auto res = m_Model * pt;
+
+        return { res.x, res.y, res.z };
     }
 
     bool TorusSurface::IsPeriodicU() const { return true; }
-
     bool TorusSurface::IsPeriodicV() const { return true; }
+
     bool TorusSurface::Clamp(double& u, double& v)
     {
         auto wrap = [](double& x) {

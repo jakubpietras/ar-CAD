@@ -16,7 +16,8 @@ namespace ar::mat
             double phiAlpha = phi(alpha);
             evaluations++;
 
-            if (phiAlpha <= phi0 + config.ArmijoParameter * alpha * slope0)
+            // Armijo condition
+            if (phi0 - phiAlpha >= -alpha * config.ArmijoParameter * slope0)
                 return { alpha, true, evaluations };
             
             alpha *= config.ShrinkFactor;

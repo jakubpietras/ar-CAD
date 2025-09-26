@@ -91,6 +91,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\core\Tests\tests.cpp" />
     <ClCompile Include="src\core\Utils\IntersectUtils.cpp" />
     <ClCompile Include="src\core\ImGui\ImGuiUtils.cpp" />
     <ClCompile Include="src\core\Scene\DebugRenderer.cpp" />
@@ -151,6 +152,7 @@
     <ClCompile Include="src\core\UID.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\core\Tests\tests.h" />
     <ClInclude Include="src\core\Utils\IntersectUtils.h" />
     <ClInclude Include="src\core\ImGui\ImGuiUtils.h" />
     <ClInclude Include="src\core\Scene\DebugRenderer.h" />
