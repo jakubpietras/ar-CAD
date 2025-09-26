@@ -57,15 +57,16 @@ namespace ar::mat
 
     bool TorusSurface::Clamp(double& u, double& v)
     {
-        auto wrap = [](double& x) {
+        auto wrap = [](double& x) -> bool {
             if (x < 0.0 || x >= 1.0) {
-                x = x - std::floor(x);   // Wrap into [0,1)
+                x = x - std::floor(x);
+                if (x >= 1.0) x = 0.0;  // Handle edge case
             }
-            // Always valid for a torus
-            return true;
+            return true;  // Always valid for torus
             };
-        bool okU = wrap(u);
-        bool okV = wrap(v);
-        return okU && okV;
+
+        wrap(u);
+        wrap(v);
+        return true;  // Torus is always valid after wrapping
     }
 }

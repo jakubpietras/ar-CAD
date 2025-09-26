@@ -84,23 +84,24 @@ namespace ar::mat
 	}
 	bool BezierSurface::Clamp(double& u, double& v)
 	{
-		auto bound = [](double& x, bool periodic) {
+		auto bound = [](double& x, bool periodic) -> bool {
 			if (periodic) {
 				if (x < 0.0 || x >= 1.0) {
-					x = x - std::floor(x);  // wrap
-					return true;            // wrapped
+					x = x - std::floor(x);
+					if (x >= 1.0) x = 0.0;  // Handle edge case
+					return true;  // Wrapped successfully
 				}
-				return true;                // inside domain (valid)
+				return true;  // Already in range
 			}
 			else {
-				if (x < 0.0) { x = 0.0; return false; }
-				if (x > 1.0) { x = 1.0; return false; }
-				return true; // valid in-range
+				if (x < 0.0) { x = 0.0; return false; }  // Clamped
+				if (x > 1.0) { x = 1.0; return false; }  // Clamped  
+				return true;  // In range
 			}
 			};
 
 		bool okU = bound(u, m_IsPeriodicU);
-		bool okV = bound(v, m_IsPeriodicV);
+		bool okV = bound(v, m_IsPeriodicV);  // Fix the typo
 		return okU && okV;
 	}
 }

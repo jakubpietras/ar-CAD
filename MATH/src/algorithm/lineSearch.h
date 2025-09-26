@@ -26,7 +26,11 @@ namespace ar::mat
 	{
 	public:
 		using ScalarFunction = std::function<double(double)>;
+		using ScalarFunctionCG = std::function<double(double, mat::Vec4d, mat::Vec4d)>;
+
 		static LineSearchResult FindStepSize(ScalarFunction phi, double phi0, double slope0,
 			const LineSearchConfig& config = {});
+		static LineSearchResult FindStepSizeCG(ScalarFunctionCG phi, double phi0, double slope0,
+			mat::Vec4d params, mat::Vec4d direction, const LineSearchConfig& config = {});
 	};
 }

@@ -15,42 +15,35 @@ namespace ar
 {
 	ar::mat::Vec3d Intersection::FindStartingPoint(ar::Entity firstObject, ar::Entity secondObject)
 	{
-		size_t samples = 10;
+
+		const size_t samples = 10;
+		bool selfIntersection = IsSelfIntersection(firstObject, secondObject);
 		auto params = GenerateUVPairs(samples, false);
 		auto first = Parametric::Create(firstObject);
 		auto second = Parametric::Create(secondObject);
-		auto cg = mat::ConjugateGradient4D(first, second);
+		auto cg = mat::ConjugateGradientSD(first, second);
 
 		float bestDistance = std::numeric_limits<float>::max();
-		mat::Vec4d bestSolution;
+		mat::Vec4d bestGuess;
 
 		for (auto& pair : params)
 		{
-			// Use current pair as initial guess
-			mat::Vec4d initialGuess = { pair.x, pair.y, pair.z, pair.w };
-			auto result = cg.Minimize(initialGuess);
-
-			// Check if optimization converged
-			if (!result.Converged) {
-				continue;
-			}
-
-			// Evaluate both surfaces at optimized parameters
-			auto p = first->Evaluate(result.Solution.x, result.Solution.y);
-			auto q = second->Evaluate(result.Solution.z, result.Solution.w);
-			auto optimizedDistance = mat::LengthSquared(p - q);
+			auto optimizedParams = cg.Minimize({ pair.x, pair.y, pair.z, pair.w });
+			auto s1 = first->Evaluate(optimizedParams.Solution.x, optimizedParams.Solution.y);
+			auto s2 = second->Evaluate(optimizedParams.Solution.z, optimizedParams.Solution.w);
+			auto optimizedDistance = mat::LengthSquared(s1 - s2);
 
 			if (optimizedDistance < bestDistance)
 			{
-				bestSolution = result.Solution;
+				bestGuess = optimizedParams.Solution;
 				bestDistance = optimizedDistance;
 			}
 		}
+		
 
-		// Return midpoint of best solution
-		auto p = first->Evaluate(bestSolution.x, bestSolution.y);
-		auto q = second->Evaluate(bestSolution.z, bestSolution.w);
-		return (p + q) / 2.0;
+		auto midpointUnoptimized = 0.5f * (first->Evaluate(bestGuess.x, bestGuess.y) + second->Evaluate(bestGuess.z, bestGuess.w));
+
+		return midpointUnoptimized;
 	}
 
 	std::pair<std::vector<ar::mat::Vec3>, std::vector<ar::mat::Vec4>> Intersection::TraceIntersectionCurve(ar::Entity firstObject, ar::Entity secondObject, float step)

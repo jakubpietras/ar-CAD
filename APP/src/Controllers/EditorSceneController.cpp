@@ -664,10 +664,10 @@ void EditorSceneController::ProcessAddIntersection(EditorState& state)
 	auto& objs = state.SelectedIntersectableSurfaces;
 	auto point = ar::Intersection::FindStartingPoint(objs[0], objs[1]);
 	state.CursorPosition = ar::mat::Vec3(point.x, point.y, point.z);
-	ar::Intersection::DrawDerivatives(objs[0], 10);
+	/*ar::Intersection::DrawDerivatives(objs[0], 10);
 	ar::Intersection::DrawDerivatives(objs[1], 10);
 	ar::Intersection::DrawEvaluations(objs[0], 10);
-	ar::Intersection::DrawEvaluations(objs[1], 10);
+	ar::Intersection::DrawEvaluations(objs[1], 10);*/
 
 	/*std::pair<std::vector<ar::mat::Vec3>, std::vector<ar::mat::Vec4>> curve;
 	
