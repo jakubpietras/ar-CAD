@@ -10,7 +10,8 @@ namespace ar
 		if (entity.HasComponent<ar::TorusComponent>())
 		{
 			auto& desc = entity.GetComponent<ar::TorusComponent>().Description;
-			return std::make_shared<mat::TorusSurface>(desc.SmallRadius, desc.LargeRadius);
+			auto& model = entity.GetComponent<ar::TransformComponent>().ModelMatrix;
+			return std::make_shared<mat::TorusSurface>(desc.SmallRadius, desc.LargeRadius, model);
 		}
 		if (entity.HasComponent<ar::SurfaceComponent>())
 		{

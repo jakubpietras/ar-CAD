@@ -65,12 +65,11 @@ namespace ar::mat
 		{
 			size_t baseV = segV * 3;
 			size_t baseU = segU * 3;
-			size_t index = (baseU + col);
-
-			tmp[0] = m_Points[index + baseV * m_Size.u];
-			tmp[1] = m_Points[index + (baseV + 1) * m_Size.u];
-			tmp[2] = m_Points[index + (baseV + 2) * m_Size.u];
-			tmp[3] = m_Points[index + (baseV + 3) * m_Size.u];
+			size_t index = baseV * m_Size.u + (baseU + col);
+			tmp[0] = m_Points[baseV * m_Size.u + (baseU + col)];
+			tmp[1] = m_Points[(baseV + 1) * m_Size.u + (baseU + col)];
+			tmp[2] = m_Points[(baseV + 2) * m_Size.u + (baseU + col)];
+			tmp[3] = m_Points[(baseV + 3) * m_Size.u + (baseU + col)];
 			points[col] = CubicBernsteinDerivative(tmp, localV);
 		}
 		return CubicDeCasteljau(points, localU) / m_SegHeight;
@@ -82,5 +81,26 @@ namespace ar::mat
 	bool BezierSurface::IsPeriodicV() const
 	{
 		return m_IsPeriodicV;
+	}
+	bool BezierSurface::Clamp(double& u, double& v)
+	{
+		auto bound = [](double& x, bool periodic) {
+			if (periodic) {
+				if (x < 0.0 || x >= 1.0) {
+					x = x - std::floor(x);  // wrap
+					return true;            // wrapped
+				}
+				return true;                // inside domain (valid)
+			}
+			else {
+				if (x < 0.0) { x = 0.0; return false; }
+				if (x > 1.0) { x = 1.0; return false; }
+				return true; // valid in-range
+			}
+			};
+
+		bool okU = bound(u, m_IsPeriodicU);
+		bool okV = bound(v, m_IsPeriodicV);
+		return okU && okV;
 	}
 }

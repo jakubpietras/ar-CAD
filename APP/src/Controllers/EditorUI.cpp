@@ -173,6 +173,11 @@ void EditorUI::RenderMainMenu()
 		{
 			ar::DebugRenderer::Clear();
 		}
+		if (ImGui::MenuItem("DEBUG"))
+		{
+			// Place for debug functions
+			m_State.ShouldRunDebug = true;
+		}
 
 		ImGui::EndMainMenuBar();
 	}

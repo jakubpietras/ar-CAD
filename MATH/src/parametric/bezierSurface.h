@@ -14,6 +14,7 @@ namespace ar::mat
 		Vec3d Evaluate(double u, double v) override;
 		Vec3d DerivativeU(double u, double v) override;
 		Vec3d DerivativeV(double u, double v) override;
+		bool Clamp(double& u, double& v) override;
 		bool IsPeriodicU() const override;
 		bool IsPeriodicV() const override;
 

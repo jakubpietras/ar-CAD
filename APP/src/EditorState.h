@@ -150,4 +150,6 @@ struct EditorState
 	std::unordered_set<ar::Entity, ar::Entity::HashFunction> ObjectsToShow{};
 	bool ShouldUpdateVisibility = false;
 
+	// ============================= Debug =============================
+	bool ShouldRunDebug = false;
 };

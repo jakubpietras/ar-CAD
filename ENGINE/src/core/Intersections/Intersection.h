@@ -13,7 +13,7 @@ namespace ar
 	{
 	public:
 		// 'main' function will return data for the intersection curve
-		static mat::Vec3 FindStartingPoint(ar::Entity firstObject, ar::Entity secondObject);
+		static mat::Vec3d FindStartingPoint(ar::Entity firstObject, ar::Entity secondObject);
 		static std::pair<std::vector<mat::Vec3>, std::vector<mat::Vec4>> TraceIntersectionCurve(ar::Entity firstObject, ar::Entity secondObject, float step);
 		static void DrawDerivatives(ar::Entity object, size_t samples);
 		static void DrawEvaluations(ar::Entity object, size_t samples);

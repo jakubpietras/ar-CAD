@@ -3,8 +3,8 @@
 
 namespace ar::mat
 {
-    TorusSurface::TorusSurface(double smallRadius, double largeRadius)
-        : m_SmallRadius(smallRadius), m_LargeRadius(largeRadius)
+    TorusSurface::TorusSurface(double smallRadius, double largeRadius, Mat4 model)
+        : m_SmallRadius(smallRadius), m_LargeRadius(largeRadius), m_Model(model)
     { }
 
     Vec3d TorusSurface::Evaluate(double u, double v)
@@ -43,4 +43,17 @@ namespace ar::mat
     bool TorusSurface::IsPeriodicU() const { return true; }
 
     bool TorusSurface::IsPeriodicV() const { return true; }
+    bool TorusSurface::Clamp(double& u, double& v)
+    {
+        auto wrap = [](double& x) {
+            if (x < 0.0 || x >= 1.0) {
+                x = x - std::floor(x);   // Wrap into [0,1)
+            }
+            // Always valid for a torus
+            return true;
+            };
+        bool okU = wrap(u);
+        bool okV = wrap(v);
+        return okU && okV;
+    }
 }

@@ -162,6 +162,10 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 		ProcessUpdateVisibility(state);
 		state.ShouldUpdateVisibility = false;
 	}
+	if (state.ShouldRunDebug)
+	{
+		state.ShouldRunDebug = false;
+	}
 
 	// Validation
 	if (geometryValidation)
@@ -656,7 +660,14 @@ void EditorSceneController::ProcessGroupTransform(EditorState& state)
 void EditorSceneController::ProcessAddIntersection(EditorState& state)
 {
 	auto& objs = state.SelectedIntersectableSurfaces;
-	std::pair<std::vector<ar::mat::Vec3>, std::vector<ar::mat::Vec4>> curve;
+	auto point = ar::Intersection::FindStartingPoint(objs[0], objs[1]);
+	state.CursorPosition = ar::mat::Vec3(point.x, point.y, point.z);
+	ar::Intersection::DrawDerivatives(objs[0], 10);
+	ar::Intersection::DrawDerivatives(objs[1], 10);
+	ar::Intersection::DrawEvaluations(objs[0], 10);
+	ar::Intersection::DrawEvaluations(objs[1], 10);
+
+	/*std::pair<std::vector<ar::mat::Vec3>, std::vector<ar::mat::Vec4>> curve;
 	
 	if (objs.size() == 1)
 	{
@@ -686,7 +697,7 @@ void EditorSceneController::ProcessAddIntersection(EditorState& state)
 			state.ShowErrorModal = true;
 			state.ErrorMessages.emplace_back("No intersection detected.");
 		}
-	}
+	}*/
 }
 
 void EditorSceneController::ProcessUpdateVisibility(EditorState& state)

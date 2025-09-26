@@ -8,20 +8,49 @@
 #include "core/Utils/SurfaceUtils.h"
 #include "core/Scene/DebugRenderer.h"
 #include "core/Utils/Parametric.h"
+#include "algorithm/conjugateGradient.h"
+
 
 namespace ar
 {
-	ar::mat::Vec3 Intersection::FindStartingPoint(ar::Entity firstObject, ar::Entity secondObject)
+	ar::mat::Vec3d Intersection::FindStartingPoint(ar::Entity firstObject, ar::Entity secondObject)
 	{
-		const size_t samples = 10;
-		auto params = CalculateStartingParams(firstObject, secondObject, samples);
-		ar::mat::Vec4 newtonized;
-		auto result = NewtonMinimization(newtonized, firstObject, secondObject, params, 0.02);
+		size_t samples = 10;
+		auto params = GenerateUVPairs(samples, false);
+		auto first = Parametric::Create(firstObject);
+		auto second = Parametric::Create(secondObject);
+		auto cg = mat::ConjugateGradient4D(first, second);
 
-		auto midpointUnoptimized = 0.5f * (Evaluate(firstObject, params.x, params.y) + Evaluate(secondObject, params.z, params.w));
-		auto midpointNewtonized = 0.5f * (Evaluate(firstObject, newtonized.x, newtonized.y) + Evaluate(secondObject, newtonized.z, newtonized.w));
+		float bestDistance = std::numeric_limits<float>::max();
+		mat::Vec4d bestSolution;
 
-		return midpointNewtonized;
+		for (auto& pair : params)
+		{
+			// Use current pair as initial guess
+			mat::Vec4d initialGuess = { pair.x, pair.y, pair.z, pair.w };
+			auto result = cg.Minimize(initialGuess);
+
+			// Check if optimization converged
+			if (!result.Converged) {
+				continue;
+			}
+
+			// Evaluate both surfaces at optimized parameters
+			auto p = first->Evaluate(result.Solution.x, result.Solution.y);
+			auto q = second->Evaluate(result.Solution.z, result.Solution.w);
+			auto optimizedDistance = mat::LengthSquared(p - q);
+
+			if (optimizedDistance < bestDistance)
+			{
+				bestSolution = result.Solution;
+				bestDistance = optimizedDistance;
+			}
+		}
+
+		// Return midpoint of best solution
+		auto p = first->Evaluate(bestSolution.x, bestSolution.y);
+		auto q = second->Evaluate(bestSolution.z, bestSolution.w);
+		return (p + q) / 2.0;
 	}
 
 	std::pair<std::vector<ar::mat::Vec3>, std::vector<ar::mat::Vec4>> Intersection::TraceIntersectionCurve(ar::Entity firstObject, ar::Entity secondObject, float step)
@@ -168,12 +197,17 @@ namespace ar
 	void Intersection::DrawDerivatives(ar::Entity object, size_t samples)
 	{
 		auto params = GenerateUVPairs(samples, true);
-		ar::DebugRenderer::Clear();
+		auto first = Parametric::Create(object);
+		//ar::DebugRenderer::Clear();
 		for (auto& pair : params)
 		{
-			auto start = Evaluate(object, pair.x, pair.y);
-			auto derivativeU = DerivativeU(object, pair.x, pair.y);
-			auto derivativeV = DerivativeV(object, pair.x, pair.y);
+			auto startd = first->Evaluate(pair.x, pair.y);
+			auto start = ar::mat::Vec3(startd.x, startd.y, startd.z);
+			auto derivativeUd = first->DerivativeU(pair.x, pair.y);
+			auto derivativeU = ar::mat::Vec3(derivativeUd.x, derivativeUd.y, derivativeUd.z);
+			auto derivativeVd = first->DerivativeV(pair.x, pair.y);
+			auto derivativeV = ar::mat::Vec3(derivativeVd.x, derivativeVd.y, derivativeVd.z);
+
 			ar::DebugRenderer::AddLine(start, start + 0.01f * mat::Cross(derivativeV, derivativeU));
 		}
 	}
@@ -181,10 +215,12 @@ namespace ar
 	void Intersection::DrawEvaluations(ar::Entity object, size_t samples)
 	{
 		auto params = GenerateUVPairs(samples, true);
-		ar::DebugRenderer::Clear();
+		auto first = Parametric::Create(object);
+		//ar::DebugRenderer::Clear();
 		for (auto& pair : params)
 		{
-			auto start = Evaluate(object, pair.x, pair.y);
+			auto startd = first->Evaluate(pair.x, pair.y);
+			auto start = ar::mat::Vec3(startd.x, startd.y, startd.z);
 			ar::DebugRenderer::AddPoint(start, { 0.5, 0.5, 1.f });
 		}
 	}
@@ -326,7 +362,7 @@ namespace ar
 		auto p1 = Evaluate(firstObject, params.x, params.y);
 		auto p2 = Evaluate(secondObject, params.z, params.w);
 		
-		float phi0 = mat::Length(p1 - p2);
+		float phi0 = mat::LengthSquared(p1 - p2);
 		float slope = mat::Dot(grad, direction);
 
 		if (slope >= 0.0f) 
@@ -341,7 +377,7 @@ namespace ar
 			
 			p1 = Evaluate(firstObject, candidate.x, candidate.y);
 			p2 = Evaluate(secondObject, candidate.z, candidate.w);
-			float fCandidate = mat::Length(p1 - p2);
+			float fCandidate = mat::LengthSquared(p1 - p2);
 
 			if (fCandidate <= phi0 + c * alpha * slope)
 				return alpha;
@@ -676,7 +712,6 @@ namespace ar
 		auto u = params.x, v = params.y, s = params.z, t = params.w;
 		auto difference = Evaluate(firstObject, u, v) - Evaluate(secondObject, s, t);
 		
-		//ClampWrapObjects(firstObject, secondObject, params);
 		auto dS1du = DerivativeU(firstObject, u, v), dS1dv = DerivativeV(firstObject, u, v);
 		auto dS2ds = DerivativeU(secondObject, s, t), dS2dt = DerivativeV(secondObject, s, t);
 
