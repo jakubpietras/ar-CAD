@@ -16,6 +16,8 @@ namespace ar
 		static bool IsWrappedU(ar::Entity e);
 		static bool IsWrappedV(ar::Entity e);
 		static std::vector<ar::Entity> CreateScenePoints(std::vector<ar::mat::Vec3> positions, ar::SceneFactory& factory);
+		static std::vector<mat::Vec3> VecDoubleToFloat(std::vector<ar::mat::Vec3d> vec);
+		static std::vector<mat::Vec4> VecDoubleToFloat(std::vector<ar::mat::Vec4d> vec);
 
 		template <typename T>
 		static std::vector<T> SampleElementsN(const std::vector<T>& elements, size_t n)

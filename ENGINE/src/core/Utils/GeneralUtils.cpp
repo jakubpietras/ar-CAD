@@ -70,4 +70,22 @@ namespace ar
 		return points;
 	}
 
+	std::vector<mat::Vec3> GeneralUtils::VecDoubleToFloat(std::vector<ar::mat::Vec3d> vec)
+	{
+		std::vector<mat::Vec3> out;
+		out.reserve(vec.size());
+		for (auto& v : vec)
+			out.emplace_back(static_cast<mat::Vec3>(v)); // uses converting constructor
+		return out;
+	}
+
+	std::vector<mat::Vec4> GeneralUtils::VecDoubleToFloat(std::vector<ar::mat::Vec4d> vec)
+	{
+		std::vector<mat::Vec4> out;
+		out.reserve(vec.size());
+		for (auto& v : vec)
+			out.emplace_back(static_cast<mat::Vec4>(v)); // uses converting constructor
+		return out;
+	}
+
 }

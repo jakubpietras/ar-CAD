@@ -662,21 +662,18 @@ void EditorSceneController::ProcessGroupTransform(EditorState& state)
 void EditorSceneController::ProcessAddIntersection(EditorState& state)
 {
 	auto& objs = state.SelectedIntersectableSurfaces;
-	auto point = ar::Intersection::FindStartingPoint(objs[0], objs[1]);
-	state.CursorPosition = ar::mat::Vec3(point.x, point.y, point.z);
-	/*ar::Intersection::DrawDerivatives(objs[0], 10);
-	ar::Intersection::DrawDerivatives(objs[1], 10);
-	ar::Intersection::DrawEvaluations(objs[0], 10);
-	ar::Intersection::DrawEvaluations(objs[1], 10);*/
+	ar::ICData curve;
+	std::vector<ar::mat::Vec3> points; 
+	std::vector<ar::mat::Vec4> params;
 
-	/*std::pair<std::vector<ar::mat::Vec3>, std::vector<ar::mat::Vec4>> curve;
-	
 	if (objs.size() == 1)
 	{
-		curve = ar::Intersection::TraceIntersectionCurve(objs[0], objs[0], state.StepDistance);
-		if (!curve.first.empty() && !curve.second.empty())
+		curve = ar::Intersection::IntersectionCurve(objs[0], objs[0], state.StepDistance);
+		points = ar::GeneralUtils::VecDoubleToFloat(curve.Points);
+		params = ar::GeneralUtils::VecDoubleToFloat(curve.Params);
+		if (!curve.Points.empty() && !curve.Params.empty())
 		{
-			m_Factory.CreateIntersectionCurve(curve.first, curve.second, objs[0], std::nullopt,
+			m_Factory.CreateIntersectionCurve(points, params, objs[0], std::nullopt,
 				std::nullopt, "Self-intersection Curve");
 		}
 		else
@@ -688,10 +685,12 @@ void EditorSceneController::ProcessAddIntersection(EditorState& state)
 	}
 	else if (objs.size() == 2)
 	{
-		curve = ar::Intersection::TraceIntersectionCurve(objs[0], objs[1], state.StepDistance);
-		if (!curve.first.empty() && !curve.second.empty())
+		curve = ar::Intersection::IntersectionCurve(objs[0], objs[1], state.StepDistance);
+		points = ar::GeneralUtils::VecDoubleToFloat(curve.Points);
+		params = ar::GeneralUtils::VecDoubleToFloat(curve.Params);
+		if (!curve.Points.empty() && !curve.Params.empty())
 		{
-			auto ic = m_Factory.CreateIntersectionCurve(curve.first, curve.second, objs[0], objs[1],
+			auto ic = m_Factory.CreateIntersectionCurve(points, params, objs[0], objs[1],
 				std::nullopt, "Intersection Curve");
 		}
 		else
@@ -699,7 +698,7 @@ void EditorSceneController::ProcessAddIntersection(EditorState& state)
 			state.ShowErrorModal = true;
 			state.ErrorMessages.emplace_back("No intersection detected.");
 		}
-	}*/
+	}
 }
 
 void EditorSceneController::ProcessUpdateVisibility(EditorState& state)

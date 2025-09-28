@@ -103,5 +103,57 @@ namespace ar
 			return x;
 		}
 
+		ar::mat::Vec4d SolveLinear(Mat4d A, Vec4d b)
+		{
+			double M[4][5];
+
+			for (int i = 0; i < 4; ++i) {
+				for (int j = 0; j < 4; ++j) {
+					M[i][j] = A(i, j);
+				}
+				M[i][4] = b[i];
+			}
+
+			for (int k = 0; k < 4; ++k) {
+				int maxRow = k;
+				double maxVal = abs(M[k][k]);
+				for (int i = k + 1; i < 4; ++i) {
+					if (abs(M[i][k]) > maxVal) {
+						maxVal = abs(M[i][k]);
+						maxRow = i;
+					}
+				}
+
+				if (maxRow != k) {
+					for (int j = k; j < 5; ++j) {
+						std::swap(M[k][j], M[maxRow][j]);
+					}
+				}
+
+				if (abs(M[k][k]) < 1e-12) {
+					return { 0.0, 0.0, 0.0, 0.0 };
+				}
+
+				for (int i = k + 1; i < 4; ++i) {
+					double factor = M[i][k] / M[k][k];
+					for (int j = k; j < 5; ++j) {
+						M[i][j] -= factor * M[k][j];
+					}
+				}
+			}
+
+			Vec4d x(0.0);
+			x.w = 0.0;
+			for (int i = 3; i >= 0; --i) {
+				double sum = M[i][4];
+				for (int j = i + 1; j < 4; ++j) {
+					sum -= M[i][j] * x[j];
+				}
+				x[i] = sum / M[i][i];
+			}
+
+			return x;
+		}
+
 	}
 }

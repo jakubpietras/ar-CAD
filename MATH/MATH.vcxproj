@@ -137,6 +137,7 @@
   <ItemGroup>
     <ClCompile Include="src\algorithm\conjugateGradient.cpp" />
     <ClCompile Include="src\algorithm\lineSearch.cpp" />
+    <ClCompile Include="src\algorithm\newton.cpp" />
     <ClCompile Include="src\geometry.cpp" />
     <ClCompile Include="src\gradient.cpp" />
     <ClCompile Include="src\matrix_types.cpp" />
@@ -150,6 +151,7 @@
   <ItemGroup>
     <ClInclude Include="src\algorithm\conjugateGradient.h" />
     <ClInclude Include="src\algorithm\lineSearch.h" />
+    <ClInclude Include="src\algorithm\newton.h" />
     <ClInclude Include="src\ARMAT.h" />
     <ClInclude Include="src\Constants.h" />
     <ClInclude Include="src\geometry.h" />

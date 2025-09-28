@@ -69,4 +69,10 @@ namespace ar::mat
         wrap(v);
         return true;  // Torus is always valid after wrapping
     }
+    Vec3d TorusSurface::Normal(double u, double v)
+    {
+        auto du = DerivativeU(u, v);
+        auto dv = DerivativeV(u, v);
+        return mat::Normalize(mat::Cross(du, dv));
+    }
 }

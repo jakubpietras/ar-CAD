@@ -29,6 +29,11 @@ namespace ar
 			inline T* Data() { return &x; };
 			constexpr Vec2T(T x = 0.0f, T y = 0.0f) : x(x), y(y) {}
 
+			template<typename U>
+			explicit constexpr Vec2T(const Vec2T<U>& other)
+				: x(static_cast<T>(other.x)), y(static_cast<T>(other.y)) 
+			{ }
+
 			/// <summary>
 			/// Component-wise sum of two vectors.
 			/// </summary>
@@ -215,6 +220,10 @@ namespace ar
 			constexpr Vec3T(T x = 0.0f, T y = 0.0f, T z = 0.0f) : x(x), y(y), z(z) {}
 			constexpr Vec3T(const Vec4T<T>& other) 
 				: x(other.x), y(other.y), z(other.z) {}
+			template<typename U>
+			explicit constexpr Vec3T(const Vec3T<U>& other)
+				: x(static_cast<T>(other.x)), y(static_cast<T>(other.y)), z(static_cast<T>(other.z))
+			{ }
 
 			/// <summary>
 			/// Component-wise sum of two vectors.
@@ -412,6 +421,12 @@ namespace ar
 				: x(x), y(y), z(z), w(w) { }
 			constexpr Vec4T(const Vec3T<T>& v3, T w)
 				: x(v3.x), y(v3.y), z(v3.z), w(w) {}
+			template<typename U>
+			explicit constexpr Vec4T(const Vec4T<U>& other)
+				: x(static_cast<T>(other.x)), y(static_cast<T>(other.y)),
+				z(static_cast<T>(other.z)), w(static_cast<T>(other.w))
+			{
+			}
 
 			/// <summary>
 			/// Returns the component-wise sum of this vector and another.

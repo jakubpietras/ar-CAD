@@ -82,26 +82,33 @@ namespace ar::mat
 	{
 		return m_IsPeriodicV;
 	}
+	Vec3d BezierSurface::Normal(double u, double v)
+	{
+		auto du = DerivativeU(u, v);
+		auto dv = DerivativeV(u, v);
+		return mat::Normalize(mat::Cross(du, dv));
+	}
 	bool BezierSurface::Clamp(double& u, double& v)
 	{
 		auto bound = [](double& x, bool periodic) -> bool {
 			if (periodic) {
+				// Safe to wrap around
 				if (x < 0.0 || x >= 1.0) {
 					x = x - std::floor(x);
 					if (x >= 1.0) x = 0.0;  // Handle edge case
-					return true;  // Wrapped successfully
 				}
-				return true;  // Already in range
+				return true;  // Always valid if periodic
 			}
 			else {
-				if (x < 0.0) { x = 0.0; return false; }  // Clamped
-				if (x > 1.0) { x = 1.0; return false; }  // Clamped  
-				return true;  // In range
+				// Not periodic: clamp at boundary
+				if (x < 0.0) { x = 0.0; return false; }
+				if (x > 1.0) { x = 1.0; return false; }
+				return true;  // Inside
 			}
 			};
 
 		bool okU = bound(u, m_IsPeriodicU);
-		bool okV = bound(v, m_IsPeriodicV);  // Fix the typo
+		bool okV = bound(v, m_IsPeriodicV);
 		return okU && okV;
 	}
 }

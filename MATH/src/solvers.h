@@ -21,6 +21,7 @@ namespace ar
 			const std::vector<Vec3>& rhs);
 		
 		Vec4 SolveLinear(Mat4 A, Vec4 b);
+		Vec4d SolveLinear(Mat4d A, Vec4d b);
 
 
 		template <typename T, typename U>

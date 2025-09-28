@@ -48,6 +48,9 @@
     <ClCompile Include="src\algorithm\lineSearch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\algorithm\newton.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\matrix_types.h">
@@ -93,6 +96,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\algorithm\lineSearch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\algorithm\newton.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
