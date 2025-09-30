@@ -389,19 +389,22 @@ namespace ar
 		auto& trimP = firstSurface.GetComponent<ar::TrimmingComponent>();
 		trimP.IntersectionCurves.push_back(entity);
 
+		auto g1 = Parametric::Create(firstSurface);
 		ic.ImageP = ar::IntersectUtils::CreateParameterImage(ic.Params, true, 512, 512,
-			ar::GeneralUtils::IsWrappedU(firstSurface), ar::GeneralUtils::IsWrappedV(firstSurface));
+			g1->IsPeriodicU(), g1->IsPeriodicV());
 		ic.TrimTexP = ar::IntersectUtils::CreateTrimTex(ic.Params, true, 512, 512,
-			ar::GeneralUtils::IsWrappedU(firstSurface), ar::GeneralUtils::IsWrappedV(firstSurface));
+			g1->IsPeriodicU(), g1->IsPeriodicV());
+
 		if (secondSurface)
 		{
+			auto g2 = Parametric::Create(*secondSurface);
 			ic.SurfaceQ = secondSurface;
 			auto& trimQ = (*secondSurface).GetComponent<ar::TrimmingComponent>();
 			trimQ.IntersectionCurves.push_back(entity);
 			ic.ImageQ = ar::IntersectUtils::CreateParameterImage(ic.Params, false, 512, 512,
-				ar::GeneralUtils::IsWrappedU(*secondSurface), ar::GeneralUtils::IsWrappedV(*secondSurface));
+				g2->IsPeriodicU(), g2->IsPeriodicV());
 			ic.TrimTexQ = ar::IntersectUtils::CreateTrimTex(ic.Params, false, 512, 512,
-				ar::GeneralUtils::IsWrappedU(*secondSurface), ar::GeneralUtils::IsWrappedV(*secondSurface));
+				g2->IsPeriodicU(), g2->IsPeriodicV());
 		}
 		else
 		{
@@ -420,7 +423,7 @@ namespace ar
 		mesh.Shader = shader;
 		mesh.PickingShader = pickingShader;
 		mesh.RenderPrimitive = ar::Primitive::LineStrip;
-		mesh.PrimitiveSize = 5.f;
+		mesh.PrimitiveSize = 10.f;
 
 		return entity;
 	}

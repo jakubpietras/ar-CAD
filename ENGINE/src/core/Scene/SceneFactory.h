@@ -6,6 +6,7 @@
 #include "core/Geometry/GregoryFill.h"
 #include "core/Utils/TorusUtils.h"
 #include "core/Utils/SurfaceUtils.h"
+#include "core/Utils/Parametric.h"
 
 namespace ar
 {

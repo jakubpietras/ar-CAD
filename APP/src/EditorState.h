@@ -143,7 +143,7 @@ struct EditorState
 	bool ShouldComputeIntersection = false;
 	bool ShouldDisplayParameterImage = false;
 	ar::Ref<ar::PaintSurface> ImageToDisplay = nullptr;
-	float StepDistance = 0.5f;
+	float StepDistance = 0.01f;
 
 	// ============================= Hide/Show =============================
 	std::unordered_set<ar::Entity, ar::Entity::HashFunction> ObjectsToHide{};

@@ -6,7 +6,7 @@ namespace ar::mat
 	NewtonSD::NewtonSD(std::shared_ptr<IParametricSurface> first, std::shared_ptr<IParametricSurface> second)
 		: m_First(first), m_Second(second)
 	{ }
-	NewtonResult NewtonSD::Minimize(const Vec4d& initialParams, const Vec3d& fixedStartPoint, double d, const NewtonConfig& config)
+	NewtonResult NewtonSD::Minimize(const Vec4d& initialParams, const Vec3d& startPoint, double d, const NewtonConfig& config)
 	{
         NewtonResult result{};
         bool success = false, repeat = false;
@@ -28,15 +28,14 @@ namespace ar::mat
 
         for (size_t iter = 0; iter < config.MaxIterations; iter++)
         {
-            // Use the FIXED startPoint passed from marching loop, not recomputed
-            auto f = Residual(params, fixedStartPoint, T, d);
+            auto f = Residual(params, startPoint, T, d);
             auto J = Jacobian(params, T);
             auto delta = SolveLinear(J, f);
 
             prevParams = params;
             params -= delta * config.Damping;
 
-            if (!Clamp(params))
+            if (!Clamp(params)) // Went outside the domain
             {
                 result.Converged = false;
                 result.Solution = prevParams;
@@ -63,7 +62,7 @@ namespace ar::mat
             // Tangent fallback retry logic
             if (repeat && iter == config.MaxIterations - 1)
             {
-                T = mat::Normalize(m_First->DerivativeV(initialParams.x, initialParams.y));
+                T = mat::Normalize(m_First->DerivativeV(prevParams.x, prevParams.y));
                 repeat = false;
                 iter = 0;
             }

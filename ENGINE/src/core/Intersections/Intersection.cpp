@@ -38,9 +38,6 @@ namespace ar
 				bestDistance = optimizedDistance;
 			}
 		}
-		
-		mat::NewtonSD newton(first, second);
-		bestGuess = newton.Minimize(bestGuess, {}, 0.1).Solution;
 		auto midpoint = 0.5f * (first->Evaluate(bestGuess.x, bestGuess.y) + second->Evaluate(bestGuess.z, bestGuess.w));
 
 		return midpoint;
@@ -51,17 +48,24 @@ namespace ar
 		ICData result;
 		
 		// =========== Config
-		const size_t samples = 10;
 		const double loopCloseEpsilon = 0.001;
-		double precision = 1e-3;
-		size_t iterations = 50;
+		double precision = 1e-1;
+		size_t iterations = 5000;
 
 		// =========== Algorithm
+		Ref<ar::mat::IParametricSurface> g1, g2;
 		bool selfIntersection = IsSelfIntersection(firstObject, secondObject);
-		auto g1 = Parametric::Create(firstObject), g2 = Parametric::Create(secondObject);
-		auto newton = mat::NewtonSD(g1, g2);
 
-		auto startParameter = StartingParams(g1, g2, selfIntersection);
+		if (selfIntersection)
+			g1 = g2 = Parametric::Create(firstObject);
+		else
+		{
+			g1 = Parametric::Create(firstObject);
+			g2 = Parametric::Create(secondObject);
+		}
+
+		auto newton = mat::NewtonSD(g1, g2);
+		auto startParameter = StartingParams(g1, g2, selfIntersection);	// CG minimization
 		if (selfIntersection) 
 		{
 			float uvDistance = ((startParameter.x - startParameter.z) * (startParameter.x - startParameter.z) +
@@ -70,137 +74,135 @@ namespace ar
 				return result;
 		}
 
-		mat::Vec3d p1 = g1->Evaluate(startParameter.x, startParameter.y);
-		mat::Vec3d p2 = g2->Evaluate(startParameter.z, startParameter.w);
-
-		mat::Vec4d start = startParameter;
-		mat::Vec4d params = start;
-		mat::Vec4d prevParams = params;
-
-		mat::Vec3d PdU = g1->DerivativeU(params.x, params.y);
-		mat::Vec3d PdV = g1->DerivativeV(params.x, params.y);
-		mat::Vec3d QdU = g2->DerivativeU(params.z, params.w);
-		mat::Vec3d QdV = g2->DerivativeV(params.z, params.w);
-
-		mat::Vec3d prevP1 = g1->Evaluate(params.x, params.y);
-		mat::Vec3d prevP2 = g2->Evaluate(params.z, params.w);
-		mat::Vec3d prevMidpoint = (prevP1 + prevP2) * 0.5;
-
-		mat::Vec3d startPoint = (g1->Evaluate(params.x, params.y) + g2->Evaluate(params.z, params.w)) * 0.5;
+		mat::Vec4d params = startParameter, prevParams = startParameter;
+		mat::Vec3d p = g1->Evaluate(params.x, params.y), q = g2->Evaluate(params.z, params.w);
+		mat::Vec3d startPoint = (p + q) * 0.5;	// last "confirmed" point
 		bool success = false;
 
-		p1 = g1->Evaluate(params.x, params.y);
-		p2 = g2->Evaluate(params.z, params.w);
-		if (mat::LengthSquared(p1 - p2) > precision) 
+		if (mat::LengthSquared(p - q) > precision) 
 		{
+			// p and q should be close enough to approximate them to a single point
 			return result;
 		}
 
-		int i = 0;
-		for (i = 0; i < iterations; ++i) 
+		for (int iter = 0; iter < iterations; ++iter) 
 		{
-			// IMPORTANT: Keep startPoint FIXED for this Newton solve
-			startPoint = (g1->Evaluate(params.x, params.y) + g2->Evaluate(params.z, params.w)) * 0.5;
-
-			// Pass the fixed 3D startPoint to Newton
 			auto newtonResult = newton.Minimize(params, startPoint, d);
 			params = newtonResult.Solution;
-			bool success = newtonResult.Converged;
+			success = newtonResult.Converged;
 
-			p1 = g1->Evaluate(params.x, params.y);
-			p2 = g2->Evaluate(params.z, params.w);
-			mat::Vec3d midpoint = (p1 + p2) * 0.5;
+			p = g1->Evaluate(params.x, params.y);
+			q = g2->Evaluate(params.z, params.w);
+			mat::Vec3d candidate = (p + q) * 0.5;
 
-			// Retry with same startPoint but smaller steps
-			for (int k = 0; k < 5 && (!success || mat::LengthSquared(midpoint - prevMidpoint) > precision); k++)
+			// Retry (up to 5 times) if Newton failed to converge or the step was too large 
+			for (int k = 0; k < 5 && (!success || mat::LengthSquared(startPoint - candidate) > precision); k++)
 			{
-				// Use same startPoint, but smaller d
 				newtonResult = newton.Minimize(prevParams, startPoint, d * powf(0.5, k + 1));
 				success = newtonResult.Converged;
 				params = newtonResult.Solution;
-
-				p1 = g1->Evaluate(params.x, params.y);
-				p2 = g2->Evaluate(params.z, params.w);
-				//midpoint = (p1 + p2) * 0.5;
+				p = g1->Evaluate(params.x, params.y);
+				q = g2->Evaluate(params.z, params.w);
+				//candidate = (p + q) * 0.5;
 			}
 
 			if (!Clamp(g1, g2, params))
+			{
+				p = g1->Evaluate(params.x, params.y);
+				q = g2->Evaluate(params.z, params.w);
+				mat::Vec3d candidate = (p + q) * 0.5;
+
+				if (result.Points.empty() || mat::LengthSquared(result.Points.back() - candidate) >= 1e-8)
+				{
+					result.Points.push_back(candidate);
+					result.Params.push_back(params);
+				}
 				break;
+			}
 			
-			if (result.Params.size() > 0 && mat::Length(midpoint - result.Points[0]) < loopCloseEpsilon && i > 5) 
+			// Loop detection
+			if (!result.Params.empty() 
+				&& mat::Length(params - result.Params[0]) < loopCloseEpsilon && iter > 10)
 			{
 				result.Points.push_back(result.Points[0]);
 				result.Params.push_back(result.Params[0]);
 				return result;
 			}
 
-			if (!success || mat::Dot(midpoint - prevMidpoint, midpoint - prevMidpoint) > precision) 
+			if (!success || mat::LengthSquared(candidate - startPoint) > precision)
 			{
 				prevParams = params;
-				startPoint = midpoint;
+				startPoint = candidate;
 				continue;
 			}
 
-			if (!result.Points.empty() && mat::LengthSquared(result.Points.back() - midpoint) < 1e-8)
+			if (!result.Points.empty() && mat::LengthSquared(result.Points.back() - candidate) < 1e-8)
 			{
 				prevParams = params;
-				startPoint = midpoint;
+				startPoint = candidate;
 				continue;
 			}
 
-			result.Points.push_back(midpoint);
+			result.Points.push_back(candidate);
 			result.Params.push_back(params);
 
 			prevParams = params;
-			startPoint = midpoint;
-
-			prevP1 = p1;
-			prevP2 = p2;
-			prevMidpoint = midpoint;
+			startPoint = candidate;
 		}
 
 		std::vector<mat::Vec3d> reverseCurve;
 		std::vector<mat::Vec4d> reverseParameters;
 
-		startPoint = (g1->Evaluate(startParameter.x, startParameter.y) +
-			g2->Evaluate(startParameter.z, startParameter.w)) *
-			0.5;
-		params = startParameter;
+		params = prevParams = startParameter;
+		p = g1->Evaluate(params.x, params.y);
+		q = g2->Evaluate(params.z, params.w);
+		startPoint = (p + q) * 0.5;
 		for (int i = 0; i < iterations; ++i) 
 		{
-			startPoint = (g1->Evaluate(params.x, params.y) + g2->Evaluate(params.z, params.w)) * 0.5;
-			start = params;
-
-			auto newtonResult = newton.Minimize(start, startPoint, -d);
+			auto newtonResult = newton.Minimize(params, startPoint, -d);
 			params = newtonResult.Solution;
-			bool success = newtonResult.Converged;
+			success = newtonResult.Converged;
 
-			mat::Vec3d p1 = g1->Evaluate(params.x, params.y);
-			mat::Vec3d p2 = g2->Evaluate(params.z, params.w);
-			mat::Vec3d midpoint = (p1 + p2) * 0.5;
+			p = g1->Evaluate(params.x, params.y);
+			q = g2->Evaluate(params.z, params.w);
+			mat::Vec3d candidate = (p + q) * 0.5;
 
-			for (int k = 0; k < 5 && (!success || mat::LengthSquared(midpoint - prevMidpoint) > precision); k++)
+			for (int k = 0; k < 5 && (!success || mat::LengthSquared(candidate - startPoint) > precision); k++)
 			{
 				newtonResult = newton.Minimize(prevParams, startPoint, -d * powf(0.5, k + 1));
 				success = newtonResult.Converged;
 				params = newtonResult.Solution;
-
-				p1 = g1->Evaluate(params.x, params.y);
-				p2 = g2->Evaluate(params.z, params.w);
+				p = g1->Evaluate(params.x, params.y);
+				q = g2->Evaluate(params.z, params.w);
+				//candidate = (p + q) * 0.5;
 			}
 
-			if (!success || mat::Dot(p1 - p2, p1 - p2) > precision) 
+			if (!Clamp(g1, g2, params))
+			{
+				p = g1->Evaluate(params.x, params.y);
+				q = g2->Evaluate(params.z, params.w);
+				mat::Vec3d candidate = (p + q) * 0.5;
+
+				if (result.Points.empty() || mat::LengthSquared(result.Points.back() - candidate) >= 1e-8)
+				{
+					result.Points.push_back(candidate);
+					result.Params.push_back(params);
+				}
+				break;
+			}
+
+			if (!success || mat::LengthSquared(candidate - startPoint) > precision)
 			{
 				prevParams = params;
-				startPoint = midpoint;
+				startPoint = candidate;
 				continue;
 			}
 
-			reverseCurve.push_back(midpoint);
+			reverseCurve.push_back(candidate);
 			reverseParameters.push_back(params);
 
 			prevParams = params;
-			startPoint = midpoint;
+			startPoint = candidate;
 		}
 
 		result.Points.insert(result.Points.begin(), reverseCurve.rbegin(), reverseCurve.rend());
@@ -221,14 +223,27 @@ namespace ar
 
 		for (auto& pair : params)
 		{
-			auto optimizedParams = cg.Minimize({ pair.x, pair.y, pair.z, pair.w });
-			auto s1 = first->Evaluate(optimizedParams.Solution.x, optimizedParams.Solution.y);
-			auto s2 = second->Evaluate(optimizedParams.Solution.z, optimizedParams.Solution.w);
+			auto optimizedParams = cg.Minimize({ pair.x, pair.y, pair.z, pair.w }).Solution;
+			auto s1 = first->Evaluate(optimizedParams.x, optimizedParams.y);
+			auto s2 = second->Evaluate(optimizedParams.z, optimizedParams.w);
 			auto optimizedDistance = mat::LengthSquared(s1 - s2);
+
+			/*if (isSelfIntersecting)
+			{
+				auto dist = ((optimizedParams.x - optimizedParams.z) * (optimizedParams.x - optimizedParams.z) +
+					(optimizedParams.y - optimizedParams.w) * (optimizedParams.y - optimizedParams.w));
+				if (dist < 0.01) continue;
+			}*/
 
 			if (optimizedDistance < bestDistance)
 			{
-				bestGuess = optimizedParams.Solution;
+				if (isSelfIntersecting) 
+				{
+					auto dist = ((optimizedParams.x - optimizedParams.z) * (optimizedParams.x - optimizedParams.z) +
+						(optimizedParams.y - optimizedParams.w) * (optimizedParams.y - optimizedParams.w));
+					if (dist < 0.01) continue;
+				}
+				bestGuess = optimizedParams;
 				bestDistance = optimizedDistance;
 			}
 		}

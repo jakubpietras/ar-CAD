@@ -88,7 +88,7 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 		state.ViewportResized = false;
 	}
 
-	// Group Transforms
+	// Group Transformss
 	if (state.ShouldBeginGroupTransform)
 	{
 		BeginGroupTransform(state);

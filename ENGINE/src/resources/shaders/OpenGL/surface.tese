@@ -33,16 +33,16 @@ void main()
 
 	// global UVs
 	int patchIndex = int(gl_PrimitiveID);
-	int patchU = patchIndex % int(u_TotalSegmentsU);
-	int patchV = patchIndex / int(u_TotalSegmentsU);
+	int patchV = patchIndex % int(u_TotalSegmentsV);
+	int patchU = patchIndex / int(u_TotalSegmentsV);
 
-	float segmentWidth = 1.0 / float(u_TotalSegmentsU);
+	float segmentWidth  = 1.0 / float(u_TotalSegmentsU);
 	float segmentHeight = 1.0 / float(u_TotalSegmentsV);
 
 	float globalU = (float(patchU) + u) * segmentWidth;
 	float globalV = (float(patchV) + v) * segmentHeight;
 
-	UVFrag = vec2(globalU, globalV);
+	UVFrag = vec2(globalV, globalU);
 
 	// Point calculations
 	u = clamp(u * u_SamplesU / (u_SamplesU - 1), 0.0, 1.0);

@@ -943,7 +943,7 @@ void EditorUI::RenderIntersectModal()
 		ImGui::TextWrapped(label.c_str());
 
 		ImGui::SeparatorText("Precision controls");
-		ImGui::DragFloat("Step size", &m_State.StepDistance, 0.01f, 0.05, 1.f);
+		ImGui::DragFloat("Step size", &m_State.StepDistance, 0.001f, 0.0001f, 0.5f);
 
 		if (ImGui::Button("Add")) 
 		{ 

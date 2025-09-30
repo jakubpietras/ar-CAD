@@ -15,7 +15,7 @@ namespace ar::mat
 
     struct NewtonConfig
     {
-        double  Tolerance = 1e-6;
+        double  Tolerance = 1e-2;
         size_t  MaxIterations = 30;
         double  Damping = 0.1;
     };
@@ -23,8 +23,8 @@ namespace ar::mat
     class NewtonSD
     {
     public:
-        NewtonSD(std::shared_ptr<IParametricSurface> first,
-            std::shared_ptr<IParametricSurface> second);
+        NewtonSD(std::shared_ptr<IParametricSurface> first = nullptr,
+            std::shared_ptr<IParametricSurface> second = nullptr);
 
         NewtonResult Minimize(const Vec4d& initialParams, const Vec3d& fixedStartPoint, double d, const NewtonConfig& config = {});
 
