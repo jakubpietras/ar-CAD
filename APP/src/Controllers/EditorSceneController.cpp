@@ -383,6 +383,22 @@ void EditorSceneController::ValidateGeometry(EditorState& state)
 	{
 		m_Scene->DestroyEntity(curve);
 	}
+
+	// 5. Remove invalid intersection curves from trimming components
+	auto trimView = m_Scene->m_Registry.view<ar::TrimmingComponent>();
+	for (auto [entity, tc] : trimView.each())
+	{
+		for (auto& intCurve : tc.IntersectionCurves)
+		{
+			if (!intCurve.IsValid())
+			{
+				tc.ShouldTrimSurface = false;
+				tc.IntersectionCurves.erase(std::remove(tc.IntersectionCurves.begin(),
+					tc.IntersectionCurves.end(), intCurve), tc.IntersectionCurves.end());
+				tc.TrimTexture = nullptr;
+			}
+		}
+	}
 }
 
 void EditorSceneController::ValidateSelection(EditorState& state)
