@@ -271,8 +271,8 @@ namespace ar
 					shader->SetMat4("u_Model", model);
 					shader->SetUInt("u_SamplesU", bs.Description.Samples.u);
 					shader->SetUInt("u_SamplesV", bs.Description.Samples.v);
-					shader->SetUInt("u_TotalSegmentsU", bs.Description.Segments.u);
-					shader->SetUInt("u_TotalSegmentsV", bs.Description.Segments.v);
+					shader->SetUInt("u_TotalSegmentsU", bs.Description.Segments.v);
+					shader->SetUInt("u_TotalSegmentsV", bs.Description.Segments.u);
 
 					bool isSelected = m_Scene->m_Registry.any_of<SelectedTagComponent>(entity);
 					auto color = isSelected ? Renderer::SELECTION_COLOR : mc.PrimaryColor;
@@ -310,8 +310,8 @@ namespace ar
 					pickingShader->SetMat4("u_Model", model);
 					pickingShader->SetUInt("u_SamplesU", bs.Description.Samples.u);
 					pickingShader->SetUInt("u_SamplesV", bs.Description.Samples.v);
-					pickingShader->SetUInt("u_TotalSegmentsU", bs.Description.Segments.u);
-					pickingShader->SetUInt("u_TotalSegmentsV", bs.Description.Segments.v);
+					pickingShader->SetUInt("u_TotalSegmentsU", bs.Description.Segments.v);
+					pickingShader->SetUInt("u_TotalSegmentsV", bs.Description.Segments.u);
 
 					if (e.HasComponent<ar::TrimmingComponent>())
 					{

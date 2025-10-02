@@ -31,7 +31,7 @@ namespace ar
 				p2y = params[i + 1].w * height;
 			}
 			image->DrawLine(p1x, p1y, p2x, p2y, CURVE_RED, CURVE_GREEN, CURVE_BLUE, isWrappedU, isWrappedV);
-		}
+		} 
 
 		return image;
 	}

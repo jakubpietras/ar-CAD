@@ -17,10 +17,9 @@ void main()
 	{
 		vec3 trimColor = texture(u_TrimTex, UVFrag).rgb;
 
-		if (u_RenderSideA && (trimColor != FilledColor))
-				discard;
-		if (!u_RenderSideA && (trimColor == FilledColor))
-				discard;
+		bool isFilled = distance(trimColor, FilledColor) < 0.01;
+		if (u_RenderSideA && !isFilled) discard;
+		if (!u_RenderSideA &&  isFilled) discard;
 	}
 
 	FragColor = vec4(u_Color, 1.0);
