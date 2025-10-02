@@ -155,7 +155,7 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 	if (state.ShouldComputeIntersection)
 	{
 		ProcessAddIntersection(state);
-		state.StepDistance = 0.5f;
+		state.StepDistance = 0.01f;
 		state.ShouldComputeIntersection = false;
 	}
 	if (state.ShouldUpdateVisibility)
@@ -668,7 +668,7 @@ void EditorSceneController::ProcessAddIntersection(EditorState& state)
 
 	if (objs.size() == 1)
 	{
-		curve = ar::Intersection::IntersectionCurve(objs[0], objs[0], state.StepDistance);
+		curve = ar::Intersection::IntersectionCurve(objs[0], objs[0], state.StepDistance, ar::mat::Vec3d(state.CursorPosition), state.ShouldUseCursorAssist);
 		points = ar::GeneralUtils::VecDoubleToFloat(curve.Points);
 		params = ar::GeneralUtils::VecDoubleToFloat(curve.Params);
 		if (!curve.Points.empty() && !curve.Params.empty())
@@ -685,7 +685,7 @@ void EditorSceneController::ProcessAddIntersection(EditorState& state)
 	}
 	else if (objs.size() == 2)
 	{
-		curve = ar::Intersection::IntersectionCurve(objs[0], objs[1], state.StepDistance);
+		curve = ar::Intersection::IntersectionCurve(objs[0], objs[1], state.StepDistance, ar::mat::Vec3d(state.CursorPosition), state.ShouldUseCursorAssist);
 		points = ar::GeneralUtils::VecDoubleToFloat(curve.Points);
 		params = ar::GeneralUtils::VecDoubleToFloat(curve.Params);
 		if (!curve.Points.empty() && !curve.Params.empty())

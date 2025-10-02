@@ -14,7 +14,7 @@ namespace ar
 	{
 	public:
 		static mat::Vec3d FindStartingPoint(ar::Entity firstObject, ar::Entity secondObject);
-		static ICData IntersectionCurve(ar::Entity firstObject, ar::Entity secondObject, float d);
+		static ICData IntersectionCurve(ar::Entity firstObject, ar::Entity secondObject, float d, mat::Vec3d cursorPos, bool cursorAssisted = false);
 		static mat::Vec4d StartingParams(Ref<mat::IParametricSurface> first, Ref<mat::IParametricSurface> second, bool isSelfIntersecting);
 		static std::vector<mat::Vec4d> GenerateUVs(size_t samples, bool selfIntersect);
 		static void DrawDerivatives(ar::Entity object, size_t samples);

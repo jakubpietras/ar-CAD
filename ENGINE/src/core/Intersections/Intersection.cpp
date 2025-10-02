@@ -43,14 +43,14 @@ namespace ar
 		return midpoint;
 	}
 
-	ICData Intersection::IntersectionCurve(ar::Entity firstObject, ar::Entity secondObject, float d)
+	ICData Intersection::IntersectionCurve(ar::Entity firstObject, ar::Entity secondObject, float d, mat::Vec3d cursorPos, bool cursorAssisted)
 	{
 		ICData result;
 		
 		// =========== Config
 		const double loopCloseEpsilon = 0.001;
-		double precision = 1e-1;
-		size_t iterations = 5000;
+		double precision = 1e-4;
+		size_t iterations = 8000;
 
 		// =========== Algorithm
 		Ref<ar::mat::IParametricSurface> g1, g2;
@@ -65,12 +65,29 @@ namespace ar
 		}
 
 		auto newton = mat::NewtonSD(g1, g2);
-		auto startParameter = StartingParams(g1, g2, selfIntersection);	// CG minimization
-		if (selfIntersection) 
+		mat::Vec4d startParameter = { 0., 0., 0., 0 };
+
+		if (cursorAssisted)
+		{
+			auto gc = Parametric::Create(cursorPos);
+			auto p1 = StartingParams(g1, gc, false);
+			auto p2 = StartingParams(g2, gc, false);
+			mat::Vec4d unrefined = { p1.x, p1.y, p2.x, p2.y };
+
+			auto cg = mat::ConjugateGradientSD(g1, g2);
+			auto opt = cg.Minimize(unrefined);
+			startParameter = opt.Solution;
+		}
+		else
+		{
+			startParameter = StartingParams(g1, g2, selfIntersection);	// CG minimization
+		}
+		
+		if (selfIntersection)
 		{
 			float uvDistance = ((startParameter.x - startParameter.z) * (startParameter.x - startParameter.z) +
 				(startParameter.y - startParameter.w) * (startParameter.y - startParameter.w));
-			if (uvDistance < 0.01) 
+			if (uvDistance < 0.01)
 				return result;
 		}
 
@@ -227,13 +244,6 @@ namespace ar
 			auto s1 = first->Evaluate(optimizedParams.x, optimizedParams.y);
 			auto s2 = second->Evaluate(optimizedParams.z, optimizedParams.w);
 			auto optimizedDistance = mat::LengthSquared(s1 - s2);
-
-			/*if (isSelfIntersecting)
-			{
-				auto dist = ((optimizedParams.x - optimizedParams.z) * (optimizedParams.x - optimizedParams.z) +
-					(optimizedParams.y - optimizedParams.w) * (optimizedParams.y - optimizedParams.w));
-				if (dist < 0.01) continue;
-			}*/
 
 			if (optimizedDistance < bestDistance)
 			{

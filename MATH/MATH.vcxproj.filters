@@ -51,6 +51,12 @@
     <ClCompile Include="src\algorithm\newton.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\parametric\point.h">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\parametric\point.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\matrix_types.h">

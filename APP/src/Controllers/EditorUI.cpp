@@ -942,6 +942,8 @@ void EditorUI::RenderIntersectModal()
 
 		ImGui::TextWrapped(label.c_str());
 
+		ImGui::Checkbox("Cursor Assist", &m_State.ShouldUseCursorAssist);
+
 		ImGui::SeparatorText("Precision controls");
 		ImGui::DragFloat("Step size", &m_State.StepDistance, 0.001f, 0.0001f, 0.5f);
 

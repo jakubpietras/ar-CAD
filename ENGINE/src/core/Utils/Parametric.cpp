@@ -2,6 +2,7 @@
 #include "Parametric.h"
 #include "core/Scene/Components.h"
 #include "core/Utils/GeneralUtils.h"
+#include "parametric/point.h"
 
 namespace ar
 {
@@ -23,6 +24,10 @@ namespace ar
 			return std::make_shared<mat::BezierSurface>(points, desc.Segments, isPeriodicU, false);
 		}
 		return nullptr;
+	}
+	Ref<mat::IParametricSurface> Parametric::Create(ar::mat::Vec3d position)
+	{
+		return std::make_shared<mat::Point>(position);
 	}
 	std::vector<mat::Vec3d> Parametric::GetBezierPoints(Entity entity)
 	{

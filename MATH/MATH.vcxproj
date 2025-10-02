@@ -142,6 +142,8 @@
     <ClCompile Include="src\gradient.cpp" />
     <ClCompile Include="src\matrix_types.cpp" />
     <ClCompile Include="src\parametric\bezierSurface.cpp" />
+    <ClCompile Include="src\parametric\point.cpp" />
+    <ClCompile Include="src\parametric\point.h" />
     <ClCompile Include="src\parametric\torusSurface.cpp" />
     <ClCompile Include="src\quaternion.cpp" />
     <ClCompile Include="src\solvers.cpp" />

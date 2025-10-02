@@ -72,6 +72,7 @@ namespace ar
 		RenderCursor(cameraController, cursorPos);
 		RenderPolygons(vpMat);
 		RenderPoints(vpMat, RenderPassType::MAIN);
+		RenderIntersectCurves(vpMat, RenderPassType::MAIN);
 		m_MainFB->Unbind();
 	}
 
@@ -90,6 +91,7 @@ namespace ar
 		RenderSurfaces(vpMat, RenderPassType::SELECTION);
 		RenderGregoryPatches(vpMat, RenderPassType::SELECTION);
 		RenderPoints(vpMat, RenderPassType::SELECTION);
+		RenderIntersectCurves(vpMat, RenderPassType::SELECTION);
 
 		m_PickingFB->Unbind();
 	}
@@ -175,7 +177,7 @@ namespace ar
 
 	void SceneRenderer::RenderMeshes(ar::mat::Mat4 viewProjection, RenderPassType pass, ar::mat::Vec2 viewport)
 	{
-		auto view = m_Scene->m_Registry.view<MeshComponent>(entt::exclude<PointComponent, HiddenTagComponent, SurfaceComponent, GregoryPatchComponent>);
+		auto view = m_Scene->m_Registry.view<MeshComponent>(entt::exclude<PointComponent, HiddenTagComponent, SurfaceComponent, GregoryPatchComponent, IntersectCurveComponent>);
 		for (auto [entity, mc] : view.each())
 		{
 			auto e = ar::Entity(entity, m_Scene.get());
@@ -479,6 +481,42 @@ namespace ar
 
 					break;
 				}
+			}
+		}
+	}
+
+	void SceneRenderer::RenderIntersectCurves(ar::mat::Mat4 viewProjection, RenderPassType pass)
+	{
+		auto view = m_Scene->m_Registry.view<MeshComponent, IntersectCurveComponent>(entt::exclude<HiddenTagComponent>);
+		for (auto [entity, mc, ic] : view.each())
+		{
+			auto model = mat::Identity();
+			switch (pass)
+			{
+			case RenderPassType::MAIN:
+			{
+				mc.ShaderUsed = ShaderType::MAIN;
+				ar::RenderCommand::SetLineThickness(mc.PrimitiveSize);
+				auto shader = mc.GetShader();
+				shader->SetMat4("u_VP", viewProjection);
+				shader->SetMat4("u_Model", model);
+				bool isSelected = m_Scene->m_Registry.any_of<SelectedTagComponent>(entity);
+				auto color = isSelected ? Renderer::SELECTION_COLOR : mc.PrimaryColor;
+				shader->SetVec3("u_Color", color);
+				ar::Renderer::Submit(mc, mc.VertexArray->IsIndexed());
+				ar::RenderCommand::SetLineThickness(1.f);
+
+				break;
+			}
+			case RenderPassType::SELECTION:
+			{
+				mc.ShaderUsed = ShaderType::PICKING;
+				auto pickingShader = mc.GetShader();
+				pickingShader->SetMat4("u_VP", viewProjection);
+				pickingShader->SetMat4("u_Model", model);
+				ar::Renderer::Submit(mc, mc.VertexArray->IsIndexed());
+				break;
+			}
 			}
 		}
 	}

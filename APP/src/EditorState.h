@@ -142,6 +142,7 @@ struct EditorState
 	bool ShouldShowIntersectModal = false;
 	bool ShouldComputeIntersection = false;
 	bool ShouldDisplayParameterImage = false;
+	bool ShouldUseCursorAssist = false;
 	ar::Ref<ar::PaintSurface> ImageToDisplay = nullptr;
 	float StepDistance = 0.01f;
 

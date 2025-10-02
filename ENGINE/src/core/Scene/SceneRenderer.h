@@ -49,6 +49,7 @@ namespace ar
 		void RenderPolygons(ar::mat::Mat4 viewProjection);
 		void RenderPoints(ar::mat::Mat4 viewProjection, RenderPassType pass);
 		void RenderGregoryPatches(ar::mat::Mat4 viewProjection, RenderPassType pass);
+		void RenderIntersectCurves(ar::mat::Mat4 viewProjection, RenderPassType pass);
 		
 	};
 
