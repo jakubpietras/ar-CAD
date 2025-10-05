@@ -10,13 +10,6 @@ namespace ar
 	class CameraController
 	{
 	public:
-		enum class CameraEye
-		{
-			LEFT,
-			RIGHT,
-			BOTH
-		};
-
 		CameraController(float fov, float aspectRatio, float nearPlane,
 			float farPlane, float initArcballRadius);
 		void OnUpdate();

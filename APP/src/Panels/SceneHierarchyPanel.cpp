@@ -12,6 +12,7 @@ void SceneHierarchyPanel::Render()
 
 	ImGui::Begin("Scene");
 	ImGui::SeparatorText("Mesh visibility");
+	ImGui::TextWrapped("Objects that are hidden in the scene will appear teal in the hierarchy.");
 
 	if (ImGui::Button("Show All"))
 	{
@@ -32,32 +33,7 @@ void SceneHierarchyPanel::Render()
 		}
 		m_State.ShouldUpdateVisibility = true;
 	}
-	if (ImGui::Button("Hide Selected"))
-	{
-		for (auto e : m_State.SelectedObjects)
-		{
-			RequestHideObject(e);
-		}
-		m_State.ShouldUpdateVisibility = true;
-	}
-	ImGui::SameLine();
-	if (ImGui::Button("Exclusive Show Selected"))
-	{
-		for (auto entity : view)
-		{
-			ar::Entity e{ entity, m_Scene.get() };
-			RequestHideObject(e);
-		}
-		for (auto e : m_State.SelectedObjects)
-		{
-			RequestShowObject(e);
-		}
-		m_State.ShouldUpdateVisibility = true;
-	}
-
-
-	ImGui::TextWrapped("Objects that are hidden in the scene will appear teal in the hierarchy.");
-
+	
 	ImGui::SeparatorText("Hierarchy");
 	ImGui::Checkbox("Display unselected points", &m_ShowUnselectedPoints);
 	for (auto entity : view)

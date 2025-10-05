@@ -12,9 +12,6 @@ EditorUI::EditorUI(EditorState& state, ar::Ref<ar::Scene> scene)
 	m_Paint(200, 200)
 {
 	m_SceneHierarchyPanel.SetContext(scene);
-	/*for (int x = 100; x < 150; x++)
-		for (int y = 100; y < 105; y++)
-			m_Paint.SetPixel(x, y, 255, 0, 0);*/
 }
 
 void EditorUI::Render(ar::Ref<ar::Framebuffer> mainFB)
@@ -730,12 +727,14 @@ void EditorUI::RenderAddSurfaceC0Modal()
 		{
 			m_State.NewSurfaceAccepted = true;
 			ImGui::CloseCurrentPopup();
+			currentC0 = 0;
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Cancel", ImVec2(120, 0)))
 		{
 			m_State.NewSurfaceRejected = true;
 			ImGui::CloseCurrentPopup();
+			currentC0 = 0;
 		}
 		ImGui::EndPopup();
 	}
@@ -791,12 +790,14 @@ void EditorUI::RenderAddSurfaceC2Modal()
 		{
 			m_State.NewSurfaceAccepted = true;
 			ImGui::CloseCurrentPopup();
+			currentC2 = 0;
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Cancel", ImVec2(120, 0)))
 		{
 			m_State.NewSurfaceRejected = true;
 			ImGui::CloseCurrentPopup();
+			currentC2 = 0;
 		}
 		ImGui::EndPopup();
 	}

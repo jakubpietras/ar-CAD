@@ -10,16 +10,19 @@ namespace ar
 			m_Projection(mat::Identity()), m_InvProjection(mat::Identity()), 
 			m_View(mat::Identity()), m_InvView(mat::Identity())
 	{
+		m_ViewProjection = m_Projection * m_View;
 	}
 
 	void PerspectiveCamera::UpdateView(mat::Vec4 position)
 	{
 		m_View = LookAt(m_Right, m_Up, m_Forward, position);
+		m_ViewProjection = m_Projection * m_View;
 		m_InvView = InvLookAt(m_Right, m_Up, m_Forward, position);
 	}
 	void PerspectiveCamera::UpdateProjection(float fov, float aspectRatio, float nearPlane, float farPlane)
 	{
 		m_Projection = mat::Perspective(fov, aspectRatio, nearPlane, farPlane);
+		m_ViewProjection = m_Projection * m_View;
 		m_InvProjection = mat::InvPerspective(fov, aspectRatio, nearPlane, farPlane);
 	}
 	void PerspectiveCamera::UpdateOrientation(mat::Quat rotation)
