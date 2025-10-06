@@ -13,11 +13,11 @@ namespace ar
 		m_ViewProjection = m_Projection * m_View;
 	}
 
-	void PerspectiveCamera::UpdateView(mat::Vec4 position)
+	void PerspectiveCamera::UpdateView(mat::Vec4 position, mat::Vec3 offset)
 	{
-		m_View = LookAt(m_Right, m_Up, m_Forward, position);
+		m_View = LookAt(m_Right, m_Up, m_Forward, position) * mat::TranslationMatrix(offset);
 		m_ViewProjection = m_Projection * m_View;
-		m_InvView = InvLookAt(m_Right, m_Up, m_Forward, position);
+		m_InvView = mat::TranslationMatrix(-offset) * InvLookAt(m_Right, m_Up, m_Forward, position);
 	}
 	void PerspectiveCamera::UpdateProjection(float fov, float aspectRatio, float nearPlane, float farPlane)
 	{

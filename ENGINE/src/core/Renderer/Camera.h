@@ -15,8 +15,9 @@ namespace ar
 		inline const mat::Mat4& GetVP() { return m_ViewProjection; }
 		inline const mat::Vec4& GetForward() const { return m_Forward; }
 		inline const mat::Vec4& GetRight() const { return m_Right; }
+		inline const mat::Vec4& GetUp() const { return m_Up; }
 
-		void UpdateView(mat::Vec4 position);
+		void UpdateView(mat::Vec4 position, mat::Vec3 offset);
 		void UpdateProjection(float fov, float aspectRatio, float nearPlane, float farPlane);
 		void UpdateOrientation(mat::Quat rotation);
 	

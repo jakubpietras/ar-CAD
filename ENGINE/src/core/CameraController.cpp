@@ -8,12 +8,12 @@ namespace ar
 		float farPlane, float initArcballRadius)
 		: m_FOV(fov), m_AspectRatio(aspectRatio), m_NearPlane(nearPlane), m_FarPlane(farPlane),
 		m_ArcballRadius(initArcballRadius), m_Camera(std::make_shared<PerspectiveCamera>()),
-		m_MoveSpeed(0.01f)
+		m_MoveSpeed(0.01f), m_Offset(mat::Vec3(0.f, 0.f, 0.f))
 	{
 		Rotate(-30, -25, 0);
 		m_Camera->UpdateProjection(m_FOV, m_AspectRatio, m_NearPlane, m_FarPlane);
 		UpdatePosition();
-		m_Camera->UpdateView(m_Position);
+		m_Camera->UpdateView(m_Position, m_Offset);
 	}
 
 	void CameraController::OnUpdate()
@@ -29,6 +29,14 @@ namespace ar
 		dispatcher.Dispatch<KeyPressedEvent>(AR_BIND_EVENT_FN(CameraController::OnKeyPressed));
 	}
 
+	void CameraController::Pan(float dx, float dy)
+	{
+		auto dh = m_Camera->GetRight() * dx * 0.05;	// horizontal change
+		auto dv = m_Camera->GetUp() * dy * 0.05;		// vertical change
+		m_Offset += dh + dv;
+		m_Camera->UpdateView(m_Position, m_Offset);
+	}
+
 	void CameraController::Rotate(float dPitchDeg, float dYawDeg, float dRollDeg)
 	{
 		UpdateRotation(dPitchDeg, dYawDeg, dRollDeg);
@@ -37,15 +45,17 @@ namespace ar
 		// Based on the new orientation we calculate the position:
 		UpdatePosition();
 		// Based on the new position and local frame we calculate view matrix:
-		m_Camera->UpdateView(m_Position);
+		m_Camera->UpdateView(m_Position, m_Offset);
 	}
 
 	void CameraController::UpdateArcballRadius(float dRadius)
 	{
 		m_ArcballRadius += dRadius;
+		if (m_ArcballRadius < 0.5f)
+			m_ArcballRadius = 0.5f;
 		UpdatePosition();
 		// Based on the new position we calculate view matrix:
-		m_Camera->UpdateView(m_Position);
+		m_Camera->UpdateView(m_Position, m_Offset);
 	}
 
 	void CameraController::SetAspectRatio(float aspectRatio)
@@ -77,7 +87,10 @@ namespace ar
 	{
 		if (Input::IsMouseButtonPressed(AR_MOUSE_BUTTON_MIDDLE))
 		{
-			Rotate(e.GetYOffset(), -e.GetXOffset(), 0.0f);
+			if (Input::IsKeyPressed(AR_KEY_LEFT_SHIFT))
+				Pan(e.GetXOffset(), e.GetYOffset());
+			else
+				Rotate(e.GetYOffset(), -e.GetXOffset(), 0.0f);
 		}
 		return false;
 	}
@@ -91,10 +104,11 @@ namespace ar
 
 	bool CameraController::OnKeyPressed(KeyPressedEvent& e)
 	{
-		if (e.GetKeyCode() == AR_KEY_W)
+		if (e.GetKeyCode() == AR_KEY_R)
 		{
-			m_Target.x += (-m_MoveSpeed);
+			m_Offset = { 0.f, 0.f, 0.f };
 			UpdatePosition();
+			m_Camera->UpdateView(m_Position, m_Offset);
 		}
 
 		return false;

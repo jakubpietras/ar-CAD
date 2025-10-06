@@ -18,7 +18,9 @@ namespace ar
 		inline Ref<PerspectiveCamera> GetCamera() const { return m_Camera; }
 		inline const mat::Vec4& GetPosition() { return m_Position; }
 		inline const float GetFOV() { return m_FOV; }
+		inline const mat::Vec3& GetOffset() { return m_Offset; }
 
+		void Pan(float dx, float dy);
 		void Rotate(float dPitchDeg, float dYawDeg, float dRollDeg);
 		void UpdateArcballRadius(float dRadius);
 		void SetAspectRatio(float aspectRatio);
@@ -32,6 +34,7 @@ namespace ar
 		bool OnWindowResized(WindowResizeEvent& e);
 		bool OnKeyPressed(KeyPressedEvent& e);
 
+		mat::Vec3 m_Offset;
 		mat::Vec4 m_Position, m_Target;
 		float m_FOV, m_AspectRatio, m_NearPlane, m_FarPlane;
 		float m_ArcballRadius;

@@ -758,7 +758,7 @@ void EditorSceneController::PlaceCursor(ar::mat::Vec2 clickPosition, ViewportSiz
 	ar::mat::Vec3 origin = ar::mat::ToVec3(m_CameraController->GetPosition());
 	ar::mat::Vec3 planeNormal = ar::mat::ToVec3(m_CameraController->GetCamera()->GetForward());
 	float t = -((ar::mat::Dot(origin, planeNormal)) / ar::mat::Dot(direction, planeNormal));
-	auto cursorPos = origin + direction * t;
+	auto cursorPos = -m_CameraController->GetOffset() + origin + direction * t;
 
 	cursorPosition = cursorPos;
 }
