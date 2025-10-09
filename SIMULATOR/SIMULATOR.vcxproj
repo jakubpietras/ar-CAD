@@ -146,11 +146,21 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\SimEditorConstants.h" />
+    <ClInclude Include="src\Layers\SimSceneLayer.h" />
+    <ClInclude Include="src\SimRenderer.h" />
+    <ClInclude Include="src\Controllers\SimUIController.h" />
     <ClInclude Include="src\SimApp.h" />
+    <ClInclude Include="src\SimState.h" />
+    <ClInclude Include="src\Tools\StringParser.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Layers\SimSceneLayer.cpp" />
+    <ClCompile Include="src\SimRenderer.cpp" />
+    <ClCompile Include="src\Controllers\SimUIController.cpp" />
     <ClCompile Include="src\SimApp.cpp" />
     <ClCompile Include="Source.cpp" />
+    <ClCompile Include="src\Tools\StringParser.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ENGINE\ENGINE.vcxproj">

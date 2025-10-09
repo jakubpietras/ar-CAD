@@ -27,4 +27,5 @@
 
 #include "core/Scene/Scene.h"
 #include "core/Scene/ObjectTypes.h"
+#include "core/Events/Event.h"
 
