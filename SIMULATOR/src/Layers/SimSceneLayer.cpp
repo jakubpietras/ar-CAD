@@ -2,6 +2,7 @@
 #include "SimEditorConstants.h"
 #include "Tools/StringTools.h"
 #include "Tools/GCodeTools.h"
+#include "core/Utils/GeneralUtils.h"
 
 
 SimSceneLayer::SimSceneLayer(SimState& state)
@@ -15,6 +16,7 @@ SimSceneLayer::SimSceneLayer(SimState& state)
 {
 	m_State.Viewport = { 1920.f, 1080.f };
 	m_State.ViewportResized = true;
+	m_PathMesh = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
 }
 
 void SimSceneLayer::OnAttach()
@@ -29,8 +31,10 @@ void SimSceneLayer::OnUpdate()
 {
 	m_Camera->OnUpdate();
 	ProcessStateChanges();
-	ar::mat::Vec2 viewport = { m_State.Viewport.Width, m_State.Viewport.Height };
-	m_Renderer->Render(m_Camera, viewport);
+	auto vpMat = m_Camera->GetCamera()->GetVP();
+	m_Renderer->Render(vpMat);
+	if (m_State.ShouldShowPaths && !m_MachineCoords.empty())
+		m_Renderer->RenderPaths(m_PathMesh, vpMat);
 }
 
 void SimSceneLayer::OnEvent(ar::Event& event)
@@ -53,18 +57,21 @@ void SimSceneLayer::ProcessStateChanges()
 	}
 	if (m_State.ShouldImport)
 	{
-		// TODO: load actual data
-		auto lines = GCodeTools::ReadFile(m_State.Filepath);
-		GCodeTools::LoadPoints(m_State.Filepath);
+		m_MachineCoords = GCodeTools::LoadCoords(m_State.Filepath);
+		UpdatePathMesh();
 
 		auto extension = StringTools::LeftTrim(m_State.Filepath.extension().string(), 1);
 		m_State.CutterType = GCodeTools::GetCutterType(extension);
 		m_State.CutterSize = GCodeTools::GetCutterSize(extension);
 		m_State.ClearImportState();
-
-		// DEBUG
-		AR_TRACE("extension {0}, cutter size {1}", extension, m_State.CutterSize);
 	}
+}
+
+void SimSceneLayer::UpdatePathMesh()
+{
+	m_PathMesh->ClearBuffers();
+	auto verts = ar::GeneralUtils::GetVertexData(m_MachineCoords);
+	m_PathMesh->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(verts)));
 }
 
 void SimSceneLayer::Debug()

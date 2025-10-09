@@ -113,6 +113,10 @@ namespace ar
 			"resources/shaders/OpenGL/gregory.tesc",
 			"resources/shaders/OpenGL/gregory.tese"
 		));
+		s_Shaders["Paths"] = Ref<Shader>(Shader::Create(
+			"resources/shaders/OpenGL/paths.vert",
+			"resources/shaders/OpenGL/paths.frag"
+		));
 	}
 
 	ar::Ref<ar::Shader> ShaderLib::Get(const std::string& name)

@@ -26,6 +26,15 @@ namespace ar
 		return data;
 	}
 
+	std::vector<ar::VertexPosition> GeneralUtils::GetVertexData(std::vector<ar::mat::Vec3> positions)
+	{
+		std::vector<VertexPosition> data;
+		data.reserve(positions.size());
+		for (auto& position : positions)
+			data.push_back({ position });
+		return data;
+	}
+
 	std::vector<ar::mat::Vec3> GeneralUtils::GetPos(std::vector<ar::Entity>& objects)
 	{
 		std::vector<ar::mat::Vec3> positions;

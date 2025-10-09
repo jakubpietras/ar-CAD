@@ -9,19 +9,17 @@ void SimRenderer::OnResize(ar::mat::Vec2 newVP)
 	m_Framebuffer->Resize(static_cast<uint32_t>(newVP.x), static_cast<uint32_t>(newVP.y));
 }
 
-void SimRenderer::Render(const ar::Ref<ar::CameraController>& cameraController, ar::mat::Vec2 viewport)
+void SimRenderer::Render(ar::mat::Mat4 vp)
 {
 	m_Framebuffer->Bind();
 	ar::RenderCommand::SetClearColor(ar::mat::Vec4(0.18f, 0.18f, 0.24f, 1.0f));
 	ar::RenderCommand::Clear();
 	ar::RenderCommand::ToggleDepthTest(true);
 	ar::RenderCommand::ToggleBlendColor(true);
-	
-	auto& vpMat = cameraController->GetCamera()->GetVP();
-	RenderGrid(vpMat);
-	RenderMaterial(vpMat);
-	RenderCutter(vpMat);
-	RenderPaths(vpMat);
+
+	RenderGrid(vp);
+	RenderMaterial(vp);
+	RenderCutter(vp);
 	m_Framebuffer->Unbind();
 }
 
@@ -36,15 +34,21 @@ void SimRenderer::RenderGrid(ar::mat::Mat4 vp)
 
 void SimRenderer::RenderMaterial(ar::mat::Mat4 vp)
 {
-
+	// TODO
 }
 
 void SimRenderer::RenderCutter(ar::mat::Mat4 vp)
 {
-
+	// TODO
 }
 
-void SimRenderer::RenderPaths(ar::mat::Mat4 vp)
+void SimRenderer::RenderPaths(ar::Ref<ar::VertexArray> path, ar::mat::Mat4 vp)
 {
-
+	m_Framebuffer->Bind();
+	auto shader = ar::ShaderLib::Get("Paths");
+	shader->SetMat4("u_VP", vp);
+	shader->SetMat4("u_Model", ar::mat::Identity());
+	shader->SetVec3("u_Color", {0.f, 1.f, 0.f});
+	ar::Renderer::Submit(ar::Primitive::LineStrip, shader, path, false);
+	m_Framebuffer->Unbind();
 }

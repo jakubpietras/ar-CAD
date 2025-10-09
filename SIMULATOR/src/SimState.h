@@ -44,4 +44,5 @@ public:
 	double			CutterSize = 1.0;
 	double			CutterHeight = 4.0;
 	CutterType		CutterType = CutterType::FLAT;
+	bool			ShouldShowPaths = false;
 };

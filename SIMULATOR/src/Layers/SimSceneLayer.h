@@ -21,7 +21,10 @@ private:
 	ar::Ref<SimUIController> m_UI;
 	ar::Ref<SimRenderer> m_Renderer;
 	ar::Ref<ar::CameraController> m_Camera;
+	std::vector<ar::mat::Vec3> m_MachineCoords;
+	ar::Ref<ar::VertexArray> m_PathMesh;
 
 	void ProcessStateChanges();
+	void UpdatePathMesh();
 	void Debug();
 };

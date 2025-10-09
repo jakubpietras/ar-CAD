@@ -247,6 +247,8 @@
     <None Include="src\resources\shaders\OpenGL\grid.vert" />
     <None Include="src\resources\shaders\OpenGL\default.frag" />
     <None Include="src\resources\shaders\OpenGL\default.vert" />
+    <None Include="src\resources\shaders\OpenGL\paths.frag" />
+    <None Include="src\resources\shaders\OpenGL\paths.vert" />
     <None Include="src\resources\shaders\OpenGL\picking.frag" />
     <None Include="src\resources\shaders\OpenGL\point.frag" />
     <None Include="src\resources\shaders\OpenGL\point.vert" />

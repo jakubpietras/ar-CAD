@@ -422,6 +422,8 @@
     <None Include="src\resources\shaders\OpenGL\torus.vert" />
     <None Include="src\resources\shaders\OpenGL\torus.frag" />
     <None Include="src\resources\shaders\OpenGL\torusPicking.frag" />
+    <None Include="src\resources\shaders\OpenGL\paths.vert" />
+    <None Include="src\resources\shaders\OpenGL\paths.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\resources\icons\logo.png">

@@ -64,6 +64,8 @@ void SimUIController::RenderMaterialConfigPanel()
 void SimUIController::RenderSimulationControlPanel()
 {
 	ImGui::Begin("Simulation");
+	ImGui::Checkbox("Show Paths", &m_State.ShouldShowPaths);
+
 	ImGui::Text("Simulation control panel");
 	ImGui::End();
 }
