@@ -21,7 +21,7 @@
     <ClInclude Include="src\Controllers\SimUIController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Tools\StringParser.h">
+    <ClInclude Include="src\Tools\StringTools.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\SimState.h">
@@ -36,6 +36,15 @@
     <ClInclude Include="src\SimEditorConstants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Milling\MaterialDesc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Milling\CutterType.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Tools\GCodeTools.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\SimApp.cpp">
@@ -47,13 +56,16 @@
     <ClCompile Include="src\Controllers\SimUIController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Tools\StringParser.cpp">
+    <ClCompile Include="src\Tools\StringTools.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\SimRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Layers\SimSceneLayer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Tools\GCodeTools.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

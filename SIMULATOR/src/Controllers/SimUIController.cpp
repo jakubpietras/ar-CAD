@@ -1,4 +1,5 @@
 #include "SimUIController.h"
+#include <nfd.h>
 
 SimUIController::SimUIController(SimState& state)
 	: m_State(state)
@@ -41,7 +42,15 @@ void SimUIController::RenderViewport(ar::Ref<ar::Framebuffer> mainFB)
 void SimUIController::RenderLoadPanel()
 {
 	ImGui::Begin("Path Loading");
-	ImGui::Text("Path loading window");
+	std::string msg = "Currently loaded file: ";
+	if (m_State.Filepath.empty())
+		msg = "No file loaded!";
+	else
+		msg += m_State.Filepath.filename().string();
+
+	ImGui::TextWrapped(msg.c_str());
+	if (ImGui::Button("Load"))
+		OpenImportDialog();
 	ImGui::End();
 }
 
@@ -62,6 +71,62 @@ void SimUIController::RenderSimulationControlPanel()
 void SimUIController::RenderCutterConfigPanel()
 {
 	ImGui::Begin("Cutter");
-	ImGui::Text("Cutter config panel");
+	if (!m_State.Filepath.empty())
+	{
+		std::string type = "Type: ";
+		if (m_State.CutterType == CutterType::FLAT)
+			type += "Flat";
+		else
+			type += "Round";
+		ImGui::TextWrapped(type.c_str());
+
+		std::string trimmedNumber = 
+			std::to_string(m_State.CutterSize)
+			.substr(0, std::to_string(m_State.CutterSize).find('.') + 3);
+		std::string size = "Size: " + trimmedNumber + " [mm]";
+		ImGui::TextWrapped(size.c_str());
+	}
+	else
+	{
+		ImGui::TextWrapped("No file loaded -- cutter information N/A.");
+	}
 	ImGui::End();
+}
+
+void SimUIController::OpenImportDialog()
+{
+	auto path = OpenFileDialog();
+	if (!path.empty())
+	{
+		m_State.Filepath = path;
+		m_State.ShouldImport = true;
+	}
+	else
+		AR_TRACE("Import canceled");
+}
+
+fs::path SimUIController::OpenFileDialog()
+{
+	std::string path;
+	nfdu8char_t* outPath;
+	nfdu8filteritem_t filters[1] = { { "G-code", "k*,f*" } };
+	nfdopendialogu8args_t args = { 0 };
+	args.filterList = filters;
+	args.filterCount = 1;
+	nfdresult_t result = NFD_OpenDialogU8_With(&outPath, &args);
+	if (result == NFD_OKAY)
+	{
+		path = std::string(static_cast<char*>(outPath));
+		AR_TRACE("File {0} opened sucessfully", path);
+		NFD_FreePathU8(outPath);
+	}
+	else if (result == NFD_CANCEL)
+	{
+		AR_TRACE("File dialog closed (action canceled)");
+	}
+	else
+	{
+		AR_ERROR("Error opening file: {0}", NFD_GetError());
+	}
+	return fs::path(path);
 }

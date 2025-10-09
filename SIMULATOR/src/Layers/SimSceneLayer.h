@@ -23,4 +23,5 @@ private:
 	ar::Ref<ar::CameraController> m_Camera;
 
 	void ProcessStateChanges();
+	void Debug();
 };

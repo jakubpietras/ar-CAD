@@ -1,5 +1,7 @@
 #include "SimSceneLayer.h"
 #include "SimEditorConstants.h"
+#include "Tools/StringTools.h"
+#include "Tools/GCodeTools.h"
 
 
 SimSceneLayer::SimSceneLayer(SimState& state)
@@ -18,6 +20,7 @@ SimSceneLayer::SimSceneLayer(SimState& state)
 void SimSceneLayer::OnAttach()
 {
 	ar::ShaderLib::Init();
+	Debug();
 }
 
 void SimSceneLayer::OnDetach() { }
@@ -48,5 +51,29 @@ void SimSceneLayer::ProcessStateChanges()
 		m_Renderer->OnResize({ m_State.Viewport.Width, m_State.Viewport.Height });
 		m_State.ViewportResized = false;
 	}
+	if (m_State.ShouldImport)
+	{
+		// TODO: load actual data
+		auto lines = GCodeTools::ReadFile(m_State.Filepath);
+		GCodeTools::LoadPoints(m_State.Filepath);
+
+		auto extension = StringTools::LeftTrim(m_State.Filepath.extension().string(), 1);
+		m_State.CutterType = GCodeTools::GetCutterType(extension);
+		m_State.CutterSize = GCodeTools::GetCutterSize(extension);
+		m_State.ClearImportState();
+
+		// DEBUG
+		AR_TRACE("extension {0}, cutter size {1}", extension, m_State.CutterSize);
+	}
+}
+
+void SimSceneLayer::Debug()
+{
+	std::string testString = "123.456.78ab.cs";
+	auto tokens = StringTools::Tokenize(testString, '.');
+	for (auto& token : tokens)
+		AR_TRACE("{0}", token);
+	auto trimmed = StringTools::LeftTrim(testString, 2);
+	AR_TRACE("{0}", trimmed);
 }
 

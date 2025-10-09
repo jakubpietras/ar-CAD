@@ -3,6 +3,8 @@
 #include <ARCAD.h>
 #include "SimState.h"
 
+namespace fs = std::filesystem;
+
 class SimUIController
 {
 public:
@@ -15,4 +17,7 @@ private:
 	void RenderMaterialConfigPanel();
 	void RenderSimulationControlPanel();
 	void RenderCutterConfigPanel();
+
+	void OpenImportDialog();
+	fs::path OpenFileDialog();
 };
