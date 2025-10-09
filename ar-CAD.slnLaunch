@@ -1,0 +1,22 @@
+[
+  {
+    "Name": "SIMULATOR",
+    "Projects": [
+      {
+        "Path": "SIMULATOR\\SIMULATOR.vcxproj",
+        "Action": "Start",
+        "DebugTarget": "Local Windows Debugger"
+      }
+    ]
+  },
+  {
+    "Name": "EDITOR",
+    "Projects": [
+      {
+        "Path": "APP\\APP.vcxproj",
+        "Action": "Start",
+        "DebugTarget": "Local Windows Debugger"
+      }
+    ]
+  }
+]
