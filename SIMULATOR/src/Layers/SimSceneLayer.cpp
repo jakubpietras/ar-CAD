@@ -3,7 +3,7 @@
 #include "Tools/StringTools.h"
 #include "Tools/GCodeTools.h"
 #include "core/Utils/GeneralUtils.h"
-
+#include "core/Scene/DebugRenderer.h"
 
 SimSceneLayer::SimSceneLayer(SimState& state)
 	: m_State(state),
@@ -23,6 +23,7 @@ SimSceneLayer::SimSceneLayer(SimState& state)
 void SimSceneLayer::OnAttach()
 {
 	ar::ShaderLib::Init();
+	ar::DebugRenderer::Init();
 	Debug();
 }
 

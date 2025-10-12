@@ -121,6 +121,10 @@ namespace ar
 			"resources/shaders/OpenGL/millingTop.vert",
 			"resources/shaders/OpenGL/millingTop.frag"
 		));
+		s_Shaders["MillingSide"] = Ref<Shader>(Shader::Create(
+			"resources/shaders/OpenGL/millingSide.vert",
+			"resources/shaders/OpenGL/millingSide.frag"
+		));
 	}
 
 	ar::Ref<ar::Shader> ShaderLib::Get(const std::string& name)

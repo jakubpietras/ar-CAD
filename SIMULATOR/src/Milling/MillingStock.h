@@ -17,10 +17,13 @@ private:
 	ar::Ref<ar::VertexArray> GenerateTopMesh();
 	std::vector<ar::VertexPosNormTex> GenerateVertsTop();
 	std::vector<uint32_t> GenerateIndicesTop();
+
+	ar::Ref<ar::VertexArray> GenerateSideMesh();
+	std::vector<ar::VertexPosNormTex> GenerateVertsSide();
+	std::vector<uint32_t> GenerateIndicesSide();
 	void SetupHeightmap();
 
 	MaterialDesc m_Material;
-	ar::Ref<ar::VertexArray> m_TopMesh;
+	ar::Ref<ar::VertexArray> m_TopMesh, m_SideMesh;
 	ar::Ref<ar::Texture> m_HMap;
-	//ar::Ref<Heightmap> m_HMap;
 };

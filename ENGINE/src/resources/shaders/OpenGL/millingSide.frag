@@ -12,7 +12,7 @@ const vec3 surfaceColor = vec3(1.f, 1.f, 1.f);
 
 void main()
 {
-	vec3 normal = normalize(NormFrag);
+		vec3 normal = normalize(NormFrag);
 	vec3 lightDir = normalize(u_LightPos - WorldPosFrag);
 
 	// ambient
@@ -31,5 +31,4 @@ void main()
 
 	vec3 result = ambient + diffuse + specular;
 	FragColor = vec4(result, 1.0f);
-
 }

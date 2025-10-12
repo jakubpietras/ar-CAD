@@ -247,6 +247,8 @@
     <None Include="src\resources\shaders\OpenGL\grid.vert" />
     <None Include="src\resources\shaders\OpenGL\default.frag" />
     <None Include="src\resources\shaders\OpenGL\default.vert" />
+    <None Include="src\resources\shaders\OpenGL\millingSide.frag" />
+    <None Include="src\resources\shaders\OpenGL\millingSide.vert" />
     <None Include="src\resources\shaders\OpenGL\millingTop.frag" />
     <None Include="src\resources\shaders\OpenGL\millingTop.vert" />
     <None Include="src\resources\shaders\OpenGL\paths.frag" />
