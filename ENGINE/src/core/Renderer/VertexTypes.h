@@ -27,6 +27,14 @@ namespace ar
 		static const BufferLayout s_Layout;
 	};
 
+	struct VertexPosNormTex
+	{
+		mat::Vec3 Position;
+		mat::Vec3 Normal;
+		mat::Vec2 TexCoord;
+		static const BufferLayout s_Layout;
+	};
+
 	struct VertexPositionColor
 	{
 		mat::Vec3 Position;

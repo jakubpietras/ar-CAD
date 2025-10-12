@@ -140,6 +140,25 @@ namespace ar
 		}
 	}
 
+	ar::VertexBuffer* VertexBuffer::Create(std::vector<VertexPosNormTex> vertices)
+	{
+		switch (RendererAPI::GetAPI())
+		{
+		case RendererAPI::API::None:
+		{
+			return nullptr;
+		}
+		case RendererAPI::API::OpenGL:
+		{
+			return new OGLVertexBuffer(vertices.data(),
+				static_cast<unsigned int>(vertices.size()) * sizeof(VertexPosNormTex),
+				static_cast<unsigned int>(vertices.size()), VertexPosNormTex::s_Layout);
+		}
+		default:
+			return nullptr;
+		}
+	}
+
 	ar::IndexBuffer* IndexBuffer::Create(std::vector<unsigned int> indices)
 	{
 		switch (RendererAPI::GetAPI())
@@ -180,6 +199,49 @@ namespace ar
 		}
 		default:
 			return {};
+		}
+	}
+
+	std::vector<std::shared_ptr<ar::IndexBuffer>> IndexBuffer::Create(std::vector<std::vector<size_t>> indices)
+	{
+		switch (RendererAPI::GetAPI())
+		{
+		case RendererAPI::API::None:
+		{
+			return {};
+		}
+		case RendererAPI::API::OpenGL:
+		{
+			std::vector<std::shared_ptr<IndexBuffer>> ibs;
+
+			for (auto& ind : indices)
+			{
+				auto buffer = std::make_shared<OGLIndexBuffer>(ind.data(),
+					static_cast<unsigned int>(ind.size()) * sizeof(unsigned int), ind.size());
+				ibs.push_back(buffer);
+			}
+			return ibs;
+		}
+		default:
+			return {};
+		}
+	}
+
+	ar::IndexBuffer* IndexBuffer::Create(std::vector<size_t> indices)
+	{
+		switch (RendererAPI::GetAPI())
+		{
+		case RendererAPI::API::None:
+		{
+			return nullptr;
+		}
+		case RendererAPI::API::OpenGL:
+		{
+			return new OGLIndexBuffer(indices.data(),
+				static_cast<unsigned int>(indices.size()) * sizeof(unsigned int), indices.size());
+		}
+		default:
+			return nullptr;
 		}
 	}
 

@@ -45,6 +45,12 @@
     <ClInclude Include="src\Tools\GCodeTools.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Milling\MillingStock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Tools\Heightmap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\SimApp.cpp">
@@ -66,6 +72,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Tools\GCodeTools.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Milling\MillingStock.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Tools\Heightmap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

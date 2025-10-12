@@ -6,6 +6,7 @@ namespace ar
 	{
 		R8,
 		R32,
+		R32F,
 		RGBA8,
 		D24S8
 	};

@@ -23,6 +23,7 @@ namespace ar
 		static VertexBuffer* Create(std::vector<VertexPositionIDColor> vertices);
 		static VertexBuffer* Create(std::vector<InstancedFloat3> vertices);
 		static VertexBuffer* Create(std::vector<InstancedMat4> vertices);
+		static VertexBuffer* Create(std::vector<VertexPosNormTex> vertices);
 		// New overloads for Create() for each defined Vertex type (change in the future)
 
 	protected:
@@ -42,7 +43,9 @@ namespace ar
 		inline const size_t GetCount() const { return m_Count; }
 
 		static IndexBuffer* Create(std::vector<uint32_t> indices);
+		static IndexBuffer* Create(std::vector<size_t> indices);
 		static std::vector<std::shared_ptr<IndexBuffer>> Create(std::vector<std::vector<uint32_t>> indices);
+		static std::vector<std::shared_ptr<IndexBuffer>> Create(std::vector<std::vector<size_t>> indices);
 
 	protected:
 		uint32_t m_ID;

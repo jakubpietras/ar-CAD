@@ -37,12 +37,12 @@ public:
 	}
 
 	// ============ MILLING ===============
-	MaterialDesc	Material;
-	double			SimulationSpeed = 10.0;
+	MaterialDesc	Material{};
+	float			SimulationSpeed = 10.0;
 	bool			IsSimulationRun = false;
 	bool			ShouldMillInstant = false;
-	double			CutterSize = 1.0;
-	double			CutterHeight = 4.0;
+	float			CutterSize = 1.0;
+	float			CutterHeight = 4.0;
 	CutterType		CutterType = CutterType::FLAT;
 	bool			ShouldShowPaths = false;
 };

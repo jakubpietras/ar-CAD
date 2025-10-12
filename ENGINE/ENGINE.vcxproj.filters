@@ -424,6 +424,8 @@
     <None Include="src\resources\shaders\OpenGL\torusPicking.frag" />
     <None Include="src\resources\shaders\OpenGL\paths.vert" />
     <None Include="src\resources\shaders\OpenGL\paths.frag" />
+    <None Include="src\resources\shaders\OpenGL\millingTop.vert" />
+    <None Include="src\resources\shaders\OpenGL\millingTop.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\resources\icons\logo.png">

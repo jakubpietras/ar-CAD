@@ -1,5 +1,7 @@
 #include "SimUIController.h"
 #include <nfd.h>
+#include "core/ImGui/PropertyInspector.h"
+#include "core/ImGui/ScopedDisable.h"
 
 SimUIController::SimUIController(SimState& state)
 	: m_State(state)
@@ -51,22 +53,40 @@ void SimUIController::RenderLoadPanel()
 	ImGui::TextWrapped(msg.c_str());
 	if (ImGui::Button("Load"))
 		OpenImportDialog();
+	ImGui::SameLine();
+	{
+		ar::ScopedDisable disable(m_State.Filepath.empty());
+		ImGui::Checkbox("Show Paths", &m_State.ShouldShowPaths);
+	}
 	ImGui::End();
 }
 
 void SimUIController::RenderMaterialConfigPanel()
 {
+	const size_t minVal = 100, maxVal = 1000;
+
 	ImGui::Begin("Material");
-	ImGui::Text("Material config window");
+	ar::PropertyInspector::InspectProperty("Divisions", m_State.Material.Samples, minVal, maxVal);
+	ar::PropertyInspector::InspectProperty("Size [cm]", m_State.Material.Size, 1, 20, 1.0f);
+	ImGui::DragFloat("Base Height [cm]", &m_State.Material.BaseHeight, 1.0f, 1, 20);
+
 	ImGui::End();
 }
 
 void SimUIController::RenderSimulationControlPanel()
 {
 	ImGui::Begin("Simulation");
-	ImGui::Checkbox("Show Paths", &m_State.ShouldShowPaths);
+	ImGui::DragFloat("Speed", &m_State.SimulationSpeed, 1.0f, 1.0f, 10.0f);
+	if (ImGui::Button("Start"))
+	{
+		// todo
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Instant"))
+	{
+		// todo
+	}
 
-	ImGui::Text("Simulation control panel");
 	ImGui::End();
 }
 
@@ -87,6 +107,8 @@ void SimUIController::RenderCutterConfigPanel()
 			.substr(0, std::to_string(m_State.CutterSize).find('.') + 3);
 		std::string size = "Size: " + trimmedNumber + " [mm]";
 		ImGui::TextWrapped(size.c_str());
+
+		ImGui::DragFloat("Height", &m_State.CutterHeight, 1.0f, 4.0f, 10.0f);
 	}
 	else
 	{

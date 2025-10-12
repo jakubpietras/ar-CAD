@@ -95,9 +95,10 @@ namespace ar
 		{
 			GLenum format = GetDataFormat(m_Description.Format);
 			GLenum type = GL_UNSIGNED_BYTE;
-				
 			if (m_Description.Format == TextureFormat::R32)
 				type = GL_UNSIGNED_INT;
+			if (m_Description.Format == TextureFormat::R32F)
+				type = GL_FLOAT;
 
 			glTextureSubImage2D(m_ID, 0, 0, 0, m_Description.Width, m_Description.Height,
 				format, type, data);
@@ -111,6 +112,7 @@ namespace ar
 		{
 		case TextureFormat::R8: return GL_RED_INTEGER;
 		case TextureFormat::R32: return GL_RED_INTEGER;
+		case TextureFormat::R32F: return GL_RED;
 		case TextureFormat::RGBA8: return GL_RGBA;
 		case TextureFormat::D24S8:
 		default:
@@ -126,6 +128,7 @@ namespace ar
 		case TextureFormat::R8: return GL_R8;
 		case TextureFormat::RGBA8: return GL_RGBA8;
 		case TextureFormat::R32: return GL_R32UI;
+		case TextureFormat::R32F: return GL_R32F;
 		case TextureFormat::D24S8:
 		default:
 			AR_ASSERT(false, "Incorrect TextureFormat");

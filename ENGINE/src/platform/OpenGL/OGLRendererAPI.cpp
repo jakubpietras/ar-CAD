@@ -50,6 +50,7 @@ namespace ar
 		case Primitive::LineStrip: return GL_LINE_STRIP;
 		case Primitive::Point: return GL_POINTS;
 		case Primitive::Triangle: return GL_TRIANGLES;
+		case Primitive::TriangleStrip: return GL_TRIANGLE_STRIP;
 		case Primitive::Patch: return GL_PATCHES;
 		default:
 			return 0;

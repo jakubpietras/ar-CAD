@@ -12,7 +12,8 @@ SimSceneLayer::SimSceneLayer(SimState& state)
 	m_Camera(std::make_shared<ar::CameraController>(
 		SimEditorCameraConstants::FOV, 0.5f,
 		SimEditorCameraConstants::NearPlane, SimEditorCameraConstants::FarPlane,
-		SimEditorCameraConstants::ArcballRadius))
+		SimEditorCameraConstants::ArcballRadius)),
+	m_Block(state.Material)
 {
 	m_State.Viewport = { 1920.f, 1080.f };
 	m_State.ViewportResized = true;
@@ -35,6 +36,7 @@ void SimSceneLayer::OnUpdate()
 	m_Renderer->Render(vpMat);
 	if (m_State.ShouldShowPaths && !m_MachineCoords.empty())
 		m_Renderer->RenderPaths(m_PathMesh, vpMat);
+	m_Renderer->RenderMaterial(vpMat, m_Block, m_Camera->GetPosition());
 }
 
 void SimSceneLayer::OnEvent(ar::Event& event)

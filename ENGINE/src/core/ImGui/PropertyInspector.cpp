@@ -33,9 +33,9 @@ namespace ar
 		return ImGui::DragFloat(label.c_str(), &value, 0.01f, minValue, maxValue);
 	}
 
-	bool PropertyInspector::InspectProperty(const std::string& label, mat::Vec3& value, float minValue, float maxValue)
+	bool PropertyInspector::InspectProperty(const std::string& label, mat::Vec3& value, float minValue, float maxValue, float step)
 	{
-		return ImGui::DragFloat3(label.c_str(), value.Data(), 0.01f, minValue, maxValue);
+		return ImGui::DragFloat3(label.c_str(), value.Data(), step, minValue, maxValue);
 	}
 
 	bool PropertyInspector::InspectProperty(const std::string& label, mat::UInt2& value, unsigned int minValue, unsigned int maxValue)

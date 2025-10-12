@@ -18,7 +18,6 @@ void SimRenderer::Render(ar::mat::Mat4 vp)
 	ar::RenderCommand::ToggleBlendColor(true);
 
 	RenderGrid(vp);
-	RenderMaterial(vp);
 	RenderCutter(vp);
 	m_Framebuffer->Unbind();
 }
@@ -32,9 +31,11 @@ void SimRenderer::RenderGrid(ar::mat::Mat4 vp)
 	ar::RenderCommand::ToggleDepthTest(true);
 }
 
-void SimRenderer::RenderMaterial(ar::mat::Mat4 vp)
+void SimRenderer::RenderMaterial(ar::mat::Mat4 vp, MillingStock& block, ar::mat::Vec3 cameraPos)
 {
-	// TODO
+	m_Framebuffer->Bind();
+	block.Render(vp, cameraPos);
+	m_Framebuffer->Unbind();
 }
 
 void SimRenderer::RenderCutter(ar::mat::Mat4 vp)

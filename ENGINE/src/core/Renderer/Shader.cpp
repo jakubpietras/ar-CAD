@@ -117,6 +117,10 @@ namespace ar
 			"resources/shaders/OpenGL/paths.vert",
 			"resources/shaders/OpenGL/paths.frag"
 		));
+		s_Shaders["MillingTop"] = Ref<Shader>(Shader::Create(
+			"resources/shaders/OpenGL/millingTop.vert",
+			"resources/shaders/OpenGL/millingTop.frag"
+		));
 	}
 
 	ar::Ref<ar::Shader> ShaderLib::Get(const std::string& name)

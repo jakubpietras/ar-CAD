@@ -6,6 +6,7 @@
 #include "SimRenderer.h"
 #include "Controllers/SimUIController.h"
 #include "core/CameraController.h"
+#include "Milling/MillingStock.h"
 
 class SimSceneLayer : public ar::Layer
 {
@@ -23,6 +24,7 @@ private:
 	ar::Ref<ar::CameraController> m_Camera;
 	std::vector<ar::mat::Vec3> m_MachineCoords;
 	ar::Ref<ar::VertexArray> m_PathMesh;
+	MillingStock m_Block;
 
 	void ProcessStateChanges();
 	void UpdatePathMesh();

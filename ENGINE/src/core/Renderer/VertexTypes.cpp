@@ -20,6 +20,12 @@ namespace ar
 		{"a_UV", AttributeType::Float2, 0},
 		{"a_ID", AttributeType::UInt, 0}
 	};
+
+	const BufferLayout VertexPosNormTex::s_Layout{
+		{"a_Position", AttributeType::Float3, 0},
+		{"a_Normal", AttributeType::Float3, 0},
+		{"a_TexCoord", AttributeType::Float2, 0}
+	};
 	
 	const BufferLayout VertexPositionColor::s_Layout{ 
 		{"a_Position", AttributeType::Float3, 0},

@@ -9,6 +9,7 @@ namespace ar
 		LineStrip,
 		Point,
 		Triangle,
+		TriangleStrip,
 		Patch
 	};
 }

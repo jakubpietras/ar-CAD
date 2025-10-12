@@ -148,6 +148,7 @@
   <ItemGroup>
     <ClInclude Include="src\Milling\CutterType.h" />
     <ClInclude Include="src\Milling\MaterialDesc.h" />
+    <ClInclude Include="src\Milling\MillingStock.h" />
     <ClInclude Include="src\SimEditorConstants.h" />
     <ClInclude Include="src\Layers\SimSceneLayer.h" />
     <ClInclude Include="src\SimRenderer.h" />
@@ -155,15 +156,18 @@
     <ClInclude Include="src\SimApp.h" />
     <ClInclude Include="src\SimState.h" />
     <ClInclude Include="src\Tools\GCodeTools.h" />
+    <ClInclude Include="src\Tools\Heightmap.h" />
     <ClInclude Include="src\Tools\StringTools.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Layers\SimSceneLayer.cpp" />
+    <ClCompile Include="src\Milling\MillingStock.cpp" />
     <ClCompile Include="src\SimRenderer.cpp" />
     <ClCompile Include="src\Controllers\SimUIController.cpp" />
     <ClCompile Include="src\SimApp.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="src\Tools\GCodeTools.cpp" />
+    <ClCompile Include="src\Tools\Heightmap.cpp" />
     <ClCompile Include="src\Tools\StringTools.cpp" />
   </ItemGroup>
   <ItemGroup>
