@@ -11,13 +11,13 @@ MillingStock::MillingStock(const MaterialDesc& material)
 	m_SideMesh = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
 	UpdateMaterialDesc(material);
 	SetupHeightmap();
+	InitTexture();
 }
 
 void MillingStock::UpdateMaterialDesc(const MaterialDesc& material)
 {
 	m_Material = material;
 	//m_HMap->ResetMap(material);
-	// dsdd
 	GenerateTopMesh();
 	GenerateSideMesh();
 }
@@ -25,7 +25,7 @@ void MillingStock::UpdateMaterialDesc(const MaterialDesc& material)
 void MillingStock::Render(ar::mat::Mat4 vpMat, ar::mat::Vec3 cameraPos)
 {
 
-	const ar::mat::Vec3 lightPos = { -8.0f, 7.0f, -8.0f};
+	const ar::mat::Vec3 lightPos = { 0.0f, 6.0f, 0.0f};
 	const ar::mat::Vec3 lightColor = { 1.f, 1.f, 1.f };
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -39,6 +39,8 @@ void MillingStock::Render(ar::mat::Mat4 vpMat, ar::mat::Vec3 cameraPos)
 	shaderTop->SetVec3("u_LightColor", lightColor);
 	ar::RenderCommand::BindTexture(m_HMap, 0);
 	shaderTop->SetInt("u_Heightmap", 0);
+	ar::RenderCommand::BindTexture(m_MetalTex, 1);
+	shaderTop->SetInt("u_Texture", 1);
 	ar::Renderer::Submit(ar::Primitive::Triangle, shaderTop, m_TopMesh, m_TopMesh->IsIndexed());
 
 	auto shaderSide = ar::ShaderLib::Get("MillingSide");
@@ -46,6 +48,7 @@ void MillingStock::Render(ar::mat::Mat4 vpMat, ar::mat::Vec3 cameraPos)
 	shaderSide->SetVec3("u_CameraPos", cameraPos);
 	shaderSide->SetVec3("u_LightPos", lightPos);
 	shaderSide->SetVec3("u_LightColor", lightColor);
+	shaderSide->SetVec3("u_SurfaceColor", { 0.5f, 0.5f, 1.0f });
 	ar::RenderCommand::BindTexture(m_HMap, 0);
 	shaderSide->SetInt("u_Heightmap", 0);
 	ar::Renderer::Submit(ar::Primitive::Triangle, shaderSide, m_SideMesh, m_SideMesh->IsIndexed());
@@ -308,4 +311,9 @@ void MillingStock::SetupHeightmap()
 
 
 	m_HMap->SetData(initData.data(), desc.Width * desc.Height);
+}
+
+void MillingStock::InitTexture()
+{
+	m_MetalTex = ar::Ref<ar::Texture>(ar::Texture::Create("resources/textures/metal.jpg"));
 }

@@ -1,10 +1,14 @@
 #version 450 core
 in vec3 WorldPosFrag;
 in vec3 NormFrag;
+in vec2 TexCoordFrag;
+
 uniform vec3 u_CameraPos;
 uniform vec3 u_LightPos;
 uniform vec3 u_LightColor;
 out vec4 FragColor;  
+
+uniform sampler2D u_Texture;
 
 const float kd = 0.5f, ks = 0.2f, m = 100.f;
 const vec3 ambientColor = vec3(0.2f, 0.2f, 0.2f);
@@ -16,12 +20,12 @@ void main()
 	vec3 lightDir = normalize(u_LightPos - WorldPosFrag);
 
 	// ambient
-	vec3 ambient = ambientColor; // * texture()
+	vec3 ambient = ambientColor * texture(u_Texture, TexCoordFrag).rgb;
 
 	// diffuse
 	float NdotL = dot(normal, lightDir);
 	float diff = max(NdotL, 0.0f);
-	vec3 diffuse = kd * surfaceColor * diff; // * texture()
+	vec3 diffuse = kd * diff * texture(u_Texture, TexCoordFrag).rgb;
 
 	// specular
 	vec3 viewDir = normalize(u_CameraPos - WorldPosFrag);

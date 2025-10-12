@@ -6,22 +6,23 @@ uniform vec3 u_LightPos;
 uniform vec3 u_LightColor;
 out vec4 FragColor;  
 
-const float kd = 0.5f, ks = 0.2f, m = 100.f;
+uniform vec3 u_SurfaceColor;
+
+const float kd = 0.8f, ks = 0.2f, m = 64.f;
 const vec3 ambientColor = vec3(0.2f, 0.2f, 0.2f);
-const vec3 surfaceColor = vec3(1.f, 1.f, 1.f);
 
 void main()
 {
-		vec3 normal = normalize(NormFrag);
+	vec3 normal = normalize(NormFrag);
 	vec3 lightDir = normalize(u_LightPos - WorldPosFrag);
 
 	// ambient
-	vec3 ambient = ambientColor; // * texture()
+	vec3 ambient = ambientColor;
 
 	// diffuse
 	float NdotL = dot(normal, lightDir);
 	float diff = max(NdotL, 0.0f);
-	vec3 diffuse = kd * surfaceColor * diff; // * texture()
+	vec3 diffuse = kd * u_SurfaceColor * diff;
 
 	// specular
 	vec3 viewDir = normalize(u_CameraPos - WorldPosFrag);

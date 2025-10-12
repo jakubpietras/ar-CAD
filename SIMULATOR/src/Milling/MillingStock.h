@@ -22,8 +22,9 @@ private:
 	std::vector<ar::VertexPosNormTex> GenerateVertsSide();
 	std::vector<uint32_t> GenerateIndicesSide();
 	void SetupHeightmap();
+	void InitTexture();
 
 	MaterialDesc m_Material;
 	ar::Ref<ar::VertexArray> m_TopMesh, m_SideMesh;
-	ar::Ref<ar::Texture> m_HMap;
+	ar::Ref<ar::Texture> m_HMap, m_MetalTex;
 };

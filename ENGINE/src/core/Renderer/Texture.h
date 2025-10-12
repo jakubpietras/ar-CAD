@@ -26,7 +26,7 @@ namespace ar
 		static Texture* Create(const TextureDesc& desc);
 		static Texture* Create(const std::string& filepath);
 		inline const uint32_t GetID() const { return m_ID; };
-		inline const void BindSlot(size_t slot) const { glBindTextureUnit(0, m_ID); }
+		inline const void BindSlot(size_t slot) const { glBindTextureUnit(slot, m_ID); }
 
 	protected:
 		uint32_t m_ID;
