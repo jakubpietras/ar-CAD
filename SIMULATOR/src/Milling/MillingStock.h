@@ -27,4 +27,5 @@ private:
 	MaterialDesc m_Material;
 	ar::Ref<ar::VertexArray> m_TopMesh, m_SideMesh;
 	ar::Ref<ar::Texture> m_HMap, m_MetalTex;
+	ar::Ref<ar::ComputeShader> m_CompShader;
 };

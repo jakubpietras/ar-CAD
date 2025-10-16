@@ -53,7 +53,7 @@ namespace ar
 		glPointSize(size);
 	}
 
-	inline void RenderCommand::DispatchCompute(Ref<ComputeShader> shader, uint32_t x, uint32_t y, uint32_t z)
+	void RenderCommand::DispatchCompute(Ref<ComputeShader> shader, uint32_t x, uint32_t y, uint32_t z)
 	{
 		shader->Use();
 		glDispatchCompute(x, y, z);

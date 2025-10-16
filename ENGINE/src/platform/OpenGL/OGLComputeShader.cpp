@@ -6,7 +6,7 @@ namespace ar
 	OGLComputeShader::OGLComputeShader(const std::string& path)
 	{
 		std::string src = LoadSource(path);
-		auto shader = CompileShader(GL_COMPUTE_SHADER, path);
+		auto shader = CompileShader(GL_COMPUTE_SHADER, src);
 		LinkProgram(shader);
 		DeleteShader(shader);
 	}
@@ -81,5 +81,27 @@ namespace ar
 	{
 		glDetachShader(m_programID, shader);
 		glDeleteShader(shader);
+	}
+	void OGLComputeShader::SetFloat(const std::string& name, float value) const
+	{
+		auto location = glGetUniformLocation(m_programID, name.c_str());
+		glProgramUniform1f(m_programID, location, value);
+	}
+	void OGLComputeShader::SetBool(const std::string& name, bool value) const
+	{
+		if (value)
+			SetInt(name, 1);
+		else
+			SetInt(name, 0);
+	}
+	void OGLComputeShader::SetUInt(const std::string& name, uint32_t value) const
+	{
+		auto location = glGetUniformLocation(m_programID, name.c_str());
+		glProgramUniform1ui(m_programID, location, value);
+	}
+	void OGLComputeShader::SetInt(const std::string& name, int value) const
+	{
+		auto location = glGetUniformLocation(m_programID, name.c_str());
+		glProgramUniform1i(m_programID, location, value);
 	}
 }

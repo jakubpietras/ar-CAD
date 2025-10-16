@@ -13,6 +13,7 @@ MillingStock::MillingStock(const MaterialDesc& material)
 	SetupHeightmap();
 	InitTexture();
 	ar::DebugRenderer::AddPoint({ 0.f, 6.0f, 0.f }, { 1.f, 1.f, 0.f });
+	m_CompShader = ar::Ref<ar::ComputeShader>(ar::ComputeShader::Create("resources/shaders/OpenGL/milling.comp"));
 #ifdef DEBUG
 #endif
 
@@ -32,10 +33,21 @@ void MillingStock::Render(ar::mat::Mat4 vpMat, ar::mat::Vec3 cameraPos)
 	const ar::mat::Vec3 lightPos = { 0.f, 6.0f, 0.f };
 	const ar::mat::Vec3 lightColor = { 1.f, 1.f, 1.f };
 
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);ds
 
 	if (!m_TopMesh)
 		return;
+
+	// compute heightmap
+	m_HMap->BindImageUnit(0, GL_READ_WRITE);
+	m_CompShader->SetFloat("u_TexelWidth", m_Material.Size.x / (m_Material.Samples.u - 1));
+	m_CompShader->SetFloat("u_TexelHeight", m_Material.Size.y / (m_Material.Samples.v - 1));
+	m_CompShader->SetFloat("u_OffsetX", -m_Material.Size.x / 2.f);
+	m_CompShader->SetFloat("u_OffsetY", -m_Material.Size.y / 2.f);
+	ar::RenderCommand::DispatchCompute(m_CompShader, (unsigned int)m_Material.Samples.u, (unsigned int)m_Material.Samples.v, 1);
+	ar::RenderCommand::MemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+
 	auto shaderTop = ar::ShaderLib::Get("MillingTop");
 	shaderTop->SetMat4("u_VP", vpMat);
 	shaderTop->SetVec3("u_CameraPos", cameraPos);
@@ -310,29 +322,26 @@ void MillingStock::SetupHeightmap()
 	m_HMap = ar::Ref<ar::Texture>(ar::Texture::Create(desc));
 	auto height = m_Material.Size.y - m_Material.BaseHeight;
 	std::vector<float> initData(desc.Width * desc.Height, height);
-
-	// ========== DEBUG
-	float heightDebug = 0.0f;
-	for (int v = 0; v < 10; v++)
-	{
-		for (int u = 0; u < m_Material.Samples.u; u++)
-		{
-			int index = v * m_Material.Samples.u + u;
-			initData[index] = heightDebug;
-		}
-	}
-	heightDebug += 0.2f;
-	for (int v = 10; v < 20; v++)
-	{
-		for (int u = 0; u < m_Material.Samples.u; u++)
-		{
-			int index = v * m_Material.Samples.u + u;
-			initData[index] = heightDebug;
-		}
-	}
-	// =================
-
-
+	//// ========== DEBUGg
+	//float heightDebug = 0.0f;
+	//for (int v = 0; v < 10; v++)
+	//{
+	//	for (int u = 0; u < m_Material.Samples.u; u++)
+	//	{
+	//		int index = v * m_Material.Samples.u + u;
+	//		initData[index] = heightDebug;
+	//	}
+	//}
+	//heightDebug += 0.2f;
+	//for (int v = 10; v < 20; v++)
+	//{
+	//	for (int u = 0; u < m_Material.Samples.u; u++)
+	//	{
+	//		int index = v * m_Material.Samples.u + u;
+	//		initData[index] = heightDebug;
+	//	}
+	//}
+	//// =================
 	m_HMap->SetData(initData.data(), desc.Width * desc.Height);
 }
 
