@@ -17,6 +17,9 @@ namespace ar
 		GLenum GetGLInternalFormat(TextureFormat format);
 
 		TextureDesc m_Description;
+
+		// Inherited via Texture
+		const void BindImageUnit(uint32_t unit, GLenum access) override;
 	};
 }
 

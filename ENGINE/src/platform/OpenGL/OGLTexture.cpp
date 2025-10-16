@@ -136,4 +136,9 @@ namespace ar
 		}
 	}
 
+	const void OGLTexture::BindImageUnit(uint32_t unit, GLenum access)
+	{
+		glBindImageTexture(unit, m_ID, 0, GL_FALSE, 0, access, GetGLInternalFormat(m_Description.Format));
+	}
+
 }

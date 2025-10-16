@@ -2,7 +2,7 @@
 #include "core/Renderer/Renderer.h"
 #include "core/Renderer/Texture.h"
 #include "core/Scene/DebugRenderer.h"
-//#define DEBUG
+// #define DEBUG
 
 MillingStock::MillingStock(const MaterialDesc& material)
 	: m_Material(material)
@@ -12,6 +12,10 @@ MillingStock::MillingStock(const MaterialDesc& material)
 	UpdateMaterialDesc(material);
 	SetupHeightmap();
 	InitTexture();
+	ar::DebugRenderer::AddPoint({ 0.f, 6.0f, 0.f }, { 1.f, 1.f, 0.f });
+#ifdef DEBUG
+#endif
+
 }
 
 void MillingStock::UpdateMaterialDesc(const MaterialDesc& material)
@@ -25,7 +29,7 @@ void MillingStock::UpdateMaterialDesc(const MaterialDesc& material)
 void MillingStock::Render(ar::mat::Mat4 vpMat, ar::mat::Vec3 cameraPos)
 {
 
-	const ar::mat::Vec3 lightPos = { 0.0f, 6.0f, 0.0f};
+	const ar::mat::Vec3 lightPos = { 0.f, 6.0f, 0.f };
 	const ar::mat::Vec3 lightColor = { 1.f, 1.f, 1.f };
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -53,6 +57,8 @@ void MillingStock::Render(ar::mat::Mat4 vpMat, ar::mat::Vec3 cameraPos)
 	shaderSide->SetInt("u_Heightmap", 0);
 	ar::Renderer::Submit(ar::Primitive::Triangle, shaderSide, m_SideMesh, m_SideMesh->IsIndexed());
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	ar::DebugRenderer::Render(vpMat);
+
 #ifdef DEBUG
 	ar::DebugRenderer::Render(vpMat);
 #endif
@@ -304,10 +310,27 @@ void MillingStock::SetupHeightmap()
 	m_HMap = ar::Ref<ar::Texture>(ar::Texture::Create(desc));
 	auto height = m_Material.Size.y - m_Material.BaseHeight;
 	std::vector<float> initData(desc.Width * desc.Height, height);
-	/*initData[0] = 0;
-	initData[100] = 0;
-	initData[1] = 0.5;
-	initData[101] = 0.5;*/
+
+	// ========== DEBUG
+	float heightDebug = 0.0f;
+	for (int v = 0; v < 10; v++)
+	{
+		for (int u = 0; u < m_Material.Samples.u; u++)
+		{
+			int index = v * m_Material.Samples.u + u;
+			initData[index] = heightDebug;
+		}
+	}
+	heightDebug += 0.2f;
+	for (int v = 10; v < 20; v++)
+	{
+		for (int u = 0; u < m_Material.Samples.u; u++)
+		{
+			int index = v * m_Material.Samples.u + u;
+			initData[index] = heightDebug;
+		}
+	}
+	// =================
 
 
 	m_HMap->SetData(initData.data(), desc.Width * desc.Height);
@@ -315,5 +338,5 @@ void MillingStock::SetupHeightmap()
 
 void MillingStock::InitTexture()
 {
-	m_MetalTex = ar::Ref<ar::Texture>(ar::Texture::Create("resources/textures/metal.jpg"));
+	m_MetalTex = ar::Ref<ar::Texture>(ar::Texture::Create("resources/textures/marble.jpg"));
 }

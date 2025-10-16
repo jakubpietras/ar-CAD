@@ -91,6 +91,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\core\Renderer\ComputeShader.cpp" />
     <ClCompile Include="src\core\Tests\tests.cpp" />
     <ClCompile Include="src\core\Utils\IntersectUtils.cpp" />
     <ClCompile Include="src\core\ImGui\ImGuiUtils.cpp" />
@@ -116,6 +117,7 @@
     <ClCompile Include="src\core\Utils\Parametric.cpp" />
     <ClCompile Include="src\core\Utils\SurfaceUtils.cpp" />
     <ClCompile Include="src\core\Utils\TorusUtils.cpp" />
+    <ClCompile Include="src\platform\OpenGL\OGLComputeShader.cpp" />
     <ClCompile Include="src\platform\OpenGL\OGLTexture.cpp" />
     <ClCompile Include="src\platform\OpenGL\OGLFramebuffer.cpp" />
     <ClCompile Include="src\core\Renderer\Framebuffer.cpp" />
@@ -152,6 +154,8 @@
     <ClCompile Include="src\core\UID.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\core\Renderer\ComputeShader.h" />
+    <ClInclude Include="src\core\Renderer\ShaderStorageBuffer.h" />
     <ClInclude Include="src\core\Tests\tests.h" />
     <ClInclude Include="src\core\Utils\IntersectUtils.h" />
     <ClInclude Include="src\core\ImGui\ImGuiUtils.h" />
@@ -182,6 +186,7 @@
     <ClInclude Include="src\core\Utils\GeneralUtils.h" />
     <ClInclude Include="src\core\Utils\SurfaceUtils.h" />
     <ClInclude Include="src\core\Utils\TorusUtils.h" />
+    <ClInclude Include="src\platform\OpenGL\OGLComputeShader.h" />
     <ClInclude Include="src\platform\OpenGL\OGLTexture.h" />
     <ClInclude Include="src\platform\OpenGL\OGLFramebuffer.h" />
     <ClInclude Include="src\core\Renderer\Framebuffer.h" />
@@ -247,6 +252,7 @@
     <None Include="src\resources\shaders\OpenGL\grid.vert" />
     <None Include="src\resources\shaders\OpenGL\default.frag" />
     <None Include="src\resources\shaders\OpenGL\default.vert" />
+    <None Include="src\resources\shaders\OpenGL\milling.comp" />
     <None Include="src\resources\shaders\OpenGL\millingSide.frag" />
     <None Include="src\resources\shaders\OpenGL\millingSide.vert" />
     <None Include="src\resources\shaders\OpenGL\millingTop.frag" />

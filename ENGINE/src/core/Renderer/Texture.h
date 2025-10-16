@@ -27,8 +27,10 @@ namespace ar
 		static Texture* Create(const std::string& filepath);
 		inline const uint32_t GetID() const { return m_ID; };
 		inline const void BindSlot(size_t slot) const { glBindTextureUnit(slot, m_ID); }
+		virtual const void BindImageUnit(uint32_t unit, GLenum access) = 0;
 
 	protected:
+		TextureDesc m_Description;
 		uint32_t m_ID;
 	};
 }

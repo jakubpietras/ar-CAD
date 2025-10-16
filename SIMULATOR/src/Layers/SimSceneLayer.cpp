@@ -37,7 +37,7 @@ void SimSceneLayer::OnUpdate()
 	m_Renderer->Render(vpMat);
 	if (m_State.ShouldShowPaths && !m_MachineCoords.empty())
 		m_Renderer->RenderPaths(m_PathMesh, vpMat);
-	m_Renderer->RenderMaterial(vpMat, m_Block, m_Camera->GetPosition());
+	m_Renderer->RenderMaterial(vpMat, m_Block, ar::mat::ToVec4(m_Camera->GetOffset()) + m_Camera->GetPosition());
 }
 
 void SimSceneLayer::OnEvent(ar::Event& event)

@@ -1,0 +1,30 @@
+#pragma once
+#include <vector>
+#include "VertexTypes.h"
+
+namespace ar
+{
+	template <typename T>
+	class ShaderStorageBuffer
+	{
+	public:
+		ShaderStorageBuffer() { glCreateBuffers(1, &m_ID); }
+		~ShaderStorageBuffer() { glDeleteBuffers(1, &m_ID); }
+		inline void Bind(uint32_t index) 
+		{ 
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, index, m_ID);
+		}
+		virtual void UpdateSubData(const void* data, size_t offset, size_t size, size_t count)
+		{
+			glNamedBufferSubData(m_ID, offset, size, data);
+		}
+		virtual void UpdateData(const void* data, size_t size, size_t count)
+		{
+			glNamedBufferData(m_ID, size, data, GL_STATIC_DRAW);
+			AR_GL_CHECK();
+		}
+
+	private:
+		uint32_t m_ID;
+	};
+}

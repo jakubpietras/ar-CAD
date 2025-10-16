@@ -2,6 +2,7 @@
 #include "RendererAPI.h"
 #include "Primitive.h"
 #include "LogUtils.h"
+#include "ComputeShader.h"
 
 namespace ar
 {
@@ -17,6 +18,7 @@ namespace ar
 		static void SetDepthMask(uint32_t flag);
 		static void SetTessellationPatchSize(size_t size);
 		static void BindTexture(ar::Ref<ar::Texture> texture, size_t slot);
+		static void SetPointSize(float size = 1.);
 
 		inline static void Draw(const Primitive primitive,
 			const std::shared_ptr<VertexArray>& vertexArray, uint32_t instanceCount = 1)
@@ -36,6 +38,9 @@ namespace ar
 		{
 			s_RendererAPI->DrawEmpty(primitive, vertexCount, instanceCount);
 		}
+
+		static void DispatchCompute(Ref<ComputeShader> shader, uint32_t x, uint32_t y, uint32_t z);
+		inline static void MemoryBarrier(GLbitfield barriers) { glMemoryBarrier(barriers); }
 
 	private:
 		static RendererAPI* s_RendererAPI;

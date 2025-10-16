@@ -177,6 +177,12 @@
     <ClCompile Include="src\core\Tests\tests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\core\Renderer\ComputeShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\platform\OpenGL\OGLComputeShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\core\Application.h">
@@ -392,6 +398,15 @@
     <ClInclude Include="src\core\Tests\tests.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\core\Renderer\ComputeShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\platform\OpenGL\OGLComputeShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\Renderer\ShaderStorageBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\resources\shaders\OpenGL\default.vert" />
@@ -428,6 +443,7 @@
     <None Include="src\resources\shaders\OpenGL\millingTop.frag" />
     <None Include="src\resources\shaders\OpenGL\millingSide.frag" />
     <None Include="src\resources\shaders\OpenGL\millingSide.vert" />
+    <None Include="src\resources\shaders\OpenGL\milling.comp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\resources\icons\logo.png">

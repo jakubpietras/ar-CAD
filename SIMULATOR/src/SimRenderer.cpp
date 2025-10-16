@@ -40,7 +40,7 @@ void SimRenderer::RenderMaterial(ar::mat::Mat4 vp, MillingStock& block, ar::mat:
 
 void SimRenderer::RenderCutter(ar::mat::Mat4 vp)
 {
-	// TODO
+	// TODOdsddjsxdddsasssdd
 }
 
 void SimRenderer::RenderPaths(ar::Ref<ar::VertexArray> path, ar::mat::Mat4 vp)

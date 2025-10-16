@@ -48,5 +48,17 @@ namespace ar
 		texture->BindSlot(slot);
 	}
 
+	void RenderCommand::SetPointSize(float size)
+	{
+		glPointSize(size);
+	}
+
+	inline void RenderCommand::DispatchCompute(Ref<ComputeShader> shader, uint32_t x, uint32_t y, uint32_t z)
+	{
+		shader->Use();
+		glDispatchCompute(x, y, z);
+		glUseProgram(0);
+	}
+
 	ar::RendererAPI* RenderCommand::s_RendererAPI = new ar::OGLRendererAPI();
 }

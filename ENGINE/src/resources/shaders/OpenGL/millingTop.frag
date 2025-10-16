@@ -29,9 +29,9 @@ void main()
 
 	// specular
 	vec3 viewDir = normalize(u_CameraPos - WorldPosFrag);
-	vec3 reflectDir = reflect(-lightDir, normal);
+	vec3 reflectDir = reflect(lightDir, normal);
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), m);
-	vec3 specular = ks * spec * vec3(1.0f);
+	vec3 specular = (NdotL > 0.0) ? ks * spec * vec3(1.0f) : vec3(0.5f);
 
 	vec3 result = ambient + diffuse + specular;
 	FragColor = vec4(result, 1.0f);
