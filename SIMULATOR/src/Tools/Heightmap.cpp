@@ -1,12 +1,60 @@
 #include "Heightmap.h"
 
-Heightmap::Heightmap(size_t sizeX, size_t sizeY)
+Heightmap::Heightmap(const MaterialDesc& material, std::vector<ar::mat::Vec3>& pathCoords)
+	: m_SamplesX(material.Samples.u), m_SamplesY(material.Samples.v),
+	m_SizeX(material.Size.x), m_SizeY(material.Size.y), m_PathCoords(pathCoords),
+	m_PathBuffer()
 {
-
+	ar::TextureDesc desc{};
+	desc.Format = ar::TextureFormat::R32F;
+	desc.Width = material.Samples.u;
+	desc.Height = material.Samples.v;
+	m_Texture = ar::Ref<ar::Texture>(ar::Texture::Create(desc));
+	auto height = material.Size.y - material.BaseHeight;
+	std::vector<float> initData(desc.Width * desc.Height, height);
+	m_Texture->SetData(initData.data(), desc.Width * desc.Height);
+	m_CompShader = ar::Ref<ar::ComputeShader>(ar::ComputeShader::Create("resources/shaders/OpenGL/milling.comp"));
 }
 
-void Heightmap::ResetMap(const MaterialDesc& material)
+void Heightmap::ResetMap(const MaterialDesc& newMaterial)
 {
-	auto effectiveHeight = material.Size.y - material.BaseHeight;
-	m_HeightData = std::vector<float>(material.Samples.u * material.Samples.v, effectiveHeight);
+	m_SamplesX = newMaterial.Samples.u;
+	m_SamplesY = newMaterial.Samples.v;
+	m_SizeX = newMaterial.Size.x;
+	m_SizeY = newMaterial.Size.y;
+
+	auto height = newMaterial.Size.y - newMaterial.BaseHeight;
+	std::vector<float> initData(newMaterial.Samples.u * newMaterial.Samples.v, height);
+	m_Texture->SetData(initData.data(), newMaterial.Samples.u * newMaterial.Samples.v);
+}
+
+ar::mat::Vec3 Heightmap::UpdateMap(const ar::mat::Vec3& start, float dt, float speed)
+{
+	// todo
+	return ar::mat::Vec3();
+}
+
+void Heightmap::UpdateMapInstant(CutterType cutterType, float cutterRadius)
+{
+	m_PathBuffer->UpdateData(m_PathCoords.data(), m_PathCoords.size() * sizeof(ar::mat::Vec3));
+	auto pathSegments = static_cast<unsigned int>(m_PathCoords.size() - 1);
+	bool isFlat = cutterType == CutterType::FLAT;
+
+	m_Texture->BindImageUnit(0, GL_READ_WRITE);
+	m_PathBuffer->Bind(1);
+	m_CompShader->SetUInt("u_PathSegments", pathSegments);
+	m_CompShader->SetFloat("u_CutterRadius", cutterRadius);
+	m_CompShader->SetBool("u_IsCutterFlat", isFlat);
+	m_CompShader->SetFloat("u_TexelWidth", m_SizeX / (m_SamplesX - 1));
+	m_CompShader->SetFloat("u_TexelHeight", m_SizeY / (m_SamplesY - 1));
+	m_CompShader->SetFloat("u_OffsetX", -m_SizeX / 2.0f);
+	m_CompShader->SetFloat("u_OffsetY", -m_SizeY / 2.0f);
+
+	ar::RenderCommand::DispatchCompute(m_CompShader, (unsigned int)m_SamplesX, (unsigned int)m_SamplesY, 1);
+	ar::RenderCommand::MemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+}
+
+void Heightmap::InitPathBuffer()
+{
+	m_PathBuffer->UpdateData(m_PathCoords.data(), m_PathCoords.size() * sizeof(ar::mat::Vec3));
 }

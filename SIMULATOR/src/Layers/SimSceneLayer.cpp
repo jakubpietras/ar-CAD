@@ -13,7 +13,8 @@ SimSceneLayer::SimSceneLayer(SimState& state)
 		SimEditorCameraConstants::FOV, 0.5f,
 		SimEditorCameraConstants::NearPlane, SimEditorCameraConstants::FarPlane,
 		SimEditorCameraConstants::ArcballRadius)),
-	m_Block(state.Material)
+	m_Block(state.Material),
+	m_HMap(state.Material, m_MachineCoords)
 {
 	m_State.Viewport = { 1920.f, 1080.f };
 	m_State.ViewportResized = true;
@@ -35,9 +36,13 @@ void SimSceneLayer::OnUpdate()
 	ProcessStateChanges();
 	auto vpMat = m_Camera->GetCamera()->GetVP();
 	m_Renderer->Render(vpMat);
-	if (m_State.ShouldShowPaths && !m_MachineCoords.empty())
-		m_Renderer->RenderPaths(m_PathMesh, vpMat);
-	m_Renderer->RenderMaterial(vpMat, m_Block, ar::mat::ToVec4(m_Camera->GetOffset()) + m_Camera->GetPosition());
+	if (!m_MachineCoords.empty())
+	{
+		if (m_State.ShouldShowPaths) 
+			m_Renderer->RenderPaths(m_PathMesh, vpMat);
+		m_Renderer->RenderMaterial(vpMat, ar::mat::ToVec4(m_Camera->GetOffset()) + m_Camera->GetPosition(),
+			m_Block, m_HMap.GetTexture());
+	}
 }
 
 void SimSceneLayer::OnEvent(ar::Event& event)

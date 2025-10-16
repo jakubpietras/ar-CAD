@@ -31,16 +31,17 @@ void SimRenderer::RenderGrid(ar::mat::Mat4 vp)
 	ar::RenderCommand::ToggleDepthTest(true);
 }
 
-void SimRenderer::RenderMaterial(ar::mat::Mat4 vp, MillingStock& block, ar::mat::Vec3 cameraPos)
+void SimRenderer::RenderMaterial(ar::mat::Mat4 vp, ar::mat::Vec3 cameraPos, MillingStock& block,
+	ar::Ref<ar::Texture> heightMap)
 {
 	m_Framebuffer->Bind();
-	block.Render(vp, cameraPos);
+	block.Render(vp, cameraPos, heightMap);
 	m_Framebuffer->Unbind();
 }
 
 void SimRenderer::RenderCutter(ar::mat::Mat4 vp)
 {
-	// TODOdsddjsxdddsasssdd
+	// TODOdsddjsxdddsasssddds
 }
 
 void SimRenderer::RenderPaths(ar::Ref<ar::VertexArray> path, ar::mat::Mat4 vp)

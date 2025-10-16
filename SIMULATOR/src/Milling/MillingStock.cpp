@@ -10,13 +10,8 @@ MillingStock::MillingStock(const MaterialDesc& material)
 	m_TopMesh = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
 	m_SideMesh = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
 	UpdateMaterialDesc(material);
-	SetupHeightmap();
 	InitTexture();
 	ar::DebugRenderer::AddPoint({ 0.f, 6.0f, 0.f }, { 1.f, 1.f, 0.f });
-	m_CompShader = ar::Ref<ar::ComputeShader>(ar::ComputeShader::Create("resources/shaders/OpenGL/milling.comp"));
-#ifdef DEBUG
-#endif
-
 }
 
 void MillingStock::UpdateMaterialDesc(const MaterialDesc& material)
@@ -27,7 +22,7 @@ void MillingStock::UpdateMaterialDesc(const MaterialDesc& material)
 	GenerateSideMesh();
 }
 
-void MillingStock::Render(ar::mat::Mat4 vpMat, ar::mat::Vec3 cameraPos)
+void MillingStock::Render(ar::mat::Mat4 vpMat, ar::mat::Vec3 cameraPos, ar::Ref<ar::Texture> heightMap)
 {
 
 	const ar::mat::Vec3 lightPos = { 0.f, 6.0f, 0.f };
@@ -37,23 +32,12 @@ void MillingStock::Render(ar::mat::Mat4 vpMat, ar::mat::Vec3 cameraPos)
 
 	if (!m_TopMesh)
 		return;
-
-	// compute heightmap
-	m_HMap->BindImageUnit(0, GL_READ_WRITE);
-	m_CompShader->SetFloat("u_TexelWidth", m_Material.Size.x / (m_Material.Samples.u - 1));
-	m_CompShader->SetFloat("u_TexelHeight", m_Material.Size.y / (m_Material.Samples.v - 1));
-	m_CompShader->SetFloat("u_OffsetX", -m_Material.Size.x / 2.f);
-	m_CompShader->SetFloat("u_OffsetY", -m_Material.Size.y / 2.f);
-	ar::RenderCommand::DispatchCompute(m_CompShader, (unsigned int)m_Material.Samples.u, (unsigned int)m_Material.Samples.v, 1);
-	ar::RenderCommand::MemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-
-
 	auto shaderTop = ar::ShaderLib::Get("MillingTop");
 	shaderTop->SetMat4("u_VP", vpMat);
 	shaderTop->SetVec3("u_CameraPos", cameraPos);
 	shaderTop->SetVec3("u_LightPos", lightPos);
 	shaderTop->SetVec3("u_LightColor", lightColor);
-	ar::RenderCommand::BindTexture(m_HMap, 0);
+	ar::RenderCommand::BindTexture(heightMap, 0);
 	shaderTop->SetInt("u_Heightmap", 0);
 	ar::RenderCommand::BindTexture(m_MetalTex, 1);
 	shaderTop->SetInt("u_Texture", 1);
@@ -65,7 +49,7 @@ void MillingStock::Render(ar::mat::Mat4 vpMat, ar::mat::Vec3 cameraPos)
 	shaderSide->SetVec3("u_LightPos", lightPos);
 	shaderSide->SetVec3("u_LightColor", lightColor);
 	shaderSide->SetVec3("u_SurfaceColor", { 0.5f, 0.5f, 1.0f });
-	ar::RenderCommand::BindTexture(m_HMap, 0);
+	ar::RenderCommand::BindTexture(heightMap, 0);
 	shaderSide->SetInt("u_Heightmap", 0);
 	ar::Renderer::Submit(ar::Primitive::Triangle, shaderSide, m_SideMesh, m_SideMesh->IsIndexed());
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -310,39 +294,6 @@ std::vector<uint32_t> MillingStock::GenerateIndicesSide()
 	}
 
 	return indices;
-}
-
-void MillingStock::SetupHeightmap()
-{
-	ar::TextureDesc desc{};
-	desc.Format = ar::TextureFormat::R32F;
-	desc.Width = m_Material.Samples.u;
-	desc.Height = m_Material.Samples.v;
-
-	m_HMap = ar::Ref<ar::Texture>(ar::Texture::Create(desc));
-	auto height = m_Material.Size.y - m_Material.BaseHeight;
-	std::vector<float> initData(desc.Width * desc.Height, height);
-	//// ========== DEBUGg
-	//float heightDebug = 0.0f;
-	//for (int v = 0; v < 10; v++)
-	//{
-	//	for (int u = 0; u < m_Material.Samples.u; u++)
-	//	{
-	//		int index = v * m_Material.Samples.u + u;
-	//		initData[index] = heightDebug;
-	//	}
-	//}
-	//heightDebug += 0.2f;
-	//for (int v = 10; v < 20; v++)
-	//{
-	//	for (int u = 0; u < m_Material.Samples.u; u++)
-	//	{
-	//		int index = v * m_Material.Samples.u + u;
-	//		initData[index] = heightDebug;
-	//	}
-	//}
-	//// =================
-	m_HMap->SetData(initData.data(), desc.Width * desc.Height);
 }
 
 void MillingStock::InitTexture()

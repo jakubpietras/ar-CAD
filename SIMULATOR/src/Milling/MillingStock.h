@@ -10,7 +10,7 @@ public:
 	MillingStock(const MaterialDesc& material);
 	
 	void UpdateMaterialDesc(const MaterialDesc& material);
-	void Render(ar::mat::Mat4 vpMat, ar::mat::Vec3 cameraPos);
+	void Render(ar::mat::Mat4 vpMat, ar::mat::Vec3 cameraPos, ar::Ref<ar::Texture> heightMap);
 	inline const ar::Ref<ar::VertexArray> GetMesh() const { return m_TopMesh; }
 
 private:
@@ -21,11 +21,9 @@ private:
 	ar::Ref<ar::VertexArray> GenerateSideMesh();
 	std::vector<ar::VertexPosNormTex> GenerateVertsSide();
 	std::vector<uint32_t> GenerateIndicesSide();
-	void SetupHeightmap();
 	void InitTexture();
 
 	MaterialDesc m_Material;
 	ar::Ref<ar::VertexArray> m_TopMesh, m_SideMesh;
-	ar::Ref<ar::Texture> m_HMap, m_MetalTex;
-	ar::Ref<ar::ComputeShader> m_CompShader;
+	ar::Ref<ar::Texture> m_MetalTex;
 };

@@ -25,6 +25,7 @@ private:
 	std::vector<ar::mat::Vec3> m_MachineCoords;
 	ar::Ref<ar::VertexArray> m_PathMesh;
 	MillingStock m_Block;
+	Heightmap m_HMap;
 
 	void ProcessStateChanges();
 	void UpdatePathMesh();

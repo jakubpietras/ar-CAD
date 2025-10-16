@@ -11,7 +11,8 @@ public:
 	void OnResize(ar::mat::Vec2 newVP);
 	void Render(ar::mat::Mat4 vp);
 	void RenderPaths(ar::Ref<ar::VertexArray> path, ar::mat::Mat4 vp);
-	void RenderMaterial(ar::mat::Mat4 vp, MillingStock& block, ar::mat::Vec3 cameraPos);
+	void RenderMaterial(ar::mat::Mat4 vp, ar::mat::Vec3 cameraPos, MillingStock& block,
+		ar::Ref<ar::Texture> heightMap);
 
 	ar::Ref<ar::Framebuffer> GetFramebuffer() const { return m_Framebuffer; }
 private:

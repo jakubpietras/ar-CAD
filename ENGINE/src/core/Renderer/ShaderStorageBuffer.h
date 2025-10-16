@@ -14,11 +14,11 @@ namespace ar
 		{ 
 			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, index, m_ID);
 		}
-		virtual void UpdateSubData(const void* data, size_t offset, size_t size, size_t count)
+		virtual void UpdateSubData(const void* data, size_t offset, size_t size)
 		{
 			glNamedBufferSubData(m_ID, offset, size, data);
 		}
-		virtual void UpdateData(const void* data, size_t size, size_t count)
+		virtual void UpdateData(const void* data, size_t size)
 		{
 			glNamedBufferData(m_ID, size, data, GL_STATIC_DRAW);
 			AR_GL_CHECK();
