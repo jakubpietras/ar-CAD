@@ -3,6 +3,7 @@
 #include "ARMAT.h"
 #include "Milling/MaterialDesc.h"
 #include "Milling/CutterType.h"
+#include "Milling/MillingError.h"
 
 class Heightmap
 {
@@ -13,7 +14,7 @@ public:
 	
 	void ResetMap(const MaterialDesc& material);
 	ar::mat::Vec3 UpdateMap(const ar::mat::Vec3& start, float dt, float speed);
-	void UpdateMapInstant(CutterType cutterType, float cutterRadius);
+	void UpdateMapInstant(CutterType cutterType, float cutterRadius, float cutterHeight);
 
 private:
 	void InitPathBuffer();
@@ -21,6 +22,7 @@ private:
 	std::vector<ar::mat::Vec3>& m_PathCoords;
 	ar::Ref<ar::Texture> m_Texture;
 	ar::Ref<ar::ShaderStorageBuffer<std::vector<ar::mat::Vec3>>> m_PathBuffer;
+	ar::Ref<ar::ShaderStorageBuffer<MillingError>> m_ErrorFlagsBuffer;
 	ar::Ref<ar::ComputeShader> m_CompShader;
 
 	uint32_t m_SamplesX, m_SamplesY;

@@ -84,7 +84,7 @@ void SimUIController::RenderSimulationControlPanel()
 	ImGui::SameLine();
 	if (ImGui::Button("Instant"))
 	{
-		// todo
+		m_State.ShouldMillInstant = true;
 	}
 
 	ImGui::End();

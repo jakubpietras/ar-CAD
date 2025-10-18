@@ -1,47 +1,132 @@
 #version 460 core
 
-struct ArVec3
+layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+layout(r32f, binding = 0) uniform image2D u_ImgOutput;
+
+layout(std430, binding = 1) buffer b_Coords 
 {
-	vec3 Position;
+    vec4 Positions[];
 };
 
-layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
-layout(r32f, binding = 0) uniform image2D u_ImgOutput;
-layout(std430, binding = 1) buffer b_SSBO {
-    ArVec3 positions[];
+layout(std430, binding = 2) buffer b_ErrorFlags
+{
+    int NonCuttingContact;
+	int OverPlunge;
+	int DownMilling;
 };
 
 uniform uint u_PathSegments;
 uniform float u_CutterRadius;
+uniform float u_CutterHeight;
 uniform bool u_IsCutterFlat;
 uniform float u_TexelWidth;
 uniform float u_TexelHeight;
 uniform float u_OffsetX;
 uniform float u_OffsetY;
 
-float CalculateDescend(vec3 p, vec3 start, vec3 end)
+vec3 ProjectPointOntoSegment(vec3 p, vec3 start, vec3 end)
 {
-    return 0.0f;
+    vec3 segment = end - start;
+    vec3 dir = p - start;
+    float t = dot(segment, dir) / dot(segment, segment);
+    t = clamp(t, 0.0f, 1.0f);
+    return start + t * segment;
+}
+
+float CalculateDescFlat(vec3 q, vec3 p)
+{
+    // Calculate descend using Flat drill
+    if (q.z >= p.z)
+        return 0.0f;
+    return p.z - q.z;
+}
+
+float CalculateDescRound(vec3 q, vec3 p)
+{
+    // Cutter's lowest point higher than the surface
+    if (q.z >= p.z)
+        return 0.0f;
+    // Surface higher than the rounded part of the cutter
+    if (p.z > q.z + u_CutterRadius)
+        return p.z - q.z;
+    // Surface within the space of the rounded part of the cutter
+    float H = sqrt(u_CutterRadius * u_CutterRadius - dot(q.xy - p.xy, q.xy - p.xy));
+    float height = q.z + (u_CutterRadius - H);
+    if (height > p.z)
+        return 0.0f;
+    return p.z - height;
+}
+
+bool DetectNonCuttingContact(float descend)
+{
+    if (descend > u_CutterHeight)
+    {
+        atomicCompSwap(NonCuttingContact, 0, 1);
+        return true;
+    }
+    return false;
+}
+
+bool DetectOverPlunge(float descend, float currentHeight)
+{
+    if (currentHeight - descend <= 0)
+    {
+        atomicCompSwap(OverPlunge, 0, 1);
+        return true;
+    }
+    return false;
+}
+
+bool DetectDownMilling(vec3 start, vec3 end, float descend, float eps)
+{
+    vec3 dir = normalize(end - start);
+    bool straightDown = dir.y < (-1.0 + eps);
+    if (descend > 0.0f && straightDown)
+    {
+        atomicCompSwap(DownMilling, 0, 1);
+        return true;
+    }
+    return false;
 }
 
 void main()
 {
 	ivec2 texelCoord = ivec2(gl_GlobalInvocationID.xy);
+    ivec2 imgSize = imageSize(u_ImgOutput);
+    
+    if (texelCoord.x >= imgSize.x || texelCoord.y >= imgSize.y)
+        return;
     float currentHeight = imageLoad(u_ImgOutput, texelCoord).r;
+    float descend = 0.0f;
 
+    // Middle point of a heightmap cell
     vec3 p = vec3(
     u_OffsetX + texelCoord.x * u_TexelWidth,
-    currentHeight,
-    u_OffsetY + texelCoord.y * u_TexelHeight
+    u_OffsetY + texelCoord.y * u_TexelHeight,
+    1.5f + currentHeight
     );
 
-    imageStore(u_ImgOutput, texelCoord, vec4(0.0, 0.0, 0.0, 0.0));
+    for (int seg = 0; seg < u_PathSegments; seg++)
+    {
+        vec3 start = Positions[seg].xyz;
+        vec3 end = Positions[seg + 1].xyz;
 
-//	vec3 corners[4] = vec3[](
-//    p,
-//    vec3(p.x + u_TexelWidth, currentHeight.x, p.z),
-//    vec3(p.x, currentHeight.x, p.z - u_TexelHeight),
-//    vec3(p.x + u_TexelWidth, currentHeight.x, p.z - u_TexelHeight)
-//    );
+        vec3 q = ProjectPointOntoSegment(p, start, end);
+        if (dot(p.xy - q.xy, p.xy - q.xy) > u_CutterRadius * u_CutterRadius)
+            continue;
+
+        if (u_IsCutterFlat)
+            descend = CalculateDescFlat(q, p);
+        else
+            descend = CalculateDescRound(q, p);
+
+//        if (DetectNonCuttingContact(descend) 
+//        || DetectOverPlunge(descend, currentHeight) 
+//        || DetectDownMilling(start, end, descend, 1e-8))
+//            break;
+        currentHeight -= descend;
+        p.z = 1.5f + currentHeight;
+    }
+    imageStore(u_ImgOutput, texelCoord, vec4(currentHeight));
 }
 

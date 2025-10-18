@@ -51,6 +51,9 @@
     <ClInclude Include="src\Tools\Heightmap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Milling\MillingError.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\SimApp.cpp">

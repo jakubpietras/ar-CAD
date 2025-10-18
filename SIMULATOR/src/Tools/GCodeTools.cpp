@@ -22,8 +22,8 @@ std::vector<ar::mat::Vec3> GCodeTools::LoadCoords(fs::path filepath)
 	{
 		auto tokens = ParseLine(line);
 		float x = std::stof(tokens[2]) / 10.0;	// convert from mm to cm
-		float y = std::stof(tokens[4]) / 10.0;
-		float z = std::stof(tokens[3]) / 10.0;
+		float y = std::stof(tokens[3]) / 10.0;
+		float z = std::stof(tokens[4]) / 10.0;
 		points.emplace_back(x, y, z);
 	}
 	return points;

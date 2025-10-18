@@ -40,7 +40,7 @@ void SimSceneLayer::OnUpdate()
 	{
 		if (m_State.ShouldShowPaths) 
 			m_Renderer->RenderPaths(m_PathMesh, vpMat);
-		m_Renderer->RenderMaterial(vpMat, ar::mat::ToVec4(m_Camera->GetOffset()) + m_Camera->GetPosition(),
+		m_Renderer->RenderMaterial(vpMat, ar::mat::ToVec4(m_Camera->GetOffset()) - m_Camera->GetPosition(),
 			m_Block, m_HMap.GetTexture());
 	}
 }
@@ -72,6 +72,11 @@ void SimSceneLayer::ProcessStateChanges()
 		m_State.CutterType = GCodeTools::GetCutterType(extension);
 		m_State.CutterSize = GCodeTools::GetCutterSize(extension);
 		m_State.ClearImportState();
+	}
+	if (m_State.ShouldMillInstant)
+	{
+		m_HMap.UpdateMapInstant(m_State.CutterType, m_State.CutterSize / 20, m_State.CutterHeight / 10);
+		m_State.ShouldMillInstant = false;
 	}
 }
 

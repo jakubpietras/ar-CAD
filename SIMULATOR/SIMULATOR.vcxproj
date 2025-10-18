@@ -148,6 +148,7 @@
   <ItemGroup>
     <ClInclude Include="src\Milling\CutterType.h" />
     <ClInclude Include="src\Milling\MaterialDesc.h" />
+    <ClInclude Include="src\Milling\MillingError.h" />
     <ClInclude Include="src\Milling\MillingStock.h" />
     <ClInclude Include="src\SimEditorConstants.h" />
     <ClInclude Include="src\Layers\SimSceneLayer.h" />

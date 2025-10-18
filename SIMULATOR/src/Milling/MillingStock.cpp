@@ -11,7 +11,6 @@ MillingStock::MillingStock(const MaterialDesc& material)
 	m_SideMesh = ar::Ref<ar::VertexArray>(ar::VertexArray::Create());
 	UpdateMaterialDesc(material);
 	InitTexture();
-	ar::DebugRenderer::AddPoint({ 0.f, 6.0f, 0.f }, { 1.f, 1.f, 0.f });
 }
 
 void MillingStock::UpdateMaterialDesc(const MaterialDesc& material)
@@ -24,11 +23,11 @@ void MillingStock::UpdateMaterialDesc(const MaterialDesc& material)
 
 void MillingStock::Render(ar::mat::Mat4 vpMat, ar::mat::Vec3 cameraPos, ar::Ref<ar::Texture> heightMap)
 {
-
-	const ar::mat::Vec3 lightPos = { 0.f, 6.0f, 0.f };
+	//AR_TRACE("Cam: {0}, {1}, {2}", cameraPos.x, cameraPos.y, cameraPos.z);
+	const ar::mat::Vec3 lightPos = { 0, 6, 0 };
 	const ar::mat::Vec3 lightColor = { 1.f, 1.f, 1.f };
 
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);ds
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);dslssslssssppssd;sssssddpssss
 
 	if (!m_TopMesh)
 		return;
@@ -94,7 +93,7 @@ std::vector<ar::VertexPosNormTex> MillingStock::GenerateVertsTop()
 		{
 			ar::mat::Vec3 pos = { offsetX + segU * segLenU, m_Material.BaseHeight, offsetZ + segV * segLenV };
 			ar::mat::Vec3 normal = { 0.0f, 1.0f, 0.0f };
-			ar::mat::Vec2 tex = { segU * texLenU, segV * texLenV };
+			ar::mat::Vec2 tex = { segU * texLenU, 1.0f - segV * texLenV };
 			verts.push_back({ pos, normal, tex });
 #ifdef DEBUG
 			ar::DebugRenderer::AddLine(pos, pos + normal);
@@ -160,7 +159,7 @@ std::vector<ar::VertexPosNormTex> MillingStock::GenerateVertsSide()
 		const int segV = 0;
 		ar::mat::Vec3 pos = { offsetX + segU * segLenU, m_Material.BaseHeight, offsetZ + segV * segLenV };
 		ar::mat::Vec3 normal = { 0.0f, 0.0f, -1.0f };
-		ar::mat::Vec2 tex = { segU * texLenU, segV * texLenV };
+		ar::mat::Vec2 tex = { segU * texLenU, 1.0f - segV * texLenV };
 		verts.push_back({ pos, normal, tex });
 #ifdef DEBUG
 		ar::DebugRenderer::AddLine(pos, pos + normal);
@@ -180,7 +179,7 @@ std::vector<ar::VertexPosNormTex> MillingStock::GenerateVertsSide()
 		const int segU = m_Material.Samples.u - 1;
 		ar::mat::Vec3 pos = { offsetX + segU * segLenU, m_Material.BaseHeight, offsetZ + segV * segLenV };
 		ar::mat::Vec3 normal = { 1.0f, 0.0f, 0.0f };
-		ar::mat::Vec2 tex = { segU * texLenU, segV * texLenV };
+		ar::mat::Vec2 tex = { segU * texLenU, 1.0f - segV * texLenV };
 		verts.push_back({ pos, normal, tex });
 #ifdef DEBUG
 		ar::DebugRenderer::AddLine(pos, pos + normal);
@@ -200,7 +199,7 @@ std::vector<ar::VertexPosNormTex> MillingStock::GenerateVertsSide()
 		const int segV = m_Material.Samples.v - 1;
 		ar::mat::Vec3 pos = { offsetX + segU * segLenU, m_Material.BaseHeight, offsetZ + segV * segLenV };
 		ar::mat::Vec3 normal = { 0.0f, 0.0f, 1.0f };
-		ar::mat::Vec2 tex = { segU * texLenU, segV * texLenV };
+		ar::mat::Vec2 tex = { segU * texLenU, 1.0f - segV * texLenV };
 		verts.push_back({ pos, normal, tex });
 #ifdef DEBUG
 		ar::DebugRenderer::AddLine(pos, pos + normal);
@@ -220,7 +219,7 @@ std::vector<ar::VertexPosNormTex> MillingStock::GenerateVertsSide()
 		const int segU = 0;
 		ar::mat::Vec3 pos = { offsetX + segU * segLenU, m_Material.BaseHeight, offsetZ + segV * segLenV };
 		ar::mat::Vec3 normal = { -1.0f, 0.0f, 0.0f };
-		ar::mat::Vec2 tex = { segU * texLenU, segV * texLenV };
+		ar::mat::Vec2 tex = { segU * texLenU, 1.0f - segV * texLenV };
 		verts.push_back({ pos, normal, tex });
 #ifdef DEBUG
 		ar::DebugRenderer::AddLine(pos, pos + normal);
@@ -298,5 +297,5 @@ std::vector<uint32_t> MillingStock::GenerateIndicesSide()
 
 void MillingStock::InitTexture()
 {
-	m_MetalTex = ar::Ref<ar::Texture>(ar::Texture::Create("resources/textures/marble.jpg"));
+	m_MetalTex = ar::Ref<ar::Texture>(ar::Texture::Create("resources/textures/wood.jpg"));
 }

@@ -41,7 +41,7 @@ void SimRenderer::RenderMaterial(ar::mat::Mat4 vp, ar::mat::Vec3 cameraPos, Mill
 
 void SimRenderer::RenderCutter(ar::mat::Mat4 vp)
 {
-	// TODOdsddjsxdddsasssddds
+	// TODOdsddjsxdddsasssdddss
 }
 
 void SimRenderer::RenderPaths(ar::Ref<ar::VertexArray> path, ar::mat::Mat4 vp)
@@ -49,7 +49,7 @@ void SimRenderer::RenderPaths(ar::Ref<ar::VertexArray> path, ar::mat::Mat4 vp)
 	m_Framebuffer->Bind();
 	auto shader = ar::ShaderLib::Get("Paths");
 	shader->SetMat4("u_VP", vp);
-	shader->SetMat4("u_Model", ar::mat::Identity());
+	shader->SetMat4("u_Model", ar::mat::RotationMatrix({-90.0f, 0.0f, 0.0f}));
 	shader->SetVec3("u_Color", {0.f, 1.f, 0.f});
 	ar::Renderer::Submit(ar::Primitive::LineStrip, shader, path, false);
 	m_Framebuffer->Unbind();
