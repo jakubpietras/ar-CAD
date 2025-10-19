@@ -93,6 +93,7 @@
   <ItemGroup>
     <ClCompile Include="src\core\Renderer\ComputeShader.cpp" />
     <ClCompile Include="src\core\Tests\tests.cpp" />
+    <ClCompile Include="src\core\Timer.cpp" />
     <ClCompile Include="src\core\Utils\IntersectUtils.cpp" />
     <ClCompile Include="src\core\ImGui\ImGuiUtils.cpp" />
     <ClCompile Include="src\core\Scene\DebugRenderer.cpp" />
@@ -157,6 +158,7 @@
     <ClInclude Include="src\core\Renderer\ComputeShader.h" />
     <ClInclude Include="src\core\Renderer\ShaderStorageBuffer.h" />
     <ClInclude Include="src\core\Tests\tests.h" />
+    <ClInclude Include="src\core\Timer.h" />
     <ClInclude Include="src\core\Utils\IntersectUtils.h" />
     <ClInclude Include="src\core\ImGui\ImGuiUtils.h" />
     <ClInclude Include="src\core\Scene\DebugRenderer.h" />

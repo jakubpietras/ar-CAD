@@ -14,7 +14,8 @@ SimSceneLayer::SimSceneLayer(SimState& state)
 		SimEditorCameraConstants::NearPlane, SimEditorCameraConstants::FarPlane,
 		SimEditorCameraConstants::ArcballRadius)),
 	m_Block(state.Material),
-	m_HMap(state.Material, m_MachineCoords)
+	m_HMap(state.Material, m_MachineCoords),
+	m_Timer()
 {
 	m_State.Viewport = { 1920.f, 1080.f };
 	m_State.ViewportResized = true;
@@ -25,13 +26,14 @@ void SimSceneLayer::OnAttach()
 {
 	ar::ShaderLib::Init();
 	ar::DebugRenderer::Init();
-	Debug();
+	//Debug();
 }
 
 void SimSceneLayer::OnDetach() { }
 
 void SimSceneLayer::OnUpdate()
 {
+	m_Timer.Update();
 	m_Camera->OnUpdate();
 	ProcessStateChanges();
 	auto vpMat = m_Camera->GetCamera()->GetVP();
@@ -79,6 +81,18 @@ void SimSceneLayer::ProcessStateChanges()
 			m_State.CutterHeight / 10, m_State.Material.BaseHeight);
 		m_State.ShouldMillInstant = false;
 	}
+	if (m_State.StartSimulation)
+	{
+		m_State.StartPoint = m_MachineCoords[0];
+		m_State.StartIndex = 0;
+		m_State.IsSimulationRun = true;
+		m_State.StartSimulation = false;
+	}
+	if (m_State.IsSimulationRun)
+	{
+		m_State.IsSimulationRun = RunSimulation();
+
+	}
 }
 
 void SimSceneLayer::UpdatePathMesh()
@@ -86,6 +100,52 @@ void SimSceneLayer::UpdatePathMesh()
 	m_PathMesh->ClearBuffers();
 	auto verts = ar::GeneralUtils::GetVertexData(m_MachineCoords);
 	m_PathMesh->AddVertexBuffer(ar::Ref<ar::VertexBuffer>(ar::VertexBuffer::Create(verts)));
+}
+
+bool SimSceneLayer::RunSimulation()
+{
+	// returns false when simulation is halted, true if running
+	std::vector<ar::mat::Vec3> stops;
+	bool isRunning = true;
+	ar::mat::Vec3 start = m_State.StartPoint;
+	ar::mat::Vec3 end = m_MachineCoords[m_State.StartIndex + 1];
+
+	stops.push_back(start);
+	auto dt = m_Timer.GetDeltaTime();
+	auto s = m_State.SimulationSpeed * dt;
+	do
+	{
+		auto d = ar::mat::Length(end - start);
+		if (s > d)
+		{
+			s -= d;
+			m_State.StartIndex++;
+			if (m_State.StartIndex == m_MachineCoords.size() - 1)
+			{
+				// no more segments
+				stops.push_back(end);
+				isRunning = false;
+				break;
+			}
+			start = m_MachineCoords[m_State.StartIndex];
+			end = m_MachineCoords[m_State.StartIndex + 1];
+		}
+		else
+		{
+			auto t = s /*/ d*/;
+			auto dir = ar::mat::Normalize(end - start);
+			auto q = start + dir * t;
+			stops.push_back(q);
+			m_State.StartPoint = q;
+			s = 0.0f;
+			isRunning = true;
+		}
+	} while (s > 0.0f);
+
+	m_HMap.LoadNewPath(stops);
+	m_HMap.UpdateMapInstant(m_State.CutterType, m_State.CutterSize / 20,
+		m_State.CutterHeight / 10, m_State.Material.BaseHeight);
+	return isRunning;
 }
 
 void SimSceneLayer::Debug()

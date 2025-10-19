@@ -7,6 +7,7 @@
 #include "Controllers/SimUIController.h"
 #include "core/CameraController.h"
 #include "Milling/MillingStock.h"
+#include "core/Timer.h"
 
 class SimSceneLayer : public ar::Layer
 {
@@ -26,8 +27,10 @@ private:
 	ar::Ref<ar::VertexArray> m_PathMesh;
 	MillingStock m_Block;
 	Heightmap m_HMap;
+	ar::Timer m_Timer;
 
 	void ProcessStateChanges();
 	void UpdatePathMesh();
+	bool RunSimulation();
 	void Debug();
 };

@@ -8,9 +8,9 @@
 class Heightmap
 {
 public:
-	Heightmap(const MaterialDesc& material, std::vector<ar::mat::Vec3>& pathCoords);
+	Heightmap(const MaterialDesc& material, std::vector<ar::mat::Vec3> pathCoords);
 	inline const ar::Ref<ar::Texture> GetTexture() const { return m_Texture; }
-	inline const void LoadNewPath(std::vector<ar::mat::Vec3>& newCoords) const { m_PathCoords = newCoords; }
+	inline const void LoadNewPath(std::vector<ar::mat::Vec3> newCoords) { m_PathCoords = newCoords; }
 	
 	void ResetMap(const MaterialDesc& material);
 	ar::mat::Vec3 UpdateMap(const ar::mat::Vec3& start, float dt, float speed);
@@ -19,7 +19,7 @@ public:
 private:
 	void InitPathBuffer();
 
-	std::vector<ar::mat::Vec3>& m_PathCoords;
+	std::vector<ar::mat::Vec3> m_PathCoords;
 	ar::Ref<ar::Texture> m_Texture;
 	ar::Ref<ar::ShaderStorageBuffer<std::vector<ar::mat::Vec3>>> m_PathBuffer;
 	ar::Ref<ar::ShaderStorageBuffer<MillingError>> m_ErrorFlagsBuffer;

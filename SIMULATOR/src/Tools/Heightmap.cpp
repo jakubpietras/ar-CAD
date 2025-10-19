@@ -1,6 +1,6 @@
 #include "Heightmap.h"
 
-Heightmap::Heightmap(const MaterialDesc& material, std::vector<ar::mat::Vec3>& pathCoords)
+Heightmap::Heightmap(const MaterialDesc& material, std::vector<ar::mat::Vec3> pathCoords)
 	: m_SamplesX(material.Samples.u), m_SamplesY(material.Samples.v),
 	m_SizeX(material.Size.x), m_SizeY(material.Size.z), m_PathCoords(pathCoords),
 	m_PathBuffer(std::make_shared<ar::ShaderStorageBuffer<std::vector<ar::mat::Vec3>>>()),

@@ -39,10 +39,15 @@ public:
 	// ============ MILLING ===============
 	MaterialDesc	Material{};
 	float			SimulationSpeed = 10.0;
-	bool			IsSimulationRun = false;
 	bool			ShouldMillInstant = false;
 	float			CutterSize = 1.0;
 	float			CutterHeight = 4.0;
 	CutterType		CutterType = CutterType::FLAT;
 	bool			ShouldShowPaths = false;
+
+	// ============ SIMULATION =============
+	bool			StartSimulation = false;
+	bool			IsSimulationRun = false;
+	uint32_t		StartIndex;
+	ar::mat::Vec3	StartPoint;
 };

@@ -79,12 +79,16 @@ void SimUIController::RenderSimulationControlPanel()
 	ImGui::DragFloat("Speed", &m_State.SimulationSpeed, 1.0f, 1.0f, 10.0f);
 	if (ImGui::Button("Start"))
 	{
-		// todo
+		m_State.StartSimulation = true;
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("Instant"))
 	{
 		m_State.ShouldMillInstant = true;
+	}
+	if (m_State.IsSimulationRun)
+	{
+		ImGui::TextWrapped("Simulation currently running...");
 	}
 
 	ImGui::End();
