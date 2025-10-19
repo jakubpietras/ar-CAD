@@ -108,7 +108,7 @@ void SimUIController::RenderCutterConfigPanel()
 		std::string size = "Size: " + trimmedNumber + " [mm]";
 		ImGui::TextWrapped(size.c_str());
 
-		ImGui::DragFloat("Height", &m_State.CutterHeight, 1.0f, 4.0f, 10.0f);
+		ImGui::DragFloat("Height", &m_State.CutterHeight, 1.0f, 4.0f, 30.0f);
 	}
 	else
 	{

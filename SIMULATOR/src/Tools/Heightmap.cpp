@@ -35,7 +35,8 @@ ar::mat::Vec3 Heightmap::UpdateMap(const ar::mat::Vec3& start, float dt, float s
 	return ar::mat::Vec3();
 }
 
-void Heightmap::UpdateMapInstant(CutterType cutterType, float cutterRadius, float cutterHeight)
+void Heightmap::UpdateMapInstant(CutterType cutterType, float cutterRadius, float cutterHeight,
+	float baseHeight)
 {
 	MillingError initial = {};
 	std::vector<ar::mat::Vec4> pc;
@@ -51,6 +52,7 @@ void Heightmap::UpdateMapInstant(CutterType cutterType, float cutterRadius, floa
 	m_PathBuffer->Bind(1);
 	m_ErrorFlagsBuffer->Bind(2);
 	m_CompShader->SetUInt("u_PathSegments", pathSegments);
+	m_CompShader->SetFloat("u_BaseHeight", baseHeight);
 	m_CompShader->SetFloat("u_CutterRadius", cutterRadius);
 	m_CompShader->SetFloat("u_CutterHeight", cutterHeight);
 	m_CompShader->SetBool("u_IsCutterFlat", isFlat);

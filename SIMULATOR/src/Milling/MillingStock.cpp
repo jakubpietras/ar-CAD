@@ -27,7 +27,7 @@ void MillingStock::Render(ar::mat::Mat4 vpMat, ar::mat::Vec3 cameraPos, ar::Ref<
 	const ar::mat::Vec3 lightPos = { 0, 6, 0 };
 	const ar::mat::Vec3 lightColor = { 1.f, 1.f, 1.f };
 
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);dslssslssssppssd;sssssddpssss
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);dslssslsssssssppppsssassssds;sssssdsssdpssss
 
 	if (!m_TopMesh)
 		return;

@@ -14,7 +14,7 @@ public:
 	
 	void ResetMap(const MaterialDesc& material);
 	ar::mat::Vec3 UpdateMap(const ar::mat::Vec3& start, float dt, float speed);
-	void UpdateMapInstant(CutterType cutterType, float cutterRadius, float cutterHeight);
+	void UpdateMapInstant(CutterType cutterType, float cutterRadius, float cutterHeight, float baseHeight);
 
 private:
 	void InitPathBuffer();

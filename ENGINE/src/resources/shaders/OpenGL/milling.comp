@@ -16,6 +16,7 @@ layout(std430, binding = 2) buffer b_ErrorFlags
 };
 
 uniform uint u_PathSegments;
+uniform float u_BaseHeight;
 uniform float u_CutterRadius;
 uniform float u_CutterHeight;
 uniform bool u_IsCutterFlat;
@@ -35,7 +36,6 @@ vec3 ProjectPointOntoSegment(vec3 p, vec3 start, vec3 end)
 
 float CalculateDescFlat(vec3 q, vec3 p)
 {
-    // Calculate descend using Flat drill
     if (q.z >= p.z)
         return 0.0f;
     return p.z - q.z;
@@ -43,23 +43,21 @@ float CalculateDescFlat(vec3 q, vec3 p)
 
 float CalculateDescRound(vec3 q, vec3 p)
 {
-    // Cutter's lowest point higher than the surface
+    // cutter's lowest point higher than the surface
     if (q.z >= p.z)
         return 0.0f;
-    // Surface higher than the rounded part of the cutter
-    if (p.z > q.z + u_CutterRadius)
-        return p.z - q.z;
-    // Surface within the space of the rounded part of the cutter
+    // surface within the space of the rounded part of the cutter
     float H = sqrt(u_CutterRadius * u_CutterRadius - dot(q.xy - p.xy, q.xy - p.xy));
     float height = q.z + (u_CutterRadius - H);
-    if (height > p.z)
+    if (height >= p.z)
         return 0.0f;
     return p.z - height;
 }
 
-bool DetectNonCuttingContact(float descend)
+bool DetectNonCuttingContact(vec3 q, vec3 p)
 {
-    if (descend > u_CutterHeight)
+    float cuttingPartTop = q.z + (u_CutterHeight - u_CutterRadius);
+    if (p.z > cuttingPartTop)
     {
         atomicCompSwap(NonCuttingContact, 0, 1);
         return true;
@@ -67,9 +65,9 @@ bool DetectNonCuttingContact(float descend)
     return false;
 }
 
-bool DetectOverPlunge(float descend, float currentHeight)
+bool DetectOverPlunge(float currentHeight)
 {
-    if (currentHeight - descend <= 0)
+    if (currentHeight <= 0.0f)
     {
         atomicCompSwap(OverPlunge, 0, 1);
         return true;
@@ -79,9 +77,18 @@ bool DetectOverPlunge(float descend, float currentHeight)
 
 bool DetectDownMilling(vec3 start, vec3 end, float descend, float eps)
 {
-    vec3 dir = normalize(end - start);
-    bool straightDown = dir.y < (-1.0 + eps);
-    if (descend > 0.0f && straightDown)
+    if (descend <= 0.0f)
+        return false;
+    
+    vec3 dir = end - start;
+    float segmentLength = length(dir);
+    
+    if (segmentLength < eps)
+        return false;
+    
+    dir = normalize(dir);
+    
+    if (dir.z < (-1.0 + eps))
     {
         atomicCompSwap(DownMilling, 0, 1);
         return true;
@@ -99,11 +106,11 @@ void main()
     float currentHeight = imageLoad(u_ImgOutput, texelCoord).r;
     float descend = 0.0f;
 
-    // Middle point of a heightmap cell
+    // corner of a heightmap cell
     vec3 p = vec3(
     u_OffsetX + texelCoord.x * u_TexelWidth,
     u_OffsetY + texelCoord.y * u_TexelHeight,
-    1.5f + currentHeight
+    u_BaseHeight + currentHeight
     );
 
     for (int seg = 0; seg < u_PathSegments; seg++)
@@ -120,12 +127,13 @@ void main()
         else
             descend = CalculateDescRound(q, p);
 
-//        if (DetectNonCuttingContact(descend) 
-//        || DetectOverPlunge(descend, currentHeight) 
-//        || DetectDownMilling(start, end, descend, 1e-8))
-//            break;
+        
         currentHeight -= descend;
-        p.z = 1.5f + currentHeight;
+        p.z = u_BaseHeight + currentHeight;
+
+        DetectNonCuttingContact(q, p);
+        DetectOverPlunge(currentHeight);
+        DetectDownMilling(start, end, descend, 1e-8);
     }
     imageStore(u_ImgOutput, texelCoord, vec4(currentHeight));
 }

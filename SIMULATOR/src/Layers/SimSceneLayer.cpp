@@ -75,7 +75,8 @@ void SimSceneLayer::ProcessStateChanges()
 	}
 	if (m_State.ShouldMillInstant)
 	{
-		m_HMap.UpdateMapInstant(m_State.CutterType, m_State.CutterSize / 20, m_State.CutterHeight / 10);
+		m_HMap.UpdateMapInstant(m_State.CutterType, m_State.CutterSize / 20,
+			m_State.CutterHeight / 10, m_State.Material.BaseHeight);
 		m_State.ShouldMillInstant = false;
 	}
 }
