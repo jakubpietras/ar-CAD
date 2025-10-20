@@ -4,6 +4,7 @@
 #include "Tools/GCodeTools.h"
 #include "core/Utils/GeneralUtils.h"
 #include "core/Scene/DebugRenderer.h"
+#include "core/Scene/DebugRenderer.h"
 
 SimSceneLayer::SimSceneLayer(SimState& state)
 	: m_State(state),
@@ -26,7 +27,7 @@ void SimSceneLayer::OnAttach()
 {
 	ar::ShaderLib::Init();
 	ar::DebugRenderer::Init();
-	//Debug();
+	//Debug();p
 }
 
 void SimSceneLayer::OnDetach() { }
@@ -34,6 +35,7 @@ void SimSceneLayer::OnDetach() { }
 void SimSceneLayer::OnUpdate()
 {
 	m_Timer.Update();
+	m_State.FPS = m_Timer.GetFPS();
 	m_Camera->OnUpdate();
 	ProcessStateChanges();
 	auto vpMat = m_Camera->GetCamera()->GetVP();
@@ -75,10 +77,13 @@ void SimSceneLayer::ProcessStateChanges()
 		m_State.CutterSize = GCodeTools::GetCutterSize(extension);
 		m_State.CutterHeight = m_State.CutterSize;
 		m_State.ClearImportState();
+
+		m_State.RestartSim(m_MachineCoords[0]);
 	}
 	if (m_State.ShouldReset)
 	{
 		m_HMap.ResetMap(m_State.Material);
+		m_State.RestartSim(m_MachineCoords[0]);
 		m_State.ShouldReset = false;
 	}
 	if (m_State.ShouldMillInstant)
@@ -95,13 +100,24 @@ void SimSceneLayer::ProcessStateChanges()
 			m_State.CutterHeight / 10, m_State.Material.BaseHeight);
 		ProcessMillingErrors(ret);
 
+		m_State.IsSimulationComplete = true;
 		m_State.ShouldMillInstant = false;
+	}
+	if (m_State.PlaySimulation)
+	{
+		if (m_State.IsSimulationRun)
+			m_State.IsSimulationRun = false;
+		else
+			m_State.IsSimulationRun = true;
+		m_State.PlaySimulation = false;
 	}
 	if (m_State.StartSimulation)
 	{
 		m_State.StartPoint = m_MachineCoords[0];
 		m_State.StartIndex = 0;
 		m_State.IsSimulationRun = true;
+		m_State.SimulationBegan = true;
+
 		m_State.StartSimulation = false;
 	}
 	if (m_State.IsSimulationRun)
@@ -141,6 +157,7 @@ bool SimSceneLayer::RunSimulation()
 				// no more segments
 				stops.emplace_back(end, 1.0f);
 				isRunning = false;
+				m_State.IsSimulationComplete = true;
 				break;
 			}
 			start = m_MachineCoords[m_State.StartIndex];

@@ -47,8 +47,21 @@ public:
 	bool			ShouldShowPaths = false;
 
 	// ============ SIMULATION =============
+	bool			SimulationBegan = false;
 	bool			StartSimulation = false;
+	bool			PlaySimulation = false;
 	bool			IsSimulationRun = false;
+	bool			IsSimulationComplete = false;
 	uint32_t		StartIndex;
 	ar::mat::Vec4	StartPoint;
+	inline void RestartSim(ar::mat::Vec4 p)
+	{
+		SimulationBegan = false;
+		IsSimulationComplete = false;
+		StartIndex = 0;
+		StartPoint = p;
+	}
+
+	// ============ MISC ===================
+	float			FPS = 0.0f;
 };

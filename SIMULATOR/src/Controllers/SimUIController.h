@@ -12,6 +12,7 @@ public:
 	void Render(ar::Ref<ar::Framebuffer> mainFB);
 private:
 	SimState& m_State;
+	void RenderStatsPanel();
 	void RenderViewport(ar::Ref<ar::Framebuffer> mainFB);
 	void RenderLoadPanel();
 	void RenderMaterialConfigPanel();

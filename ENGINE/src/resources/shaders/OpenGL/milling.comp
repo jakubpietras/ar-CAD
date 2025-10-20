@@ -87,8 +87,7 @@ bool DetectDownMilling(vec3 start, vec3 end, float descend, float eps)
         return false;
     
     dir = normalize(dir);
-    
-    if (dir.z < (-1.0 + eps))
+    if (dir.z < -sin(radians(87.f)))
     {
         atomicCompSwap(DownMilling, 0, 1);
         return true;

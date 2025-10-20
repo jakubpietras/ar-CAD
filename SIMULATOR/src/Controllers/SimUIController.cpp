@@ -9,13 +9,23 @@ SimUIController::SimUIController(SimState& state)
 
 void SimUIController::Render(ar::Ref<ar::Framebuffer> mainFB)
 {
-	// ddp
+	RenderStatsPanel();
 	RenderViewport(mainFB);
 	RenderLoadPanel();
 	RenderMaterialConfigPanel();
 	RenderSimulationControlPanel();
 	RenderCutterConfigPanel();
 	RenderErrorModal();
+}
+
+void SimUIController::RenderStatsPanel()
+{
+	ImGui::Begin("Stats");
+
+	std::string fpsText = "FPS: " + std::to_string(m_State.FPS);
+	ImGui::TextWrapped(fpsText.c_str());
+
+	ImGui::End();
 }
 
 void SimUIController::RenderViewport(ar::Ref<ar::Framebuffer> mainFB)
@@ -81,22 +91,29 @@ void SimUIController::RenderMaterialConfigPanel()
 void SimUIController::RenderSimulationControlPanel()
 {
 	ar::ScopedDisable disable(m_State.Filepath.empty());
+	
 	ImGui::Begin("Simulation");
 	ImGui::DragFloat("Speed", &m_State.SimulationSpeed, 1.0f, 1.0f, 100.0f);
-	if (ImGui::Button("Start"))
 	{
-		m_State.StartSimulation = true;
+		ar::ScopedDisable disable(m_State.SimulationBegan);
+		if (ImGui::Button("Start"))
+			m_State.StartSimulation = true;
 	}
 	ImGui::SameLine();
-	if (ImGui::Button("Instant"))
 	{
-		m_State.ShouldMillInstant = true;
+		ar::ScopedDisable disable(m_State.IsSimulationComplete || !m_State.SimulationBegan);
+		std::string label = m_State.IsSimulationRun ? "Pause" : "Play";
+		if (ImGui::Button(label.c_str()))
+			m_State.PlaySimulation = true;
+		ImGui::SameLine();
+		if (ImGui::Button("Instant"))
+			m_State.ShouldMillInstant = true;
+		
 	}
 	if (m_State.IsSimulationRun)
-	{
 		ImGui::TextWrapped("Simulation currently running...");
-	}
-
+	if (m_State.IsSimulationComplete)
+		ImGui::TextWrapped("Simulation complete. Load new paths to continue.");
 	ImGui::End();
 }
 
