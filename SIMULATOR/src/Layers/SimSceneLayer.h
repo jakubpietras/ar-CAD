@@ -33,6 +33,6 @@ private:
 	void UpdatePathMesh();
 	bool RunSimulation();
 	std::vector<ar::mat::Vec4> GetRemainingPaths();
-	void ProcessMillingErrors(MillingError err);
+	bool ProcessMillingErrors(MillingError err);
 	void Debug();
 };

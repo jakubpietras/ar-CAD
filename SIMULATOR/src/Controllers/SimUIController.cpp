@@ -9,6 +9,7 @@ SimUIController::SimUIController(SimState& state)
 
 void SimUIController::Render(ar::Ref<ar::Framebuffer> mainFB)
 {
+	// ddp
 	RenderViewport(mainFB);
 	RenderLoadPanel();
 	RenderMaterialConfigPanel();
@@ -79,6 +80,7 @@ void SimUIController::RenderMaterialConfigPanel()
 
 void SimUIController::RenderSimulationControlPanel()
 {
+	ar::ScopedDisable disable(m_State.Filepath.empty());
 	ImGui::Begin("Simulation");
 	ImGui::DragFloat("Speed", &m_State.SimulationSpeed, 1.0f, 1.0f, 100.0f);
 	if (ImGui::Button("Start"))
@@ -100,6 +102,7 @@ void SimUIController::RenderSimulationControlPanel()
 
 void SimUIController::RenderCutterConfigPanel()
 {
+	ar::ScopedDisable disable(m_State.IsSimulationRun);
 	ImGui::Begin("Cutter");
 	if (!m_State.Filepath.empty())
 	{

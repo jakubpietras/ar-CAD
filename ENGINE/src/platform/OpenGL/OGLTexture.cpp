@@ -85,7 +85,7 @@ namespace ar
 		AR_GL_CHECK();
 	}
 
-	void OGLTexture::SetData(void* data, uint32_t size)
+	void OGLTexture::UpdateData(void* data, uint32_t size)
 	{
 		if (m_Description.Format == TextureFormat::D24S8)
 		{
@@ -104,6 +104,38 @@ namespace ar
 				format, type, data);
 			AR_GL_CHECK();
 		}
+	}
+
+	void OGLTexture::SetData(void* data, uint32_t size)
+	{
+		throw std::logic_error("The method or operation is not implemented.");
+	}
+
+	void OGLTexture::Resize(uint32_t width, uint32_t height)
+	{
+		m_Description.Width = width;
+		m_Description.Height = height;
+
+		// Delete old texture
+		if (m_Description.Format == TextureFormat::D24S8)
+		{
+			glDeleteRenderbuffers(1, &m_ID);
+			glCreateRenderbuffers(1, &m_ID);
+			glNamedRenderbufferStorage(m_ID, GL_DEPTH24_STENCIL8, width, height);
+		}
+		else
+		{
+			glDeleteTextures(1, &m_ID);
+			glCreateTextures(GL_TEXTURE_2D, 1, &m_ID);
+			glTextureParameteri(m_ID, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTextureParameteri(m_ID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTextureParameteri(m_ID, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTextureParameteri(m_ID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+			glTextureStorage2D(m_ID, 1, GetGLInternalFormat(m_Description.Format), width, height);
+		}
+
+		AR_GL_CHECK();
 	}
 
 	GLenum OGLTexture::GetDataFormat(TextureFormat format)

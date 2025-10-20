@@ -13,7 +13,7 @@ Heightmap::Heightmap(const MaterialDesc& material, std::vector<ar::mat::Vec4> pa
 	m_Texture = ar::Ref<ar::Texture>(ar::Texture::Create(desc));
 	auto height = material.Size.y - material.BaseHeight;
 	std::vector<float> initData(desc.Width * desc.Height, height);
-	m_Texture->SetData(initData.data(), desc.Width * desc.Height);
+	m_Texture->UpdateData(initData.data(), desc.Width * desc.Height);
 	m_CompShader = ar::Ref<ar::ComputeShader>(ar::ComputeShader::Create("resources/shaders/OpenGL/milling.comp"));
 }
 
@@ -26,7 +26,8 @@ void Heightmap::ResetMap(const MaterialDesc& newMaterial)
 
 	auto height = newMaterial.Size.y - newMaterial.BaseHeight;
 	std::vector<float> initData(newMaterial.Samples.u * newMaterial.Samples.v, height);
-	m_Texture->SetData(initData.data(), newMaterial.Samples.u * newMaterial.Samples.v);
+	m_Texture->Resize(m_SamplesX, m_SamplesY);
+	m_Texture->UpdateData(initData.data(), newMaterial.Samples.u * newMaterial.Samples.v);
 }
 MillingError Heightmap::UpdateMap(CutterType cutterType, float cutterRadius, float cutterHeight,
 	float baseHeight)

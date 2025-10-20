@@ -9,7 +9,7 @@ namespace ar
 	{
 		InitializeTexture(width, height);
 		InitializeBuffer(width, height);
-		m_Tex->SetData(m_Buffer.data(), m_BufferSize);
+		m_Tex->UpdateData(m_Buffer.data(), m_BufferSize);
 	}
 
 	void PaintSurface::SetPixel(size_t x, size_t y, unsigned char red, unsigned char green, unsigned char blue)
@@ -20,7 +20,7 @@ namespace ar
 		m_Buffer[index + 2] = blue;
 		m_Buffer[index + 3] = 255;
 
-		m_Tex->SetData(m_Buffer.data(), m_BufferSize);
+		m_Tex->UpdateData(m_Buffer.data(), m_BufferSize);
 	}
 
 	void PaintSurface::DrawLine(int x0, int y0, int x1, int y1, unsigned char red, unsigned char green, unsigned char blue, bool wrapU, bool wrapV)
@@ -88,7 +88,7 @@ namespace ar
 			}
 		}
 
-		m_Tex->SetData(m_Buffer.data(), m_BufferSize);
+		m_Tex->UpdateData(m_Buffer.data(), m_BufferSize);
 	}
 
 	void PaintSurface::FloodFill(int x, int y, unsigned char red, unsigned char green, unsigned char blue, bool wrapU, bool wrapV)
@@ -150,7 +150,7 @@ namespace ar
 			}
 		}
 
-		m_Tex->SetData(m_Buffer.data(), m_BufferSize);
+		m_Tex->UpdateData(m_Buffer.data(), m_BufferSize);
 	}
 
 	void PaintSurface::InitializeTexture(size_t width, size_t height)

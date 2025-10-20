@@ -22,6 +22,8 @@ namespace ar
 	{
 	public:
 		virtual ~Texture() {}
+		virtual void Resize(uint32_t width, uint32_t height) = 0;
+		virtual void UpdateData(void* data, uint32_t size) = 0;
 		virtual void SetData(void* data, uint32_t size) = 0;
 		static Texture* Create(const TextureDesc& desc);
 		static Texture* Create(const std::string& filepath);

@@ -42,9 +42,9 @@ void SimSceneLayer::OnUpdate()
 	{
 		if (m_State.ShouldShowPaths) 
 			m_Renderer->RenderPaths(m_PathMesh, vpMat);
-		m_Renderer->RenderMaterial(vpMat, ar::mat::ToVec4(m_Camera->GetOffset()) - m_Camera->GetPosition(),
-			m_Block, m_HMap.GetTexture());
 	}
+	m_Renderer->RenderMaterial(vpMat, ar::mat::ToVec4(m_Camera->GetOffset()) - m_Camera->GetPosition(),
+		m_Block, m_HMap.GetTexture());
 }
 
 void SimSceneLayer::OnEvent(ar::Event& event)
@@ -119,7 +119,7 @@ void SimSceneLayer::UpdatePathMesh()
 
 bool SimSceneLayer::RunSimulation()
 {
-	// returns false when simulation is halted, true if running
+	// returns false when simulation is halted, true if running 
 	std::vector<ar::mat::Vec4> stops;
 	bool isRunning = true;
 	ar::mat::Vec3 start = ar::mat::ToVec3(m_State.StartPoint);
@@ -134,6 +134,7 @@ bool SimSceneLayer::RunSimulation()
 		if (s > d)
 		{
 			s -= d;
+			stops.emplace_back(end, 1.0f);
 			m_State.StartIndex++;
 			if (m_State.StartIndex == m_MachineCoords.size() - 1)
 			{
@@ -147,9 +148,9 @@ bool SimSceneLayer::RunSimulation()
 		}
 		else
 		{
-			auto t = s /*/ d*/;
+			auto actualMove = std::min(s, d);
 			auto dir = ar::mat::Normalize(end - start);
-			auto q = start + dir * t;
+			auto q = start + dir * actualMove;
 			stops.emplace_back(q, 1.0f);
 			m_State.StartPoint = { q, 1.0f };
 			s = 0.0f;
@@ -160,8 +161,8 @@ bool SimSceneLayer::RunSimulation()
 	m_HMap.LoadNewPath(stops);
 	auto ret = m_HMap.UpdateMap(m_State.CutterType, m_State.CutterSize / 20,
 		m_State.CutterHeight / 10, m_State.Material.BaseHeight);
-	ProcessMillingErrors(ret);
-
+	if(ProcessMillingErrors(ret))
+		return false;
 	return isRunning;
 }
 
@@ -174,7 +175,7 @@ std::vector<ar::mat::Vec4> SimSceneLayer::GetRemainingPaths()
 	return paths;
 }
 
-void SimSceneLayer::ProcessMillingErrors(MillingError err)
+bool SimSceneLayer::ProcessMillingErrors(MillingError err)
 {
 	bool error = false;
 	std::string errMsg = "Simulation failed due to the following: ";
@@ -198,7 +199,9 @@ void SimSceneLayer::ProcessMillingErrors(MillingError err)
 	{
 		m_State.ErrorMessages.push_back(errMsg);
 		m_State.ShowErrorModal = true;
+		return true;
 	}
+	return false;
 }
 
 void SimSceneLayer::Debug()
