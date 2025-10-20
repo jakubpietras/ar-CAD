@@ -12,6 +12,13 @@ namespace ar
 		static const BufferLayout s_Layout;
 	};
 
+	struct VertexPositionNormal
+	{
+		mat::Vec3 Position;
+		mat::Vec3 Normal;
+		static const BufferLayout s_Layout;
+	};
+
 	struct VertexPositionID
 	{
 		mat::Vec3 Position;

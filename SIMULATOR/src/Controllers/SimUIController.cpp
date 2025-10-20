@@ -14,6 +14,7 @@ void SimUIController::Render(ar::Ref<ar::Framebuffer> mainFB)
 	RenderMaterialConfigPanel();
 	RenderSimulationControlPanel();
 	RenderCutterConfigPanel();
+	RenderErrorModal();
 }
 
 void SimUIController::RenderViewport(ar::Ref<ar::Framebuffer> mainFB)
@@ -70,13 +71,16 @@ void SimUIController::RenderMaterialConfigPanel()
 	ar::PropertyInspector::InspectProperty("Size [cm]", m_State.Material.Size, 1, 20, 1.0f);
 	ImGui::DragFloat("Base Height [cm]", &m_State.Material.BaseHeight, 1.0f, 1, 20);
 
+	if (ImGui::Button("Reset"))
+		m_State.ShouldReset = true;
+
 	ImGui::End();
 }
 
 void SimUIController::RenderSimulationControlPanel()
 {
 	ImGui::Begin("Simulation");
-	ImGui::DragFloat("Speed", &m_State.SimulationSpeed, 1.0f, 1.0f, 10.0f);
+	ImGui::DragFloat("Speed", &m_State.SimulationSpeed, 1.0f, 1.0f, 100.0f);
 	if (ImGui::Button("Start"))
 	{
 		m_State.StartSimulation = true;
@@ -99,26 +103,62 @@ void SimUIController::RenderCutterConfigPanel()
 	ImGui::Begin("Cutter");
 	if (!m_State.Filepath.empty())
 	{
-		std::string type = "Type: ";
-		if (m_State.CutterType == CutterType::FLAT)
-			type += "Flat";
-		else
-			type += "Round";
-		ImGui::TextWrapped(type.c_str());
+		ImGui::TextWrapped("Shape: ");
+		ImGui::SameLine();
+		const char* cutterTypeNames[] = { "Flat", "Round" };
+		int currentItem = static_cast<int>(m_State.CutterType);
+		if (ImGui::Combo("##cuttertype", &currentItem, cutterTypeNames, IM_ARRAYSIZE(cutterTypeNames)))
+		{
+			m_State.CutterType = static_cast<CutterType>(currentItem);
+		}
 
-		std::string trimmedNumber = 
-			std::to_string(m_State.CutterSize)
-			.substr(0, std::to_string(m_State.CutterSize).find('.') + 3);
-		std::string size = "Size: " + trimmedNumber + " [mm]";
-		ImGui::TextWrapped(size.c_str());
-
-		ImGui::DragFloat("Height", &m_State.CutterHeight, 1.0f, 4.0f, 30.0f);
+		ImGui::TextWrapped("Diameter: ");
+		ImGui::SameLine();
+		if (ImGui::InputFloat("##diameter", &m_State.CutterSize, 1.0f, 1.0f, "%.3f [mm]"))
+		{
+			m_State.CutterSize = std::clamp(m_State.CutterSize, 1.0f, 24.0f);
+		}
+		
+		ImGui::TextWrapped("Cutting length: ");
+		ImGui::SameLine();
+		if (ImGui::InputFloat("##cuttinglength", &m_State.CutterHeight, 1.0f, 1.0f, "%.3f [mm]"))
+		{
+			m_State.CutterHeight = std::clamp(m_State.CutterHeight, 1.0f, 2 * m_State.CutterSize);
+		}
 	}
 	else
 	{
 		ImGui::TextWrapped("No file loaded -- cutter information N/A.");
 	}
 	ImGui::End();
+}
+
+void SimUIController::RenderErrorModal()
+{
+	const char* popupName = "Error";
+
+	if (m_State.ShowErrorModal)
+	{
+		ImGui::OpenPopup(popupName);
+		m_State.ShowErrorModal = false;
+	}
+
+	ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+	ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+
+	if (ImGui::BeginPopupModal(popupName, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::SetWindowSize(ImVec2(400, 0), ImGuiCond_FirstUseEver);
+		ImGui::PushTextWrapPos(ImGui::GetFontSize() * 40.0f);
+		ImGui::TextUnformatted(m_State.ErrorMessages[0].c_str());
+		ImGui::PopTextWrapPos();
+
+		ImGui::Dummy(ImVec2(0.0f, 10.0f));
+		ImGui::Separator();
+		ImGui::SetCursorPosX((ImGui::GetWindowSize().x - 120) * 0.5f);
+		if (ImGui::Button("OK", ImVec2(120, 0))) ImGui::CloseCurrentPopup();
+		ImGui::EndPopup();
+	}
 }
 
 void SimUIController::OpenImportDialog()

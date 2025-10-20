@@ -10,6 +10,11 @@ namespace ar
 		{"a_Position", AttributeType::Float3, 0}
 	};
 
+	const BufferLayout VertexPositionNormal::s_Layout{
+		{"a_Position", AttributeType::Float3, 0},
+		{"a_Normal", AttributeType::Float3, 0}
+	};
+
 	const BufferLayout VertexPositionID::s_Layout{
 		{"a_Position", AttributeType::Float3, 0},
 		{"a_ID", AttributeType::UInt, 0}

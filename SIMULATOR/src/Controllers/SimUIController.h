@@ -17,6 +17,7 @@ private:
 	void RenderMaterialConfigPanel();
 	void RenderSimulationControlPanel();
 	void RenderCutterConfigPanel();
+	void RenderErrorModal();
 
 	void OpenImportDialog();
 	fs::path OpenFileDialog();

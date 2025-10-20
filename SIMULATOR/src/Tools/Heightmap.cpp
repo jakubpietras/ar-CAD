@@ -1,9 +1,9 @@
 #include "Heightmap.h"
 
-Heightmap::Heightmap(const MaterialDesc& material, std::vector<ar::mat::Vec3> pathCoords)
+Heightmap::Heightmap(const MaterialDesc& material, std::vector<ar::mat::Vec4> pathCoords)
 	: m_SamplesX(material.Samples.u), m_SamplesY(material.Samples.v),
 	m_SizeX(material.Size.x), m_SizeY(material.Size.z), m_PathCoords(pathCoords),
-	m_PathBuffer(std::make_shared<ar::ShaderStorageBuffer<std::vector<ar::mat::Vec3>>>()),
+	m_PathBuffer(std::make_shared<ar::ShaderStorageBuffer<std::vector<ar::mat::Vec4>>>()),
 	m_ErrorFlagsBuffer(std::make_shared<ar::ShaderStorageBuffer<MillingError>>())
 {
 	ar::TextureDesc desc{};
@@ -28,24 +28,14 @@ void Heightmap::ResetMap(const MaterialDesc& newMaterial)
 	std::vector<float> initData(newMaterial.Samples.u * newMaterial.Samples.v, height);
 	m_Texture->SetData(initData.data(), newMaterial.Samples.u * newMaterial.Samples.v);
 }
-
-ar::mat::Vec3 Heightmap::UpdateMap(const ar::mat::Vec3& start, float dt, float speed)
-{
-	// todo sxss
-	return ar::mat::Vec3();
-}
-
-void Heightmap::UpdateMapInstant(CutterType cutterType, float cutterRadius, float cutterHeight,
+MillingError Heightmap::UpdateMap(CutterType cutterType, float cutterRadius, float cutterHeight,
 	float baseHeight)
 {
 	MillingError initial = {};
-	std::vector<ar::mat::Vec4> pc;
-	for (auto& coord : m_PathCoords)
-		pc.push_back(ar::mat::ToVec4(coord));
 	
-	m_PathBuffer->UpdateData(pc.data(), pc.size() * sizeof(ar::mat::Vec4));
+	m_PathBuffer->UpdateData(m_PathCoords.data(), m_PathCoords.size() * sizeof(ar::mat::Vec4));
 	m_ErrorFlagsBuffer->UpdateData(&initial, sizeof(initial));
-	auto pathSegments = static_cast<unsigned int>(pc.size() - 1);
+	auto pathSegments = static_cast<unsigned int>(m_PathCoords.size() - 1);
 	bool isFlat = cutterType == CutterType::FLAT;
 
 	m_Texture->BindImageUnit(0, GL_READ_WRITE);
@@ -70,9 +60,10 @@ void Heightmap::UpdateMapInstant(CutterType cutterType, float cutterRadius, floa
 	if (result.DownMilling) AR_ERROR("Down milling detected");
 	if (result.NonCuttingContact) AR_ERROR("Non-cutting part contact detected");
 	if (result.OverPlunge) AR_ERROR("Cutter drilling into base detected");
+	return result;
 }
 
 void Heightmap::InitPathBuffer()
 {
-	m_PathBuffer->UpdateData(m_PathCoords.data(), m_PathCoords.size() * sizeof(ar::mat::Vec3));
+	m_PathBuffer->UpdateData(m_PathCoords.data(), m_PathCoords.size() * sizeof(ar::mat::Vec4));
 }

@@ -23,7 +23,7 @@ private:
 	ar::Ref<SimUIController> m_UI;
 	ar::Ref<SimRenderer> m_Renderer;
 	ar::Ref<ar::CameraController> m_Camera;
-	std::vector<ar::mat::Vec3> m_MachineCoords;
+	std::vector<ar::mat::Vec4> m_MachineCoords;
 	ar::Ref<ar::VertexArray> m_PathMesh;
 	MillingStock m_Block;
 	Heightmap m_HMap;
@@ -32,5 +32,7 @@ private:
 	void ProcessStateChanges();
 	void UpdatePathMesh();
 	bool RunSimulation();
+	std::vector<ar::mat::Vec4> GetRemainingPaths();
+	void ProcessMillingErrors(MillingError err);
 	void Debug();
 };

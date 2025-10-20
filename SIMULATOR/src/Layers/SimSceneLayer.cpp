@@ -73,12 +73,28 @@ void SimSceneLayer::ProcessStateChanges()
 		auto extension = StringTools::LeftTrim(m_State.Filepath.extension().string(), 1);
 		m_State.CutterType = GCodeTools::GetCutterType(extension);
 		m_State.CutterSize = GCodeTools::GetCutterSize(extension);
+		m_State.CutterHeight = m_State.CutterSize;
 		m_State.ClearImportState();
+	}
+	if (m_State.ShouldReset)
+	{
+		m_HMap.ResetMap(m_State.Material);
+		m_State.ShouldReset = false;
 	}
 	if (m_State.ShouldMillInstant)
 	{
-		m_HMap.UpdateMapInstant(m_State.CutterType, m_State.CutterSize / 20,
+		if (m_State.IsSimulationRun)
+		{
+			m_HMap.LoadNewPath(GetRemainingPaths());
+			m_State.IsSimulationRun = false;
+		}
+		else
+			m_HMap.LoadNewPath(m_MachineCoords);
+
+		auto ret = m_HMap.UpdateMap(m_State.CutterType, m_State.CutterSize / 20,
 			m_State.CutterHeight / 10, m_State.Material.BaseHeight);
+		ProcessMillingErrors(ret);
+
 		m_State.ShouldMillInstant = false;
 	}
 	if (m_State.StartSimulation)
@@ -91,7 +107,6 @@ void SimSceneLayer::ProcessStateChanges()
 	if (m_State.IsSimulationRun)
 	{
 		m_State.IsSimulationRun = RunSimulation();
-
 	}
 }
 
@@ -105,12 +120,12 @@ void SimSceneLayer::UpdatePathMesh()
 bool SimSceneLayer::RunSimulation()
 {
 	// returns false when simulation is halted, true if running
-	std::vector<ar::mat::Vec3> stops;
+	std::vector<ar::mat::Vec4> stops;
 	bool isRunning = true;
-	ar::mat::Vec3 start = m_State.StartPoint;
-	ar::mat::Vec3 end = m_MachineCoords[m_State.StartIndex + 1];
+	ar::mat::Vec3 start = ar::mat::ToVec3(m_State.StartPoint);
+	ar::mat::Vec3 end = ar::mat::ToVec3(m_MachineCoords[m_State.StartIndex + 1]);
 
-	stops.push_back(start);
+	stops.emplace_back(start, 1.0f);
 	auto dt = m_Timer.GetDeltaTime();
 	auto s = m_State.SimulationSpeed * dt;
 	do
@@ -123,7 +138,7 @@ bool SimSceneLayer::RunSimulation()
 			if (m_State.StartIndex == m_MachineCoords.size() - 1)
 			{
 				// no more segments
-				stops.push_back(end);
+				stops.emplace_back(end, 1.0f);
 				isRunning = false;
 				break;
 			}
@@ -135,17 +150,55 @@ bool SimSceneLayer::RunSimulation()
 			auto t = s /*/ d*/;
 			auto dir = ar::mat::Normalize(end - start);
 			auto q = start + dir * t;
-			stops.push_back(q);
-			m_State.StartPoint = q;
+			stops.emplace_back(q, 1.0f);
+			m_State.StartPoint = { q, 1.0f };
 			s = 0.0f;
 			isRunning = true;
 		}
 	} while (s > 0.0f);
 
 	m_HMap.LoadNewPath(stops);
-	m_HMap.UpdateMapInstant(m_State.CutterType, m_State.CutterSize / 20,
+	auto ret = m_HMap.UpdateMap(m_State.CutterType, m_State.CutterSize / 20,
 		m_State.CutterHeight / 10, m_State.Material.BaseHeight);
+	ProcessMillingErrors(ret);
+
 	return isRunning;
+}
+
+std::vector<ar::mat::Vec4> SimSceneLayer::GetRemainingPaths()
+{
+	std::vector<ar::mat::Vec4> paths(
+		m_MachineCoords.begin() + m_State.StartIndex,
+		m_MachineCoords.end()
+	);
+	return paths;
+}
+
+void SimSceneLayer::ProcessMillingErrors(MillingError err)
+{
+	bool error = false;
+	std::string errMsg = "Simulation failed due to the following: ";
+	if (err.DownMilling)
+	{
+		errMsg += "\n* Down milling detected";
+		error = error || true;
+	}
+	if (err.NonCuttingContact)
+	{
+		errMsg += "\n* Non-cutting part contact detected";
+		error = error || true;
+	}
+	if (err.OverPlunge)
+	{
+		errMsg += "\n* Cutter drilling into base detected";
+		error = error || true;
+	}
+
+	if (error)
+	{
+		m_State.ErrorMessages.push_back(errMsg);
+		m_State.ShowErrorModal = true;
+	}
 }
 
 void SimSceneLayer::Debug()

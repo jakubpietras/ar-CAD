@@ -131,9 +131,10 @@ void main()
         currentHeight -= descend;
         p.z = u_BaseHeight + currentHeight;
 
-        DetectNonCuttingContact(q, p);
-        DetectOverPlunge(currentHeight);
-        DetectDownMilling(start, end, descend, 1e-8);
+        if (DetectNonCuttingContact(q, p) ||
+        DetectOverPlunge(currentHeight) ||
+        DetectDownMilling(start, end, descend, 1e-8))
+            break;
     }
     imageStore(u_ImgOutput, texelCoord, vec4(currentHeight));
 }

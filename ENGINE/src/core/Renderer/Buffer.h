@@ -17,6 +17,7 @@ namespace ar
 		inline const size_t GetVertexCount() const { return m_VertexCount; }
 
 		static VertexBuffer* Create(std::vector<VertexPosition> vertices);
+		static VertexBuffer* Create(std::vector<VertexPositionNormal> vertices);
 		static VertexBuffer* Create(std::vector<VertexPositionID> vertices);
 		static VertexBuffer* Create(std::vector<VertexPositionUVID> vertices);
 		static VertexBuffer* Create(std::vector<VertexPositionColor> vertices);
