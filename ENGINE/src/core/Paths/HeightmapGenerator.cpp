@@ -24,7 +24,7 @@ namespace ar
 					if (hmCoords.x != -1 && hmCoords.y != -1)
 					{
 						auto index = hmCoords.y * desc.SamplesX + hmCoords.x;
-						if (hm[index] < point.y) hm[index] = point.y;
+						if (hm[index] < point.z) hm[index] = point.z;
 					}
 				}
 			}
@@ -39,8 +39,7 @@ namespace ar
 		auto cellWidth = desc.RealWidth / desc.SamplesX;
 
 		auto pointX = point.x - desc.LowerLeftCorner.x;
-		// Y means vertical dimension in the horizontal plane, which in the scene is Z:
-		auto pointY = desc.LowerLeftCorner.y - point.z;	
+		auto pointY = desc.LowerLeftCorner.y - point.y;
 		if (pointX < 0 || pointX > desc.RealWidth)
 			return mapped;
 		if (pointY < 0 || pointY > desc.RealHeight)

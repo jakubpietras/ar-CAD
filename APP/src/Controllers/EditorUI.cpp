@@ -176,6 +176,8 @@ void EditorUI::RenderMainMenu()
 		{
 			// Place for debug functions
 			m_State.ShouldRunDebug = true;
+
+
 		}
 
 		ImGui::EndMainMenuBar();
@@ -382,6 +384,20 @@ void EditorUI::RenderMillingWindow()
 {
 	ImGui::Begin("Milling");
 
+	std::string pathsLabel = (m_State.GCodeRoot.empty()) ? "N/A" : m_State.GCodeRoot.string();
+	ImGui::TextWrapped(fmt::format("Paths directory: {}", pathsLabel).c_str());
+	ImGui::SameLine();
+	if (ImGui::Button("Load"))
+	{
+		auto path = OpenFolderDialog();
+		if (!path.empty())
+		{
+			m_State.GCodeRoot = path;
+		}
+		else
+			AR_TRACE("Import canceled");
+	}
+
 	if (ImGui::CollapsingHeader("Rough milling"))
 	{
 		if (ImGui::TreeNode("Heightmap generation"))
@@ -576,6 +592,28 @@ std::string EditorUI::OpenFileDialog()
 	else
 	{
 		AR_ERROR("Error opening file: {0}", NFD_GetError());
+	}
+	return path;
+}
+
+std::string EditorUI::OpenFolderDialog()
+{
+	std::string path;
+	nfdu8char_t* outPath;
+	nfdresult_t result = NFD_PickFolder(&outPath, NULL);
+	if (result == NFD_OKAY)
+	{
+		path = std::string(static_cast<char*>(outPath));
+		AR_TRACE("Folder {0} opened sucessfully", path);
+		NFD_FreePathU8(outPath);
+	}
+	else if (result == NFD_CANCEL)
+	{
+		AR_TRACE("Folder dialog closed (action canceled)");
+	}
+	else
+	{
+		AR_ERROR("Error opening folder: {0}", NFD_GetError());
 	}
 	return path;
 }

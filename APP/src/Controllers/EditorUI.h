@@ -41,6 +41,8 @@ private:
 	void OpenImportDialog();
 	void OpenExportDialog();
 	std::string OpenFileDialog();
+	std::string OpenFolderDialog();
+
 
 	// modal
 	void RenderDeleteModal();

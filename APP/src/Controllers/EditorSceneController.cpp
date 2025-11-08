@@ -13,6 +13,7 @@
 #include "core/Utils/CurveUtils.h"
 #include "core/Tests/tests.h"
 #include "core/Paths/HeightmapGenerator.h"
+#include "core/Paths/ToolPath.h"
 
 EditorSceneController::EditorSceneController(ar::Ref<ar::Scene> scene, ar::SceneRenderer& sceneRender)
 	: m_Scene(scene), m_SceneRenderer(sceneRender),
@@ -166,7 +167,9 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 	}
 	if (state.ShouldRunDebug)
 	{
-		ar::Tests::TestLineSearchSuite();
+		//ar::Tests::TestLineSearchSuite();
+		ar::ToolPath tp({ 0.f, 0.f, 6.f }, ar::ToolType::K16);
+		tp.ConvertToGCode(1, state.GCodeRoot);
 		state.ShouldRunDebug = false;
 	}
 	if (state.EntityGrabbed)

@@ -6,6 +6,7 @@
 #include "core/Geometry/HoleDetector.h"
 #include "core/Drawing/PaintSurface.h"
 #include "core/Paths/HeightmapGenerator.h"
+#include <filesystem>
 
 struct EntityLink
 {
@@ -167,4 +168,8 @@ struct EditorState
 	ar::HeightmapGenerator::HeightmapDesc HMDescription{};
 	std::vector<float> HeightmapData{};
 	ar::Ref<ar::Texture> HeightmapImage = nullptr;
+
+	// ============================= Rough Milling =============================
+	std::filesystem::path GCodeRoot{};
+
 };

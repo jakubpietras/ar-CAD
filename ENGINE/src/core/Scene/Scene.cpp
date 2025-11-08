@@ -142,7 +142,7 @@ namespace ar
 		for (auto [entity, tc] : transformView.each())
 		{
 			if (tc.GroupTransformation)
-				UpdateTransform(tc, meanPos);
+				UpdateTransform(tc, cursorPos);
 			else if (tc.PivotPoint == PivotType::CURSOR)
 				UpdateTransform(tc, cursorPos);
 			else

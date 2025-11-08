@@ -195,6 +195,9 @@
     <ClCompile Include="src\core\Paths\ToolPath.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\core\Paths\ToolType.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\core\Application.h">
@@ -429,6 +432,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\core\Paths\ToolPath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\Paths\ToolType.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
