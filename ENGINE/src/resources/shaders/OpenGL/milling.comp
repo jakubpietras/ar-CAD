@@ -54,10 +54,9 @@ float CalculateDescRound(vec3 q, vec3 p)
     return p.z - height;
 }
 
-bool DetectNonCuttingContact(vec3 q, vec3 p)
+bool DetectNonCuttingContact(float descend)
 {
-    float cuttingPartTop = q.z + (u_CutterHeight - u_CutterRadius);
-    if (p.z > cuttingPartTop)
+    if (descend > u_CutterHeight)
     {
         atomicCompSwap(NonCuttingContact, 0, 1);
         return true;
@@ -130,7 +129,7 @@ void main()
         currentHeight -= descend;
         p.z = u_BaseHeight + currentHeight;
 
-        if (DetectNonCuttingContact(q, p) ||
+        if (DetectNonCuttingContact(descend) ||
         DetectOverPlunge(currentHeight) ||
         DetectDownMilling(start, end, descend, 1e-8))
             break;

@@ -31,6 +31,7 @@ private:
 	bool RenderPaintWindow(ar::PaintSurface& paintSurface);
 	void RenderParameterImage();
 	void RenderTrimmingWindow();
+	void RenderMillingWindow();
 
 	void RenderAddMenu();
 	void RenderContextMenu(ar::Entity object);

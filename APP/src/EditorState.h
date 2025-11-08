@@ -5,6 +5,7 @@
 #include "core/Utils/SurfaceUtils.h"
 #include "core/Geometry/HoleDetector.h"
 #include "core/Drawing/PaintSurface.h"
+#include "core/Paths/HeightmapGenerator.h"
 
 struct EntityLink
 {
@@ -92,8 +93,15 @@ struct EditorState
 	void ClearPickingState();
 
 	// =========================== Picking ==========================
+	ar::mat::Vec2 MousePrevPosViewport{ 0.0f, 0.0f };
 	ar::mat::Vec2 MousePosViewport{ 0.f, 0.f };
+	ar::mat::Vec2 MousePosChange{ 0.0f, 0.0f };
 	ar::mat::Vec2 MousePosGlobal{ 0.f, 0.f };
+
+	// =========================== Moving ==========================
+	float MoveDx = 0.f, MoveDy = 0.f;
+	bool MoveVertical = false;
+	bool EntityGrabbed = false;
 
 	// =========================== Viewport ==========================
 	ViewportSize Viewport { 0.f, 0.f };
@@ -153,4 +161,10 @@ struct EditorState
 
 	// ============================= Debug =============================
 	bool ShouldRunDebug = false;
+
+	// ============================= Rough Milling =============================
+	bool ShouldComputeHeightmap = false;
+	ar::HeightmapGenerator::HeightmapDesc HMDescription{};
+	std::vector<float> HeightmapData{};
+	ar::Ref<ar::Texture> HeightmapImage = nullptr;
 };

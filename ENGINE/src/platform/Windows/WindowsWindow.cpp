@@ -171,8 +171,8 @@ namespace ar
 				auto x = static_cast<float>(xPos);
 				auto y = static_cast<float>(yPos);
 				
-				if (!s_IsDragging)
-					return;
+				/*if (!s_IsDragging)
+					return;*/
 				
 				float offsetX = x - s_LastX;
 				float offsetY = s_LastY - y;

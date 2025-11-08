@@ -42,7 +42,7 @@ void SimUIController::RenderViewport(ar::Ref<ar::Framebuffer> mainFB)
 		m_State.Viewport = { viewportSize.x, viewportSize.y };
 		m_State.ViewportResized = true;
 	}
-
+	// p
 	ImGui::Image(
 		(ImTextureID)(uintptr_t)mainFB->GetColorAttachment(),
 		viewportSize,
@@ -93,7 +93,7 @@ void SimUIController::RenderSimulationControlPanel()
 	ar::ScopedDisable disable(m_State.Filepath.empty());
 	
 	ImGui::Begin("Simulation");
-	ImGui::DragFloat("Speed", &m_State.SimulationSpeed, 1.0f, 1.0f, 100.0f);
+	ImGui::DragFloat("Speed", &m_State.SimulationSpeed, 1.0f, 1.0f, 500.0f);
 	{
 		ar::ScopedDisable disable(m_State.SimulationBegan);
 		if (ImGui::Button("Start"))

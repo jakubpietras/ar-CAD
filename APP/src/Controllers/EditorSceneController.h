@@ -34,10 +34,13 @@ private:
 	void ProcessGroupTransform(EditorState& state);
 	void ProcessAddIntersection(EditorState& state);
 	void ProcessUpdateVisibility(EditorState& state);
-
+	void ProcessHeightmap(EditorState& state);
 
 	// Cursor
 	void PlaceCursor(ar::mat::Vec2 clickPosition, ViewportSize viewport, ar::mat::Vec3& cursorPosition);
+
+	// Moving around
+	void ProcessEntityGrab(EditorState& state);
 
 	// Deletion
 	void DeleteEntities(std::unordered_set<ar::Entity, ar::Entity::HashFunction>& entities);

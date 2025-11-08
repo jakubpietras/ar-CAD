@@ -21,6 +21,7 @@ public:
 
 	bool OnMouseButtonPressed(ar::MouseButtonPressedEvent& event);
 	bool OnMouseButtonReleased(ar::MouseButtonReleasedEvent& event);
+	bool OnMouseMoved(ar::MouseMovedEvent& event);
 
 private:
 	ar::Ref<ar::Scene> m_Scene;

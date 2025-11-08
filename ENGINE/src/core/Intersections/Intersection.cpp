@@ -50,7 +50,7 @@ namespace ar
 		// =========== Config
 		const double loopCloseEpsilon = 0.001;
 		double precision = 1e-4;
-		size_t iterations = 8000;
+		size_t iterations = 15000;
 
 		// =========== Algorithm
 		Ref<ar::mat::IParametricSurface> g1, g2;

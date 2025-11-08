@@ -12,6 +12,7 @@
 #include "core/Scene/DebugRenderer.h"
 #include "core/Utils/CurveUtils.h"
 #include "core/Tests/tests.h"
+#include "core/Paths/HeightmapGenerator.h"
 
 EditorSceneController::EditorSceneController(ar::Ref<ar::Scene> scene, ar::SceneRenderer& sceneRender)
 	: m_Scene(scene), m_SceneRenderer(sceneRender),
@@ -167,6 +168,16 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 	{
 		ar::Tests::TestLineSearchSuite();
 		state.ShouldRunDebug = false;
+	}
+	if (state.EntityGrabbed)
+	{
+		ProcessEntityGrab(state);
+	}
+
+	if (state.ShouldComputeHeightmap)
+	{
+		ProcessHeightmap(state);
+		state.ShouldComputeHeightmap = false;
 	}
 
 	// Validation
@@ -738,6 +749,22 @@ void EditorSceneController::ProcessUpdateVisibility(EditorState& state)
 	state.ObjectsToShow.clear();
 }
 
+void EditorSceneController::ProcessHeightmap(EditorState& state)
+{
+	if (state.SelectedIntersectableSurfaces.empty())
+		return;
+	if (state.HMDescription.SamplesX == 0 || state.HMDescription.SamplesY == 0)
+		return;
+	state.HeightmapData = ar::HeightmapGenerator::Generate(state.HMDescription, state.SelectedIntersectableSurfaces);
+	ar::TextureDesc desc;
+	desc.Width = state.HMDescription.SamplesX;
+	desc.Height = state.HMDescription.SamplesY;
+	desc.Format = ar::TextureFormat::R32F;
+	auto tex = ar::Texture::Create(desc);
+	tex->UpdateData(state.HeightmapData.data());
+	state.HeightmapImage = ar::Ref<ar::Texture>(tex);
+}
+
 void EditorSceneController::PlaceCursor(ar::mat::Vec2 clickPosition, ViewportSize viewport, ar::mat::Vec3& cursorPosition)
 {
 	float xPos = clickPosition.x;
@@ -761,6 +788,30 @@ void EditorSceneController::PlaceCursor(ar::mat::Vec2 clickPosition, ViewportSiz
 	auto cursorPos = -m_CameraController->GetOffset() + origin + direction * t;
 
 	cursorPosition = cursorPos;
+}
+
+void EditorSceneController::ProcessEntityGrab(EditorState& state)
+{
+	const float sensitivity = 0.01;
+	if (state.SelectedObjects.empty())
+		return;
+	auto& entities = state.SelectedObjects;
+	for (auto& entity : entities)
+	{
+		if (!entity.HasComponent<ar::PointComponent>())
+			return;
+		auto& t = entity.GetComponent<ar::TransformComponent>();
+		if (state.MoveVertical)
+		{
+			t.Translation.y += state.MousePosChange.y * sensitivity;
+		}
+		else
+		{
+			t.Translation.x -= state.MousePosChange.x * sensitivity;
+			t.Translation.z += state.MousePosChange.y * sensitivity;
+		}
+		t.DirtyFlag = true;
+	}
 }
 
 void EditorSceneController::DeleteEntities(std::unordered_set<ar::Entity, ar::Entity::HashFunction>& entities)

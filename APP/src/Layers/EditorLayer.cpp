@@ -39,6 +39,7 @@ void EditorLayer::OnEvent(ar::Event& event)
 {
 	m_SceneController.OnEventCamera(event);
 	ar::EventDispatcher dispatcher(event);
+	dispatcher.Dispatch<ar::MouseMovedEvent>(AR_BIND_EVENT_FN(EditorLayer::OnMouseMoved));
 	dispatcher.Dispatch<ar::MouseButtonPressedEvent>(AR_BIND_EVENT_FN(EditorLayer::OnMouseButtonPressed));
 	dispatcher.Dispatch<ar::MouseButtonReleasedEvent>(AR_BIND_EVENT_FN(EditorLayer::OnMouseButtonReleased));
 }
@@ -56,14 +57,27 @@ bool EditorLayer::OnMouseButtonPressed(ar::MouseButtonPressedEvent& event)
 		m_State.BoxStart = m_State.MousePosGlobal;
 		m_State.IsBoxPicking = true;
 	}
+	if (event.GetMouseButton() == AR_MOUSE_BUTTON_RIGHT)
+	{
+		m_State.EntityGrabbed = true;
+		if (ar::Input::IsKeyPressed(AR_KEY_LEFT_CONTROL))
+			m_State.MoveVertical = true;
+		else if (ar::Input::IsKeyPressed(AR_KEY_LEFT_ALT))
+			m_State.MoveVertical = false;
+		else
+			m_State.EntityGrabbed = false;
+	}
 	return false;
 }
 
 bool EditorLayer::OnMouseButtonReleased(ar::MouseButtonReleasedEvent& event)
 {
-	if (event.GetMouseButton() == AR_MOUSE_BUTTON_RIGHT && ar::Input::IsKeyPressed(AR_KEY_LEFT_SHIFT))
+	if (event.GetMouseButton() == AR_MOUSE_BUTTON_RIGHT)
 	{
-		m_State.ShouldPlaceCursor = true;
+		if (ar::Input::IsKeyPressed(AR_KEY_LEFT_SHIFT))
+			m_State.ShouldPlaceCursor = true;
+		m_State.EntityGrabbed = false;
+		m_State.MoveVertical = false;
 	}
 	else if (event.GetMouseButton() == AR_MOUSE_BUTTON_LEFT)
 	{
@@ -75,5 +89,12 @@ bool EditorLayer::OnMouseButtonReleased(ar::MouseButtonReleasedEvent& event)
 		m_State.ShouldProcessPicking = true;
 		m_State.IsBoxPicking = false;
 	}
+	return false;
+}
+
+bool EditorLayer::OnMouseMoved(ar::MouseMovedEvent& event)
+{
+	m_State.MoveDx = event.GetXOffset();
+	m_State.MoveDy = event.GetYOffset();
 	return false;
 }

@@ -3,6 +3,7 @@
 #include "core/ImGui/ScopedDisable.h"
 #include <nfd.h>
 #include "core/Scene/DebugRenderer.h"
+#include "fmt/core.h"
 
 EditorUI::EditorUI(EditorState& state, ar::Ref<ar::Scene> scene)
 	: m_State(state), 
@@ -26,6 +27,7 @@ void EditorUI::Render(ar::Ref<ar::Framebuffer> mainFB)
 	RenderViewport(mainFB);
 	RenderParameterImage();
 	RenderTrimmingWindow();
+	RenderMillingWindow();
 	
 
 	m_SceneHierarchyPanel.Render();
@@ -225,7 +227,9 @@ void EditorUI::RenderViewport(ar::Ref<ar::Framebuffer> mainFB)
 	);
 
 	auto mouse = ImGui::GetMousePos();
+	m_State.MousePrevPosViewport = m_State.MousePosViewport;
 	m_State.MousePosViewport = GetClickPosition();
+	m_State.MousePosChange = m_State.MousePosViewport - m_State.MousePrevPosViewport;
 	m_State.MousePosGlobal = { mouse.x, mouse.y };
 
 	ImGui::End();
@@ -369,6 +373,57 @@ void EditorUI::RenderTrimmingWindow()
 	else
 	{
 		ImGui::TextWrapped("You must choose an intersected surface (Bezier patch or torus) to trim!");
+	}
+
+	ImGui::End();
+}
+
+void EditorUI::RenderMillingWindow()
+{
+	ImGui::Begin("Milling");
+
+	if (ImGui::CollapsingHeader("Rough milling"))
+	{
+		if (ImGui::TreeNode("Heightmap generation"))
+		{
+			static bool showImage = false;
+			const uint32_t minSurfaceSamples = 1, maxSurfaceSamples = 2000;
+			ImGui::TextWrapped(fmt::format("Currently selected {} surfaces",
+				m_State.SelectedIntersectableSurfaces.size()).c_str());
+			ImGui::DragFloat("Base height", &m_State.HMDescription.MinHeight, 0.01f, 0.0f, 10.0f);
+			ImGui::DragFloat("Width [cm]", &m_State.HMDescription.RealWidth, 0.1f, 0.1f, 10.0f);
+			ImGui::DragFloat("Height [cm]", &m_State.HMDescription.RealHeight, 0.1f, 0.1f, 10.0f);
+			ImGui::DragScalar("HMap Sampling (X)", ImGuiDataType_U32, &m_State.HMDescription.SamplesX, 1, &minSurfaceSamples, &maxSurfaceSamples);
+			ImGui::DragScalar("HMap Sampling (Y)", ImGuiDataType_U32, &m_State.HMDescription.SamplesY, 1, &minSurfaceSamples, &maxSurfaceSamples);
+			ImGui::DragScalar("Surface Sampling", ImGuiDataType_U32, &m_State.HMDescription.SurfaceSamples, 1, &minSurfaceSamples, &maxSurfaceSamples);
+			ImGui::Text(fmt::format("Lower left corner [X-Z plane]: ({:.2f}, {:.2f})",
+				m_State.HMDescription.LowerLeftCorner.x, m_State.HMDescription.LowerLeftCorner.y).c_str());
+			ImGui::SameLine();
+			if (ImGui::Button("Get Cursor"))
+				m_State.HMDescription.LowerLeftCorner = { m_State.CursorPosition.x, m_State.CursorPosition.z };
+			if (ImGui::Button("Compute height map"))
+			{
+				m_State.ShouldComputeHeightmap = true;
+			}
+			ImGui::SameLine();
+			{
+				ar::ScopedDisable disable(!m_State.HeightmapImage);
+				if (ImGui::Button("Show preview"))
+				{
+					showImage = !showImage;
+				}
+			}
+			if (showImage)
+			{
+				auto size = ImGui::GetContentRegionAvail();
+				ImGui::Image(
+					(ImTextureID)(uintptr_t)m_State.HeightmapImage->GetID(),
+					ImVec2(size.x, size.x),
+					ImVec2(0, 1), ImVec2(1, 0)
+				);
+			}
+			ImGui::TreePop();
+		}
 	}
 
 	ImGui::End();

@@ -123,6 +123,7 @@ namespace ar
 		ControlPointsComponent(std::vector<Entity> initialPoints);
 		std::vector<Entity> Points{};
 		std::vector<uint32_t> Indices{};
+
 	};
 
 	struct TrimmingComponent
