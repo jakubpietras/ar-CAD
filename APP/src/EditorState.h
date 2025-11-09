@@ -168,6 +168,7 @@ struct EditorState
 	ar::HeightmapGenerator::HeightmapDesc HMDescription{};
 	std::vector<float> HeightmapData{};
 	ar::Ref<ar::Texture> HeightmapImage = nullptr;
+	bool ShouldGenerateFaceMillPaths = false;
 
 	// ============================= Rough Milling =============================
 	std::filesystem::path GCodeRoot{};

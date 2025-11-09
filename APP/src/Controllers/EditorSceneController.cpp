@@ -14,6 +14,8 @@
 #include "core/Tests/tests.h"
 #include "core/Paths/HeightmapGenerator.h"
 #include "core/Paths/ToolPath.h"
+#include "core/Paths/PathGenerator.h"
+#include <algorithm>
 
 EditorSceneController::EditorSceneController(ar::Ref<ar::Scene> scene, ar::SceneRenderer& sceneRender)
 	: m_Scene(scene), m_SceneRenderer(sceneRender),
@@ -90,7 +92,7 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 		state.ViewportResized = false;
 	}
 
-	// Group Transformss
+	// Group Transforms
 	if (state.ShouldBeginGroupTransform)
 	{
 		BeginGroupTransform(state);
@@ -168,7 +170,7 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 	if (state.ShouldRunDebug)
 	{
 		//ar::Tests::TestLineSearchSuite();
-		ar::ToolPath tp({ 0.f, 0.f, 6.f }, ar::ToolType::K16);
+		ar::ToolPath tp({ 0.f, 0.f, 5.1f }, ar::ToolType::K16);
 		tp.ConvertToGCode(1, state.GCodeRoot);
 		state.ShouldRunDebug = false;
 	}
@@ -181,6 +183,15 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 	{
 		ProcessHeightmap(state);
 		state.ShouldComputeHeightmap = false;
+	}
+
+	if (state.ShouldGenerateFaceMillPaths)
+	{
+		ar::PathGenerator::MillingConfig config;
+		
+		auto path = ar::PathGenerator::GenerateFaceMill(config, state.SelectedIntersectableSurfaces);
+		path.ConvertToGCode(1, state.GCodeRoot);
+		state.ShouldGenerateFaceMillPaths = false;
 	}
 
 	// Validation
@@ -764,7 +775,13 @@ void EditorSceneController::ProcessHeightmap(EditorState& state)
 	desc.Height = state.HMDescription.SamplesY;
 	desc.Format = ar::TextureFormat::R32F;
 	auto tex = ar::Texture::Create(desc);
-	tex->UpdateData(state.HeightmapData.data());
+
+	std::vector<float> texData;
+	texData.reserve(desc.Width * desc.Height);
+	std::transform(state.HeightmapData.begin(), state.HeightmapData.end(), std::back_inserter(texData),
+		[&state](float e) {return e - state.HMDescription.MinHeight; });
+
+	tex->UpdateData(texData.data());
 	state.HeightmapImage = ar::Ref<ar::Texture>(tex);
 }
 

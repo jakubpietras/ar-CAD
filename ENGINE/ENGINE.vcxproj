@@ -92,6 +92,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\core\Paths\HeightmapGenerator.cpp" />
+    <ClCompile Include="src\core\Paths\PathGenerator.cpp" />
     <ClCompile Include="src\core\Paths\ToolPath.cpp" />
     <ClCompile Include="src\core\Paths\ToolType.cpp" />
     <ClCompile Include="src\core\Renderer\ComputeShader.cpp" />
@@ -160,6 +161,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\core\Paths\HeightmapGenerator.h" />
+    <ClInclude Include="src\core\Paths\PathGenerator.h" />
     <ClInclude Include="src\core\Paths\ToolPath.h" />
     <ClInclude Include="src\core\Paths\ToolType.h" />
     <ClInclude Include="src\core\Renderer\ComputeShader.h" />

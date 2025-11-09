@@ -440,6 +440,14 @@ void EditorUI::RenderMillingWindow()
 			}
 			ImGui::TreePop();
 		}
+		if (ImGui::TreeNode("Paths generation"))
+		{
+			if (ImGui::Button("Generate"))
+			{
+				m_State.ShouldGenerateFaceMillPaths = true;
+			}
+			ImGui::TreePop();
+		}
 	}
 
 	ImGui::End();
