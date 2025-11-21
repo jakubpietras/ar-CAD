@@ -22,13 +22,22 @@ namespace ar
 			ToolType Type = ToolType::K16;
 		};
 		static ToolPath GenerateFaceMill(MillingConfig config, std::vector<ar::Entity> objects);
-		
+		static ToolPath GenerateBaseMill(MillingConfig config, std::vector<ar::Entity> objects);
+
 	private:
-		static void AddHorizontalPathRight(ToolPath& path, MillingConfig config,
-			const std::vector<float>& hmap, HeightmapGenerator::HeightmapDesc desc);
-		static void AddHorizontalPathLeft(ToolPath& path, MillingConfig config,
-			const std::vector<float>& hmap, HeightmapGenerator::HeightmapDesc desc);
+		static const float m_BaseMargin;
+		static bool CheckCollision(const std::vector<float>& hmap, HeightmapGenerator::HeightmapDesc desc, ar::mat::Vec3 center, float toolRadius);
 
 
+		static void AddFaceMillHorizontalPathRight(ToolPath& path, MillingConfig config,
+			const std::vector<float>& hmap, HeightmapGenerator::HeightmapDesc desc);
+		static void AddFaceMillHorizontalPathLeft(ToolPath& path, MillingConfig config,
+			const std::vector<float>& hmap, HeightmapGenerator::HeightmapDesc desc);
+		static bool AddBaseMillPathRight(ToolPath& path, MillingConfig config,
+			const std::vector<float>& hmap, HeightmapGenerator::HeightmapDesc desc, float stopX);
+		static bool AddBaseMillPathLeft(ToolPath& path, MillingConfig config,
+			const std::vector<float>& hmap, HeightmapGenerator::HeightmapDesc desc, float stopX);
+		static bool AddBaseMillPathVertical(ToolPath& path, MillingConfig config,
+			const std::vector<float>& hmap, HeightmapGenerator::HeightmapDesc desc, bool goesUp);
 	};
 }

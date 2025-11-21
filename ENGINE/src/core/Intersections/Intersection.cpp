@@ -48,7 +48,7 @@ namespace ar
 		ICData result;
 		
 		// =========== Config
-		const double loopCloseEpsilon = 0.001;
+		const double loopCloseEpsilon = 0.01;
 		double precision = 1e-4;
 		size_t iterations = 15000;
 
@@ -138,8 +138,9 @@ namespace ar
 			}
 			
 			// Loop detection
-			if (!result.Params.empty() 
-				&& mat::Length(params - result.Params[0]) < loopCloseEpsilon && iter > 10)
+			if (!result.Points.empty()
+				&& mat::LengthSquared(candidate - result.Points[0]) < (loopCloseEpsilon * loopCloseEpsilon)
+				&& iter > 10)
 			{
 				result.Points.push_back(result.Points[0]);
 				result.Params.push_back(result.Params[0]);

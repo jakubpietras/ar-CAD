@@ -14,9 +14,20 @@ namespace ar
 
 	void ToolPath::MoveTo(ar::mat::Vec3 point)
 	{
-		const auto& lastPoint = m_MachineCoords.back() - m_BaseDisplacement;
-		m_MachineCoords.push_back(point + m_BaseDisplacement);
-		m_Length += ar::mat::Length(point - lastPoint);
+		auto newPoint = point + m_BaseDisplacement;
+		if (m_MachineCoords.size() > 2)
+		{
+			const auto& preLastPoint = m_MachineCoords.end()[-2];
+			const auto& lastPoint = m_MachineCoords.back();
+
+			auto lastDir = mat::Normalize(lastPoint - preLastPoint);
+			auto newDir = mat::Normalize(newPoint - lastPoint);
+			if (lastDir == newDir)
+				m_MachineCoords.pop_back();
+		}
+
+		m_MachineCoords.push_back(newPoint);
+		m_Length += ar::mat::Length(newPoint - m_MachineCoords.back());
 	}
 
 	void ToolPath::MoveBy(ar::mat::Vec3 v)

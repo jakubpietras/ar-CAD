@@ -652,6 +652,11 @@ namespace ar
 		{
 			return { v.x, v.y, v.z };
 		}
+		template<typename T>
+		constexpr bool IsFinite(const Vec4T<T>& t)
+		{
+			return std::isfinite(t.x) && std::isfinite(t.y) && std::isfinite(t.z) && std::isfinite(t.w);
+		}
 
 		/// <summary>
 		/// Returns the cross product of two 3D vectors.

@@ -194,6 +194,16 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 		state.ShouldGenerateFaceMillPaths = false;
 	}
 
+	if (state.ShouldGenerateBaseMillPaths)
+	{
+		ar::PathGenerator::MillingConfig config;
+		config.Type = ar::ToolType::F10;
+		config.StepY = 0.9f;
+		auto path = ar::PathGenerator::GenerateBaseMill(config, state.SelectedIntersectableSurfaces);
+		path.ConvertToGCode(2, state.GCodeRoot);
+		state.ShouldGenerateBaseMillPaths = false;
+	}
+
 	// Validation
 	if (geometryValidation)
 		ValidateGeometry(state);

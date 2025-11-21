@@ -398,53 +398,68 @@ void EditorUI::RenderMillingWindow()
 			AR_TRACE("Import canceled");
 	}
 
+	if (ImGui::CollapsingHeader("Heightmap"))
+	{
+		static bool showImage = false;
+		const uint32_t minSurfaceSamples = 1, maxSurfaceSamples = 2000;
+		ImGui::TextWrapped(fmt::format("Currently selected {} surfaces",
+			m_State.SelectedIntersectableSurfaces.size()).c_str());
+		ImGui::DragFloat("Base height", &m_State.HMDescription.MinHeight, 0.01f, 0.0f, 10.0f);
+		ImGui::DragFloat("Width [cm]", &m_State.HMDescription.RealWidth, 0.1f, 0.1f, 10.0f);
+		ImGui::DragFloat("Height [cm]", &m_State.HMDescription.RealHeight, 0.1f, 0.1f, 10.0f);
+		ImGui::DragScalar("HMap Sampling (X)", ImGuiDataType_U32, &m_State.HMDescription.SamplesX, 1, &minSurfaceSamples, &maxSurfaceSamples);
+		ImGui::DragScalar("HMap Sampling (Y)", ImGuiDataType_U32, &m_State.HMDescription.SamplesY, 1, &minSurfaceSamples, &maxSurfaceSamples);
+		ImGui::DragScalar("Surface Sampling", ImGuiDataType_U32, &m_State.HMDescription.SurfaceSamples, 1, &minSurfaceSamples, &maxSurfaceSamples);
+		ImGui::Text(fmt::format("Lower left corner [X-Z plane]: ({:.2f}, {:.2f})",
+			m_State.HMDescription.LowerLeftCorner.x, m_State.HMDescription.LowerLeftCorner.y).c_str());
+		ImGui::SameLine();
+		if (ImGui::Button("Get Cursor"))
+			m_State.HMDescription.LowerLeftCorner = { m_State.CursorPosition.x, m_State.CursorPosition.z };
+		if (ImGui::Button("Compute height map"))
+		{
+			m_State.ShouldComputeHeightmap = true;
+		}
+		ImGui::SameLine();
+		{
+			ar::ScopedDisable disable(!m_State.HeightmapImage);
+			if (ImGui::Button("Show preview"))
+			{
+				showImage = !showImage;
+			}
+		}
+		if (showImage)
+		{
+			auto size = ImGui::GetContentRegionAvail();
+			ImGui::Image(
+				(ImTextureID)(uintptr_t)m_State.HeightmapImage->GetID(),
+				ImVec2(size.x, size.x),
+				ImVec2(0, 1), ImVec2(1, 0)
+			);
+		}
+	}
+
 	if (ImGui::CollapsingHeader("Rough milling"))
 	{
-		if (ImGui::TreeNode("Heightmap generation"))
+		if (ImGui::Button("Generate"))
 		{
-			static bool showImage = false;
-			const uint32_t minSurfaceSamples = 1, maxSurfaceSamples = 2000;
-			ImGui::TextWrapped(fmt::format("Currently selected {} surfaces",
-				m_State.SelectedIntersectableSurfaces.size()).c_str());
-			ImGui::DragFloat("Base height", &m_State.HMDescription.MinHeight, 0.01f, 0.0f, 10.0f);
-			ImGui::DragFloat("Width [cm]", &m_State.HMDescription.RealWidth, 0.1f, 0.1f, 10.0f);
-			ImGui::DragFloat("Height [cm]", &m_State.HMDescription.RealHeight, 0.1f, 0.1f, 10.0f);
-			ImGui::DragScalar("HMap Sampling (X)", ImGuiDataType_U32, &m_State.HMDescription.SamplesX, 1, &minSurfaceSamples, &maxSurfaceSamples);
-			ImGui::DragScalar("HMap Sampling (Y)", ImGuiDataType_U32, &m_State.HMDescription.SamplesY, 1, &minSurfaceSamples, &maxSurfaceSamples);
-			ImGui::DragScalar("Surface Sampling", ImGuiDataType_U32, &m_State.HMDescription.SurfaceSamples, 1, &minSurfaceSamples, &maxSurfaceSamples);
-			ImGui::Text(fmt::format("Lower left corner [X-Z plane]: ({:.2f}, {:.2f})",
-				m_State.HMDescription.LowerLeftCorner.x, m_State.HMDescription.LowerLeftCorner.y).c_str());
-			ImGui::SameLine();
-			if (ImGui::Button("Get Cursor"))
-				m_State.HMDescription.LowerLeftCorner = { m_State.CursorPosition.x, m_State.CursorPosition.z };
-			if (ImGui::Button("Compute height map"))
-			{
-				m_State.ShouldComputeHeightmap = true;
-			}
-			ImGui::SameLine();
-			{
-				ar::ScopedDisable disable(!m_State.HeightmapImage);
-				if (ImGui::Button("Show preview"))
-				{
-					showImage = !showImage;
-				}
-			}
-			if (showImage)
-			{
-				auto size = ImGui::GetContentRegionAvail();
-				ImGui::Image(
-					(ImTextureID)(uintptr_t)m_State.HeightmapImage->GetID(),
-					ImVec2(size.x, size.x),
-					ImVec2(0, 1), ImVec2(1, 0)
-				);
-			}
-			ImGui::TreePop();
+			m_State.ShouldGenerateFaceMillPaths = true;
 		}
-		if (ImGui::TreeNode("Paths generation"))
+	}
+	if (ImGui::CollapsingHeader("Base milling"))
+	{
+		if (ImGui::TreeNode("Base mill"))
 		{
 			if (ImGui::Button("Generate"))
 			{
-				m_State.ShouldGenerateFaceMillPaths = true;
+				m_State.ShouldGenerateBaseMillPaths = true;
+			}
+			ImGui::TreePop();
+		}
+		if (ImGui::TreeNode("Outline mill"))
+		{
+			if (ImGui::Button("Generate"))
+			{
+				m_State.ShouldGenerateOutlineMillPaths = true;
 			}
 			ImGui::TreePop();
 		}

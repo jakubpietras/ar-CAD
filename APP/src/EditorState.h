@@ -169,6 +169,9 @@ struct EditorState
 	std::vector<float> HeightmapData{};
 	ar::Ref<ar::Texture> HeightmapImage = nullptr;
 	bool ShouldGenerateFaceMillPaths = false;
+	bool ShouldGenerateBaseMillPaths = false;
+	bool ShouldGenerateOutlineMillPaths = false;
+
 
 	// ============================= Rough Milling =============================
 	std::filesystem::path GCodeRoot{};

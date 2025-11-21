@@ -35,6 +35,7 @@ namespace ar
 
 	ar::mat::Vec2T<int> HeightmapGenerator::MapPoint(HeightmapDesc desc, ar::mat::Vec3d point)
 	{
+		// Project point (x, y, z) to (x', y') on a heightmap (-1 if outside the heightmap)
 		ar::mat::Vec2T<int> mapped{ -1, -1 };
 		auto cellHeight = desc.RealHeight / desc.SamplesY;
 		auto cellWidth = desc.RealWidth / desc.SamplesX;
