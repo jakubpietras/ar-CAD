@@ -79,6 +79,7 @@ struct EditorState
 	std::vector<ar::Entity> SelectedIntersectableSurfaces{};
 	std::vector<ar::Entity> SelectionCandidates{};
 	std::optional<ar::Entity> SelectedIntersectionCurve = std::nullopt;
+	std::vector<ar::Entity> SelectedIntersectionCurves{};
 	ar::mat::Vec3 SelectedMeanPosition {0.f, 0.f, 0.f};
 	SelectionMode SelectionChangeMode = SelectionMode::Replace;
 	bool ShouldUpdateSelection = false;
@@ -172,8 +173,10 @@ struct EditorState
 	bool ShouldGenerateBaseMillPaths = false;
 	bool ShouldGenerateOutlineMillPaths = false;
 
-
 	// ============================= Rough Milling =============================
 	std::filesystem::path GCodeRoot{};
+
+	// ============================= Base Milling =============================
+	bool ShowSelectedIntCurveNormals = false;
 
 };

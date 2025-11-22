@@ -445,6 +445,7 @@ void EditorSceneController::ValidateSelection(EditorState& state)
 	);
 	state.SelectedPoints.clear();
 	state.SelectedCurves.clear();
+	state.SelectedIntersectionCurves.clear();
 	state.SelectedObjectsWithTransforms.clear();
 	state.SelectedSurfacesC0.clear();
 	state.SelectedIntersectableSurfaces.clear();
@@ -456,6 +457,8 @@ void EditorSceneController::ValidateSelection(EditorState& state)
 			state.SelectedPoints.push_back(entity);
 		if (entity.HasAnyComponent<ar::ChainComponent, ar::CurveC0Component, ar::CurveC2Component, ar::InterpolatedC2Component>())
 			state.SelectedCurves.push_back(entity);
+		if (entity.HasComponent<ar::IntersectCurveComponent>())
+			state.SelectedIntersectionCurves.push_back(entity);
 		if (entity.HasComponent<ar::TransformComponent>())
 			state.SelectedObjectsWithTransforms.push_back(entity);
 		if (entity.HasComponent<ar::SurfaceComponent>())
@@ -714,7 +717,7 @@ void EditorSceneController::ProcessAddIntersection(EditorState& state)
 {
 	auto& objs = state.SelectedIntersectableSurfaces;
 	ar::ICData curve;
-	std::vector<ar::mat::Vec3> points; 
+	std::vector<ar::mat::Vec3> points, normalsP, normalsQ; 
 	std::vector<ar::mat::Vec4> params;
 
 	if (objs.size() == 1)
@@ -722,9 +725,11 @@ void EditorSceneController::ProcessAddIntersection(EditorState& state)
 		curve = ar::Intersection::IntersectionCurve(objs[0], objs[0], state.StepDistance, ar::mat::Vec3d(state.CursorPosition), state.ShouldUseCursorAssist);
 		points = ar::GeneralUtils::VecDoubleToFloat(curve.Points);
 		params = ar::GeneralUtils::VecDoubleToFloat(curve.Params);
+		normalsP = ar::GeneralUtils::VecDoubleToFloat(curve.NormalsA);
+		normalsQ = ar::GeneralUtils::VecDoubleToFloat(curve.NormalsB);
 		if (!curve.Points.empty() && !curve.Params.empty())
 		{
-			m_Factory.CreateIntersectionCurve(points, params, objs[0], std::nullopt,
+			m_Factory.CreateIntersectionCurve(points, params, normalsP, normalsQ, objs[0], std::nullopt,
 				std::nullopt, "Self-intersection Curve");
 		}
 		else
@@ -739,9 +744,11 @@ void EditorSceneController::ProcessAddIntersection(EditorState& state)
 		curve = ar::Intersection::IntersectionCurve(objs[0], objs[1], state.StepDistance, ar::mat::Vec3d(state.CursorPosition), state.ShouldUseCursorAssist);
 		points = ar::GeneralUtils::VecDoubleToFloat(curve.Points);
 		params = ar::GeneralUtils::VecDoubleToFloat(curve.Params);
+		normalsP = ar::GeneralUtils::VecDoubleToFloat(curve.NormalsA);
+		normalsQ = ar::GeneralUtils::VecDoubleToFloat(curve.NormalsB);
 		if (!curve.Points.empty() && !curve.Params.empty())
 		{
-			auto ic = m_Factory.CreateIntersectionCurve(points, params, objs[0], objs[1],
+			auto ic = m_Factory.CreateIntersectionCurve(points, params, normalsP, normalsQ, objs[0], objs[1],
 				std::nullopt, "Intersection Curve");
 		}
 		else

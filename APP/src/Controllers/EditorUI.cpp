@@ -457,6 +457,46 @@ void EditorUI::RenderMillingWindow()
 		}
 		if (ImGui::TreeNode("Outline mill"))
 		{
+			if (ImGui::TreeNode("Normals check"))
+			{
+				if (m_State.SelectedIntersectionCurve)
+				{
+					ImGui::TextWrapped(fmt::format("Visualize normal vectors of the curve: {} (ID: {})", m_State.SelectedIntersectionCurve->GetName(), m_State.SelectedIntersectionCurve->GetID()).c_str());
+					if (ImGui::Button("Show/Hide P"))
+					{
+						m_State.ShowSelectedIntCurveNormals = !m_State.ShowSelectedIntCurveNormals;
+						if (m_State.ShowSelectedIntCurveNormals)
+						{
+							auto& data = *m_State.SelectedIntersectionCurve;
+							auto& intComponent = data.GetComponent<ar::IntersectCurveComponent>();
+							for (int i = 0; i < intComponent.Points.size(); i++)
+							{
+								ar::DebugRenderer::AddLine(intComponent.Points[i], intComponent.Points[i] + intComponent.NormalsP[i] * 0.1f);
+							}
+						}
+						else
+							ar::DebugRenderer::Clear();
+					}
+					if (ImGui::Button("Show/Hide Q"))
+					{
+						m_State.ShowSelectedIntCurveNormals = !m_State.ShowSelectedIntCurveNormals;
+						if (m_State.ShowSelectedIntCurveNormals)
+						{
+							auto& data = *m_State.SelectedIntersectionCurve;
+							auto& intComponent = data.GetComponent<ar::IntersectCurveComponent>();
+							for (int i = 0; i < intComponent.Points.size(); i++)
+							{
+								ar::DebugRenderer::AddLine(intComponent.Points[i], intComponent.Points[i] + intComponent.NormalsQ[i] * 0.1f);
+							}
+						}
+						else
+							ar::DebugRenderer::Clear();
+					}
+				}
+				else
+					ImGui::TextWrapped("No intersection curve chosen");
+				ImGui::TreePop();
+			}
 			if (ImGui::Button("Generate"))
 			{
 				m_State.ShouldGenerateOutlineMillPaths = true;

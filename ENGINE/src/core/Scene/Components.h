@@ -193,6 +193,7 @@ namespace ar
 	{
 		std::vector<ar::mat::Vec3> Points;
 		std::vector<ar::mat::Vec4> Params;
+		std::vector<ar::mat::Vec3> NormalsP, NormalsQ;
 		ar::Ref<PaintSurface> ImageP, ImageQ;
 		ar::Ref<PaintSurface> TrimTexP, TrimTexQ;
 		ar::Entity SurfaceP;

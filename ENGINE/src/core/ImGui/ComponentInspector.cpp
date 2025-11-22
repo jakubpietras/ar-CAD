@@ -52,7 +52,6 @@ void ar::ComponentInspector::InspectComponent(IntersectCurveComponent& intcurve)
 	else
 		message = "Intersecting " + intcurve.SurfaceP.GetName() + "(ID: " + std::to_string(intcurve.SurfaceP.GetID()) + ") "
 		+ "with " + (*intcurve.SurfaceQ).GetName() + "(ID: " + std::to_string((*intcurve.SurfaceQ).GetID()) + ")";
-
 	ImGui::TextWrapped(message.c_str());
 	ImGui::SeparatorText("Curve conversion");
 	ImGui::TextWrapped("To convert this intersection curve into an interpolatory C2 spline, enter the desired number of control points.");

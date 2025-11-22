@@ -133,6 +133,8 @@ namespace ar
 				{
 					result.Points.push_back(candidate);
 					result.Params.push_back(params);
+					result.NormalsA.push_back(g1->Normal(params.x, params.y));
+					result.NormalsB.push_back(g2->Normal(params.z, params.w));
 				}
 				break;
 			}
@@ -144,6 +146,8 @@ namespace ar
 			{
 				result.Points.push_back(result.Points[0]);
 				result.Params.push_back(result.Params[0]);
+				result.NormalsA.push_back(g1->Normal(result.Params[0].x, result.Params[0].y));
+				result.NormalsB.push_back(g2->Normal(result.Params[0].z, result.Params[0].w));
 				return result;
 			}
 
@@ -163,6 +167,8 @@ namespace ar
 
 			result.Points.push_back(candidate);
 			result.Params.push_back(params);
+			result.NormalsA.push_back(g1->Normal(params.x, params.y));
+			result.NormalsB.push_back(g2->Normal(params.z, params.w));
 
 			prevParams = params;
 			startPoint = candidate;
@@ -170,6 +176,7 @@ namespace ar
 
 		std::vector<mat::Vec3d> reverseCurve;
 		std::vector<mat::Vec4d> reverseParameters;
+		std::vector<mat::Vec3d> reverseNormalsA, reverseNormalsB;
 
 		params = prevParams = startParameter;
 		p = g1->Evaluate(params.x, params.y);
@@ -205,6 +212,9 @@ namespace ar
 				{
 					result.Points.push_back(candidate);
 					result.Params.push_back(params);
+					result.NormalsA.push_back(g1->Normal(params.x, params.y));
+					result.NormalsB.push_back(g2->Normal(params.z, params.w));
+
 				}
 				break;
 			}
@@ -218,6 +228,8 @@ namespace ar
 
 			reverseCurve.push_back(candidate);
 			reverseParameters.push_back(params);
+			reverseNormalsA.push_back(g1->Normal(params.x, params.y));
+			reverseNormalsB.push_back(g2->Normal(params.z, params.w));
 
 			prevParams = params;
 			startPoint = candidate;
@@ -225,6 +237,8 @@ namespace ar
 
 		result.Points.insert(result.Points.begin(), reverseCurve.rbegin(), reverseCurve.rend());
 		result.Params.insert(result.Params.begin(), reverseParameters.rbegin(), reverseParameters.rend());
+		result.NormalsA.insert(result.NormalsA.begin(), reverseNormalsA.rbegin(), reverseNormalsA.rend());
+		result.NormalsB.insert(result.NormalsB.begin(), reverseNormalsB.rbegin(), reverseNormalsB.rend());
 
 		return result;
 	}
