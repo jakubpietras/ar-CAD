@@ -47,7 +47,16 @@ namespace ar
 	ICData Intersection::IntersectionCurve(ar::Entity firstObject, ar::Entity secondObject, float d, mat::Vec3d cursorPos, bool cursorAssisted)
 	{
 		ICData result;
-		
+
+		// =========== Preprocessing
+		auto& firstDesc = firstObject.GetComponent<SurfaceComponent>().Description;
+		auto& secondDesc = secondObject.GetComponent<SurfaceComponent>().Description;
+		double pModifier = (firstDesc.Type == SurfaceType::RECTANGLEC0 || firstDesc.Type == SurfaceType::RECTANGLEC2) ? -1. : 1.;
+		double qModifier = (secondDesc.Type == SurfaceType::RECTANGLEC0 || secondDesc.Type == SurfaceType::RECTANGLEC2) ? -1. : 1.;
+		// UWAGA: pModifier nie jest w ogole uzywany, tak naprawde to w tej chwili normalsQ jest bez sensu, ale nic z tym nie bede robil!!!
+		// zakladamy ze podstawka zawsze jest powierzchnia P a model powierzchnia Q
+		// modifierow potrzebujemy bo dla cylindrow normalne sa na zewnatrz a dla prostokatow do wewnatrz
+
 		// =========== Config
 		const double loopCloseEpsilon = 0.01;
 		double precision = 1e-4;
@@ -138,9 +147,10 @@ namespace ar
 					auto normalQ = g2->Normal(params.z, params.w);
 					result.SurfaceNormalsP.push_back(normalP);
 					result.SurfaceNormalsQ.push_back(normalQ);
-					result.NormalsP.push_back(ar::CurveUtils::ComputeIntCurveNormal(
+
+					result.NormalsP.push_back(qModifier * ar::CurveUtils::ComputeIntCurveNormal(
 						normalP, normalQ, normalP));
-					result.NormalsQ.push_back(ar::CurveUtils::ComputeIntCurveNormal(
+					result.NormalsQ.push_back(qModifier * ar::CurveUtils::ComputeIntCurveNormal(
 						normalP, normalQ, normalQ));
 
 				}
@@ -158,9 +168,9 @@ namespace ar
 				auto normalQ = g2->Normal(result.Params[0].z, result.Params[0].w);
 				result.SurfaceNormalsP.push_back(normalP);
 				result.SurfaceNormalsQ.push_back(normalQ);
-				result.NormalsP.push_back(ar::CurveUtils::ComputeIntCurveNormal(
+				result.NormalsP.push_back(qModifier * ar::CurveUtils::ComputeIntCurveNormal(
 					normalP, normalQ, normalP));
-				result.NormalsQ.push_back(ar::CurveUtils::ComputeIntCurveNormal(
+				result.NormalsQ.push_back(qModifier * ar::CurveUtils::ComputeIntCurveNormal(
 					normalP, normalQ, normalQ));
 				return result;
 			}
@@ -185,9 +195,9 @@ namespace ar
 			auto normalQ = g2->Normal(params.z, params.w);
 			result.SurfaceNormalsP.push_back(normalP);
 			result.SurfaceNormalsQ.push_back(normalQ);
-			result.NormalsP.push_back(ar::CurveUtils::ComputeIntCurveNormal(
+			result.NormalsP.push_back(qModifier* ar::CurveUtils::ComputeIntCurveNormal(
 				normalP, normalQ, normalP));
-			result.NormalsQ.push_back(ar::CurveUtils::ComputeIntCurveNormal(
+			result.NormalsQ.push_back(qModifier* ar::CurveUtils::ComputeIntCurveNormal(
 				normalP, normalQ, normalQ));
 
 			prevParams = params;
@@ -236,9 +246,9 @@ namespace ar
 					auto normalQ = g2->Normal(params.z, params.w);
 					result.SurfaceNormalsP.push_back(normalP);
 					result.SurfaceNormalsQ.push_back(normalQ);
-					result.NormalsP.push_back(ar::CurveUtils::ComputeIntCurveNormal(
+					result.NormalsP.push_back(qModifier* ar::CurveUtils::ComputeIntCurveNormal(
 						normalP, normalQ, normalP));
-					result.NormalsQ.push_back(ar::CurveUtils::ComputeIntCurveNormal(
+					result.NormalsQ.push_back(qModifier* ar::CurveUtils::ComputeIntCurveNormal(
 						normalP, normalQ, normalQ));
 
 				}
@@ -259,9 +269,9 @@ namespace ar
 			auto normalQ = g2->Normal(params.z, params.w);
 			reverseSurfaceNormalsP.push_back(normalP);
 			reverseSurfaceNormalsQ.push_back(normalQ);
-			reverseNormalsP.push_back(ar::CurveUtils::ComputeIntCurveNormal(
+			reverseNormalsP.push_back(qModifier * ar::CurveUtils::ComputeIntCurveNormal(
 				normalP, normalQ, normalP));
-			reverseNormalsQ.push_back(ar::CurveUtils::ComputeIntCurveNormal(
+			reverseNormalsQ.push_back(qModifier * ar::CurveUtils::ComputeIntCurveNormal(
 				normalP, normalQ, normalQ));
 
 			prevParams = params;

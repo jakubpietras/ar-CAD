@@ -383,11 +383,12 @@ void EditorUI::RenderTrimmingWindow()
 void EditorUI::RenderMillingWindow()
 {
 	ImGui::Begin("Milling");
-
+	ImGui::SeparatorText("Setup");
+	
 	std::string pathsLabel = (m_State.GCodeRoot.empty()) ? "N/A" : m_State.GCodeRoot.string();
 	ImGui::TextWrapped(fmt::format("Paths directory: {}", pathsLabel).c_str());
 	ImGui::SameLine();
-	if (ImGui::Button("Load"))
+	if (ImGui::Button("Load##paths"))
 	{
 		auto path = OpenFolderDialog();
 		if (!path.empty())
@@ -398,7 +399,54 @@ void EditorUI::RenderMillingWindow()
 			AR_TRACE("Import canceled");
 	}
 
-	if (ImGui::CollapsingHeader("Heightmap"))
+	// BASE
+	std::string baseName = (m_State.BaseSurface.has_value()) ?
+		(m_State.BaseSurface->GetName() + " (ID: " + std::to_string(m_State.BaseSurface->GetID()) + ")")
+		: "N/A";
+	ImGui::TextWrapped(fmt::format("* Base: {}", baseName).c_str());
+	ImGui::SameLine();
+	{
+		ar::ScopedDisable disable(m_State.SelectedIntersectableSurfaces.empty());
+		if (ImGui::Button("Set##base"))
+		{
+			// sets the most recently selected intersectable surface
+			m_State.BaseSurface = m_State.SelectedIntersectableSurfaces.back();
+		}
+	}
+	// OUTLINE
+	ImGui::TextWrapped(fmt::format("* Loaded outline surfaces: {}", m_State.OutlineSurfaces.size()).c_str());
+	ImGui::SameLine();
+	{
+		ar::ScopedDisable disable(m_State.SelectedIntersectableSurfaces.empty());
+		if (ImGui::Button("Load##outline"))
+		{
+			m_State.OutlineSurfaces.clear();
+			m_State.OutlineSurfaces.insert(
+				m_State.OutlineSurfaces.end(),  
+				m_State.SelectedIntersectableSurfaces.begin(),
+				m_State.SelectedIntersectableSurfaces.end()
+			);
+		}
+	}
+
+	// MODEL
+	ImGui::TextWrapped(fmt::format("* Loaded model surfaces: {}", m_State.ModelSurfaces.size()).c_str());
+	ImGui::SameLine();
+	{
+		ar::ScopedDisable disable(m_State.SelectedIntersectableSurfaces.empty());
+		if (ImGui::Button("Load##model"))
+		{
+			m_State.ModelSurfaces.clear();
+			m_State.ModelSurfaces.insert(
+				m_State.ModelSurfaces.end(),
+				m_State.SelectedIntersectableSurfaces.begin(),
+				m_State.SelectedIntersectableSurfaces.end()
+			);
+		}
+	}
+
+	ImGui::SeparatorText("Path generation");
+	if (ImGui::CollapsingHeader("Heightmap (preview only)"))
 	{
 		static bool showImage = false;
 		const uint32_t minSurfaceSamples = 1, maxSurfaceSamples = 2000;
@@ -457,7 +505,30 @@ void EditorUI::RenderMillingWindow()
 		}
 		if (ImGui::TreeNode("Outline mill"))
 		{
-			if (ImGui::TreeNode("Normals check"))
+			if (ImGui::TreeNode("Outline curves"))
+			{
+				ImGui::TextWrapped("Generate all intersection curves between chosen BASE and all OUTLINE surfaces.");
+				if (ImGui::Button("Generate curves"))
+				{
+					m_State.ShouldComputeAllIntCurves = true;
+				}
+				ImGui::TextWrapped(fmt::format("Resize all {} curves (default: 0.5cm, away from the model)", m_State.OutlineCurves.size()).c_str());
+				{
+					ar::ScopedDisable disable(m_State.OutlineCurves.empty());
+					if (ImGui::Button("Resize curves"))
+					{
+						m_State.ShouldResizeOutlineCurves = true;
+					}
+				}
+				
+				ImGui::TreePop();
+			}
+			if (ImGui::TreeNode("Stitching"))
+			{
+				ImGui::TextWrapped("Stitch outline curves into one");
+
+			}
+			if (ImGui::TreeNode("Check normals (DEBUG)"))
 			{
 				if (m_State.SelectedIntersectionCurve)
 				{
@@ -501,6 +572,8 @@ void EditorUI::RenderMillingWindow()
 			{
 				m_State.ShouldGenerateOutlineMillPaths = true;
 			}
+
+
 			ImGui::TreePop();
 		}
 	}

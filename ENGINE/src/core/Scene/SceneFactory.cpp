@@ -396,8 +396,8 @@ namespace ar
 		auto g1 = Parametric::Create(firstSurface);
 		ic.ImageP = ar::IntersectUtils::CreateParameterImage(ic.Params, true, 512, 512,
 			g1->IsPeriodicU(), g1->IsPeriodicV());
-		ic.TrimTexP = ar::IntersectUtils::CreateTrimTex(ic.Params, true, 512, 512,
-			g1->IsPeriodicU(), g1->IsPeriodicV());
+		/*ic.TrimTexP = ar::IntersectUtils::CreateTrimTex(ic.Params, true, 512, 512,
+			g1->IsPeriodicU(), g1->IsPeriodicV());*/
 
 		if (secondSurface)
 		{
@@ -407,8 +407,8 @@ namespace ar
 			trimQ.IntersectionCurves.push_back(entity);
 			ic.ImageQ = ar::IntersectUtils::CreateParameterImage(ic.Params, false, 512, 512,
 				g2->IsPeriodicU(), g2->IsPeriodicV());
-			ic.TrimTexQ = ar::IntersectUtils::CreateTrimTex(ic.Params, false, 512, 512,
-				g2->IsPeriodicU(), g2->IsPeriodicV());
+			/*ic.TrimTexQ = ar::IntersectUtils::CreateTrimTex(ic.Params, false, 512, 512,
+				g2->IsPeriodicU(), g2->IsPeriodicV());*/
 		}
 		else
 		{

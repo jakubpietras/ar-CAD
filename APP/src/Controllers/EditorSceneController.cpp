@@ -204,6 +204,18 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 		state.ShouldGenerateBaseMillPaths = false;
 	}
 
+	if (state.ShouldComputeAllIntCurves)
+	{
+		AddAllIntCurves(state);
+		state.ShouldComputeAllIntCurves = false;
+	}
+
+	if (state.ShouldResizeOutlineCurves)
+	{
+		ResizeAllOutlineCurves(state);
+		state.ShouldResizeOutlineCurves = false;
+	}
+
 	// Validation
 	if (geometryValidation)
 		ValidateGeometry(state);
@@ -959,4 +971,53 @@ void EditorSceneController::RejectTempSurface()
 {
 	m_Scene->DestroyEntity(m_TempSurface);
 	m_TempSurface = ar::Entity(entt::null, nullptr);
+}
+
+void EditorSceneController::AddAllIntCurves(EditorState& state)
+{
+	if (!state.BaseSurface.has_value())
+		return;
+	if (state.OutlineSurfaces.empty())
+		return;
+
+	ar::ICData curve;
+	std::vector<ar::mat::Vec3> points, surfNormalsP, surfNormalsQ, normalsP, normalsQ;
+	std::vector<ar::mat::Vec4> params;
+
+	state.OutlineCurves.clear();
+
+	for (auto& surface : state.OutlineSurfaces)
+	{
+		curve = ar::Intersection::IntersectionCurve(*state.BaseSurface, surface, state.StepDistance, ar::mat::Vec3d(state.CursorPosition), state.ShouldUseCursorAssist);
+		points = ar::GeneralUtils::VecDoubleToFloat(curve.Points);
+		params = ar::GeneralUtils::VecDoubleToFloat(curve.Params);
+		surfNormalsP = ar::GeneralUtils::VecDoubleToFloat(curve.SurfaceNormalsP);
+		surfNormalsQ = ar::GeneralUtils::VecDoubleToFloat(curve.SurfaceNormalsQ);
+		normalsP = ar::GeneralUtils::VecDoubleToFloat(curve.NormalsP);
+		normalsQ = ar::GeneralUtils::VecDoubleToFloat(curve.NormalsQ);
+		if (!curve.Points.empty() && !curve.Params.empty())
+		{
+			auto ic = m_Factory.CreateIntersectionCurve(points, params, surfNormalsP, surfNormalsQ, normalsP, normalsQ, *state.BaseSurface, surface, std::nullopt, fmt::format("IC-{}-{}", state.BaseSurface->GetName(), surface.GetName()).c_str());
+			state.OutlineCurves.push_back(ic);
+		}
+		else
+		{
+			state.ShowErrorModal = true;
+			state.ErrorMessages.emplace_back(fmt::format("No intersection detected between {} and {}.", state.BaseSurface->GetName(), surface.GetName()));
+		}
+	}
+}
+
+void EditorSceneController::ResizeAllOutlineCurves(EditorState& state)
+{
+	for (auto& curve : state.OutlineCurves)
+	{
+		auto& intcurve = curve.GetComponent<ar::IntersectCurveComponent>();
+		auto& points = intcurve.Points;
+		for (int i = 0; i < points.size(); i++)
+		{
+			points[i] += ar::mat::Normalize(ar::mat::Vec3(intcurve.NormalsP[i].x, intcurve.NormalsP[i].y, 0.f)) * intcurve.ResizeLength;
+		}
+		intcurve.DirtyFlag = true;
+	}
 }

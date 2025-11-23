@@ -52,6 +52,11 @@ private:
 	void AcceptTempSurface(EditorState& state);
 	void RejectTempSurface();
 
+
+	// Intersections/milling
+	void AddAllIntCurves(EditorState& state);
+	void ResizeAllOutlineCurves(EditorState& state);
+
 	void AttachPointToCurves(ar::Entity point, std::vector<ar::Entity> curves);
 	
 	// Selection

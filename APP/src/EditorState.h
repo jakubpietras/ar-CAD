@@ -173,10 +173,18 @@ struct EditorState
 	bool ShouldGenerateBaseMillPaths = false;
 	bool ShouldGenerateOutlineMillPaths = false;
 
+	// ============================= General milling ==========================
+	std::optional<ar::Entity> BaseSurface = std::nullopt;	// only base surface
+	std::vector<ar::Entity> OutlineSurfaces{};				// only those intersecting the base
+	std::vector<ar::Entity> ModelSurfaces{};				// all surfaces without base
+
 	// ============================= Rough Milling =============================
 	std::filesystem::path GCodeRoot{};
 
 	// ============================= Base Milling =============================
 	bool ShowSelectedIntCurveNormals = false;
+	bool ShouldComputeAllIntCurves = false;
+	std::vector<ar::Entity> OutlineCurves{};
+	bool ShouldResizeOutlineCurves = false;
 
 };

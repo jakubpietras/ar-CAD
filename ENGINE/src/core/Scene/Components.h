@@ -207,7 +207,7 @@ namespace ar
 		bool ShouldResize = false;
 		bool ResizeOutside = true;
 		bool UseNormalsP = true;
-		float ResizeLength = 0.0f;
+		float ResizeLength = 0.5f;
 
 		bool DirtyFlag = false;
 	};
