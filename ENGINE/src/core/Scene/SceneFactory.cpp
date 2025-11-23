@@ -368,7 +368,7 @@ namespace ar
 	}
 
 	ar::Entity SceneFactory::CreateIntersectionCurve(std::vector<ar::mat::Vec3> points,
-		std::vector<ar::mat::Vec4> params, std::vector<ar::mat::Vec3> normalsP, std::vector<ar::mat::Vec3> normalsQ, ar::Entity firstSurface, std::optional<ar::Entity> secondSurface,
+		std::vector<ar::mat::Vec4> params, std::vector<ar::mat::Vec3> surfNormalsP, std::vector<ar::mat::Vec3> surfNormalsQ, std::vector<ar::mat::Vec3> normalsP, std::vector<ar::mat::Vec3> normalsQ, ar::Entity firstSurface, std::optional<ar::Entity> secondSurface,
 		std::optional<uint32_t> id, const std::string& name)
 	{
 		constexpr mat::Vec3 intersectLineColor = { 0.5f, 0.5f, 1.f };
@@ -385,6 +385,8 @@ namespace ar
 		auto& ic = entity.AddComponent<IntersectCurveComponent>();
 		ic.Points = points;
 		ic.Params = params;
+		ic.SurfaceNormalsP = surfNormalsP;
+		ic.SurfaceNormalsQ = surfNormalsQ;
 		ic.NormalsP = normalsP;
 		ic.NormalsQ = normalsQ;
 		ic.SurfaceP = firstSurface;

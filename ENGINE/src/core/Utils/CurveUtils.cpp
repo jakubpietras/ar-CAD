@@ -167,6 +167,23 @@ namespace ar
 		return { curveA, curveB };
 	}
 
+	std::vector<ar::mat::Vec3> CurveUtils::ComputeIntCurveNormals(std::vector<ar::mat::Vec3> surfaceNormalsP, std::vector<ar::mat::Vec3> surfaceNormalsQ)
+	{
+		std::vector<ar::mat::Vec3> normals{};
+		for (int i = 0; i < surfaceNormalsP.size(); i++)
+		{
+			ar::mat::Vec3 tangent = mat::Normalize(mat::Cross(surfaceNormalsP[i], surfaceNormalsQ[i]));
+			normals.push_back(mat::Normalize(mat::Cross(surfaceNormalsP[i], tangent)));
+		}
+		return normals;
+	}
+
+	ar::mat::Vec3d CurveUtils::ComputeIntCurveNormal(ar::mat::Vec3d surfaceNormalP, ar::mat::Vec3d surfaceNormalQ, ar::mat::Vec3d projSurfNormal)
+	{
+		ar::mat::Vec3d tangent = mat::Normalize(mat::Cross(surfaceNormalP, surfaceNormalQ));
+		return mat::Normalize(mat::Cross(tangent, projSurfNormal));
+	}
+
 	void CurveUtils::ConvertIntersectCurve(ar::Entity intersectCurve, ar::SceneFactory& factory)
 	{
 		auto& intcurve = intersectCurve.GetComponent<ar::IntersectCurveComponent>();
@@ -218,6 +235,57 @@ namespace ar
 		mesh.AdaptiveDrawing = true;
 		mesh.PrimitiveSize = 1.f;
 		mesh.DirtyFlag = true;
+	}
+
+	void CurveUtils::ResizeIntersectCurve(ar::Entity intersectCurve)
+	{
+		auto& intcurve = intersectCurve.GetComponent<ar::IntersectCurveComponent>();
+		auto& points = intcurve.Points;
+
+		for (int i = 0; i < points.size(); i++)
+		{
+			if (intcurve.UseNormalsP)
+			{
+				if (intcurve.ResizeOutside)
+				{
+					points[i] += mat::Normalize(ar::mat::Vec3(intcurve.NormalsP[i].x, intcurve.NormalsP[i].y, 0.f)) * intcurve.ResizeLength;
+				}
+				else
+					points[i] -= mat::Normalize(ar::mat::Vec3(intcurve.NormalsP[i].x, intcurve.NormalsP[i].y, 0.f)) * intcurve.ResizeLength;
+			}
+			else
+			{
+				if (intcurve.ResizeOutside)
+				{
+					points[i] += mat::Normalize(ar::mat::Vec3(intcurve.NormalsQ[i].x, intcurve.NormalsQ[i].y, 0.f)) * intcurve.ResizeLength;
+				}
+				else
+					points[i] -= mat::Normalize(ar::mat::Vec3(intcurve.NormalsQ[i].x, intcurve.NormalsQ[i].y, 0.f)) * intcurve.ResizeLength;
+			}
+			
+		}
+	}
+
+	std::vector<ar::mat::Vec3> CurveUtils::FlattenNormals(const std::vector<ar::mat::Vec3>& normals)
+	{
+		std::vector<ar::mat::Vec3> result;
+		result.reserve(normals.size());
+
+		const ar::mat::Vec3 up{ 0, 1, 0 };
+
+		for (auto& normal : normals)
+		{
+			ar::mat::Vec3 proj = normal - up * ar::mat::Dot(normal, up);
+
+			float len = ar::mat::Length(proj);
+			if (len < 1e-6f) {
+				proj = { 1, 0, 0 };
+			}
+
+			result.push_back(ar::mat::Normalize(proj));
+		}
+
+		return result;
 	}
 
 	std::vector<mat::Vec3> CurveUtils::FilterKnots(std::vector<mat::Vec3> knots)

@@ -8,8 +8,8 @@ namespace ar
 	{
 		std::vector<mat::Vec3d> Points;
 		std::vector<mat::Vec4d> Params;
-		std::vector<mat::Vec3d> NormalsA;
-		std::vector<mat::Vec3d> NormalsB;
+		std::vector<mat::Vec3d> SurfaceNormalsP, SurfaceNormalsQ;
+		std::vector<mat::Vec3d> NormalsP, NormalsQ;
 	};
 
 	class Intersection

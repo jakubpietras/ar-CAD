@@ -25,7 +25,7 @@ namespace ar
 		Entity CreateSurface(mat::Vec3 origin, SurfaceDesc desc, ar::Entity tempSurface);
 		Entity CreateGregoryPatch(ar::Hole holeToFill, std::optional<uint32_t> id, const std::string& name = std::string());
 		Entity CreateIntersectionCurve(std::vector<ar::mat::Vec3> points, std::vector<ar::mat::Vec4> params,
-			std::vector<ar::mat::Vec3> normalsP, std::vector<ar::mat::Vec3> normalsQ, ar::Entity firstSurface, std::optional<ar::Entity> secondSurface, std::optional<uint32_t> id, const std::string& name = std::string());
+			std::vector<ar::mat::Vec3> surfNormalsP, std::vector<ar::mat::Vec3> surfNormalsQ, std::vector<ar::mat::Vec3> normalsP, std::vector<ar::mat::Vec3> normalsQ, ar::Entity firstSurface, std::optional<ar::Entity> secondSurface, std::optional<uint32_t> id, const std::string& name = std::string());
 
 	private:
 		Ref<Scene> m_Scene;

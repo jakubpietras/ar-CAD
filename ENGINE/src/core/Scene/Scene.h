@@ -46,6 +46,7 @@ namespace ar
 		void UpdateMeshes();
 		void UpdateGregory();
 		void UpdateTori();
+		void UpdateIntersectionCurves();
 
 		friend class Entity;
 		friend class SceneHierarchyPanel;

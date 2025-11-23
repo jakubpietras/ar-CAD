@@ -61,6 +61,25 @@ void ar::ComponentInspector::InspectComponent(IntersectCurveComponent& intcurve)
 		intcurve.ConvertToSpline = true;
 	}
 
+	ImGui::SeparatorText("Resize");
+	PropertyInspector::InspectProperty("length", intcurve.ResizeLength, 0.0f, 10.0f);
+	ImGui::Checkbox("Outward", &intcurve.ResizeOutside);
+	if (ImGui::Button("Flatten normals"))
+	{
+		
+	}
+	if (ImGui::Button("Resize (P normals)"))
+	{
+		intcurve.UseNormalsP = true;
+		intcurve.ShouldResize = true;
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Resize (Q normals)"))
+	{
+		intcurve.UseNormalsP = false;
+		intcurve.ShouldResize = true;
+	}
+
 	ImGui::SeparatorText("Images");
 	if (ImGui::Button("Surface P"))
 	{

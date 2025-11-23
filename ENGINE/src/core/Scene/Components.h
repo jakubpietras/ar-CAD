@@ -194,6 +194,7 @@ namespace ar
 		std::vector<ar::mat::Vec3> Points;
 		std::vector<ar::mat::Vec4> Params;
 		std::vector<ar::mat::Vec3> NormalsP, NormalsQ;
+		std::vector<ar::mat::Vec3> SurfaceNormalsP, SurfaceNormalsQ;
 		ar::Ref<PaintSurface> ImageP, ImageQ;
 		ar::Ref<PaintSurface> TrimTexP, TrimTexQ;
 		ar::Entity SurfaceP;
@@ -201,6 +202,14 @@ namespace ar
 		bool ShowImageP = false, ShowImageQ = false;
 		bool ShowImage = false, ConvertToSpline = false;
 		size_t ConversionPointsCount = 0;
+
+		// ======= Expand/shrink
+		bool ShouldResize = false;
+		bool ResizeOutside = true;
+		bool UseNormalsP = true;
+		float ResizeLength = 0.0f;
+
+		bool DirtyFlag = false;
 	};
 
 #pragma endregion

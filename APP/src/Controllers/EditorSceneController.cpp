@@ -530,6 +530,12 @@ void EditorSceneController::ProcessIntCurveState(EditorState& state)
 			ar::CurveUtils::ConvertIntersectCurve(*state.SelectedIntersectionCurve, m_Factory);
 			state.SelectedIntersectionCurve = std::nullopt;
 		}
+		if (intcurve.ShouldResize)
+		{
+			ar::CurveUtils::ResizeIntersectCurve(*state.SelectedIntersectionCurve);
+			intcurve.DirtyFlag = true;
+			intcurve.ShouldResize = false;
+		}
 	}
 }
 
@@ -717,7 +723,7 @@ void EditorSceneController::ProcessAddIntersection(EditorState& state)
 {
 	auto& objs = state.SelectedIntersectableSurfaces;
 	ar::ICData curve;
-	std::vector<ar::mat::Vec3> points, normalsP, normalsQ; 
+	std::vector<ar::mat::Vec3> points, surfNormalsP, surfNormalsQ, normalsP, normalsQ; 
 	std::vector<ar::mat::Vec4> params;
 
 	if (objs.size() == 1)
@@ -725,12 +731,13 @@ void EditorSceneController::ProcessAddIntersection(EditorState& state)
 		curve = ar::Intersection::IntersectionCurve(objs[0], objs[0], state.StepDistance, ar::mat::Vec3d(state.CursorPosition), state.ShouldUseCursorAssist);
 		points = ar::GeneralUtils::VecDoubleToFloat(curve.Points);
 		params = ar::GeneralUtils::VecDoubleToFloat(curve.Params);
-		normalsP = ar::GeneralUtils::VecDoubleToFloat(curve.NormalsA);
-		normalsQ = ar::GeneralUtils::VecDoubleToFloat(curve.NormalsB);
+		surfNormalsP = ar::GeneralUtils::VecDoubleToFloat(curve.SurfaceNormalsP);
+		surfNormalsQ = ar::GeneralUtils::VecDoubleToFloat(curve.SurfaceNormalsQ);
+		normalsP = ar::GeneralUtils::VecDoubleToFloat(curve.NormalsP);
+		normalsQ = ar::GeneralUtils::VecDoubleToFloat(curve.NormalsQ);
 		if (!curve.Points.empty() && !curve.Params.empty())
 		{
-			m_Factory.CreateIntersectionCurve(points, params, normalsP, normalsQ, objs[0], std::nullopt,
-				std::nullopt, "Self-intersection Curve");
+			m_Factory.CreateIntersectionCurve(points, params, surfNormalsP, surfNormalsQ, normalsP, normalsQ, objs[0], std::nullopt, std::nullopt, "Self-intersection Curve");
 		}
 		else
 		{
@@ -744,12 +751,13 @@ void EditorSceneController::ProcessAddIntersection(EditorState& state)
 		curve = ar::Intersection::IntersectionCurve(objs[0], objs[1], state.StepDistance, ar::mat::Vec3d(state.CursorPosition), state.ShouldUseCursorAssist);
 		points = ar::GeneralUtils::VecDoubleToFloat(curve.Points);
 		params = ar::GeneralUtils::VecDoubleToFloat(curve.Params);
-		normalsP = ar::GeneralUtils::VecDoubleToFloat(curve.NormalsA);
-		normalsQ = ar::GeneralUtils::VecDoubleToFloat(curve.NormalsB);
+		surfNormalsP = ar::GeneralUtils::VecDoubleToFloat(curve.SurfaceNormalsP);
+		surfNormalsQ = ar::GeneralUtils::VecDoubleToFloat(curve.SurfaceNormalsQ);
+		normalsP = ar::GeneralUtils::VecDoubleToFloat(curve.NormalsP);
+		normalsQ = ar::GeneralUtils::VecDoubleToFloat(curve.NormalsQ);
 		if (!curve.Points.empty() && !curve.Params.empty())
 		{
-			auto ic = m_Factory.CreateIntersectionCurve(points, params, normalsP, normalsQ, objs[0], objs[1],
-				std::nullopt, "Intersection Curve");
+			auto ic = m_Factory.CreateIntersectionCurve(points, params, surfNormalsP, surfNormalsQ, normalsP, normalsQ, objs[0], objs[1], std::nullopt, "Intersection Curve");
 		}
 		else
 		{

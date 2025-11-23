@@ -72,6 +72,7 @@ namespace ar
 		UpdateMeshes();
 		UpdateGregory();
 		UpdateTori();
+		UpdateIntersectionCurves();
 	}
 
 	void Scene::UpdateTransform(TransformComponent& tc, ar::mat::Vec3 pivot)
@@ -242,6 +243,26 @@ namespace ar
 			for (auto& ib : indexBuffers)
 				mc.VertexArray->AddIndexBuffer(ib);
 			toc.DirtyFlag = false;
+		}
+	}
+
+	void Scene::UpdateIntersectionCurves()
+	{
+		constexpr mat::Vec3 intersectLineColor = { 0.5f, 0.5f, 1.f };
+		auto intView = m_Registry.view<IntersectCurveComponent, MeshComponent>();
+		std::vector<VertexPositionIDColor> pointVerts;
+		for (auto [entity, ic, mc] : intView.each())
+		{
+			if (!ic.DirtyFlag)
+				continue;
+
+			auto e = ar::Entity(entity, this);
+			for (auto& point : ic.Points)
+				pointVerts.push_back({ point, e.GetID(), intersectLineColor });
+			mc.VertexArray->ClearVertexBuffers();
+			mc.VertexArray->AddVertexBuffer(Ref<VertexBuffer>(VertexBuffer::Create(pointVerts)));
+			pointVerts.clear();
+			ic.DirtyFlag = false;
 		}
 	}
 

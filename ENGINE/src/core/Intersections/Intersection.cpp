@@ -10,6 +10,7 @@
 #include "core/Utils/Parametric.h"
 #include "algorithm/conjugateGradient.h"
 #include "algorithm/newton.h"
+#include "core/Utils/CurveUtils.h"
 
 namespace ar
 {
@@ -133,8 +134,15 @@ namespace ar
 				{
 					result.Points.push_back(candidate);
 					result.Params.push_back(params);
-					result.NormalsA.push_back(g1->Normal(params.x, params.y));
-					result.NormalsB.push_back(g2->Normal(params.z, params.w));
+					auto normalP = g1->Normal(params.x, params.y);
+					auto normalQ = g2->Normal(params.z, params.w);
+					result.SurfaceNormalsP.push_back(normalP);
+					result.SurfaceNormalsQ.push_back(normalQ);
+					result.NormalsP.push_back(ar::CurveUtils::ComputeIntCurveNormal(
+						normalP, normalQ, normalP));
+					result.NormalsQ.push_back(ar::CurveUtils::ComputeIntCurveNormal(
+						normalP, normalQ, normalQ));
+
 				}
 				break;
 			}
@@ -146,8 +154,14 @@ namespace ar
 			{
 				result.Points.push_back(result.Points[0]);
 				result.Params.push_back(result.Params[0]);
-				result.NormalsA.push_back(g1->Normal(result.Params[0].x, result.Params[0].y));
-				result.NormalsB.push_back(g2->Normal(result.Params[0].z, result.Params[0].w));
+				auto normalP = g1->Normal(result.Params[0].x, result.Params[0].y);
+				auto normalQ = g2->Normal(result.Params[0].z, result.Params[0].w);
+				result.SurfaceNormalsP.push_back(normalP);
+				result.SurfaceNormalsQ.push_back(normalQ);
+				result.NormalsP.push_back(ar::CurveUtils::ComputeIntCurveNormal(
+					normalP, normalQ, normalP));
+				result.NormalsQ.push_back(ar::CurveUtils::ComputeIntCurveNormal(
+					normalP, normalQ, normalQ));
 				return result;
 			}
 
@@ -167,8 +181,14 @@ namespace ar
 
 			result.Points.push_back(candidate);
 			result.Params.push_back(params);
-			result.NormalsA.push_back(g1->Normal(params.x, params.y));
-			result.NormalsB.push_back(g2->Normal(params.z, params.w));
+			auto normalP = g1->Normal(params.x, params.y);
+			auto normalQ = g2->Normal(params.z, params.w);
+			result.SurfaceNormalsP.push_back(normalP);
+			result.SurfaceNormalsQ.push_back(normalQ);
+			result.NormalsP.push_back(ar::CurveUtils::ComputeIntCurveNormal(
+				normalP, normalQ, normalP));
+			result.NormalsQ.push_back(ar::CurveUtils::ComputeIntCurveNormal(
+				normalP, normalQ, normalQ));
 
 			prevParams = params;
 			startPoint = candidate;
@@ -176,7 +196,7 @@ namespace ar
 
 		std::vector<mat::Vec3d> reverseCurve;
 		std::vector<mat::Vec4d> reverseParameters;
-		std::vector<mat::Vec3d> reverseNormalsA, reverseNormalsB;
+		std::vector<mat::Vec3d> reverseSurfaceNormalsP, reverseSurfaceNormalsQ, reverseNormalsP, reverseNormalsQ;
 
 		params = prevParams = startParameter;
 		p = g1->Evaluate(params.x, params.y);
@@ -212,8 +232,14 @@ namespace ar
 				{
 					result.Points.push_back(candidate);
 					result.Params.push_back(params);
-					result.NormalsA.push_back(g1->Normal(params.x, params.y));
-					result.NormalsB.push_back(g2->Normal(params.z, params.w));
+					auto normalP = g1->Normal(params.x, params.y);
+					auto normalQ = g2->Normal(params.z, params.w);
+					result.SurfaceNormalsP.push_back(normalP);
+					result.SurfaceNormalsQ.push_back(normalQ);
+					result.NormalsP.push_back(ar::CurveUtils::ComputeIntCurveNormal(
+						normalP, normalQ, normalP));
+					result.NormalsQ.push_back(ar::CurveUtils::ComputeIntCurveNormal(
+						normalP, normalQ, normalQ));
 
 				}
 				break;
@@ -228,8 +254,15 @@ namespace ar
 
 			reverseCurve.push_back(candidate);
 			reverseParameters.push_back(params);
-			reverseNormalsA.push_back(g1->Normal(params.x, params.y));
-			reverseNormalsB.push_back(g2->Normal(params.z, params.w));
+
+			auto normalP = g1->Normal(params.x, params.y);
+			auto normalQ = g2->Normal(params.z, params.w);
+			reverseSurfaceNormalsP.push_back(normalP);
+			reverseSurfaceNormalsQ.push_back(normalQ);
+			reverseNormalsP.push_back(ar::CurveUtils::ComputeIntCurveNormal(
+				normalP, normalQ, normalP));
+			reverseNormalsQ.push_back(ar::CurveUtils::ComputeIntCurveNormal(
+				normalP, normalQ, normalQ));
 
 			prevParams = params;
 			startPoint = candidate;
@@ -237,8 +270,10 @@ namespace ar
 
 		result.Points.insert(result.Points.begin(), reverseCurve.rbegin(), reverseCurve.rend());
 		result.Params.insert(result.Params.begin(), reverseParameters.rbegin(), reverseParameters.rend());
-		result.NormalsA.insert(result.NormalsA.begin(), reverseNormalsA.rbegin(), reverseNormalsA.rend());
-		result.NormalsB.insert(result.NormalsB.begin(), reverseNormalsB.rbegin(), reverseNormalsB.rend());
+		result.SurfaceNormalsP.insert(result.SurfaceNormalsP.begin(), reverseSurfaceNormalsP.rbegin(), reverseSurfaceNormalsP.rend());
+		result.SurfaceNormalsQ.insert(result.SurfaceNormalsQ.begin(), reverseSurfaceNormalsQ.rbegin(), reverseSurfaceNormalsQ.rend());
+		result.NormalsP.insert(result.NormalsP.begin(), reverseNormalsP.rbegin(), reverseNormalsP.rend());
+		result.NormalsQ.insert(result.NormalsQ.begin(), reverseNormalsQ.rbegin(), reverseNormalsQ.rend());
 
 		return result;
 	}
