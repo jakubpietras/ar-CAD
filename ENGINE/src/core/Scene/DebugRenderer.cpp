@@ -38,9 +38,7 @@ namespace ar
 
 		if (!m_Points.empty())
 		{
-			ar::RenderCommand::SetPointSize(4.f);
 			ar::Renderer::Submit(Primitive::Point, shader, m_PointsVA);
-			ar::RenderCommand::SetPointSize(1.f);
 		}
 		if (!m_Lines.empty())
 			ar::Renderer::Submit(Primitive::Line, shader, m_LinesVA);

@@ -375,6 +375,118 @@ namespace ar
 		}
 	}
 
+	ar::mat::Vec4i Intersection::IntersectCurves(ar::Entity first, ar::Entity second)
+	{
+		auto& p = first.GetComponent<IntersectCurveComponent>();
+		auto& q = second.GetComponent<IntersectCurveComponent>();
+
+		int p1 = 0, q1 = 0, p2 = 0, q2 = 0;
+		float minDist = FLT_MAX;
+
+		// phase 1: find closest points
+		for (int i = 0; i < p.Points.size(); i++)
+		{
+			for (int j = 0; j < q.Points.size(); j++)
+			{
+				auto dist = ar::mat::LengthSquared(p.Points[i] - q.Points[j]);
+				if (dist < minDist)
+				{
+					p1 = i;
+					q1 = j;
+					minDist = dist;
+				}
+			}
+		}
+
+		// phase 2: find the other point (that is not close to the first)
+		const float MIN_SEPARATION = 0.1f;
+		const float minSepSq = MIN_SEPARATION * MIN_SEPARATION;
+		minDist = FLT_MAX;
+		for (int i = 0; i < p.Points.size(); i++)
+		{
+			float distFromFirst = ar::mat::LengthSquared(p.Points[i] - p.Points[p1]);
+			if (distFromFirst < minSepSq)
+				continue;
+			for (int j = 0; j < q.Points.size(); j++)
+			{
+				auto dist = ar::mat::LengthSquared(p.Points[i] - q.Points[j]);
+				if (dist < minDist)
+				{
+					p2 = i;
+					q2 = j;
+					minDist = dist;
+				}
+			}
+		}
+		return { p1, q1, p2, q2 };
+	}
+
+	void Intersection::StitchIntersectionCurves(ar::Entity first, ar::Entity second)
+	{
+		auto& p = first.GetComponent<IntersectCurveComponent>();
+		auto& q = second.GetComponent<IntersectCurveComponent>();
+
+		std::vector<ar::mat::Vec3> newPoints;
+
+		// we assume that first curve is always a closed curve
+		// step 1: find intersections
+		auto intersection = IntersectCurves(first, second);
+		int i1 = intersection.x, i2 = intersection.z, j1 = intersection.y, j2 = intersection.w;
+
+		// step 2: determine the start point on the first curve
+		int mainFirstIndex = 0, mainLastIndex = 0, secFirstIndex = 0, secLastIndex = 0;
+		if (i1 < j1)
+		{
+			mainFirstIndex = i1;
+			mainLastIndex = j1;
+			secFirstIndex = i2;
+			secLastIndex = j2;
+		}
+		else
+		{
+			mainFirstIndex = j1;
+			mainLastIndex = i1;
+			secFirstIndex = j2;
+			secLastIndex = i2;
+		}
+		newPoints.push_back(p.Points[mainFirstIndex]);
+
+		// step 3: compute forward and backward vectors
+		ar::mat::Vec3 forward = q.Points[(secFirstIndex + 1) % q.Points.size()] - q.Points[secFirstIndex];
+		ar::mat::Vec3 backward = q.Points[(secFirstIndex - 1) % q.Points.size()] - q.Points[secFirstIndex];
+		auto normal = p.NormalsP[mainFirstIndex];
+
+		int k = secFirstIndex, i = mainLastIndex;
+		if (ar::mat::Dot(normal, forward) > 0)
+		{
+			// move forward
+			while (k != secLastIndex)
+			{
+				newPoints.push_back(q.Points[k]);
+				k = (k + 1) % q.Points.size();
+			}
+		}
+		else
+		{
+			// move backward
+			while (k != secLastIndex)
+			{
+				newPoints.push_back(q.Points[k]);
+				k = (k - 1 + q.Points.size()) % q.Points.size();
+			}
+		}
+
+		// step 4: add points until start is reached
+		while (i != mainFirstIndex)
+		{
+			newPoints.push_back(p.Points[i]);
+			i = (i + 1) % p.Points.size();
+		}
+
+		// step 5: modify first curve (base)
+		p.Points = newPoints;
+	}
+
 	bool Intersection::Clamp(Ref<mat::IParametricSurface> first, Ref<mat::IParametricSurface> second, mat::Vec4d& params)
 	{
 		auto c1 = first->Clamp(params.x, params.y);

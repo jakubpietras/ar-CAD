@@ -185,6 +185,7 @@ struct EditorState
 	bool ShowSelectedIntCurveNormals = false;
 	bool ShouldComputeAllIntCurves = false;
 	std::vector<ar::Entity> OutlineCurves{};
+	std::optional<ar::Entity> FirstOutline = std::nullopt;
 	bool ShouldResizeOutlineCurves = false;
 
 };

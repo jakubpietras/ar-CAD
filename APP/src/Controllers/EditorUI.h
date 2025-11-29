@@ -2,6 +2,7 @@
 #include <imgui.h>
 #include "Panels/SceneHierarchyPanel.h"
 #include "core/Drawing/PaintSurface.h"
+#include "core/Intersections/Intersection.h"
 
 class EditorUI
 {

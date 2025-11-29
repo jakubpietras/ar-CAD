@@ -526,7 +526,40 @@ void EditorUI::RenderMillingWindow()
 			if (ImGui::TreeNode("Stitching"))
 			{
 				ImGui::TextWrapped("Stitch outline curves into one");
+				std::string outlineName = (m_State.FirstOutline.has_value()) ? m_State.FirstOutline->GetName() : "N/A";
+				ImGui::TextWrapped(fmt::format("Base outline: {}", outlineName).c_str());
+				ImGui::SameLine();
+				{
+					ar::ScopedDisable disable(m_State.SelectedIntersectionCurves.empty());
+					if (ImGui::Button("Set"))
+					{
+						m_State.FirstOutline = m_State.SelectedIntersectionCurves.back();
+					}
+				}
+				ImGui::TreePop();
+			}
+			if (ImGui::TreeNode("Check intersections (DEBUG)"))
+			{
+				if (ImGui::Button("Intersect intersection curves"))
+				{
+					if (m_State.SelectedIntersectionCurves.size() == 2)
+					{
+						auto idxs = ar::Intersection::IntersectCurves(m_State.SelectedIntersectionCurves[0], m_State.SelectedIntersectionCurves[1]);
+						auto& p = m_State.SelectedIntersectionCurves.front().GetComponent<ar::IntersectCurveComponent>();
+						ar::DebugRenderer::AddPoint(p.Points[idxs.x], {1, 0 ,0});
+						ar::DebugRenderer::AddPoint(p.Points[idxs.z], { 1, 0 ,0 });
+					}
+				}
 
+				ImGui::TreePop();
+			}
+			if (ImGui::TreeNode("Check stitching"))
+			{
+				if (m_State.SelectedIntersectionCurves.size() == 2)
+				{
+					ar::Intersection::StitchIntersectionCurves(m_State.SelectedIntersectionCurves[0], m_State.SelectedIntersectionCurves[1]);
+				}
+				ImGui::TreePop();
 			}
 			if (ImGui::TreeNode("Check normals (DEBUG)"))
 			{

@@ -640,6 +640,7 @@ namespace ar
 		};
 		using Vec4f = Vec4T<float>;
 		using Vec4d = Vec4T<double>;
+		using Vec4i = Vec4T<int>;
 		using Vec4 = Vec4f;
 
 		template <typename T>
