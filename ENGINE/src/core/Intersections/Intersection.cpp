@@ -426,65 +426,76 @@ namespace ar
 		auto& p = first.GetComponent<IntersectCurveComponent>();
 		auto& q = second.GetComponent<IntersectCurveComponent>();
 
-		std::vector<ar::mat::Vec3> newPoints;
+		std::vector<ar::mat::Vec3> newPoints, newNormals;
 
-		// we assume that first curve is always a closed curve
-		// step 1: find intersections
 		auto intersection = IntersectCurves(first, second);
-		int i1 = intersection.x, i2 = intersection.z, j1 = intersection.y, j2 = intersection.w;
+		int i1 = intersection.x; // first intersection's index in P
+		int j1 = intersection.y; // first intersection's index in Q
+		int i2 = intersection.z; // second intersection's index in P
+		int j2 = intersection.w; // second intersection's index in Q
 
-		// step 2: determine the start point on the first curve
-		int mainFirstIndex = 0, mainLastIndex = 0, secFirstIndex = 0, secLastIndex = 0;
-		if (i1 < j1)
+		int pStartIndex, pEndIndex;
+		int qStartIndex, qEndIndex;
+
+		if (i1 < i2)
 		{
-			mainFirstIndex = i1;
-			mainLastIndex = j1;
-			secFirstIndex = i2;
-			secLastIndex = j2;
+			// first intersection is the start for both
+			pStartIndex = i1; 
+			pEndIndex = i2;
+			qStartIndex = j1;
+			qEndIndex = j2;
 		}
 		else
 		{
-			mainFirstIndex = j1;
-			mainLastIndex = i1;
-			secFirstIndex = j2;
-			secLastIndex = i2;
+			// second intersection is the start for both
+			pStartIndex = i2;
+			pEndIndex = i1;
+			qStartIndex = j2;
+			qEndIndex = j1;
 		}
-		newPoints.push_back(p.Points[mainFirstIndex]);
+
+		newPoints.push_back(p.Points[pStartIndex]);
+		newNormals.push_back(p.NormalsP[pStartIndex]);
 
 		// step 3: compute forward and backward vectors
-		ar::mat::Vec3 forward = q.Points[(secFirstIndex + 1) % q.Points.size()] - q.Points[secFirstIndex];
-		ar::mat::Vec3 backward = q.Points[(secFirstIndex - 1) % q.Points.size()] - q.Points[secFirstIndex];
-		auto normal = p.NormalsP[mainFirstIndex];
+		ar::mat::Vec3 forward = q.Points[(qStartIndex + 1) % q.Points.size()] - q.Points[qStartIndex];
+		ar::mat::Vec3 backward = q.Points[(qStartIndex - 1) % q.Points.size()] - q.Points[qStartIndex];
+		auto normal = p.NormalsP[pStartIndex];
 
-		int k = secFirstIndex, i = mainLastIndex;
+		int k = qStartIndex, i = pEndIndex;
 		if (ar::mat::Dot(normal, forward) > 0)
 		{
 			// move forward
-			while (k != secLastIndex)
+			while (k != qEndIndex)
 			{
 				newPoints.push_back(q.Points[k]);
+				newNormals.push_back(q.NormalsP[k]);
 				k = (k + 1) % q.Points.size();
 			}
 		}
 		else
 		{
 			// move backward
-			while (k != secLastIndex)
+			while (k != qEndIndex)
 			{
 				newPoints.push_back(q.Points[k]);
+				newNormals.push_back(q.NormalsP[k]);
 				k = (k - 1 + q.Points.size()) % q.Points.size();
 			}
 		}
 
 		// step 4: add points until start is reached
-		while (i != mainFirstIndex)
+		while (i != pStartIndex)
 		{
 			newPoints.push_back(p.Points[i]);
+			newNormals.push_back(p.NormalsP[i]);
 			i = (i + 1) % p.Points.size();
 		}
 
 		// step 5: modify first curve (base)
 		p.Points = newPoints;
+		p.NormalsP = newNormals;
+		p.DirtyFlag = true;
 	}
 
 	bool Intersection::Clamp(Ref<mat::IParametricSurface> first, Ref<mat::IParametricSurface> second, mat::Vec4d& params)

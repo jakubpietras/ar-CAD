@@ -555,9 +555,12 @@ void EditorUI::RenderMillingWindow()
 			}
 			if (ImGui::TreeNode("Check stitching"))
 			{
-				if (m_State.SelectedIntersectionCurves.size() == 2)
+				if (ImGui::Button("Stitch"))
 				{
-					ar::Intersection::StitchIntersectionCurves(m_State.SelectedIntersectionCurves[0], m_State.SelectedIntersectionCurves[1]);
+					if (m_State.SelectedIntersectionCurves.size() == 2)
+					{
+						ar::Intersection::StitchIntersectionCurves(m_State.SelectedIntersectionCurves[0], m_State.SelectedIntersectionCurves[1]);
+					}
 				}
 				ImGui::TreePop();
 			}
