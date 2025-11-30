@@ -56,6 +56,7 @@ private:
 	// Intersections/milling
 	void AddAllIntCurves(EditorState& state);
 	void ResizeAllOutlineCurves(EditorState& state);
+	void StitchOutlineCurves(EditorState& state);
 
 	void AttachPointToCurves(ar::Entity point, std::vector<ar::Entity> curves);
 	

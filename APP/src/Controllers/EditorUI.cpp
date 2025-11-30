@@ -535,10 +535,14 @@ void EditorUI::RenderMillingWindow()
 					{
 						m_State.FirstOutline = m_State.SelectedIntersectionCurves.back();
 					}
+					if (ImGui::Button("Stitch outline curves"))
+					{
+						m_State.ShouldStitchOutlineCurves = true;
+					}
 				}
 				ImGui::TreePop();
 			}
-			if (ImGui::TreeNode("Check intersections (DEBUG)"))
+			if (ImGui::TreeNode("[DEBUG] Check intersections"))
 			{
 				if (ImGui::Button("Intersect intersection curves"))
 				{
@@ -553,7 +557,7 @@ void EditorUI::RenderMillingWindow()
 
 				ImGui::TreePop();
 			}
-			if (ImGui::TreeNode("Check stitching"))
+			if (ImGui::TreeNode("[DEBUG] Check stitching"))
 			{
 				if (ImGui::Button("Stitch"))
 				{
@@ -564,7 +568,7 @@ void EditorUI::RenderMillingWindow()
 				}
 				ImGui::TreePop();
 			}
-			if (ImGui::TreeNode("Check normals (DEBUG)"))
+			if (ImGui::TreeNode("[DEBUG] Check normals"))
 			{
 				if (m_State.SelectedIntersectionCurve)
 				{

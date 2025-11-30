@@ -187,5 +187,6 @@ struct EditorState
 	std::vector<ar::Entity> OutlineCurves{};
 	std::optional<ar::Entity> FirstOutline = std::nullopt;
 	bool ShouldResizeOutlineCurves = false;
+	bool ShouldStitchOutlineCurves = false;
 
 };

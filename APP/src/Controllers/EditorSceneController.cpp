@@ -216,6 +216,12 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 		state.ShouldResizeOutlineCurves = false;
 	}
 
+	if (state.ShouldStitchOutlineCurves)
+	{
+		StitchOutlineCurves(state);
+		state.ShouldStitchOutlineCurves = false;
+	}
+
 	// Validation
 	if (geometryValidation)
 		ValidateGeometry(state);
@@ -1019,5 +1025,20 @@ void EditorSceneController::ResizeAllOutlineCurves(EditorState& state)
 			points[i] += ar::mat::Normalize(ar::mat::Vec3(intcurve.NormalsP[i].x, intcurve.NormalsP[i].y, 0.f)) * intcurve.ResizeLength;
 		}
 		intcurve.DirtyFlag = true;
+	}
+}
+
+void EditorSceneController::StitchOutlineCurves(EditorState& state)
+{
+	if (!state.FirstOutline.has_value())
+	{
+		return;
+	}
+	for (auto& curve : state.SelectedIntersectionCurves)
+	{
+		if (curve == *state.FirstOutline)
+			continue;
+		ar::Intersection::StitchIntersectionCurves(*state.FirstOutline, curve);
+		curve.Hide();
 	}
 }
