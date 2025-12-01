@@ -542,6 +542,34 @@ void EditorUI::RenderMillingWindow()
 				}
 				ImGui::TreePop();
 			}
+			if (ImGui::TreeNode("Outline path generation"))
+			{
+				ImGui::Text(fmt::format("Interpolated outline curve: {}", (m_State.InterpolatedOutline.has_value()) ? m_State.InterpolatedOutline->GetName() : "N/A").c_str());
+				ImGui::SameLine();
+				{
+					ar::ScopedDisable disable(m_State.SelectedCurves.empty());
+					if (ImGui::Button("Set interpolated outline curve"))
+					{
+						m_State.InterpolatedOutline = m_State.SelectedCurves.back();
+					}
+				}
+
+				{
+					ar::ScopedDisable disable(!m_State.InterpolatedOutline.has_value());
+					ImGui::Text(fmt::format("Start point: {}", (m_State.OutlineStartPoint.has_value()) ? std::to_string(m_State.OutlineStartPoint->GetID()) : "N/A").c_str());
+					ImGui::SameLine();
+					if (ImGui::Button("Set point"))
+					{
+						m_State.OutlineStartPoint = m_State.SelectedPoints.back();
+					}
+					ImGui::DragFloat3("Outline offset dir", &m_State.OutlineStartOffset.x, 0.1f, -1.0, 1.0);
+					if (ImGui::Button("Generate paths"))
+					{
+						m_State.ShouldGenerateOutlineMillPaths = true;
+					}
+				}
+				ImGui::TreePop();
+			}
 			if (ImGui::TreeNode("[DEBUG] Check intersections"))
 			{
 				if (ImGui::Button("Intersect intersection curves"))

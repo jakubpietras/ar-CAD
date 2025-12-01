@@ -153,7 +153,7 @@ namespace ar
 	ar::ToolPath PathGenerator::GenerateOutlineMill(MillingConfig config, ar::Entity outline, ar::Entity startPoint, ar::mat::Vec3 offsetDir)
 	{
 		ToolPath path(config.StartPoint, config.Type);
-		const float offsetLength = 3.0f;
+		const float limit = 8.2f;
 		
 		// 0. get curve points
 		auto& curve = outline.GetComponent<ControlPointsComponent>();
@@ -171,7 +171,7 @@ namespace ar
 		}
 
 		// 1. move the tool away from the center and down
-		auto offsetPoint = start + offsetDir * offsetLength;
+		auto offsetPoint = start + offsetDir * limit;
 		path.MoveTo({ offsetPoint.x, offsetPoint.y, config.StartPoint.z});
 		path.MoveBy({ 0.f, 0.f, -(config.StartPoint.z - m_BaseMargin) });
 

@@ -204,6 +204,18 @@ void EditorSceneController::ProcessStateChanges(EditorState& state)
 		state.ShouldGenerateBaseMillPaths = false;
 	}
 
+	if (state.ShouldGenerateOutlineMillPaths)
+	{
+		if (state.InterpolatedOutline.has_value())
+		{
+			ar::PathGenerator::MillingConfig config;
+			config.Type = ar::ToolType::F10;
+			auto path = ar::PathGenerator::GenerateOutlineMill(config, *state.InterpolatedOutline, *state.OutlineStartPoint, state.OutlineStartOffset);
+			path.ConvertToGCode(3, state.GCodeRoot);
+		}
+		state.ShouldGenerateOutlineMillPaths = false;
+	}
+
 	if (state.ShouldComputeAllIntCurves)
 	{
 		AddAllIntCurves(state);

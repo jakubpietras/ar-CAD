@@ -184,9 +184,16 @@ struct EditorState
 	// ============================= Base Milling =============================
 	bool ShowSelectedIntCurveNormals = false;
 	bool ShouldComputeAllIntCurves = false;
+
+	// ============================= Outline Milling =============================
 	std::vector<ar::Entity> OutlineCurves{};
 	std::optional<ar::Entity> FirstOutline = std::nullopt;
+	std::optional<ar::Entity> InterpolatedOutline = std::nullopt;
+	std::optional<ar::Entity> OutlineStartPoint = std::nullopt;
+	ar::mat::Vec3 OutlineStartOffset{};
 	bool ShouldResizeOutlineCurves = false;
 	bool ShouldStitchOutlineCurves = false;
+
+
 
 };

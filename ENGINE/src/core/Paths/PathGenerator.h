@@ -23,6 +23,7 @@ namespace ar
 		};
 		static ToolPath GenerateFaceMill(MillingConfig config, std::vector<ar::Entity> objects);
 		static ToolPath GenerateBaseMill(MillingConfig config, std::vector<ar::Entity> objects);
+		static ToolPath GenerateOutlineMill(MillingConfig config, ar::Entity outline, ar::Entity startPoint, ar::mat::Vec3 offsetDir);
 
 	private:
 		static const float m_BaseMargin;
